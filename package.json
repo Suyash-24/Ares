@@ -1,0 +1,21 @@
+{
+	"$schema": "./schemas/package-simple.schema.json",
+	"name": "kira",
+	"version": "0.1.0",
+	"description": "Kira Discord bot built with discord.js v14",
+	"type": "module",
+	"main": "index.js",
+	"scripts": {
+		"start": "node index.js"
+	},
+	"engines": {
+		"node": ">=18.17.0"
+	},
+	"dependencies": {
+		"discord.js": "^14.15.3",
+		"dotenv": "^16.4.5",
+		"shoukaku": "^4.2.0",
+		"denque": "^2.1.0",
+		"archiver": "^5.3.1"
+	}
+}

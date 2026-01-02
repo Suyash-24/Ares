@@ -1,0 +1,25 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Simple package.json schema for Kira bot",
+	"type": "object",
+	"properties": {
+		"name": { "type": "string" },
+		"version": { "type": "string" },
+		"description": { "type": "string" },
+		"type": { "type": "string" },
+		"main": { "type": "string" },
+		"scripts": {
+			"type": "object",
+			"additionalProperties": { "type": "string" }
+		},
+		"engines": {
+			"type": "object",
+			"additionalProperties": { "type": "string" }
+		},
+		"dependencies": {
+			"type": "object",
+			"additionalProperties": { "type": "string" }
+		}
+	},
+	"additionalProperties": true
+}
