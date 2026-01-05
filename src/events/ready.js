@@ -1,8 +1,9 @@
-import { Events, PermissionFlagsBits } from 'discord.js';
+import { AuditLogEvent, Events, PermissionFlagsBits } from 'discord.js';
 import { initializeTemporaryRoleManager } from '../utils/temporaryRoleManager.js';
 import { initializeSlowmodeManager } from '../utils/slowmodeManager.js';
 import { buildWelcomeEmbed, buildWelcomeButtons, replacePlaceholders } from '../commands/prefix/Welcome/welcome.js';
 import { buildGoodbyeEmbed, buildGoodbyeButtons, replacePlaceholders as replaceGoodbyePlaceholders } from '../commands/prefix/Welcome/goodbye.js';
+import { ensureLevelingConfig } from '../utils/leveling.js';
 
 export default function registerReadyEvent(discordClient, config) {
 	discordClient.once(Events.ClientReady, async (readyClient) => {
@@ -150,6 +151,7 @@ export default function registerReadyEvent(discordClient, config) {
 				const db = readyClient.db;
 				if (!db) return;
 				const guildData = await db.findOne({ guildId: guild.id }) || {};
+				const leveling = await ensureLevelingConfig(db, guild.id);
 				
 				// Multi-channel goodbye support
 				if (guildData.goodbye?.enabled && guildData.goodbye?.channels?.length > 0) {
@@ -196,8 +198,50 @@ export default function registerReadyEvent(discordClient, config) {
 						await goodbyeChannel.send(sendOptions).catch(e => console.error('[goodbye] send error:', e));
 					}
 				}
+
+				// Leveling auto-cleanup: leave/kick handled here; ban handled in GuildBanAdd
+				const cleanup = leveling.autoCleanup || {};
+				let erased = false;
+
+				if (cleanup.leave || cleanup.kick) {
+					let treatedAsKick = false;
+					if (cleanup.kick) {
+						const audit = await guild.fetchAuditLogs({ type: AuditLogEvent.MemberKick, limit: 1 }).catch(() => null);
+						const entry = audit?.entries.first();
+						if (entry?.targetId === member.id && (Date.now() - entry.createdTimestamp) < 15_000) {
+							treatedAsKick = true;
+						}
+					}
+
+					if (treatedAsKick ? cleanup.kick : cleanup.leave) {
+						if (leveling.members?.[member.id]) {
+							delete leveling.members[member.id];
+							erased = true;
+						}
+					}
+				}
+
+				if (erased) {
+					await db.updateOne({ guildId: guild.id }, { $set: { leveling } });
+				}
 			} catch (e) {
 				console.error('[goodbye] guildMemberRemove error:', e);
+			}
+		});
+
+		readyClient.on(Events.GuildBanAdd, async (ban) => {
+			try {
+				const guild = ban.guild;
+				const db = readyClient.db;
+				if (!db) return;
+				const leveling = await ensureLevelingConfig(db, guild.id);
+				if (!leveling.autoCleanup?.ban) return;
+				if (leveling.members?.[ban.user.id]) {
+					delete leveling.members[ban.user.id];
+					await db.updateOne({ guildId: guild.id }, { $set: { leveling } });
+				}
+			} catch (e) {
+				console.error('[leveling] GuildBanAdd cleanup error:', e);
 			}
 		});
 	});

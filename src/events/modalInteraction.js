@@ -1,5 +1,6 @@
 import { ChannelType, MessageFlags, ContainerBuilder, SeparatorSpacingSize, ButtonBuilder, ButtonStyle } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
+import { ensureLevelingConfig } from '../utils/leveling.js';
 
 export default function registerModalInteraction(client) {
   client.on('interactionCreate', async (interaction) => {
@@ -314,6 +315,141 @@ export default function registerModalInteraction(client) {
       await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
+
+  // Leveling reward modal
+  if (interaction.customId.startsWith('leveling_reward_modal:')) {
+    const parts = interaction.customId.split(':');
+    const authorId = parts[1];
+    const roleId = parts[2];
+    if (interaction.user.id !== authorId) {
+      await interaction.reply({ content: '❌ This modal is locked to the invoker.', flags: 64 }).catch(() => {});
+      return;
+    }
+    if (!interaction.member.permissions.has('ManageGuild') && !interaction.member.permissions.has('Administrator')) {
+      await interaction.reply({ content: '❌ Manage Server is required.', flags: 64 }).catch(() => {});
+      return;
+    }
+    const levelStr = interaction.fields.getTextInputValue('level')?.trim();
+    const level = parseInt(levelStr, 10);
+    if (!Number.isFinite(level) || level < 1) {
+      await interaction.reply({ content: '❌ Level must be a positive number.', flags: 64 }).catch(() => {});
+      return;
+    }
+
+    const role = interaction.guild?.roles?.cache?.get(roleId) || null;
+    const me = interaction.guild?.members?.me;
+    if (!role) {
+      await interaction.reply({ content: '❌ Role not found.', flags: 64 }).catch(() => {});
+      return;
+    }
+    if (!me || me.roles.highest.comparePositionTo(role) <= 0) {
+      await interaction.reply({ content: '❌ I need my role above that role to assign it.', flags: 64 }).catch(() => {});
+      return;
+    }
+
+    const leveling = await ensureLevelingConfig(interaction.client.db, interaction.guildId);
+    leveling.rewards.roles = leveling.rewards.roles || [];
+    const existingIdx = leveling.rewards.roles.findIndex(r => r.roleId === roleId);
+    if (existingIdx !== -1) {
+      leveling.rewards.roles[existingIdx].level = level;
+    } else {
+      leveling.rewards.roles.push({ level, roleId });
+    }
+    await interaction.client.db.updateOne({ guildId: interaction.guildId }, { $set: { leveling } });
+
+    try {
+      const { buildRewards } = await import('../commands/prefix/Leveling/leveling.js');
+      const panel = buildRewards(leveling, authorId, interaction.guild);
+      if (interaction.message) {
+        await interaction.update({ components: [panel], flags: MessageFlags.IsComponentsV2 });
+      } else {
+        await interaction.reply({ components: [panel], flags: MessageFlags.IsComponentsV2 });
+      }
+    } catch (err) {
+      console.error('[Leveling] Reward modal update failed:', err);
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({ content: '✅ Reward saved.', flags: 64 }).catch(() => {});
+      }
+    }
+    return;
+  }
+
+  // Leveling message field modal
+  if (interaction.customId.startsWith('leveling_msg_modal:')) {
+    const [, field, authorId] = interaction.customId.split(':');
+    if (interaction.user.id !== authorId) {
+      await interaction.reply({ content: '❌ This modal is locked to the invoker.', flags: 64 }).catch(() => {});
+      return;
+    }
+    if (!interaction.member.permissions.has('ManageGuild') && !interaction.member.permissions.has('Administrator')) {
+      await interaction.reply({ content: '❌ Manage Server is required.', flags: 64 }).catch(() => {});
+      return;
+    }
+
+    const value = interaction.fields.getTextInputValue('value')?.trim() || '';
+    const leveling = await ensureLevelingConfig(interaction.client.db, interaction.guildId);
+    leveling.announce.message = leveling.announce.message || {};
+
+    // field is title, body, or footer
+    if (value) {
+      leveling.announce.message[field] = value;
+    } else {
+      delete leveling.announce.message[field];
+    }
+
+    await interaction.client.db.updateOne({ guildId: interaction.guildId }, { $set: { leveling } });
+
+    try {
+      const { buildMessageEditor } = await import('../commands/prefix/Leveling/leveling.js');
+      const panel = buildMessageEditor(leveling, authorId);
+      if (interaction.message) {
+        await interaction.update({ components: [panel], flags: MessageFlags.IsComponentsV2 });
+      } else {
+        await interaction.reply({ components: [panel], flags: MessageFlags.IsComponentsV2 });
+      }
+    } catch (err) {
+      console.error('[Leveling] Message modal update failed:', err);
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({ content: '✅ Saved.', flags: 64 }).catch(() => {});
+      }
+    }
+    return;
+  }
+
+  // Leveling template modal
+  if (interaction.customId.startsWith('leveling_template_modal:')) {
+    const [, authorId] = interaction.customId.split(':');
+    if (interaction.user.id !== authorId) {
+      await interaction.reply({ content: '❌ This modal is locked to the invoker.', flags: 64 }).catch(() => {});
+      return;
+    }
+
+    if (!interaction.member.permissions.has('ManageGuild') && !interaction.member.permissions.has('Administrator')) {
+      await interaction.reply({ content: '❌ Manage Server is required.', flags: 64 }).catch(() => {});
+      return;
+    }
+
+    const template = interaction.fields.getTextInputValue('template')?.slice(0, 500) || '';
+    const leveling = await ensureLevelingConfig(interaction.client.db, interaction.guildId);
+    leveling.announce.template = template;
+    await interaction.client.db.updateOne({ guildId: interaction.guildId }, { $set: { leveling } });
+
+    try {
+      if (interaction.message) {
+        const { buildDashboard } = await import('../commands/prefix/Leveling/leveling.js');
+        const panel = buildDashboard(leveling, authorId);
+        await interaction.update({ components: [panel], flags: MessageFlags.IsComponentsV2 });
+      } else {
+        await interaction.reply({ content: '✅ Template saved.', flags: 64 });
+      }
+    } catch (err) {
+      console.error('[Leveling] Modal update failed:', err);
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.reply({ content: '✅ Template saved.', flags: 64 }).catch(() => {});
+      }
+    }
+    return;
+  }
 
     // Handle welcome add channel modal: welcome_addch_modal_<authorId>
     if (interaction.customId.startsWith('welcome_addch_modal_')) {

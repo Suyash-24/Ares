@@ -22,6 +22,10 @@ import recommendationHandler from '../commands/shared/recommendationHandler.js';
 import musicControlHandler from '../commands/shared/musicControlHandler.js';
 import DatabaseManager from './DatabaseManager.js';
 import AntiNukeEngine from '../commands/prefix/Antinuke/engine/AntiNukeEngine.js';
+import registerVoiceLeveling from '../events/voiceLevelingHandler.js';
+import { initGiveawayHandler } from '../events/giveawayHandler.js';
+import ticketHandler from '../events/ticketHandler.js';
+import { startInactivityScheduler } from './ticketScheduler.js';
 
 const CONFIG_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../config.json');
 
@@ -88,8 +92,69 @@ export async function bootstrap(client, __dirname) {
 
 	// Register AFK handler
 	registerAfkHandler(client);
+	registerVoiceLeveling(client);
 
 	await initializeAntinuke(client);
+
+	// Initialize giveaway handler (schedules active giveaways)
+	initGiveawayHandler(client);
+
+	// Register ticket handler
+	client.on('interactionCreate', (interaction) => ticketHandler(client, interaction));
+
+	// Register ticket auto-close on member leave
+	client.on('guildMemberRemove', async (member) => {
+		try {
+			const guildData = await client.db.findOne({ guildId: member.guild.id });
+			if (!guildData?.tickets?.length) return;
+
+			// Find open tickets for this user
+			const userTickets = guildData.tickets.filter(t => t.userId === member.id && !t.closed);
+			if (!userTickets.length) return;
+
+			for (const ticket of userTickets) {
+				// Get panel config to check if auto-close is enabled
+				const panel = guildData.ticketPanels?.find(p => p.messageId === ticket.panelMessageId);
+				if (!panel?.config?.autoCloseOnLeave) continue;
+
+				// Close the ticket
+				const channel = await member.guild.channels.fetch(ticket.channelId).catch(() => null);
+				if (!channel) continue;
+
+				// Update DB
+				const idx = guildData.tickets.findIndex(t => t.channelId === ticket.channelId);
+				if (idx !== -1) {
+					guildData.tickets[idx].closed = true;
+					guildData.tickets[idx].closedAt = Date.now();
+					guildData.tickets[idx].closedBy = 'AUTO_USER_LEFT';
+				}
+
+				await channel.setName(`closed-${ticket.ticketId.toString().padStart(4, '0')}`).catch(() => {});
+
+				// Send message in channel
+				const { ContainerBuilder, SeparatorSpacingSize, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = await import('discord.js');
+				const container = new ContainerBuilder()
+					.addTextDisplayComponents(td => td.setContent(`# 🔒 Ticket Auto-Closed\nThe ticket owner <@${member.id}> left the server.`))
+					.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+
+				const row = new ActionRowBuilder().addComponents(
+					new ButtonBuilder().setCustomId('ticket_reopen').setLabel('Reopen').setStyle(ButtonStyle.Success).setEmoji('🔓'),
+					new ButtonBuilder().setCustomId('ticket_transcript').setLabel('Transcript').setStyle(ButtonStyle.Secondary).setEmoji('📝'),
+					new ButtonBuilder().setCustomId('ticket_delete').setLabel('Delete').setStyle(ButtonStyle.Danger).setEmoji('🗑️')
+				);
+				container.addActionRowComponents(row);
+
+				await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
+			}
+
+			await client.db.updateOne({ guildId: member.guild.id }, { $set: { tickets: guildData.tickets } });
+		} catch (err) {
+			console.error('[Ticket] Auto-close on leave error:', err);
+		}
+	});
+
+	// Start ticket inactivity scheduler
+	startInactivityScheduler(client);
 
 	await client.login(token);
 }
@@ -142,6 +207,10 @@ async function loadSlashCommands(discordClient, __dirname) {
 	const slashRoot = path.join(__dirname, 'src', 'commands', 'slash');
 	const commandFiles = await collectCommandFiles(slashRoot);
 	const slashData = [];
+	const DISABLED_SLASH = new Set([
+		// Trim low-usage moderation utilities to stay under the 100 global command cap
+		'fluxfiles', 'crimefile', 'detain', 'detainlist', 'voidstaff', 'raidwipe', 'unbanall', 'massban', 'snapshot'
+	]);
 
 	for (const file of commandFiles) {
 		const module = await import(pathToFileURL(file).href);
@@ -153,6 +222,10 @@ async function loadSlashCommands(discordClient, __dirname) {
 		}
 
 		const name = command.data.name;
+		if (DISABLED_SLASH.has(name)) {
+			console.warn(`Skipping slash command "${name}" (disabled list).`);
+			continue;
+		}
 
 		if (discordClient.commands.has(name)) {
 			console.warn(`Duplicate command name "${name}" detected. Only the first definition will be used.`);

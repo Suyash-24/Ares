@@ -82,7 +82,12 @@ const EMOJIS = {
   logUnban: '<:banned:1440567845749522452>',
   logKick: '<:kick:1445784583571509299>',
   logTimeout: '<:timeout:1445785021158785074>',
-  logWarn: '<:warn:1445785369202262158>'
+  logWarn: '<:warn:1445785369202262158>',
+  
+  // Giveaway emojis
+  tada: '<a:giveaway:1457248225353535530>',
+  giveaway: '<:gift:1457248740933894339>',
+  giveawayarrow: '<a:giveawayarrow:1457248315245854740>'
 };
 
 export default EMOJIS;

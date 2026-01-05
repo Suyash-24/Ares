@@ -1,5 +1,6 @@
 import { Events, ContainerBuilder, MessageFlags, SeparatorSpacingSize, PermissionFlagsBits } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
+import { handleMessageXp } from '../utils/leveling.js';
 
 const buildNotice = (title, description) => {
 	const container = new ContainerBuilder();
@@ -13,6 +14,13 @@ export default function registerMessageHandler(discordClient) {
 	discordClient.on(Events.MessageCreate, async (message) => {
 		if (!message.guild || message.author.bot) {
 			return;
+		}
+
+		// Leveling XP accrual for every eligible message (non-bot, guild only)
+		try {
+			await handleMessageXp(discordClient, message);
+		} catch (err) {
+			console.error('[Leveling] Message XP handling failed:', err);
 		}
 
 		const prefix = discordClient.prefix;
