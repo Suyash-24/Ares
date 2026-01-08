@@ -132,8 +132,8 @@ const buildStatsComponents = (client) => {
 };
 
 export default {
-  name: 'stats',
-  aliases: [],
+  name: 'botstats',
+  aliases: ['botinfo', 'botstat'],
   async execute(message) {
     const components = buildStatsComponents(message.client);
 

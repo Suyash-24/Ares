@@ -63,6 +63,19 @@ const EMOJIS = {
   afk:'<:afk:1456326991958642845>',
   afkremoved:'<:afkremoved:1456327134053273712>',
 
+  // Stats System Emojis
+  stats: '<:viewstats:1445774910088548352>',
+  messages: '<:message:1445777686705344542>',
+  voicestats: '<:voice48:1445779525701992549>',
+  chart: '<:trending:1435544093001256970>',
+  trophy: '<:icons8star48:1452187191496278140>',
+  rank: '<:rating:1435536109336789073>',
+  activity: '<:playing:1435539440993960047>',
+  clock: '<:timer:1435536038058528829>',
+  users: '<:members:1442869391757672639>',
+  channelstats: '<:channellog:1445782302385901728>',
+  online: '<:enabletoggle:1445346263028600903>',
+  offline: '<:disabletoggle:1445346396910911528>',
   
   // Logging System Emojis
   log: '<:setupwizard:1445775144470577286>',

@@ -1,6 +1,7 @@
 import { Events, ContainerBuilder, MessageFlags, SeparatorSpacingSize, PermissionFlagsBits } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
 import { handleMessageXp } from '../utils/leveling.js';
+import { handleMessageStats } from '../events/statsHandler.js';
 
 const buildNotice = (title, description) => {
 	const container = new ContainerBuilder();
@@ -21,6 +22,13 @@ export default function registerMessageHandler(discordClient) {
 			await handleMessageXp(discordClient, message);
 		} catch (err) {
 			console.error('[Leveling] Message XP handling failed:', err);
+		}
+
+		// Stats tracking for every eligible message
+		try {
+			await handleMessageStats(message, discordClient);
+		} catch (err) {
+			console.error('[Stats] Message stats handling failed:', err);
 		}
 
 		const prefix = discordClient.prefix;

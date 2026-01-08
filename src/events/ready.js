@@ -4,6 +4,8 @@ import { initializeSlowmodeManager } from '../utils/slowmodeManager.js';
 import { buildWelcomeEmbed, buildWelcomeButtons, replacePlaceholders } from '../commands/prefix/Welcome/welcome.js';
 import { buildGoodbyeEmbed, buildGoodbyeButtons, replacePlaceholders as replaceGoodbyePlaceholders } from '../commands/prefix/Welcome/goodbye.js';
 import { ensureLevelingConfig } from '../utils/leveling.js';
+import { handleVoiceStats, handleMemberJoin, handleMemberLeave, initializeVoiceSessions } from '../events/statsHandler.js';
+import { handleReady as inviteTrackerReady, handleInviteCreate, handleInviteDelete, handleGuildMemberAdd as inviteTrackerMemberAdd, handleGuildMemberRemove as inviteTrackerMemberRemove, handleGuildCreate as inviteTrackerGuildCreate } from '../events/inviteTrackerHandler.js';
 
 export default function registerReadyEvent(discordClient, config) {
 	discordClient.once(Events.ClientReady, async (readyClient) => {
@@ -21,6 +23,12 @@ export default function registerReadyEvent(discordClient, config) {
 		// Restore slowmode expirations and schedule clear timers
 		await initializeSlowmodeManager(readyClient);
 		
+		// Initialize invite tracker (cache all guild invites)
+		await inviteTrackerReady(readyClient);
+		
+		// Initialize voice sessions (detect users already in voice channels)
+		await initializeVoiceSessions(readyClient);
+		
 		if (config.presence) {
 			readyClient.user.setPresence(config.presence);
 		}
@@ -30,6 +38,21 @@ export default function registerReadyEvent(discordClient, config) {
 				const guild = member.guild;
 				const db = readyClient.db;
 				if (!db) return;
+
+				// Stats tracking for member join
+				try {
+					await handleMemberJoin(member, readyClient);
+				} catch (e) {
+					console.error('[Stats] Member join stats error:', e);
+				}
+
+				// Invite tracking for member join
+				try {
+					await inviteTrackerMemberAdd(member, readyClient);
+				} catch (e) {
+					console.error('[InviteTracker] Member add error:', e);
+				}
+
 				const guildData = await db.findOne({ guildId: guild.id }) || {};
 				
 				try {
@@ -150,6 +173,21 @@ export default function registerReadyEvent(discordClient, config) {
 				const guild = member.guild;
 				const db = readyClient.db;
 				if (!db) return;
+
+				// Stats tracking for member leave
+				try {
+					await handleMemberLeave(member, readyClient);
+				} catch (e) {
+					console.error('[Stats] Member leave stats error:', e);
+				}
+
+				// Invite tracking for member leave
+				try {
+					await inviteTrackerMemberRemove(member, readyClient);
+				} catch (e) {
+					console.error('[InviteTracker] Member remove error:', e);
+				}
+
 				const guildData = await db.findOne({ guildId: guild.id }) || {};
 				const leveling = await ensureLevelingConfig(db, guild.id);
 				
@@ -242,6 +280,40 @@ export default function registerReadyEvent(discordClient, config) {
 				}
 			} catch (e) {
 				console.error('[leveling] GuildBanAdd cleanup error:', e);
+			}
+		});
+
+		// Voice state update handler for stats tracking
+		readyClient.on(Events.VoiceStateUpdate, async (oldState, newState) => {
+			try {
+				await handleVoiceStats(oldState, newState, readyClient);
+			} catch (e) {
+				console.error('[Stats] Voice stats handling error:', e);
+			}
+		});
+
+		// Invite tracking events
+		readyClient.on(Events.InviteCreate, async (invite) => {
+			try {
+				await handleInviteCreate(invite);
+			} catch (e) {
+				console.error('[InviteTracker] Invite create error:', e);
+			}
+		});
+
+		readyClient.on(Events.InviteDelete, async (invite) => {
+			try {
+				await handleInviteDelete(invite);
+			} catch (e) {
+				console.error('[InviteTracker] Invite delete error:', e);
+			}
+		});
+
+		readyClient.on(Events.GuildCreate, async (guild) => {
+			try {
+				await inviteTrackerGuildCreate(guild);
+			} catch (e) {
+				console.error('[InviteTracker] Guild create error:', e);
 			}
 		});
 	});

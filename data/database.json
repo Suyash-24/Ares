@@ -462,1917 +462,6 @@
       },
       "logs": [
         {
-          "id": "mivb7mvvhkczx",
-          "eventType": "roleAdd",
-          "timestamp": 1765086975643,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivb8a7v5l9k3",
-          "eventType": "channelCreate",
-          "timestamp": 1765087005883,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "channel": {
-              "id": "1447104522181673101",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447104522181673101"
-          }
-        },
-        {
-          "id": "mivb8ehwfrw3j",
-          "eventType": "channelCreate",
-          "timestamp": 1765087011428,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "channel": {
-              "id": "1447104545825095761",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447104545825095761"
-          }
-        },
-        {
-          "id": "mivb8j1rh9bg1",
-          "eventType": "channelCreate",
-          "timestamp": 1765087017327,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "channel": {
-              "id": "1447104570311446609",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447104570311446609"
-          }
-        },
-        {
-          "id": "mivba8cvf6gu2",
-          "eventType": "channelDelete",
-          "timestamp": 1765087096783,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447104522181673101"
-          }
-        },
-        {
-          "id": "mivba9ib5q48x",
-          "eventType": "modBan",
-          "timestamp": 1765087098275,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - ban",
-            "content": "**Module:** channelDelete\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mivba9uih73m0",
-          "eventType": "memberLeave",
-          "timestamp": 1765087098714,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 4d 15h",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivba9xextiez",
-          "eventType": "memberBan",
-          "timestamp": 1765087098818,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc2piz1qgfl",
-          "eventType": "memberUnban",
-          "timestamp": 1765088425403,
-          "data": {
-            "executor": {
-              "id": "437808476106784770",
-              "name": "Arcane#7800"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc3g2h7p5zp",
-          "eventType": "inviteCreate",
-          "timestamp": 1765088459801,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "channel": {
-              "id": "1445670095610318942",
-              "name": "mod"
-            },
-            "content": "Code: cqxREA5D\nMax Uses: Unlimited\nExpires: <t:1765693258:R>",
-            "channelId": "1445670095610318942"
-          }
-        },
-        {
-          "id": "mivc4j8h6jgx0",
-          "eventType": "memberJoin",
-          "timestamp": 1765088510561,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1042d 16h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc4jmyatcy7",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765088511082,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc584pl3ykn",
-          "eventType": "roleAdd",
-          "timestamp": 1765088542825,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc73oc88thu",
-          "eventType": "channelDelete",
-          "timestamp": 1765088630364,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447104570311446609"
-          }
-        },
-        {
-          "id": "mivc79jq8m244",
-          "eventType": "channelDelete",
-          "timestamp": 1765088637974,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447104545825095761"
-          }
-        },
-        {
-          "id": "mivc7hg7y5yln",
-          "eventType": "channelCreate",
-          "timestamp": 1765088648215,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447111411410145414",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447111411410145414"
-          }
-        },
-        {
-          "id": "mivc7mb69hh51",
-          "eventType": "channelCreate",
-          "timestamp": 1765088654514,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447111437355978802",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447111437355978802"
-          }
-        },
-        {
-          "id": "mivc7mk5evplm",
-          "eventType": "modBan",
-          "timestamp": 1765088654837,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelCreate protection - ban",
-            "content": "**Module:** channelCreate\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mivc7n9vvf2vi",
-          "eventType": "memberBan",
-          "timestamp": 1765088655763,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc7noqziegc",
-          "eventType": "memberLeave",
-          "timestamp": 1765088656298,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 2m 27s",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivc9da8cvx8f",
-          "eventType": "memberUnban",
-          "timestamp": 1765088736128,
-          "data": {
-            "executor": {
-              "id": "437808476106784770",
-              "name": "Arcane#7800"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcabnqc2pp0",
-          "eventType": "inviteCreate",
-          "timestamp": 1765088780678,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "channel": {
-              "id": "1445670259351883807",
-              "name": "role"
-            },
-            "content": "Code: QGK63jbz6\nMax Uses: Unlimited\nExpires: <t:1770272779:R>",
-            "channelId": "1445670259351883807"
-          }
-        },
-        {
-          "id": "mivcal3z3zwac",
-          "eventType": "memberJoin",
-          "timestamp": 1765088792927,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1042d 16h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcamej6zity",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765088794603,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcamuf1vy2q",
-          "eventType": "roleAdd",
-          "timestamp": 1765088795175,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcanmx6g2jm",
-          "eventType": "roleAdd",
-          "timestamp": 1765088796201,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcaz5ryn51y",
-          "eventType": "channelDelete",
-          "timestamp": 1765088811135,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447111437355978802"
-          }
-        },
-        {
-          "id": "mivcb27unkf8n",
-          "eventType": "channelDelete",
-          "timestamp": 1765088815098,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447111411410145414"
-          }
-        },
-        {
-          "id": "mivcb2xwmswmq",
-          "eventType": "modBan",
-          "timestamp": 1765088816036,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - ban",
-            "content": "**Module:** channelDelete\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mivcb3fwb0nhu",
-          "eventType": "memberBan",
-          "timestamp": 1765088816684,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcb4493r750",
-          "eventType": "memberLeave",
-          "timestamp": 1765088817561,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 25s",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcqzrpumqkb",
-          "eventType": "modBan",
-          "timestamp": 1765089558421,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "duration": "Permanent",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcr0mrt1jxq",
-          "eventType": "modBan",
-          "timestamp": 1765089559539,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcrnfxyo8pr",
-          "eventType": "modUnban",
-          "timestamp": 1765089589101,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcrzed7m5oy",
-          "eventType": "modBan",
-          "timestamp": 1765089604597,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "duration": "Permanent",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcs0b7b10d8",
-          "eventType": "modBan",
-          "timestamp": 1765089605779,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcslbte0alr",
-          "eventType": "modUnban",
-          "timestamp": 1765089633017,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcunqwteoki",
-          "eventType": "memberJoin",
-          "timestamp": 1765089729464,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1042d 17h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcuov1k0v0c",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765089730909,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcupcdszntn",
-          "eventType": "roleAdd",
-          "timestamp": 1765089731533,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcurdcoqt3w",
-          "eventType": "roleAdd",
-          "timestamp": 1765089734160,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcx44zetc2z",
-          "eventType": "channelCreate",
-          "timestamp": 1765089844019,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447116426610475069",
-              "name": "saikufdh"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447116426610475069"
-          }
-        },
-        {
-          "id": "mivcx7x90xkhm",
-          "eventType": "channelCreate",
-          "timestamp": 1765089848925,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447116447942967448",
-              "name": "oaiwfuj"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447116447942967448"
-          }
-        },
-        {
-          "id": "mivcxc7p0diw9",
-          "eventType": "channelDelete",
-          "timestamp": 1765089854485,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#oaiwfuj (Text Channel)",
-            "channelId": "1447116447942967448"
-          }
-        },
-        {
-          "id": "mivcyfpscfb94",
-          "eventType": "channelDelete",
-          "timestamp": 1765089905680,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#saikufdh (Text Channel)",
-            "channelId": "1447116426610475069"
-          }
-        },
-        {
-          "id": "mivcyg7uhcumz",
-          "eventType": "modBan",
-          "timestamp": 1765089906330,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - ban",
-            "content": "**Module:** channelDelete\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mivcygnbj9wz8",
-          "eventType": "memberBan",
-          "timestamp": 1765089906887,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivcyh73819vl",
-          "eventType": "memberLeave",
-          "timestamp": 1765089907599,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 2m 58s",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivd3lpoakbob",
-          "eventType": "modUnban",
-          "timestamp": 1765090146732,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivdavk8pwva1",
-          "eventType": "memberJoin",
-          "timestamp": 1765090486088,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1042d 17h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivdawm801cfg",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765090487456,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivdaxiaspkb2",
-          "eventType": "roleAdd",
-          "timestamp": 1765090488610,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivday8sogrfi",
-          "eventType": "roleAdd",
-          "timestamp": 1765090489565,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivdrpc3gs19d",
-          "eventType": "roleRemove",
-          "timestamp": 1765091271171,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mivdsce04sot2",
-          "eventType": "roleAdd",
-          "timestamp": 1765091301048,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixe1h71x3pw1",
-          "eventType": "channelCreate",
-          "timestamp": 1765212659534,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447631553961136220",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447631553961136220"
-          }
-        },
-        {
-          "id": "mixe1mu029fu6",
-          "eventType": "channelCreate",
-          "timestamp": 1765212666840,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447631585254969395",
-              "name": "test"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447631585254969395"
-          }
-        },
-        {
-          "id": "mixe1n1c76mhe",
-          "eventType": "modBan",
-          "timestamp": 1765212667104,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelCreate protection - ban",
-            "content": "**Module:** channelCreate\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mixe1o91w8j4q",
-          "eventType": "memberLeave",
-          "timestamp": 1765212668677,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 1d 9h",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixe1p1asfla1",
-          "eventType": "memberBan",
-          "timestamp": 1765212669694,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixe8l34gmezs",
-          "eventType": "inviteCreate",
-          "timestamp": 1765212991168,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "channel": {
-              "id": "1442407077959176222",
-              "name": "general"
-            },
-            "content": "Code: K5vafbtz\nMax Uses: Unlimited\nExpires: <t:1765817790:R>",
-            "channelId": "1442407077959176222"
-          }
-        },
-        {
-          "id": "mixea4878bd6h",
-          "eventType": "modUnban",
-          "timestamp": 1765213062631,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeaq1cegosj",
-          "eventType": "memberJoin",
-          "timestamp": 1765213090896,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1044d 3h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixear9mc2743",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765213092490,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeczgdf22jm",
-          "eventType": "roleAdd",
-          "timestamp": 1765213196413,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixedf6qlmlwg",
-          "eventType": "channelDelete",
-          "timestamp": 1765213216802,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447631585254969395"
-          }
-        },
-        {
-          "id": "mixedg4fuba3d",
-          "eventType": "modBan",
-          "timestamp": 1765213218015,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - ban",
-            "content": "**Module:** channelDelete\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mixedgi5afm69",
-          "eventType": "memberBan",
-          "timestamp": 1765213218509,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixedj1qnomej",
-          "eventType": "memberLeave",
-          "timestamp": 1765213221806,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 2m 8s",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixekhyf0kna2",
-          "eventType": "modUnban",
-          "timestamp": 1765213546983,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixela88klguh",
-          "eventType": "memberJoin",
-          "timestamp": 1765213583624,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1044d 3h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixelbmuvlv4j",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765213585446,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixelc14c807s",
-          "eventType": "roleAdd",
-          "timestamp": 1765213585960,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixelcxre5wgi",
-          "eventType": "roleAdd",
-          "timestamp": 1765213587135,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixelzhf8aci3",
-          "eventType": "channelDelete",
-          "timestamp": 1765213616355,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#test (Text Channel)",
-            "channelId": "1447631553961136220"
-          }
-        },
-        {
-          "id": "mixem0u2jb6pc",
-          "eventType": "memberBan",
-          "timestamp": 1765213618106,
-          "data": {
-            "executor": {
-              "id": "Unknown",
-              "name": "Unknown"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixem21yqm0xs",
-          "eventType": "modBan",
-          "timestamp": 1765213619686,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - ban",
-            "content": "**Module:** channelDelete\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mixem2q4syhhm",
-          "eventType": "memberLeave",
-          "timestamp": 1765213620556,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 36s",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixer1roznbhe",
-          "eventType": "modUnban",
-          "timestamp": 1765213852596,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeui2newp1l",
-          "eventType": "roleAdd",
-          "timestamp": 1765214013695,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeuivbft8fc",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765214014727,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeuxxv678gy",
-          "eventType": "channelCreate",
-          "timestamp": 1765214034259,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447637318457622598",
-              "name": "kgfj"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447637318457622598"
-          }
-        },
-        {
-          "id": "mixev171xy6y8",
-          "eventType": "modBan",
-          "timestamp": 1765214038477,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelCreate protection - ban",
-            "content": "**Module:** channelCreate\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mixev1i536mtx",
-          "eventType": "channelCreate",
-          "timestamp": 1765214038877,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447637338501939372",
-              "name": "dfkj"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447637338501939372"
-          }
-        },
-        {
-          "id": "mixev4lxj10ml",
-          "eventType": "memberBan",
-          "timestamp": 1765214042901,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixev501mi1gh",
-          "eventType": "memberLeave",
-          "timestamp": 1765214043409,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 2m 16s",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixexkmyyidt6",
-          "eventType": "modUnban",
-          "timestamp": 1765214156986,
-          "data": {
-            "executor": {
-              "id": "1343508844453826673",
-              "name": ".verst1le"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeykpe1xxav",
-          "eventType": "memberJoin",
-          "timestamp": 1765214203730,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1044d 3h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeylxb7ss2z",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765214205311,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeymdz6zcvf",
-          "eventType": "roleAdd",
-          "timestamp": 1765214205911,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mixeynk5lv7pe",
-          "eventType": "roleAdd",
-          "timestamp": 1765214207429,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy3qf818x45o",
-          "eventType": "channelDelete",
-          "timestamp": 1765255813777,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#dfkj (Text Channel)",
-            "channelId": "1447637338501939372"
-          }
-        },
-        {
-          "id": "miy3qfqcuj2jv",
-          "eventType": "modBan",
-          "timestamp": 1765255814436,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - striproles",
-            "content": "**Module:** channelDelete\n**Action:** striproles\n**Success:** true"
-          }
-        },
-        {
-          "id": "miy3qgfgf3ygf",
-          "eventType": "roleRemove",
-          "timestamp": 1765255815340,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy40l6jdyq2s",
-          "eventType": "inviteCreate",
-          "timestamp": 1765256288059,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1442407077959176222",
-              "name": "general"
-            },
-            "content": "Code: vmfNbay4\nMax Uses: Unlimited\nExpires: <t:1765861088:R>",
-            "channelId": "1442407077959176222"
-          }
-        },
-        {
-          "id": "miy40tgexhjvd",
-          "eventType": "memberLeave",
-          "timestamp": 1765256298782,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 11h 41m",
-            "roles": "None",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy40xcth0dci",
-          "eventType": "memberJoin",
-          "timestamp": 1765256303837,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1044d 15h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy40ylkrigiu",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765256305448,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy40z8tb36ha",
-          "eventType": "roleAdd",
-          "timestamp": 1765256306285,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy40zrtksdiq",
-          "eventType": "roleAdd",
-          "timestamp": 1765256306969,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4156pdwsgk",
-          "eventType": "channelDelete",
-          "timestamp": 1765256313985,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#kgfj (Text Channel)",
-            "channelId": "1447637318457622598"
-          }
-        },
-        {
-          "id": "miy415tfwoxwl",
-          "eventType": "modBan",
-          "timestamp": 1765256314803,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelDelete protection - striproles",
-            "content": "**Module:** channelDelete\n**Action:** striproles\n**Success:** true"
-          }
-        },
-        {
-          "id": "miy416mi6h8sv",
-          "eventType": "roleRemove",
-          "timestamp": 1765256315850,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4aoil0grbq",
-          "eventType": "memberLeave",
-          "timestamp": 1765256758941,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 7m 33s",
-            "roles": "None",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4aqp1s08i5",
-          "eventType": "memberJoin",
-          "timestamp": 1765256761765,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Account created 1044d 15h ago",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4asbed0e3z",
-          "eventType": "nicknameUpdate",
-          "timestamp": 1765256763866,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "before": ".nvrm1nd.",
-            "after": "leoish",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4asr4dgi6r",
-          "eventType": "roleAdd",
-          "timestamp": 1765256764432,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4atmmscsov",
-          "eventType": "roleAdd",
-          "timestamp": 1765256765566,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "roles": "bots",
-            "roleId": "1442155058216177827",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "miy4cot4dpsgs",
-          "eventType": "channelCreate",
-          "timestamp": 1765256852632,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447816914146558104",
-              "name": "glrk"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447816914146558104"
-          }
-        },
-        {
-          "id": "miy4ctch2xtr1",
-          "eventType": "channelCreate",
-          "timestamp": 1765256858513,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447816937924202546",
-              "name": "wpofk"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447816937924202546"
-          }
-        },
-        {
-          "id": "miy4cziro4to5",
-          "eventType": "channelDelete",
-          "timestamp": 1765256866515,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#wpofk (Text Channel)",
-            "channelId": "1447816937924202546"
-          }
-        },
-        {
-          "id": "miy4d2mut5j40",
-          "eventType": "channelDelete",
-          "timestamp": 1765256870550,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#glrk (Text Channel)",
-            "channelId": "1447816914146558104"
-          }
-        },
-        {
-          "id": "miy4d5hjyg67w",
-          "eventType": "channelCreate",
-          "timestamp": 1765256874247,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1447817005305696337",
-              "name": "fwepfl"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1447817005305696337"
-          }
-        },
-        {
-          "id": "miy4dan47o714",
-          "eventType": "channelDelete",
-          "timestamp": 1765256880928,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "#fwepfl (Text Channel)",
-            "channelId": "1447817005305696337"
-          }
-        },
-        {
           "id": "mizkfi6p0tn6s",
           "eventType": "channelCreate",
           "timestamp": 1765344324050,
@@ -27115,6 +25204,961 @@
             "content": "#closed-1owk3y-0045 (Text Channel)",
             "channelId": "1457788636245397623"
           }
+        },
+        {
+          "id": "mk44buc8mue4d",
+          "eventType": "voiceJoin",
+          "timestamp": 1767796392537,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk44to1xbuyy3",
+          "eventType": "voiceLeave",
+          "timestamp": 1767797224197,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk51pnmw9zy0j",
+          "eventType": "voiceJoin",
+          "timestamp": 1767852464361,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk53x85xuz8ax",
+          "eventType": "voiceLeave",
+          "timestamp": 1767856176789,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk53xa871hf6d",
+          "eventType": "voiceJoin",
+          "timestamp": 1767856179463,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk54ltrbjxpc2",
+          "eventType": "voiceLeave",
+          "timestamp": 1767857324519,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk54lzw0e803g",
+          "eventType": "voiceJoin",
+          "timestamp": 1767857332464,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5lmm9dwhr7g",
+          "eventType": "voiceJoin",
+          "timestamp": 1767885914929,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5lwuui1k5mr",
+          "eventType": "voiceJoin",
+          "timestamp": 1767886392618,
+          "data": {
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1398578769438048368",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5lwz5aetcw9",
+          "eventType": "messageDelete",
+          "timestamp": 1767886398190,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 1 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458845998506967264",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5m1xo5kmukf",
+          "eventType": "messageDelete",
+          "timestamp": 1767886629557,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458846027766304992",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5m6hj430wul",
+          "eventType": "messageDelete",
+          "timestamp": 1767886841920,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458847009451806792",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5m9d4cl9r29",
+          "eventType": "messageDelete",
+          "timestamp": 1767886976172,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 1 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458848426547609806",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5mbhttp7y4a",
+          "eventType": "messageDelete",
+          "timestamp": 1767887075585,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458847897927028751",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5mh4xndb3sc",
+          "eventType": "messageDelete",
+          "timestamp": 1767887338811,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458848881348448377",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5ml06t6oogm",
+          "eventType": "messageDelete",
+          "timestamp": 1767887519285,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458849986711261186",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5mq7t2jk6cb",
+          "eventType": "messageDelete",
+          "timestamp": 1767887762438,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458850741602091020",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5mv3apahpk7",
+          "eventType": "messageDelete",
+          "timestamp": 1767887989873,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458851759618261177",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5mwjqldi2ht",
+          "eventType": "voiceDeafen",
+          "timestamp": 1767888057837,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "content": "Server deafened",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5mx7e7o1vd6",
+          "eventType": "voiceDeafen",
+          "timestamp": 1767888088495,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "content": "Server undeafened",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5myk06oip15",
+          "eventType": "voiceLeave",
+          "timestamp": 1767888151494,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5mzokfegzm0",
+          "eventType": "voiceJoin",
+          "timestamp": 1767888204063,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5n02oj3izr1",
+          "eventType": "voiceLeave",
+          "timestamp": 1767888222356,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5n07gohzsav",
+          "eventType": "messageDelete",
+          "timestamp": 1767888228552,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458852714900488204",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5n0dpxyl23u",
+          "eventType": "voiceLeave",
+          "timestamp": 1767888236661,
+          "data": {
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1398578769438048368",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5n0egy5dm8j",
+          "eventType": "messageDelete",
+          "timestamp": 1767888237634,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458853711957983507",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5n0lye2wjly",
+          "eventType": "voiceJoin",
+          "timestamp": 1767888247334,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1319707981377699920",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5n0t424ca6o",
+          "eventType": "voiceMute",
+          "timestamp": 1767888256610,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "content": "Self-unmuted",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5n15xvb6bbx",
+          "eventType": "voiceMute",
+          "timestamp": 1767888273235,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "content": "Server muted",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5n1gtnna4pw",
+          "eventType": "voiceMute",
+          "timestamp": 1767888287339,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "content": "Server unmuted",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5n1j3ya7vuo",
+          "eventType": "voiceJoin",
+          "timestamp": 1767888290302,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk5n22troelqb",
+          "eventType": "voiceJoin",
+          "timestamp": 1767888315855,
+          "data": {
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1398578769438048368",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5n27g9aehxj",
+          "eventType": "messageDelete",
+          "timestamp": 1767888321849,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 1 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458854066276012277",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5n35459cx33",
+          "eventType": "voiceLeave",
+          "timestamp": 1767888365477,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk5n6tqe6z94x",
+          "eventType": "messageDelete",
+          "timestamp": 1767888537350,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458854085494313112",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5n90dbjn5r2",
+          "eventType": "channelCreate",
+          "timestamp": 1767888639263,
+          "data": {
+            "executor": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1458855424173539605",
+              "name": "Wibw"
+            },
+            "content": "Type: Voice Channel",
+            "channelId": "1458855424173539605"
+          }
+        },
+        {
+          "id": "mk5n9h4mbs7qh",
+          "eventType": "voiceMove",
+          "timestamp": 1767888660982,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "before": "<#1398578847250645097>",
+            "after": "<#1458855424173539605>",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5ndhjnw9pdz",
+          "eventType": "messageDelete",
+          "timestamp": 1767888848147,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458855008597446939",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5nh81g7l028",
+          "eventType": "voiceMove",
+          "timestamp": 1767889022452,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "before": "<#1458855424173539605>",
+            "after": "<#1398578847250645097>",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk5nhblm0qo8q",
+          "eventType": "voiceJoin",
+          "timestamp": 1767889027066,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk5nhmyjpo2cm",
+          "eventType": "messageDelete",
+          "timestamp": 1767889041787,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "🔘 **Components:** 4 button(s)/select menu(s)",
+            "attachments": [],
+            "messageId": "1458856315752415286",
+            "userId": "1398578769438048368",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5nhsb0k7wf8",
+          "eventType": "voiceLeave",
+          "timestamp": 1767889048716,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk5nigfzopfx1",
+          "eventType": "voiceJoin",
+          "timestamp": 1767889079999,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1458855424173539605",
+              "name": "Wibw"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1458855424173539605",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk5nizdprae0d",
+          "eventType": "voiceMove",
+          "timestamp": 1767889104541,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "before": "<#1398578847250645097>",
+            "after": "<#1458855424173539605>",
+            "userId": "1398578769438048368",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5njbhk1600v",
+          "eventType": "voiceMove",
+          "timestamp": 1767889120232,
+          "data": {
+            "executor": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "before": "<#1458855424173539605>",
+            "after": "<#1398578847250645097>",
+            "userId": "1343508844453826673",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk5njpeh3w7ui",
+          "eventType": "voiceMove",
+          "timestamp": 1767889138265,
+          "data": {
+            "executor": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "target": {
+              "id": "1398578769438048368",
+              "name": "SHUNYA#2605"
+            },
+            "before": "<#1458855424173539605>",
+            "after": "<#1398578847250645097>",
+            "userId": "1398578769438048368",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1398578769438048368/2d98a168b19891ec226ee26b8979e1f1.webp"
+          }
+        },
+        {
+          "id": "mk5nju59smvc7",
+          "eventType": "voiceLeave",
+          "timestamp": 1767889144413,
+          "data": {
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "channel": {
+              "id": "1398578847250645097",
+              "name": "General"
+            },
+            "userId": "1343508844453826673",
+            "channelId": "1398578847250645097",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
         }
       ],
       "antinuke": {
@@ -28519,11 +27563,11 @@
         },
         "members": {
           "1319707981377699920": {
-            "xp": 200,
-            "level": 2,
-            "totalXp": 455,
-            "lastMessageAt": 1767622403511,
-            "lastVoiceAt": 0,
+            "xp": 190,
+            "level": 4,
+            "totalXp": 960,
+            "lastMessageAt": 1767851917776,
+            "lastVoiceAt": 1767888659380,
             "rewardsGranted": [
               "1441685582760640643"
             ],
@@ -28531,11 +27575,11 @@
             "muteAnnouncements": false
           },
           "1343508844453826673": {
-            "xp": 63,
+            "xp": 164,
             "level": 2,
-            "totalXp": 318,
-            "lastMessageAt": 1767633435385,
-            "lastVoiceAt": 0,
+            "totalXp": 419,
+            "lastMessageAt": 1767796360176,
+            "lastVoiceAt": 1767888364508,
             "rewardsGranted": [
               "1441685582760640643"
             ],
@@ -28970,7 +28014,7 @@
           "winners": [],
           "startTime": 1767512170820,
           "endTime": 1767684991740,
-          "ended": false,
+          "ended": true,
           "color": null,
           "thumbnail": "https://cdn.discordapp.com/guilds/1398578846374297672/users/1319707981377699920/avatars/035b8408639556e8cade01804dff2cdd.png?size=4096",
           "image": null,
@@ -29026,7 +28070,7 @@
           "winners": [],
           "startTime": 1767515660965,
           "endTime": 1767688460965,
-          "ended": false,
+          "ended": true,
           "color": 9068543,
           "thumbnail": "https://cdn.discordapp.com/guilds/1398578846374297672/users/1319707981377699920/avatars/035b8408639556e8cade01804dff2cdd.png?size=4096",
           "image": "https://cdn.discordapp.com/guilds/1398578846374297672/users/1319707981377699920/avatars/035b8408639556e8cade01804dff2cdd.png?size=4096",
@@ -29613,7 +28657,2066 @@
       ],
       "ticketCount": 45,
       "ticketTags": [],
-      "ticketOnCall": []
+      "ticketOnCall": [],
+      "stats": {
+        "enabled": true,
+        "lookback": 14,
+        "tracking": {
+          "messages": true,
+          "voice": true,
+          "joins": true
+        },
+        "users": {
+          "1319707981377699920": {
+            "messages": [
+              {
+                "ts": 1767793686807,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767793690068,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767793693167,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767793694447,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767793951094,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767794253600,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767794571949,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767795375682,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767796059445,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767797818174,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767798353677,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767798440435,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767798477171,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767798494843,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767798508693,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767798522302,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767799883942,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767799910975,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767799918816,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767849729985,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767850093694,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851051502,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851089981,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851105177,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851122178,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851138220,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851157251,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851168744,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851177107,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851190442,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851213865,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851231868,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851297897,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851853106,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851865081,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851874327,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851891125,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851917791,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851921679,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851940869,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767851966326,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767852435288,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767852477052,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767852489566,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767852504173,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853298444,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853313785,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853319214,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853438409,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853757792,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853787269,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853808096,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853879110,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767853915426,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854237036,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854240768,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854258718,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854264167,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854299173,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854305931,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854496200,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854701642,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854881257,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767854906692,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767855070703,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767855170663,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767855222961,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767855496472,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767855504449,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767855619331,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856061745,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856081962,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856089642,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856099459,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856102750,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856184245,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856210118,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856246422,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856298846,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856315538,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856414365,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856423282,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856866973,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856871968,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767856904742,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767857040607,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767857306060,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767857338860,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767857357917,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858140799,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858159677,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858176264,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858249606,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858259385,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858293072,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858309447,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858333522,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858345197,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858381858,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858390333,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858401314,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858435409,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858444697,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858466596,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858479828,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858503858,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858515626,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859452509,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859477383,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859499627,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859506453,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859513353,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859521971,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859543594,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859558143,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859583357,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859888035,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859900611,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859958652,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767859973590,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767860344942,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767860381174,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767860388399,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767860650443,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767860682653,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767860766908,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767861010630,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767861090484,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767861121876,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767861130458,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767885944398,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767885969029,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767885981631,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767885995581,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886339453,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886354980,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886420473,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886462700,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886479630,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886974779,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767886991554,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887325067,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887337067,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887353760,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887885536,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887903380,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887917379,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887931872,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887948503,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887960034,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767887980012,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892329689,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892341881,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892358894,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892369657,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892394667,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892401114,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892416405,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892434674,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892456118,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892479180,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767892936382,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767893326136,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767893464170,
+                "ch": "1442407077959176222"
+              }
+            ],
+            "voice": [
+              {
+                "ts": 1767861100160,
+                "ch": "1398578847250645097",
+                "mins": 1
+              },
+              {
+                "ts": 1767869433056,
+                "ch": "1398578847250645097",
+                "mins": 138
+              },
+              {
+                "ts": 1767869733074,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767870033081,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767870333081,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767870633087,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767870933096,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767871233104,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767871533125,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767871833139,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767872133142,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767872433158,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767872733170,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767873033174,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767873333183,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767873633192,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767873933204,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767874233208,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767886246487,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767886605417,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767886905419,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767887204763,
+                "ch": "1398578847250645097",
+                "mins": 4
+              },
+              {
+                "ts": 1767887527683,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767887807407,
+                "ch": "1398578847250645097",
+                "mins": 4
+              },
+              {
+                "ts": 1767888128958,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767888491504,
+                "ch": "1398578847250645097",
+                "mins": 4
+              },
+              {
+                "ts": 1767888659395,
+                "ch": "1398578847250645097",
+                "mins": 2
+              },
+              {
+                "ts": 1767888791546,
+                "ch": "1458855424173539605",
+                "mins": 2
+              },
+              {
+                "ts": 1767888932731,
+                "ch": "1458855424173539605",
+                "mins": 2
+              },
+              {
+                "ts": 1767889020719,
+                "ch": "1458855424173539605",
+                "mins": 1
+              },
+              {
+                "ts": 1767889245755,
+                "ch": "1398578847250645097",
+                "mins": 3
+              },
+              {
+                "ts": 1767889545760,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767889845767,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767890145776,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767891459966,
+                "ch": "1398578847250645097",
+                "mins": 21
+              },
+              {
+                "ts": 1767891759974,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767892059986,
+                "ch": "1398578847250645097",
+                "mins": 5
+              },
+              {
+                "ts": 1767892291679,
+                "ch": "1398578847250645097",
+                "mins": 3
+              }
+            ],
+            "joins": []
+          },
+          "1343508844453826673": {
+            "messages": [
+              {
+                "ts": 1767858625924,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858636526,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858651387,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858684938,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858689873,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858721680,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858739351,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858747412,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858765865,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767858777555,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888054456,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888086054,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888117810,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888150037,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888221124,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888235045,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888271050,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888285231,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888358530,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888658723,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888686705,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888961825,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767888997944,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767889019603,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767889039538,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767889101816,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767889117563,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767889135812,
+                "ch": "1442407077959176222"
+              }
+            ],
+            "voice": [
+              {
+                "ts": 1767797222765,
+                "ch": "1398578847250645097",
+                "mins": 13
+              },
+              {
+                "ts": 1767858636548,
+                "ch": "bonus",
+                "mins": 10560
+              },
+              {
+                "ts": 1767888364525,
+                "ch": "1398578847250645097",
+                "mins": 1
+              }
+            ],
+            "joins": []
+          }
+        },
+        "channels": {
+          "1442407077959176222": {
+            "messages": [
+              {
+                "ts": 1767793686807,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767793690068,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767793693167,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767793694447,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767793951094,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767794253600,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767794571949,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767795375682,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767796059445,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767796360193,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767796368170,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767796569661,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767797818174,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767798353677,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767798440435,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767798477171,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767798494843,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767798508693,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767798522302,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767799506740,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767799523135,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767799529976,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767799536761,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767799883942,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767799910975,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767799918816,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767849729985,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767850093694,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851051502,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851089981,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851105177,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851122178,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851138220,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851157251,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851168744,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851177107,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851190442,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851213865,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851231868,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851297897,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851853106,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851865081,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851874327,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851891125,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851917791,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851921679,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851940869,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767851966326,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767852435288,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767852477052,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767852489566,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767852504173,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853298444,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853313785,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853319214,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853438409,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853757792,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853787269,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853808096,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853879110,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767853915426,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854237036,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854240768,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854258718,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854264167,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854299173,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854305931,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854496200,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854701642,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854881257,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767854906692,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767855070703,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767855170663,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767855222961,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767855496472,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767855504449,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767855619331,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856061745,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856081962,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856089642,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856099459,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856102750,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856184245,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856210118,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856246422,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856298846,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856315538,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856414365,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856423282,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856866973,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856871968,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767856904742,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767857040607,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767857306060,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767857338860,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767857357917,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858140799,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858159677,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858176264,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858249606,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858259385,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858293072,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858309447,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858333522,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858345197,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858381858,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858390333,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858401314,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858435409,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858444697,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858466596,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858479828,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858503858,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858515626,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767858544352,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858573549,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858580422,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858597938,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858625924,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858636526,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858651387,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858684938,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858689873,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858721680,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858739351,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858747412,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858765865,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767858777555,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767859452509,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859477383,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859499627,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859506453,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859513353,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859521971,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859543594,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859558143,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859583357,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859888035,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859900611,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859958652,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767859973590,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767860344942,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767860381174,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767860388399,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767860650443,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767860682653,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767860766908,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767861010630,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767861090484,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767861121876,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767861130458,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767885944398,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767885969029,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767885981631,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767885995581,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886339453,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886354980,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886420473,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886462700,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886479630,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886974779,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767886991554,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887325067,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887337067,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887353760,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887885536,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887903380,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887917379,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887931872,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887948503,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887960034,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767887980012,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767888054456,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888086054,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888117810,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888150037,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888221124,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888235045,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888271050,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888285231,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888358530,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888658723,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888686705,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888961825,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767888997944,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767889019603,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767889039538,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767889101816,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767889117563,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767889135812,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767892329689,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892341881,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892358894,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892369657,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892394667,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892401114,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892416405,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892434674,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892456118,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892479180,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767892936382,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767893326136,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767893464170,
+                "u": "1319707981377699920"
+              }
+            ],
+            "voice": []
+          },
+          "1398578847250645097": {
+            "messages": [],
+            "voice": [
+              {
+                "ts": 1767797222765,
+                "u": "1343508844453826673",
+                "mins": 13
+              },
+              {
+                "ts": 1767861100160,
+                "u": "1319707981377699920",
+                "mins": 1
+              },
+              {
+                "ts": 1767869433056,
+                "u": "1319707981377699920",
+                "mins": 138
+              },
+              {
+                "ts": 1767869733074,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767870033081,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767870333081,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767870633087,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767870933096,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767871233104,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767871533125,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767871833139,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767872133142,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767872433158,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767872733170,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767873033174,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767873333183,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767873633192,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767873933204,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767874233208,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767886246487,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767886605417,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767886905419,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767887204763,
+                "u": "1319707981377699920",
+                "mins": 4
+              },
+              {
+                "ts": 1767887527683,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767887807407,
+                "u": "1319707981377699920",
+                "mins": 4
+              },
+              {
+                "ts": 1767888128958,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767888364525,
+                "u": "1343508844453826673",
+                "mins": 1
+              },
+              {
+                "ts": 1767888491504,
+                "u": "1319707981377699920",
+                "mins": 4
+              },
+              {
+                "ts": 1767888659395,
+                "u": "1319707981377699920",
+                "mins": 2
+              },
+              {
+                "ts": 1767889245755,
+                "u": "1319707981377699920",
+                "mins": 3
+              },
+              {
+                "ts": 1767889545760,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767889845767,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767890145776,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767891459966,
+                "u": "1319707981377699920",
+                "mins": 21
+              },
+              {
+                "ts": 1767891759974,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767892059986,
+                "u": "1319707981377699920",
+                "mins": 5
+              },
+              {
+                "ts": 1767892291679,
+                "u": "1319707981377699920",
+                "mins": 3
+              }
+            ]
+          },
+          "1458855424173539605": {
+            "messages": [],
+            "voice": [
+              {
+                "ts": 1767888791546,
+                "u": "1319707981377699920",
+                "mins": 2
+              },
+              {
+                "ts": 1767888932731,
+                "u": "1319707981377699920",
+                "mins": 2
+              },
+              {
+                "ts": 1767889020719,
+                "u": "1319707981377699920",
+                "mins": 1
+              }
+            ]
+          }
+        },
+        "daily": {
+          "2026-01-07": {
+            "messages": 26,
+            "voice": 13,
+            "joins": 0,
+            "leaves": 0
+          },
+          "2026-01-08": {
+            "messages": 277,
+            "voice": 12316,
+            "joins": 0,
+            "leaves": 0
+          }
+        },
+        "settings": {
+          "trackMessages": true,
+          "trackVoice": true,
+          "trackInvites": true,
+          "publicStats": true,
+          "ignoredChannels": [],
+          "ignoredRoles": []
+        },
+        "invites": {
+          "1343508844453826673": {
+            "total": 0,
+            "regular": 0,
+            "left": 0,
+            "fake": 0,
+            "bonus": 0,
+            "invited": []
+          }
+        }
+      }
     }
   ]
 }

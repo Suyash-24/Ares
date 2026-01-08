@@ -2,9 +2,9 @@ import { ContainerBuilder, MessageFlags, SeparatorSpacingSize } from 'discord.js
 import EMOJIS from '../../../utils/emojis.js';
 
 export default {
-	name: 'clear',
+	name: 'clearqueue',
 	description: 'Clear the entire music queue',
-	aliases: ['clearqueue', 'cq'],
+	aliases: ['clear-queue', 'cq', 'emptyqueue'],
 	category: 'Music',
 
 	async execute(message, args, client) {

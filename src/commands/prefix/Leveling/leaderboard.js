@@ -30,31 +30,34 @@ export const buildPage = (leveling, page, authorId, guild = null, botName = 'Kir
 	if (!slice.length) {
 		container.addTextDisplayComponents(td => td.setContent('No tracked members yet.')); 
 	} else {
-		slice.forEach((entry, idx) => {
+		// Build all entries text
+		const entriesText = slice.map((entry, idx) => {
 			const rank = current * PER_PAGE + idx + 1;
 			const needed = 5 * entry.level * entry.level + 50 * entry.level + 100;
 			const progress = Math.min(100, Math.round((entry.xp / needed) * 100));
 			const barLength = 20;
 			const filledBars = Math.floor((progress / 100) * barLength);
 			const progressBar = '█'.repeat(filledBars) + '░'.repeat(barLength - filledBars);
-			
+			return `**#${rank} — [Lvl. ${entry.level}] <@${entry.userId}>**\n${progressBar} \`${progress}%\``;
+		}).join('\n\n');
+
+		// Single section with all entries and thumbnail
+		if (serverIcon) {
 			container.addSectionComponents(section => {
-				section.addTextDisplayComponents(td => td.setContent(
-					`**#${rank} — [Lvl. ${entry.level}] <@${entry.userId}>**\n${progressBar} \`${progress}%\``
-				));
-				if (serverIcon) {
-					section.setThumbnailAccessory(thumbnail => thumbnail.setURL(serverIcon));
-				}
+				section.addTextDisplayComponents(td => td.setContent(entriesText));
+				section.setThumbnailAccessory(thumbnail => thumbnail.setURL(serverIcon));
 				return section;
 			});
-		});
+		} else {
+			container.addTextDisplayComponents(td => td.setContent(entriesText));
+		}
 	}
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	container.addTextDisplayComponents(td => td.setContent(`Page ${current + 1}/${totalPages} • ${botName}`));
 
 	if (totalPages > 1) {
-		const row = new ActionRowBuilder().addComponents(
+		container.addActionRowComponents(row => row.addComponents(
 			new ButtonBuilder()
 				.setCustomId(`level_lb_prev:${authorId}:${current - 1}`)
 				.setLabel('Previous')
@@ -70,8 +73,7 @@ export const buildPage = (leveling, page, authorId, guild = null, botName = 'Kir
 				.setLabel('Next')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(current >= totalPages - 1)
-		);
-		container.addActionRowComponents(row);
+		));
 	}
 
 	return container;
