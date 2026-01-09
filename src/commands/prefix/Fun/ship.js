@@ -1,4 +1,4 @@
-import { ContainerBuilder, MessageFlags, AttachmentBuilder } from 'discord.js';
+import { ContainerBuilder, MessageFlags, AttachmentBuilder, MediaGalleryBuilder, SeparatorSpacingSize } from 'discord.js';
 import { createCanvas, loadImage } from '@napi-rs/canvas';
 import EMOJIS from '../../../utils/emojis.js';
 
@@ -27,7 +27,15 @@ async function execute(message, args, client) {
 
 	if (args.length === 0) {
 		user1 = message.author;
-		const randomMember = message.guild.members.cache.filter(m => !m.user.bot && m.id !== message.author.id).random();
+		// Fetch all members to ensure true randomness (if not already cached)
+        // Optimization: Checking cache size vs memberCount could determine if fetch is needed, 
+        // but fetching ensures we get everyone including offline users.
+        if (message.guild.memberCount > message.guild.members.cache.size) {
+             await message.guild.members.fetch().catch(() => {});
+        }
+		
+		// Allow bots, just exclude self
+		const randomMember = message.guild.members.cache.filter(m => m.id !== message.author.id).random();
 		user2 = randomMember ? randomMember.user : message.author; 
 	} else if (args[1]) {
 		user1 = await resolveUser(args[0]);
@@ -108,11 +116,34 @@ async function execute(message, args, client) {
 
 		attachment = new AttachmentBuilder(await canvas.encode('png'), { name: 'ship.png' });
 	} catch (e) {
-		console.error('Canvas error details:', e);
+		console.error('[Ship] Canvas error details:', e);
 	}
 
+	// 1. Title
 	container.addTextDisplayComponents(td => 
-		td.setContent(`# 💘 Matchmaking 💘\n\n🔻 **${user1.username}**\n🔺 **${user2.username}**\n\n**${score}%** ${bar}\n\n*${comment}*`)
+		td.setContent(`# 💘 Matchmaking 💘`)
+	);
+
+	// 2. Separator
+	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+
+	// 3. Names and Bar
+	container.addTextDisplayComponents(td => 
+		td.setContent(`🔻 **${user1.username}**\n🔺 **${user2.username}**\n\n**${score}%** ${bar}`)
+	);
+
+	// 4. Image
+	if (attachment) {
+		const gallery = new MediaGalleryBuilder();
+		gallery.addItems((item) => 
+			item.setURL('attachment://ship.png')
+		);
+		container.addMediaGalleryComponents((mg) => gallery);
+	}
+
+	// 5. Comment (below image)
+	container.addTextDisplayComponents(td => 
+		td.setContent(`### ${comment}`)
 	);
 
 	const replyOptions = { 

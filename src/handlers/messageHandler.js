@@ -232,11 +232,47 @@ export default function registerMessageHandler(discordClient) {
 		}
 
 		try {
-			// Enforce restricted commands configured in the guild DB
+			// Database Check: Disabled & Restricted Commands
 			if (discordClient.db) {
 				try {
 					const guildDoc = await discordClient.db.findOne({ guildId: message.guildId }) || {};
-					const restricted = guildDoc?.moderation?.restrictedCommands?.[resolvedCommandName];
+					const moderation = guildDoc.moderation || {};
+
+					// 1. Check Disabled Commands (Global or Channel-specific)
+					if (moderation.disabledCommands) {
+						const cmdName = command.name.toLowerCase();
+						const cmdCat = command.category ? command.category.toLowerCase() : null;
+						const shouldReply = moderation.disableNotice !== false; // Default true
+
+						// Check specific command disable
+						const disabledCmd = moderation.disabledCommands[cmdName];
+						if (disabledCmd) {
+							if (disabledCmd.includes('global') || disabledCmd.includes(message.channel.id)) {
+								if (shouldReply) {
+									const container = buildNotice(`# ${EMOJIS.error || '❌'} Disabled`, 'This command is disabled in this channel/server.');
+									return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
+								}
+								return; 
+							}
+						}
+
+						// Check category disable (if command has category)
+						if (cmdCat) {
+							const disabledCat = moderation.disabledCommands[cmdCat];
+							if (disabledCat) {
+								if (disabledCat.includes('global') || disabledCat.includes(message.channel.id)) {
+									if (shouldReply) {
+										const container = buildNotice(`# ${EMOJIS.error || '❌'} Disabled`, `The **${command.category}** module is disabled here.`);
+										return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
+									}
+									return;
+								}
+							}
+						}
+					}
+
+					// 2. Check Restricted Commands (Role-based)
+					const restricted = moderation.restrictedCommands?.[resolvedCommandName];
 					if (Array.isArray(restricted) && restricted.length > 0) {
 						const isOwner = message.member.id === message.guild.ownerId;
 						const hasAllowedRole = message.member.roles.cache.some(r => restricted.includes(r.id));
@@ -246,7 +282,7 @@ export default function registerMessageHandler(discordClient) {
 						}
 					}
 				} catch (dbErr) {
-					console.error('Failed to check restrictedCommands:', dbErr);
+					console.error('Failed to check command config:', dbErr);
 				}
 			}
 
