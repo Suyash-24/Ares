@@ -17,6 +17,15 @@ export default function registerMessageHandler(discordClient) {
 			return;
 		}
 
+		// Fetch guild data ONCE at the start and reuse throughout
+		let guildData = null;
+		try {
+			guildData = await discordClient.db.findOne({ guildId: message.guildId }) || {};
+		} catch (err) {
+			// Continue with empty guildData on error
+			guildData = {};
+		}
+
 		// Leveling XP accrual for every eligible message (non-bot, guild only)
 		try {
 			await handleMessageXp(discordClient, message);
@@ -31,15 +40,10 @@ export default function registerMessageHandler(discordClient) {
 			console.error('[Stats] Message stats handling failed:', err);
 		}
 
-		// Get guild-specific prefix or use global
+		// Get guild-specific prefix or use global (use already fetched guildData)
 		let prefix = discordClient.prefix;
-		try {
-			const guildData = await discordClient.db.findOne({ guildId: message.guildId });
-			if (guildData?.prefix) {
-				prefix = guildData.prefix;
-			}
-		} catch (err) {
-			// Use global prefix on error
+		if (guildData?.prefix) {
+			prefix = guildData.prefix;
 		}
 
 		// Check if bot is mentioned alone (no command after)
@@ -154,80 +158,73 @@ export default function registerMessageHandler(discordClient) {
 		}
 
 		if (!bestMatch) {
-			// Check for Custom Role Alias
-			if (discordClient.db) {
-				try {
-					const guildData = await discordClient.db.findOne({ guildId: message.guildId });
-					const customRoles = guildData?.custom_roles;
+			// Check for Custom Role Alias (use already fetched guildData)
+			try {
+				const customRoles = guildData?.custom_roles;
+				
+				if (customRoles?.aliases && customRoles.aliases[invokedName]) {
+					const roleId = customRoles.aliases[invokedName];
+					const role = message.guild.roles.cache.get(roleId);
 					
-					// Re-construct invokedName as the first argument since args logic above might have shifted stuff?
-					// Actually 'invokedName' variable from line 31 is the first token.
-					// If user typed ".vip @user", invokedName is "vip".
-					
-					if (customRoles?.aliases && customRoles.aliases[invokedName]) {
-						const roleId = customRoles.aliases[invokedName];
-						const role = message.guild.roles.cache.get(roleId);
-						
-						if (role) {
-							// Permission Check
-							let hasPermission = false;
-							if (customRoles.reqRole) {
-								hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
-											  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
-											  message.member.roles.cache.has(customRoles.reqRole);
-							} else {
-								hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
-											  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
-											  message.member.permissions.has(PermissionFlagsBits.ManageRoles);
-							}
+					if (role) {
+						// Permission Check
+						let hasPermission = false;
+						if (customRoles.reqRole) {
+							hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
+										  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
+										  message.member.roles.cache.has(customRoles.reqRole);
+						} else {
+							hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
+										  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
+										  message.member.permissions.has(PermissionFlagsBits.ManageRoles);
+						}
 
-							if (!hasPermission) {
-								const reqRoleName = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : 'Manage Roles';
-								const container = new ContainerBuilder();
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Permission Denied**`));
-								container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-								container.addTextDisplayComponents(td => td.setContent(`You need ${reqRoleName} to use this command.`));
-								return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
-							}
-
-							// Target Member Resolution
-							let targetMember = message.member;
-							const targetInput = args[0]; // 'args' here is the original split array minus invokedName (shifted in line 31)
-							if (targetInput) {
-								const targetId = targetInput.replace(/\D/g, '');
-								if (targetId) {
-									try {
-										const fetched = await message.guild.members.fetch(targetId);
-										if (fetched) targetMember = fetched;
-									} catch {}
-								}
-							}
-
-							// Check hierarchy
-							if (role.position >= message.guild.members.me.roles.highest.position) {
-								const container = new ContainerBuilder();
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Hierarchy Error**`));
-								container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-								container.addTextDisplayComponents(td => td.setContent('I cannot manage this role as it is higher than my highest role.'));
-								return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
-							}
-
-							// Toggle Role
+						if (!hasPermission) {
+							const reqRoleName = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : 'Manage Roles';
 							const container = new ContainerBuilder();
-							if (targetMember.roles.cache.has(role.id)) {
-								await targetMember.roles.remove(role);
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Removed **${role.name}** from ${targetMember.user.tag}`));
-							} else {
-								await targetMember.roles.add(role);
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Added **${role.name}** to ${targetMember.user.tag}`));
-							}
-							
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Permission Denied**`));
+							container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+							container.addTextDisplayComponents(td => td.setContent(`You need ${reqRoleName} to use this command.`));
 							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 						}
+
+						// Target Member Resolution
+						let targetMember = message.member;
+						const targetInput = args[0];
+						if (targetInput) {
+							const targetId = targetInput.replace(/\D/g, '');
+							if (targetId) {
+								try {
+									const fetched = await message.guild.members.fetch(targetId);
+									if (fetched) targetMember = fetched;
+								} catch {}
+							}
+						}
+
+						// Check hierarchy
+						if (role.position >= message.guild.members.me.roles.highest.position) {
+							const container = new ContainerBuilder();
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Hierarchy Error**`));
+							container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+							container.addTextDisplayComponents(td => td.setContent('I cannot manage this role as it is higher than my highest role.'));
+							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
+						}
+
+						// Toggle Role
+						const container = new ContainerBuilder();
+						if (targetMember.roles.cache.has(role.id)) {
+							await targetMember.roles.remove(role);
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Removed **${role.name}** from ${targetMember.user.tag}`));
+						} else {
+							await targetMember.roles.add(role);
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Added **${role.name}** to ${targetMember.user.tag}`));
+						}
+						
+						return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 					}
-				} catch (err) {
-					console.error('Custom Role Error:', err);
 				}
+			} catch (err) {
+				console.error('Custom Role Error:', err);
 			}
 			return;
 		}
@@ -236,11 +233,9 @@ export default function registerMessageHandler(discordClient) {
 		const command = discordClient.prefixCommands.get(resolvedCommandName);
 
 		if (!command) {
-			// Check for Custom Role Alias
-			if (discordClient.db) {
-				try {
-					const guildData = await discordClient.db.findOne({ guildId: message.guildId });
-					const customRoles = guildData?.custom_roles;
+			// Check for Custom Role Alias (use already fetched guildData)
+			try {
+				const customRoles = guildData?.custom_roles;
 					
 					if (customRoles?.aliases && customRoles.aliases[invokedName]) {
 						const roleId = customRoles.aliases[invokedName];
@@ -305,65 +300,57 @@ export default function registerMessageHandler(discordClient) {
 							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 						}
 					}
-				} catch (err) {
-					console.error('Custom Role Error:', err);
-				}
+			} catch (err) {
+				console.error('Custom Role Error:', err);
 			}
 			return;
 		}
 
 		try {
-			// Database Check: Disabled & Restricted Commands
-			if (discordClient.db) {
-				try {
-					const guildDoc = await discordClient.db.findOne({ guildId: message.guildId }) || {};
-					const moderation = guildDoc.moderation || {};
+			// Database Check: Disabled & Restricted Commands (use already fetched guildData)
+			const moderation = guildData?.moderation || {};
 
-					// 1. Check Disabled Commands (Global or Channel-specific)
-					if (moderation.disabledCommands) {
-						const cmdName = command.name.toLowerCase();
-						const cmdCat = command.category ? command.category.toLowerCase() : null;
-						const shouldReply = moderation.disableNotice !== false; // Default true
+			// 1. Check Disabled Commands (Global or Channel-specific)
+			if (moderation.disabledCommands) {
+				const cmdName = command.name.toLowerCase();
+				const cmdCat = command.category ? command.category.toLowerCase() : null;
+				const shouldReply = moderation.disableNotice !== false;
 
-						// Check specific command disable
-						const disabledCmd = moderation.disabledCommands[cmdName];
-						if (disabledCmd) {
-							if (disabledCmd.includes('global') || disabledCmd.includes(message.channel.id)) {
-								if (shouldReply) {
-									const container = buildNotice(`# ${EMOJIS.error || '❌'} Disabled`, 'This command is disabled in this channel/server.');
-									return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
-								}
-								return; 
-							}
-						}
-
-						// Check category disable (if command has category)
-						if (cmdCat) {
-							const disabledCat = moderation.disabledCommands[cmdCat];
-							if (disabledCat) {
-								if (disabledCat.includes('global') || disabledCat.includes(message.channel.id)) {
-									if (shouldReply) {
-										const container = buildNotice(`# ${EMOJIS.error || '❌'} Disabled`, `The **${command.category}** module is disabled here.`);
-										return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
-									}
-									return;
-								}
-							}
-						}
-					}
-
-					// 2. Check Restricted Commands (Role-based)
-					const restricted = moderation.restrictedCommands?.[resolvedCommandName];
-					if (Array.isArray(restricted) && restricted.length > 0) {
-						const isOwner = message.member.id === message.guild.ownerId;
-						const hasAllowedRole = message.member.roles.cache.some(r => restricted.includes(r.id));
-						if (!isOwner && !hasAllowedRole) {
-							const container = buildNotice(`# ${EMOJIS.error} Restricted`, 'You are not allowed to use this command.');
+				// Check specific command disable
+				const disabledCmd = moderation.disabledCommands[cmdName];
+				if (disabledCmd) {
+					if (disabledCmd.includes('global') || disabledCmd.includes(message.channel.id)) {
+						if (shouldReply) {
+							const container = buildNotice(`# ${EMOJIS.error || '❌'} Disabled`, 'This command is disabled in this channel/server.');
 							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 						}
+						return; 
 					}
-				} catch (dbErr) {
-					console.error('Failed to check command config:', dbErr);
+				}
+
+				// Check category disable (if command has category)
+				if (cmdCat) {
+					const disabledCat = moderation.disabledCommands[cmdCat];
+					if (disabledCat) {
+						if (disabledCat.includes('global') || disabledCat.includes(message.channel.id)) {
+							if (shouldReply) {
+								const container = buildNotice(`# ${EMOJIS.error || '❌'} Disabled`, `The **${command.category}** module is disabled here.`);
+								return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
+							}
+							return;
+						}
+					}
+				}
+			}
+
+			// 2. Check Restricted Commands (Role-based)
+			const restricted = moderation.restrictedCommands?.[resolvedCommandName];
+			if (Array.isArray(restricted) && restricted.length > 0) {
+				const isOwner = message.member.id === message.guild.ownerId;
+				const hasAllowedRole = message.member.roles.cache.some(r => restricted.includes(r.id));
+				if (!isOwner && !hasAllowedRole) {
+					const container = buildNotice(`# ${EMOJIS.error} Restricted`, 'You are not allowed to use this command.');
+					return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 				}
 			}
 
@@ -373,13 +360,10 @@ export default function registerMessageHandler(discordClient) {
 			console.error(`Error executing prefix command ${resolvedCommandName}:`, error);
 
 			try {
-				// Try to reply, but if the message was deleted, just log silently
 				await message.reply({
 					content: 'Something went wrong while executing that command.',
 					allowedMentions: { repliedUser: false }
-				}).catch(() => {
-					// Message was likely deleted, ignore
-				});
+				}).catch(() => {});
 			} catch (replyError) {
 				// Silently ignore - message was likely deleted
 			}
