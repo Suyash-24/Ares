@@ -80,9 +80,32 @@ const placeholders = {
   '{datetime}': () => new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 };
 
+// Footer-safe timestamp replacements (readable dates instead of Discord format)
+const footerSafePlaceholders = {
+  '{timestamp}': () => new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
+  '{timestamp.relative}': () => 'now',
+  '{timestamp.date}': () => new Date().toLocaleDateString('en-US', { dateStyle: 'medium' }),
+  '{timestamp.time}': () => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+};
+
 export const replacePlaceholders = (text, member) => {
   if (!text) return '';
   let result = text;
+  for (const [placeholder, fn] of Object.entries(placeholders)) {
+    result = result.split(placeholder).join(fn(member));
+  }
+  return result;
+};
+
+// For footer text - converts timestamps to readable format since embed footers don't support Discord timestamp markdown
+const replacePlaceholdersFooterSafe = (text, member) => {
+  if (!text) return '';
+  let result = text;
+  // First apply footer-safe timestamp replacements
+  for (const [placeholder, fn] of Object.entries(footerSafePlaceholders)) {
+    result = result.split(placeholder).join(fn(member));
+  }
+  // Then apply regular placeholders
   for (const [placeholder, fn] of Object.entries(placeholders)) {
     result = result.split(placeholder).join(fn(member));
   }
@@ -222,7 +245,7 @@ export const buildGoodbyeEmbed = (channelConfig, member) => {
   }
   
   if (channelConfig.footer) {
-    const footerText = replacePlaceholders(channelConfig.footer, member);
+    const footerText = replacePlaceholdersFooterSafe(channelConfig.footer, member);
     const footerIconUrl = channelConfig.footerIcon ? replacePlaceholders(channelConfig.footerIcon, member) : null;
     if (footerIconUrl && isValidUrl(footerIconUrl)) {
       embed.setFooter({ text: footerText, iconURL: footerIconUrl });
