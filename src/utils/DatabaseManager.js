@@ -17,6 +17,9 @@ class DatabaseManager {
 		this.postgresClient = null;
 		this.sqliteDb = null;
 		this.data = this.loadJSONDatabase();
+		// In-memory cache for frequently accessed guild data
+		this.cache = new Map();
+		this.cacheTTL = 30000; // 30 seconds cache TTL
 	}
 
 	/**
@@ -166,29 +169,52 @@ class DatabaseManager {
 	}
 
 	/**
-	 * Find guild data
+	 * Find guild data (with caching)
 	 */
 	async findOne(collection, filter) {
-		if (this.type === 'postgres') {
-			return this.postgresFind(collection, filter);
-		} else if (this.type === 'sqlite') {
-			return this.sqliteFind(collection, filter);
-		} else {
-			return this.jsonFind(collection, filter);
+		const cacheKey = `${collection}:${filter.guildId}`;
+		const cached = this.cache.get(cacheKey);
+		
+		// Return cached data if valid
+		if (cached && Date.now() - cached.timestamp < this.cacheTTL) {
+			return cached.data;
 		}
+
+		let result;
+		if (this.type === 'postgres') {
+			result = await this.postgresFind(collection, filter);
+		} else if (this.type === 'sqlite') {
+			result = this.sqliteFind(collection, filter);
+		} else {
+			result = this.jsonFind(collection, filter);
+		}
+
+		// Cache the result
+		if (result) {
+			this.cache.set(cacheKey, { data: result, timestamp: Date.now() });
+		}
+		
+		return result;
 	}
 
 	/**
-	 * Update guild data
+	 * Update guild data (invalidates cache)
 	 */
 	async updateOne(collection, filter, update) {
+		// Invalidate cache for this guild
+		const cacheKey = `${collection}:${filter.guildId}`;
+		this.cache.delete(cacheKey);
+
+		let result;
 		if (this.type === 'postgres') {
-			return this.postgresUpdate(collection, filter, update);
+			result = await this.postgresUpdate(collection, filter, update);
 		} else if (this.type === 'sqlite') {
-			return this.sqliteUpdate(collection, filter, update);
+			result = this.sqliteUpdate(collection, filter, update);
 		} else {
-			return this.jsonUpdate(collection, filter, update);
+			result = this.jsonUpdate(collection, filter, update);
 		}
+		
+		return result;
 	}
 
 	/**
@@ -214,78 +240,75 @@ class DatabaseManager {
 	}
 
 	/**
-	 * PostgreSQL update - properly merges $set data with existing data
+	 * PostgreSQL update - uses JSONB merge for efficient single-query updates
 	 */
 	async postgresUpdate(collection, filter, update) {
 		try {
-			// First, get existing data to merge with
-			const existingResult = await this.postgresClient.query(
-				`SELECT data FROM ${collection} WHERE guildId = $1`,
-				[filter.guildId]
-			);
-
-			let existingData = {};
-			if (existingResult.rows.length > 0) {
-				existingData = typeof existingResult.rows[0].data === 'string'
-					? JSON.parse(existingResult.rows[0].data)
-					: existingResult.rows[0].data;
-			}
-
-			// Merge $set data with existing data
 			const setOps = update.$set || {};
 			const unsetOps = update.$unset || {};
-			let mergedData = { ...existingData };
 
-			// Apply $set operations (supports dotted paths)
+			// Build the merged data object for $set operations
+			let setData = {};
 			for (const key of Object.keys(setOps)) {
 				const parts = key.split('.');
-				let cursor = mergedData;
-				for (let i = 0; i < parts.length; i++) {
-					const part = parts[i];
-					if (i === parts.length - 1) {
-						cursor[part] = setOps[key];
-					} else {
-						if (typeof cursor[part] !== 'object' || cursor[part] === null) cursor[part] = {};
-						cursor = cursor[part];
+				if (parts.length === 1) {
+					// Simple key - direct set
+					setData[key] = setOps[key];
+				} else {
+					// Dotted path - build nested object
+					let cursor = setData;
+					for (let i = 0; i < parts.length; i++) {
+						const part = parts[i];
+						if (i === parts.length - 1) {
+							cursor[part] = setOps[key];
+						} else {
+							if (typeof cursor[part] !== 'object' || cursor[part] === null) cursor[part] = {};
+							cursor = cursor[part];
+						}
 					}
 				}
 			}
 
-			// Apply $unset operations
-			for (const key of Object.keys(unsetOps)) {
-				const parts = key.split('.');
-				let cursor = mergedData;
-				for (let i = 0; i < parts.length; i++) {
-					const part = parts[i];
-					if (i === parts.length - 1) {
-						if (cursor && Object.prototype.hasOwnProperty.call(cursor, part)) delete cursor[part];
-					} else {
-						if (!cursor || typeof cursor[part] !== 'object') break;
-						cursor = cursor[part];
-					}
-				}
-			}
-
-			// If no $set or $unset, merge update object directly
+			// If no $set or $unset, use update object directly
 			if (!update.$set && !update.$unset) {
-				mergedData = { ...existingData, ...update };
+				setData = update;
 			}
 
-			if (existingResult.rows.length > 0) {
-				// Update existing record
-				const result = await this.postgresClient.query(
-					`UPDATE ${collection} SET data = $1, updatedAt = CURRENT_TIMESTAMP WHERE guildId = $2 RETURNING *`,
-					[JSON.stringify(mergedData), filter.guildId]
-				);
-				return { ok: 1, modifiedCount: result.rowCount };
+			// Build unset paths for removal
+			const unsetPaths = Object.keys(unsetOps);
+
+			// Use PostgreSQL's JSONB concatenation for efficient merge
+			// INSERT ... ON CONFLICT ... UPDATE with JSONB merge
+			let query;
+			let params;
+
+			if (unsetPaths.length > 0) {
+				// With $unset - need to remove keys after merge
+				const unsetClause = unsetPaths.map(p => `'${p.split('.')[0]}'`).join(', ');
+				query = `
+					INSERT INTO ${collection} (guildId, data)
+					VALUES ($1, $2::jsonb)
+					ON CONFLICT (guildId) DO UPDATE
+					SET data = (${collection}.data || $2::jsonb) - ARRAY[${unsetClause}],
+						updatedAt = CURRENT_TIMESTAMP
+					RETURNING *
+				`;
+				params = [filter.guildId, JSON.stringify(setData)];
 			} else {
-				// Insert new record
-				await this.postgresClient.query(
-					`INSERT INTO ${collection} (guildId, data) VALUES ($1, $2)`,
-					[filter.guildId, JSON.stringify(mergedData)]
-				);
-				return { ok: 1, modifiedCount: 1 };
+				// Simple merge without $unset
+				query = `
+					INSERT INTO ${collection} (guildId, data)
+					VALUES ($1, $2::jsonb)
+					ON CONFLICT (guildId) DO UPDATE
+					SET data = ${collection}.data || $2::jsonb,
+						updatedAt = CURRENT_TIMESTAMP
+					RETURNING *
+				`;
+				params = [filter.guildId, JSON.stringify(setData)];
 			}
+
+			const result = await this.postgresClient.query(query, params);
+			return { ok: 1, modifiedCount: result.rowCount };
 		} catch (error) {
 			console.error('PostgreSQL update error:', error.message);
 			return { ok: 0 };
