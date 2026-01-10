@@ -80,12 +80,12 @@ const placeholders = {
   '{datetime}': () => new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 };
 
-// Footer-safe timestamp replacements (readable dates instead of Discord format)
+// Footer-safe timestamp replacements (uses UTC since footers don't support Discord's auto-timezone)
 const footerSafePlaceholders = {
-  '{timestamp}': () => new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }),
-  '{timestamp.relative}': () => 'now',
-  '{timestamp.date}': () => new Date().toLocaleDateString('en-US', { dateStyle: 'medium' }),
-  '{timestamp.time}': () => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+  '{timestamp}': () => new Date().toLocaleString('en-GB', { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) + ' UTC',
+  '{timestamp.relative}': () => 'just now',
+  '{timestamp.date}': () => new Date().toLocaleDateString('en-GB', { timeZone: 'UTC', dateStyle: 'medium' }),
+  '{timestamp.time}': () => new Date().toLocaleTimeString('en-GB', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }) + ' UTC'
 };
 
 export const replacePlaceholders = (text, member) => {
