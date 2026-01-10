@@ -3,7 +3,7 @@ import EMOJIS from './emojis.js';
 
 // Default configuration for leveling; cloned per guild when missing.
 export const DEFAULT_LEVELING = {
-	enabled: true,
+	enabled: false,
 	ignores: {
 		channels: [],
 		roles: [],

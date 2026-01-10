@@ -495,29 +495,38 @@ export default {
       let channelArg = args[1];
       let option = args[2]?.toLowerCase();
       
-      // Extract value - for description and other text fields, preserve newlines
-      let value = args.slice(3).join(' ').replace(/\\n/g, '\n');
-      const fullMatch = rawContent.match(/config\s+\S+\s+\S+\s+([\s\S]*)$/i);
-      if (fullMatch && (option === 'description' || option === 'desc' || option === 'content')) {
-        value = fullMatch[1].replace(/\\n/g, '\n');
-      }
-      
       // Check if first arg is an option (not a channel) - auto-select if only 1 channel configured
       const configOptions = ['content', 'title', 'description', 'desc', 'author', 'authoricon', 'footer', 'footericon', 'thumbnail', 'image', 'color', 'selfdestruct', 'self_destruct', 'fields', 'buttons'];
+      
+      // Helper: extract value from raw content after the option name (preserves newlines)
+      const extractValueFromRaw = (optionName) => {
+        const optionPattern = new RegExp(`\\b${optionName}\\b\\s*`, 'i');
+        const match = rawContent.match(optionPattern);
+        if (match) {
+          const optionIndex = rawContent.indexOf(match[0]) + match[0].length;
+          return rawContent.slice(optionIndex).replace(/\\n/g, '\n').trim() || null;
+        }
+        return null;
+      };
       
       // If first arg is an option name but multiple channels exist, guide the user
       if (channelArg && configOptions.includes(channelArg.toLowerCase()) && config.channels.length > 1) {
         const channelsList = config.channels.map(c => `<#${c.channelId}>`).join(', ');
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Multiple Channels Configured`, 
-          `Please specify which channel to configure.\n\n**Usage:** \`goodbye config #channel ${channelArg.toLowerCase()} ${args.slice(2).join(' ') || '<value>'}\`\n\n**Configured channels:** ${channelsList}`)], 
+          `Please specify which channel to configure.\n\n**Usage:** \`goodbye config #channel ${channelArg.toLowerCase()} <value>\`\n\n**Configured channels:** ${channelsList}`)], 
           flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
       
+      let value;
       if (channelArg && configOptions.includes(channelArg.toLowerCase()) && config.channels.length === 1) {
         // Shift args: the first arg is actually the option, not the channel
-        value = args.slice(2).join(' ').replace(/\\n/g, '\n');
         option = channelArg.toLowerCase();
         channelArg = null; // Will be auto-selected below
+        value = extractValueFromRaw(option);
+      } else if (option) {
+        value = extractValueFromRaw(option);
+      } else {
+        value = null;
       }
       
       // Auto-select channel if only one configured and no channel specified
