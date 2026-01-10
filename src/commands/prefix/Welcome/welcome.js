@@ -68,11 +68,16 @@ const placeholders = {
   '{guild.emoji_count}': (member) => member.guild.emojis.cache.size.toString(),
   '{guild.channel_count}': (member) => member.guild.channels.cache.size.toString(),
   
-  // Time variables
+  // Time variables - Discord timestamp format (works in content/description, NOT in embed footer)
   '{timestamp}': () => `<t:${Math.floor(Date.now() / 1000)}:F>`,
   '{timestamp.relative}': () => `<t:${Math.floor(Date.now() / 1000)}:R>`,
   '{timestamp.date}': () => `<t:${Math.floor(Date.now() / 1000)}:D>`,
-  '{timestamp.time}': () => `<t:${Math.floor(Date.now() / 1000)}:T>`
+  '{timestamp.time}': () => `<t:${Math.floor(Date.now() / 1000)}:T>`,
+  // Formatted date strings (works everywhere including embed footer)
+  '{date}': () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+  '{date.short}': () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+  '{time}': () => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+  '{datetime}': () => new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 };
 
 export const replacePlaceholders = (text, member) => {
@@ -225,8 +230,6 @@ export const buildWelcomeEmbed = (channelConfig, member) => {
       embed.setFooter({ text: footerText });
     }
   }
-  
-  embed.setTimestamp();
   
   return embed;
 };
