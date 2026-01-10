@@ -179,7 +179,8 @@ const defaultChannelConfig = {
   thumbnail: null,
   selfDestruct: null,
   fields: null,
-  buttons: null
+  buttons: null,
+  timestamp: true  // Discord's built-in timestamp (shows local time for each viewer)
 };
 
 const defaultConfig = {
@@ -252,6 +253,11 @@ export const buildGoodbyeEmbed = (channelConfig, member) => {
     } else {
       embed.setFooter({ text: footerText });
     }
+  }
+  
+  // Add Discord's built-in timestamp (shows local time for each viewer)
+  if (channelConfig.timestamp !== false) {
+    embed.setTimestamp();
   }
   
   return embed;
