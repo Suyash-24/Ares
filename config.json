@@ -1,0 +1,43 @@
+{
+  "token": "",
+  "clientId": "1434107390856401049",
+  "prefix": ".",
+  "ownerIds": [
+    "1319707981377699920",
+    "1343508844453826673",
+    "1069248517555626024"
+  ],
+  "testGuildIds": [],
+  "presence": {
+    "activities": [
+      {
+        "name": "for /help",
+        "type": "Watching"
+      }
+    ],
+    "status": "online"
+  },
+  "suggestAllowAllChannels": false,
+  "suggestChannelId": null,
+  "lavalink": {
+    "nodes": [
+      {
+        "identifier": "Primary",
+        "host": "lavalinkv4.serenetia.com",
+        "port": 443,
+        "password": "https://dsc.gg/ajidevserver",
+        "secure": true,
+        "retryAmount": 5,
+        "retryDelay": 5000
+      }
+    ],
+    "defaultSearchPlatform": "youtube music",
+    "autoPlay": true,
+    "clientName": "Ares"
+  },
+  "spotify": {
+    "clientId": "",
+    "clientSecret": ""
+  },
+  "suggestThreadEnabled": false
+}
