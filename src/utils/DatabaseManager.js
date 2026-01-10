@@ -214,24 +214,78 @@ class DatabaseManager {
 	}
 
 	/**
-	 * PostgreSQL update
+	 * PostgreSQL update - properly merges $set data with existing data
 	 */
 	async postgresUpdate(collection, filter, update) {
 		try {
-			const result = await this.postgresClient.query(
-				`UPDATE ${collection} SET data = $1, updatedAt = CURRENT_TIMESTAMP WHERE guildId = $2 RETURNING *`,
-				[JSON.stringify(update.$set || update), filter.guildId]
+			// First, get existing data to merge with
+			const existingResult = await this.postgresClient.query(
+				`SELECT data FROM ${collection} WHERE guildId = $1`,
+				[filter.guildId]
 			);
 
-			if (result.rowCount === 0) {
-				// Insert if doesn't exist
-				await this.postgresClient.query(
-					`INSERT INTO ${collection} (guildId, data) VALUES ($1, $2)`,
-					[filter.guildId, JSON.stringify(update.$set || update)]
-				);
+			let existingData = {};
+			if (existingResult.rows.length > 0) {
+				existingData = typeof existingResult.rows[0].data === 'string'
+					? JSON.parse(existingResult.rows[0].data)
+					: existingResult.rows[0].data;
 			}
 
-			return { ok: 1, modifiedCount: result.rowCount };
+			// Merge $set data with existing data
+			const setOps = update.$set || {};
+			const unsetOps = update.$unset || {};
+			let mergedData = { ...existingData };
+
+			// Apply $set operations (supports dotted paths)
+			for (const key of Object.keys(setOps)) {
+				const parts = key.split('.');
+				let cursor = mergedData;
+				for (let i = 0; i < parts.length; i++) {
+					const part = parts[i];
+					if (i === parts.length - 1) {
+						cursor[part] = setOps[key];
+					} else {
+						if (typeof cursor[part] !== 'object' || cursor[part] === null) cursor[part] = {};
+						cursor = cursor[part];
+					}
+				}
+			}
+
+			// Apply $unset operations
+			for (const key of Object.keys(unsetOps)) {
+				const parts = key.split('.');
+				let cursor = mergedData;
+				for (let i = 0; i < parts.length; i++) {
+					const part = parts[i];
+					if (i === parts.length - 1) {
+						if (cursor && Object.prototype.hasOwnProperty.call(cursor, part)) delete cursor[part];
+					} else {
+						if (!cursor || typeof cursor[part] !== 'object') break;
+						cursor = cursor[part];
+					}
+				}
+			}
+
+			// If no $set or $unset, merge update object directly
+			if (!update.$set && !update.$unset) {
+				mergedData = { ...existingData, ...update };
+			}
+
+			if (existingResult.rows.length > 0) {
+				// Update existing record
+				const result = await this.postgresClient.query(
+					`UPDATE ${collection} SET data = $1, updatedAt = CURRENT_TIMESTAMP WHERE guildId = $2 RETURNING *`,
+					[JSON.stringify(mergedData), filter.guildId]
+				);
+				return { ok: 1, modifiedCount: result.rowCount };
+			} else {
+				// Insert new record
+				await this.postgresClient.query(
+					`INSERT INTO ${collection} (guildId, data) VALUES ($1, $2)`,
+					[filter.guildId, JSON.stringify(mergedData)]
+				);
+				return { ok: 1, modifiedCount: 1 };
+			}
 		} catch (error) {
 			console.error('PostgreSQL update error:', error.message);
 			return { ok: 0 };
@@ -257,24 +311,76 @@ class DatabaseManager {
 	}
 
 	/**
-	 * SQLite update
+	 * SQLite update - properly merges $set data with existing data
 	 */
 	sqliteUpdate(collection, filter, update) {
 		try {
-			const stmt = this.sqliteDb.prepare(
-				`UPDATE ${collection} SET data = ?, updatedAt = CURRENT_TIMESTAMP WHERE guildId = ?`
-			);
-			const result = stmt.run(JSON.stringify(update.$set || update), filter.guildId);
+			// First, get existing data to merge with
+			const selectStmt = this.sqliteDb.prepare(`SELECT data FROM ${collection} WHERE guildId = ?`);
+			const existingRow = selectStmt.get(filter.guildId);
 
-			if (result.changes === 0) {
-				// Insert if doesn't exist
+			let existingData = {};
+			if (existingRow) {
+				existingData = typeof existingRow.data === 'string'
+					? JSON.parse(existingRow.data)
+					: existingRow.data;
+			}
+
+			// Merge $set data with existing data
+			const setOps = update.$set || {};
+			const unsetOps = update.$unset || {};
+			let mergedData = { ...existingData };
+
+			// Apply $set operations (supports dotted paths)
+			for (const key of Object.keys(setOps)) {
+				const parts = key.split('.');
+				let cursor = mergedData;
+				for (let i = 0; i < parts.length; i++) {
+					const part = parts[i];
+					if (i === parts.length - 1) {
+						cursor[part] = setOps[key];
+					} else {
+						if (typeof cursor[part] !== 'object' || cursor[part] === null) cursor[part] = {};
+						cursor = cursor[part];
+					}
+				}
+			}
+
+			// Apply $unset operations
+			for (const key of Object.keys(unsetOps)) {
+				const parts = key.split('.');
+				let cursor = mergedData;
+				for (let i = 0; i < parts.length; i++) {
+					const part = parts[i];
+					if (i === parts.length - 1) {
+						if (cursor && Object.prototype.hasOwnProperty.call(cursor, part)) delete cursor[part];
+					} else {
+						if (!cursor || typeof cursor[part] !== 'object') break;
+						cursor = cursor[part];
+					}
+				}
+			}
+
+			// If no $set or $unset, merge update object directly
+			if (!update.$set && !update.$unset) {
+				mergedData = { ...existingData, ...update };
+			}
+
+			if (existingRow) {
+				// Update existing record
+				const updateStmt = this.sqliteDb.prepare(
+					`UPDATE ${collection} SET data = ?, updatedAt = CURRENT_TIMESTAMP WHERE guildId = ?`
+				);
+				const result = updateStmt.run(JSON.stringify(mergedData), filter.guildId);
+				return { ok: 1, modifiedCount: result.changes };
+			} else {
+				// Insert new record
 				const insertStmt = this.sqliteDb.prepare(
 					`INSERT INTO ${collection} (guildId, data) VALUES (?, ?)`
 				);
-				insertStmt.run(filter.guildId, JSON.stringify(update.$set || update));
+				insertStmt.run(filter.guildId, JSON.stringify(mergedData));
+				return { ok: 1, modifiedCount: 1 };
 			}
-
-			return { ok: 1, modifiedCount: result.changes };
 		} catch (error) {
 			console.error('SQLite update error:', error.message);
 			return { ok: 0 };
