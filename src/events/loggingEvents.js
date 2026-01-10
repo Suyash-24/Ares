@@ -1,5 +1,5 @@
-/**
- * Kira Logging System - Event Handlers
+﻿/**
+ * Ares Logging System - Event Handlers
  * Registers all Discord events for comprehensive logging
  */
 
@@ -13,9 +13,9 @@ import {
 	LOG_EVENTS
 } from '../utils/LoggingManager.js';
 
-// Track messages that Kira deletes (to identify as executor)
+// Track messages that Ares deletes (to identify as executor)
 // Map of messageId -> timestamp, auto-cleaned after 10 seconds
-const kiraDeletedMessages = new Map();
+const aresDeletedMessages = new Map();
 
 // Track command invokers (who ran the command that caused the action)
 // Map of `guildId:actionType:targetId` -> { invoker, timestamp }
@@ -55,19 +55,19 @@ export function getCommandInvoker(guildId, actionType, targetId) {
 }
 
 /**
- * Mark a message as deleted by Kira (call this before deleting)
+ * Mark a message as deleted by Ares (call this before deleting)
  */
-export function markMessageAsKiraDeleted(messageId) {
-	kiraDeletedMessages.set(messageId, Date.now());
+export function markMessageAsAresDeleted(messageId) {
+	aresDeletedMessages.set(messageId, Date.now());
 	// Auto-cleanup after 10 seconds
-	setTimeout(() => kiraDeletedMessages.delete(messageId), 10000);
+	setTimeout(() => aresDeletedMessages.delete(messageId), 10000);
 }
 
 /**
- * Check if a message was deleted by Kira
+ * Check if a message was deleted by Ares
  */
-function wasDeletedByKira(messageId) {
-	const timestamp = kiraDeletedMessages.get(messageId);
+function wasDeletedByAres(messageId) {
+	const timestamp = aresDeletedMessages.get(messageId);
 	if (!timestamp) return false;
 	// Valid if within last 10 seconds
 	return Date.now() - timestamp < 10000;
@@ -77,7 +77,7 @@ function wasDeletedByKira(messageId) {
  * Register all logging event handlers
  */
 export function registerLoggingEvents(client) {
-	console.log('📋 [Logging] Registering event handlers...');
+	console.log('ðŸ“‹ [Logging] Registering event handlers...');
 
 	// Message Events
 	registerMessageEvents(client);
@@ -106,7 +106,7 @@ export function registerLoggingEvents(client) {
 	// Audit Log Events (for catching actions by other bots)
 	registerAuditLogEvents(client);
 
-	console.log('✅ [Logging] All event handlers registered');
+	console.log('âœ… [Logging] All event handlers registered');
 }
 
 /**
@@ -118,13 +118,13 @@ function registerMessageEvents(client) {
 		if (!message.guild) return;
 		if (message.partial) return; // Can't log partial messages
 
-		// Check if Kira deleted this message (tracked)
-		const deletedByKira = wasDeletedByKira(message.id);
+		// Check if Ares deleted this message (tracked)
+		const deletedByAres = wasDeletedByAres(message.id);
 		
 		let resolvedExecutor;
 		
-		if (deletedByKira) {
-			// Kira deleted this message (command auto-delete, moderation, etc.)
+		if (deletedByAres) {
+			// Ares deleted this message (command auto-delete, moderation, etc.)
 			resolvedExecutor = { tag: `${client.user.tag}`, id: client.user.id };
 		} else {
 			// Check audit log for who deleted it
@@ -159,19 +159,19 @@ function registerMessageEvents(client) {
 				if (e.url) parts.push(`URL: ${e.url}`);
 				return parts.length > 0 ? parts.join(' | ') : 'Embed';
 			}).join('\n');
-			contentDescription += (contentDescription ? '\n\n' : '') + `📦 **Embeds (${message.embeds.length}):**\n${embedInfo}`;
+			contentDescription += (contentDescription ? '\n\n' : '') + `ðŸ“¦ **Embeds (${message.embeds.length}):**\n${embedInfo}`;
 		}
 		
 		// Check for components
 		if (message.components && message.components.length > 0) {
 			const componentCount = message.components.reduce((acc, row) => acc + (row.components?.length || 0), 0);
-			contentDescription += (contentDescription ? '\n\n' : '') + `🔘 **Components:** ${componentCount} button(s)/select menu(s)`;
+			contentDescription += (contentDescription ? '\n\n' : '') + `ðŸ”˜ **Components:** ${componentCount} button(s)/select menu(s)`;
 		}
 		
 		// Check for stickers
 		if (message.stickers && message.stickers.size > 0) {
 			const stickerNames = message.stickers.map(s => s.name).join(', ');
-			contentDescription += (contentDescription ? '\n\n' : '') + `🎨 **Stickers:** ${stickerNames}`;
+			contentDescription += (contentDescription ? '\n\n' : '') + `ðŸŽ¨ **Stickers:** ${stickerNames}`;
 		}
 
 		// If still no content, show appropriate message
@@ -242,17 +242,17 @@ function registerMessageEvents(client) {
 
 		// Create transcript content
 		const transcriptLines = [
-			`╔════════════════════════════════════════════════════════════════╗`,
-			`║                    BULK DELETE TRANSCRIPT                       ║`,
-			`╠════════════════════════════════════════════════════════════════╣`,
-			`║ Server: ${channel.guild.name}`,
-			`║ Channel: #${channel.name} (${channel.id})`,
-			`║ Messages Deleted: ${messages.size}`,
-			`║ Deleted By: ${executor?.tag || 'Unknown'} (${executor?.id || 'Unknown'})`,
-			`║ Timestamp: ${new Date().toLocaleString('en-US', { timeZone: 'UTC' })} UTC`,
-			`╚════════════════════════════════════════════════════════════════╝`,
+			`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—`,
+			`â•‘                    BULK DELETE TRANSCRIPT                       â•‘`,
+			`â• â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•£`,
+			`â•‘ Server: ${channel.guild.name}`,
+			`â•‘ Channel: #${channel.name} (${channel.id})`,
+			`â•‘ Messages Deleted: ${messages.size}`,
+			`â•‘ Deleted By: ${executor?.tag || 'Unknown'} (${executor?.id || 'Unknown'})`,
+			`â•‘ Timestamp: ${new Date().toLocaleString('en-US', { timeZone: 'UTC' })} UTC`,
+			`â•šâ•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•`,
 			``,
-			`${'─'.repeat(70)}`,
+			`${'â”€'.repeat(70)}`,
 			``
 		];
 
@@ -271,49 +271,49 @@ function registerMessageEvents(client) {
 			const author = msg.author?.tag || 'Unknown User';
 			const authorId = msg.author?.id || 'Unknown';
 			
-			transcriptLines.push(`┌─ ${author} (${authorId})`);
-			transcriptLines.push(`│  Time: ${timestamp} UTC`);
-			transcriptLines.push(`│  Message ID: ${msg.id}`);
+			transcriptLines.push(`â”Œâ”€ ${author} (${authorId})`);
+			transcriptLines.push(`â”‚  Time: ${timestamp} UTC`);
+			transcriptLines.push(`â”‚  Message ID: ${msg.id}`);
 			
 			// Content
 			if (msg.content && msg.content.trim()) {
 				const contentLines = msg.content.split('\n');
-				transcriptLines.push(`│  Content:`);
+				transcriptLines.push(`â”‚  Content:`);
 				for (const line of contentLines) {
-					transcriptLines.push(`│    ${line}`);
+					transcriptLines.push(`â”‚    ${line}`);
 				}
 			} else {
-				transcriptLines.push(`│  Content: [No text content]`);
+				transcriptLines.push(`â”‚  Content: [No text content]`);
 			}
 			
 			// Embeds
 			if (msg.embeds && msg.embeds.length > 0) {
-				transcriptLines.push(`│  Embeds: ${msg.embeds.length}`);
+				transcriptLines.push(`â”‚  Embeds: ${msg.embeds.length}`);
 				for (const embed of msg.embeds) {
-					if (embed.title) transcriptLines.push(`│    - Title: ${embed.title}`);
-					if (embed.description) transcriptLines.push(`│    - Description: ${embed.description.substring(0, 100)}${embed.description.length > 100 ? '...' : ''}`);
-					if (embed.url) transcriptLines.push(`│    - URL: ${embed.url}`);
+					if (embed.title) transcriptLines.push(`â”‚    - Title: ${embed.title}`);
+					if (embed.description) transcriptLines.push(`â”‚    - Description: ${embed.description.substring(0, 100)}${embed.description.length > 100 ? '...' : ''}`);
+					if (embed.url) transcriptLines.push(`â”‚    - URL: ${embed.url}`);
 				}
 			}
 			
 			// Attachments
 			if (msg.attachments && msg.attachments.size > 0) {
-				transcriptLines.push(`│  Attachments: ${msg.attachments.size}`);
+				transcriptLines.push(`â”‚  Attachments: ${msg.attachments.size}`);
 				msg.attachments.forEach(att => {
-					transcriptLines.push(`│    - ${att.name}: ${att.url}`);
+					transcriptLines.push(`â”‚    - ${att.name}: ${att.url}`);
 				});
 			}
 			
 			// Stickers
 			if (msg.stickers && msg.stickers.size > 0) {
-				transcriptLines.push(`│  Stickers: ${[...msg.stickers.values()].map(s => s.name).join(', ')}`);
+				transcriptLines.push(`â”‚  Stickers: ${[...msg.stickers.values()].map(s => s.name).join(', ')}`);
 			}
 			
-			transcriptLines.push(`└${'─'.repeat(69)}`);
+			transcriptLines.push(`â””${'â”€'.repeat(69)}`);
 			transcriptLines.push(``);
 		}
 
-		transcriptLines.push(`${'═'.repeat(70)}`);
+		transcriptLines.push(`${'â•'.repeat(70)}`);
 		transcriptLines.push(`End of transcript - ${messages.size} messages`);
 
 		const transcriptContent = transcriptLines.join('\n');
@@ -395,11 +395,11 @@ function registerMemberEvents(client) {
 		// Small delay to ensure markCommandInvoker has time to register
 		await new Promise(resolve => setTimeout(resolve, 100));
 		
-		// Check if this was triggered by a Kira kick command - if so, skip native log
+		// Check if this was triggered by a Ares kick command - if so, skip native log
 		const kickInvoker = getCommandInvoker(member.guild.id, 'kick', member.id) ||
 			getCommandInvoker(member.guild.id, 'masskick', member.id);
 		
-		// Check if this was triggered by a Kira ban command (ban also triggers MemberRemove first)
+		// Check if this was triggered by a Ares ban command (ban also triggers MemberRemove first)
 		const banInvoker = getCommandInvoker(member.guild.id, 'ban', member.id) ||
 			getCommandInvoker(member.guild.id, 'massban', member.id) ||
 			getCommandInvoker(member.guild.id, 'softban', member.id) ||
@@ -453,7 +453,7 @@ function registerMemberEvents(client) {
 		// Small delay to ensure markCommandInvoker has time to register
 		await new Promise(resolve => setTimeout(resolve, 100));
 		
-		// Check if this was triggered by a Kira command - if so, skip native log
+		// Check if this was triggered by a Ares command - if so, skip native log
 		const commandInvoker = getCommandInvoker(ban.guild.id, 'ban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'massban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'softban', ban.user.id) ||
@@ -485,7 +485,7 @@ function registerMemberEvents(client) {
 		// Small delay to ensure markCommandInvoker has time to register
 		await new Promise(resolve => setTimeout(resolve, 100));
 		
-		// Check if this was triggered by a Kira command - if so, skip native log
+		// Check if this was triggered by a Ares command - if so, skip native log
 		const commandInvoker = getCommandInvoker(ban.guild.id, 'unban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'unbanall', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'softban', ban.user.id);
@@ -516,7 +516,7 @@ function registerMemberEvents(client) {
 		
 		// Nickname change
 		if (oldMember.nickname !== newMember.nickname) {
-			// Check if this was triggered by a Kira nick command - if so, skip native log
+			// Check if this was triggered by a Ares nick command - if so, skip native log
 			const nickInvoker = getCommandInvoker(newMember.guild.id, 'nick', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'forcenickname', newMember.id);
 			
@@ -549,7 +549,7 @@ function registerMemberEvents(client) {
 		const removedRoles = oldRoles.filter(r => !newRoles.has(r.id));
 
 		if (addedRoles.size > 0) {
-			// Check if this was triggered by a Kira role command - if so, skip native log
+			// Check if this was triggered by a Ares role command - if so, skip native log
 			const roleAddInvoker = getCommandInvoker(newMember.guild.id, 'roleadd', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'role', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'temprole', newMember.id) ||
@@ -584,7 +584,7 @@ function registerMemberEvents(client) {
 		}
 
 		if (removedRoles.size > 0) {
-			// Check if this was triggered by a Kira role command - if so, skip native log
+			// Check if this was triggered by a Ares role command - if so, skip native log
 			const roleRemoveInvoker = getCommandInvoker(newMember.guild.id, 'roleremove', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'role', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'rolebotsremove', newMember.id) ||
@@ -625,7 +625,7 @@ function registerMemberEvents(client) {
 			// Check if this was triggered by a command invoker - if so, skip native log (command already logs)
 			const commandInvoker = getCommandInvoker(newMember.guild.id, 'mute', newMember.id);
 			
-			// Skip native timeout log if a Kira command triggered it (the command itself sends the log)
+			// Skip native timeout log if a Ares command triggered it (the command itself sends the log)
 			if (commandInvoker) {
 				// Command already sent its own log, don't duplicate
 				return;
@@ -764,44 +764,44 @@ function registerChannelEvents(client) {
 
 		// Name change
 		if (oldChannel.name !== newChannel.name) {
-			changes.push(`**Name:** ${oldChannel.name} → ${newChannel.name}`);
+			changes.push(`**Name:** ${oldChannel.name} â†’ ${newChannel.name}`);
 		}
 
 		// Topic change (text channels)
 		if (oldChannel.topic !== newChannel.topic) {
-			changes.push(`**Topic:** ${oldChannel.topic || '*None*'} → ${newChannel.topic || '*None*'}`);
+			changes.push(`**Topic:** ${oldChannel.topic || '*None*'} â†’ ${newChannel.topic || '*None*'}`);
 		}
 
 		// NSFW change
 		if (oldChannel.nsfw !== newChannel.nsfw) {
-			changes.push(`**NSFW:** ${oldChannel.nsfw ? 'Yes' : 'No'} → ${newChannel.nsfw ? 'Yes' : 'No'}`);
+			changes.push(`**NSFW:** ${oldChannel.nsfw ? 'Yes' : 'No'} â†’ ${newChannel.nsfw ? 'Yes' : 'No'}`);
 		}
 
 		// Parent (category) change
 		if (oldChannel.parentId !== newChannel.parentId) {
 			const oldParent = oldChannel.parent?.name || 'None';
 			const newParent = newChannel.parent?.name || 'None';
-			changes.push(`**Category:** ${oldParent} → ${newParent}`);
+			changes.push(`**Category:** ${oldParent} â†’ ${newParent}`);
 		}
 
 		// Position change
 		if (oldChannel.position !== newChannel.position) {
-			changes.push(`**Position:** ${oldChannel.position} → ${newChannel.position}`);
+			changes.push(`**Position:** ${oldChannel.position} â†’ ${newChannel.position}`);
 		}
 
 		// Slowmode change
 		if (oldChannel.rateLimitPerUser !== newChannel.rateLimitPerUser) {
-			changes.push(`**Slowmode:** ${oldChannel.rateLimitPerUser}s → ${newChannel.rateLimitPerUser}s`);
+			changes.push(`**Slowmode:** ${oldChannel.rateLimitPerUser}s â†’ ${newChannel.rateLimitPerUser}s`);
 		}
 
 		// Bitrate change (voice)
 		if (oldChannel.bitrate !== newChannel.bitrate) {
-			changes.push(`**Bitrate:** ${oldChannel.bitrate}kbps → ${newChannel.bitrate}kbps`);
+			changes.push(`**Bitrate:** ${oldChannel.bitrate}kbps â†’ ${newChannel.bitrate}kbps`);
 		}
 
 		// User limit change (voice)
 		if (oldChannel.userLimit !== newChannel.userLimit) {
-			changes.push(`**User Limit:** ${oldChannel.userLimit || 'Unlimited'} → ${newChannel.userLimit || 'Unlimited'}`);
+			changes.push(`**User Limit:** ${oldChannel.userLimit || 'Unlimited'} â†’ ${newChannel.userLimit || 'Unlimited'}`);
 		}
 
 		// Permission Changes
@@ -829,9 +829,9 @@ function registerChannelEvents(client) {
 				const newDenied = newDeny.has(perm);
 				
 				if (oldAllowed !== newAllowed || oldDenied !== newDenied) {
-					let oldState = oldAllowed ? '✅' : oldDenied ? '❌' : '⬜';
-					let newState = newAllowed ? '✅' : newDenied ? '❌' : '⬜';
-					permChanges.push(`${perm}: ${oldState} → ${newState}`);
+					let oldState = oldAllowed ? 'âœ…' : oldDenied ? 'âŒ' : 'â¬œ';
+					let newState = newAllowed ? 'âœ…' : newDenied ? 'âŒ' : 'â¬œ';
+					permChanges.push(`${perm}: ${oldState} â†’ ${newState}`);
 				}
 			}
 			return permChanges;
@@ -847,18 +847,18 @@ function registerChannelEvents(client) {
 			const targetName = newPerm.type === 0
 				? (target?.name || `Unknown Role`)
 				: (target?.username || `Unknown User`);
-			const targetType = newPerm.type === 0 ? '🏷️ Role' : '👤 Member';
+			const targetType = newPerm.type === 0 ? 'ðŸ·ï¸ Role' : 'ðŸ‘¤ Member';
 			
 			if (!oldPerm) {
 				// New permission overwrite added
 				const permDetails = [];
 				if (newPerm.allow.bitfield > 0n) {
 					const allowed = newPerm.allow.toArray();
-					permDetails.push(`✅ Allowed: ${allowed.join(', ')}`);
+					permDetails.push(`âœ… Allowed: ${allowed.join(', ')}`);
 				}
 				if (newPerm.deny.bitfield > 0n) {
 					const denied = newPerm.deny.toArray();
-					permDetails.push(`❌ Denied: ${denied.join(', ')}`);
+					permDetails.push(`âŒ Denied: ${denied.join(', ')}`);
 				}
 				changes.push(`**${targetType} ${targetName}:** Permission overwrite added\n${permDetails.join('\n')}`);
 			} else if (oldPerm.allow.bitfield !== newPerm.allow.bitfield || oldPerm.deny.bitfield !== newPerm.deny.bitfield) {
@@ -880,7 +880,7 @@ function registerChannelEvents(client) {
 				const targetName = oldPerm.type === 0
 					? (target?.name || `Unknown Role`)
 					: (target?.username || `Unknown User`);
-				const targetType = oldPerm.type === 0 ? '🏷️ Role' : '👤 Member';
+				const targetType = oldPerm.type === 0 ? 'ðŸ·ï¸ Role' : 'ðŸ‘¤ Member';
 				changes.push(`**${targetType} ${targetName}:** Permission overwrite removed`);
 			}
 		}
@@ -927,15 +927,15 @@ function registerChannelEvents(client) {
 		const changes = [];
 
 		if (oldThread.name !== newThread.name) {
-			changes.push(`**Name:** ${oldThread.name} → ${newThread.name}`);
+			changes.push(`**Name:** ${oldThread.name} â†’ ${newThread.name}`);
 		}
 
 		if (oldThread.archived !== newThread.archived) {
-			changes.push(`**Archived:** ${oldThread.archived ? 'Yes' : 'No'} → ${newThread.archived ? 'Yes' : 'No'}`);
+			changes.push(`**Archived:** ${oldThread.archived ? 'Yes' : 'No'} â†’ ${newThread.archived ? 'Yes' : 'No'}`);
 		}
 
 		if (oldThread.locked !== newThread.locked) {
-			changes.push(`**Locked:** ${oldThread.locked ? 'Yes' : 'No'} → ${newThread.locked ? 'Yes' : 'No'}`);
+			changes.push(`**Locked:** ${oldThread.locked ? 'Yes' : 'No'} â†’ ${newThread.locked ? 'Yes' : 'No'}`);
 		}
 
 		if (changes.length > 0) {
@@ -994,19 +994,19 @@ function registerRoleEvents(client) {
 		const changes = [];
 
 		if (oldRole.name !== newRole.name) {
-			changes.push(`**Name:** ${oldRole.name} → ${newRole.name}`);
+			changes.push(`**Name:** ${oldRole.name} â†’ ${newRole.name}`);
 		}
 
 		if (oldRole.hexColor !== newRole.hexColor) {
-			changes.push(`**Color:** ${oldRole.hexColor} → ${newRole.hexColor}`);
+			changes.push(`**Color:** ${oldRole.hexColor} â†’ ${newRole.hexColor}`);
 		}
 
 		if (oldRole.hoist !== newRole.hoist) {
-			changes.push(`**Hoisted:** ${oldRole.hoist ? 'Yes' : 'No'} → ${newRole.hoist ? 'Yes' : 'No'}`);
+			changes.push(`**Hoisted:** ${oldRole.hoist ? 'Yes' : 'No'} â†’ ${newRole.hoist ? 'Yes' : 'No'}`);
 		}
 
 		if (oldRole.mentionable !== newRole.mentionable) {
-			changes.push(`**Mentionable:** ${oldRole.mentionable ? 'Yes' : 'No'} → ${newRole.mentionable ? 'Yes' : 'No'}`);
+			changes.push(`**Mentionable:** ${oldRole.mentionable ? 'Yes' : 'No'} â†’ ${newRole.mentionable ? 'Yes' : 'No'}`);
 		}
 
 		if (oldRole.permissions.bitfield !== newRole.permissions.bitfield) {
@@ -1050,7 +1050,7 @@ function registerEmojiEvents(client) {
 			executor: executor || { tag: 'Unknown', id: 'Unknown' },
 			emojiName: emoji.name,
 			emojiPreview: `${emoji}`,
-			thumbnail: emoji.url
+			thumbnail: emoji.imageURL()
 		});
 	});
 
@@ -1065,7 +1065,7 @@ function registerEmojiEvents(client) {
 		await sendLog(client, emoji.guild.id, LOG_EVENTS.EMOJI_DELETE, {
 			executor: executor || { tag: 'Unknown', id: 'Unknown' },
 			emojiName: emoji.name,
-			thumbnail: emoji.url
+			thumbnail: emoji.imageURL()
 		});
 	});
 
@@ -1082,7 +1082,7 @@ function registerEmojiEvents(client) {
 			oldName: oldEmoji.name,
 			newName: newEmoji.name,
 			emojiPreview: `${newEmoji}`,
-			thumbnail: newEmoji.url
+			thumbnail: newEmoji.imageURL()
 		});
 	});
 
@@ -1125,10 +1125,10 @@ function registerEmojiEvents(client) {
 
 		const changes = [];
 		if (oldSticker.name !== newSticker.name) {
-			changes.push(`**Name:** ${oldSticker.name} → ${newSticker.name}`);
+			changes.push(`**Name:** ${oldSticker.name} â†’ ${newSticker.name}`);
 		}
 		if (oldSticker.description !== newSticker.description) {
-			changes.push(`**Description:** ${oldSticker.description || 'None'} → ${newSticker.description || 'None'}`);
+			changes.push(`**Description:** ${oldSticker.description || 'None'} â†’ ${newSticker.description || 'None'}`);
 		}
 
 		if (changes.length > 0) {
@@ -1156,7 +1156,7 @@ function registerServerEvents(client) {
 		const changes = [];
 
 		if (oldGuild.name !== newGuild.name) {
-			changes.push(`**Name:** ${oldGuild.name} → ${newGuild.name}`);
+			changes.push(`**Name:** ${oldGuild.name} â†’ ${newGuild.name}`);
 		}
 
 		if (oldGuild.icon !== newGuild.icon) {
@@ -1170,28 +1170,28 @@ function registerServerEvents(client) {
 		if (oldGuild.description !== newGuild.description) {
 			// Don't log if both are None/empty
 			if ((oldGuild.description || newGuild.description)) {
-				changes.push(`**Description:** ${oldGuild.description || '*None*'} → ${newGuild.description || '*None*'}`);
+				changes.push(`**Description:** ${oldGuild.description || '*None*'} â†’ ${newGuild.description || '*None*'}`);
 			}
 		}
 
 		if (oldGuild.verificationLevel !== newGuild.verificationLevel) {
-			changes.push(`**Verification Level:** ${oldGuild.verificationLevel} → ${newGuild.verificationLevel}`);
+			changes.push(`**Verification Level:** ${oldGuild.verificationLevel} â†’ ${newGuild.verificationLevel}`);
 		}
 
 		if (oldGuild.explicitContentFilter !== newGuild.explicitContentFilter) {
-			changes.push(`**Content Filter:** ${oldGuild.explicitContentFilter} → ${newGuild.explicitContentFilter}`);
+			changes.push(`**Content Filter:** ${oldGuild.explicitContentFilter} â†’ ${newGuild.explicitContentFilter}`);
 		}
 
 		if (oldGuild.systemChannelId !== newGuild.systemChannelId) {
-			changes.push(`**System Channel:** <#${oldGuild.systemChannelId}> → <#${newGuild.systemChannelId}>`);
+			changes.push(`**System Channel:** <#${oldGuild.systemChannelId}> â†’ <#${newGuild.systemChannelId}>`);
 		}
 
 		if (oldGuild.afkChannelId !== newGuild.afkChannelId) {
-			changes.push(`**AFK Channel:** <#${oldGuild.afkChannelId}> → <#${newGuild.afkChannelId}>`);
+			changes.push(`**AFK Channel:** <#${oldGuild.afkChannelId}> â†’ <#${newGuild.afkChannelId}>`);
 		}
 
 		if (oldGuild.afkTimeout !== newGuild.afkTimeout) {
-			changes.push(`**AFK Timeout:** ${oldGuild.afkTimeout}s → ${newGuild.afkTimeout}s`);
+			changes.push(`**AFK Timeout:** ${oldGuild.afkTimeout}s â†’ ${newGuild.afkTimeout}s`);
 		}
 
 		if (changes.length > 0) {
@@ -1379,3 +1379,4 @@ function registerAuditLogEvents(client) {
 }
 
 export default { registerLoggingEvents };
+

@@ -235,6 +235,7 @@ async function createTicketFromCommand(message, reason = 'No reason provided') {
 export default {
 	name: 'ticket',
 	aliases: ['tickets', 't', 'new'],
+	category: 'Tickets',
 	
 	async execute(message, args) {
 		const client = message.client;

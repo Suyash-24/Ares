@@ -37,6 +37,7 @@ const resolveTargetUser = async (message, args) => {
 
 export default {
   name: 'userinfo',
+	description: 'Displays user information',
   aliases: ['whois', 'ui'],
   async execute(message, args) {
     if (!message.guild) {

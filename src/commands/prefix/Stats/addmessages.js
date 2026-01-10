@@ -93,6 +93,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'Add messages to a user',
 	aliases,
 	execute
 };

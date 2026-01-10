@@ -61,7 +61,15 @@ process.on('unhandledRejection', (reason) => {
 	console.error('Unhandled promise rejection:', reason);
 });
 
+process.on('warning', (warning) => {
+	if (warning.name === 'DeprecationWarning' && warning.message.includes('The ready event has been renamed to clientReady')) {
+		// Suppress specific discord.js v14 warning
+		return;
+	}
+	console.warn(warning);
+});
+
 bootstrap(client, __dirname).catch((error) => {
-	console.error('Failed to start Kira:', error);
+	console.error('Failed to start Ares:', error);
 	process.exit(1);
 });

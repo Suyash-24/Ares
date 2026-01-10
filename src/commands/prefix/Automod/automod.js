@@ -61,6 +61,7 @@ const getDefaultConfig = () => ({
         }])
     ),
     ignore: { channels: [], roles: [], users: [] },
+    notifyUser: true,
     strikes: {},
     strikeActions: {
         3: { action: 'mute', duration: '10m' },
@@ -588,6 +589,8 @@ export default {
                 return this.handleStats(message, config);
             case 'strikes':
                 return this.handleStrikes(message, args, client, config);
+            case 'notify':
+                return this.handleNotify(message, args, client, config);
             case 'reset':
                 return this.handleReset(message, client);
             default:
@@ -632,7 +635,8 @@ export default {
                 `\`.automod ignore <#channel|@role|@user>\` - Add ignore\n` +
                 `\`.automod unignore <#channel|@role|@user>\` - Remove ignore\n` +
                 `\`.automod words add/remove/list [word]\` - Manage bad words\n` +
-                `\`.automod logchannel <#channel>\` - Set log channel\n\n` +
+                `\`.automod logchannel <#channel>\` - Set log channel\n` +
+                `\`.automod notify <on/off>\` - Toggle user warnings\n\n` +
                 `**View:**\n` +
                 `\`.automod config\` - View full configuration\n` +
                 `\`.automod stats\` - View statistics`
@@ -1188,6 +1192,28 @@ export default {
         }
 
         return this.sendError(message, 'Invalid Usage', 'Use `.automod strikes` for help.');
+    },
+
+    async handleNotify(message, args, client, config) {
+        const action = args[1]?.toLowerCase();
+        
+        if (!action || !['on', 'off', 'enable', 'disable'].includes(action)) {
+            const status = config.notifyUser !== false ? 'Enabled' : 'Disabled';
+            const emoji = config.notifyUser !== false ? EMOJIS.success : EMOJIS.error;
+            return this.sendInfo(message, 'Notify Settings', 
+                `**User Warnings:** ${emoji} **${status}**\n\n` +
+                `When enabled, users will receive a temporary message in the channel mentioning them when their message is deleted/moderated.\n\n` +
+                `Usage: \`.automod notify on/off\``
+            );
+        }
+
+        const newState = (action === 'on' || action === 'enable');
+        config.notifyUser = newState;
+        await this.saveConfig(client, message.guildId, config);
+
+        return this.sendSuccess(message, 'Notify Updated', 
+            `User warnings have been ${newState ? '**enabled**' : '**disabled**'}.`
+        );
     },
 
     async handleReset(message, client) {

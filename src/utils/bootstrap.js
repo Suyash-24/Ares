@@ -26,6 +26,7 @@ import registerVoiceLeveling from '../events/voiceLevelingHandler.js';
 import { initGiveawayHandler } from '../events/giveawayHandler.js';
 import ticketHandler from '../events/ticketHandler.js';
 import { startInactivityScheduler } from './ticketScheduler.js';
+import { registerSnipeEvents } from '../events/snipeHandler.js';
 
 const CONFIG_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../config.json');
 
@@ -93,6 +94,9 @@ export async function bootstrap(client, __dirname) {
 	// Register AFK handler
 	registerAfkHandler(client);
 	registerVoiceLeveling(client);
+
+	// Register snipe events (for snipe, editsnipe, reactionsnipe commands)
+	registerSnipeEvents(client);
 
 	await initializeAntinuke(client);
 
@@ -212,23 +216,27 @@ async function loadSlashCommands(discordClient, __dirname) {
 		'fluxfiles', 'crimefile', 'detain', 'detainlist', 'voidstaff', 'raidwipe', 'unbanall', 'massban', 'snapshot'
 	]);
 
+	let disabledCount = 0;
+	let skippedCount = 0;
+
 	for (const file of commandFiles) {
 		const module = await import(pathToFileURL(file).href);
 		const command = module.default ?? module;
 
 		if (!command?.data || typeof command.execute !== 'function') {
-			console.warn(`Skipping command at ${path.relative(__dirname, file)} (missing data or execute).`);
+			// Silently skip utility files or incomplete commands
+			skippedCount++;
 			continue;
 		}
 
 		const name = command.data.name;
 		if (DISABLED_SLASH.has(name)) {
-			console.warn(`Skipping slash command "${name}" (disabled list).`);
+			disabledCount++;
 			continue;
 		}
 
 		if (discordClient.commands.has(name)) {
-			console.warn(`Duplicate command name "${name}" detected. Only the first definition will be used.`);
+			console.warn(`⚠️ [Slash] Duplicate command "${name}"`);
 			continue;
 		}
 
@@ -237,24 +245,13 @@ async function loadSlashCommands(discordClient, __dirname) {
 
 		if (Array.isArray(command.components)) {
 			for (const component of command.components) {
-				if (!component?.customId || typeof component.execute !== 'function') {
-					console.warn(`Component in command "${name}" is missing a valid customId or execute handler.`);
-					continue;
-				}
-
-				if (discordClient.components.has(component.customId)) {
-					console.warn(`Duplicate component customId "${component.customId}" detected. Overwriting previous handler.`);
-				}
-
-				discordClient.components.set(component.customId, {
-					...component,
-					commandName: name
-				});
+				if (!component?.customId || typeof component.execute !== 'function') continue;
+				discordClient.components.set(component.customId, { ...component, commandName: name });
 			}
 		}
 	}
 
-	console.log(`Loaded ${slashData.length} slash command${slashData.length === 1 ? '' : 's'}.`);
+	console.log(`⚡ [Slash] Loaded ${slashData.length} commands (${disabledCount} disabled, ${skippedCount} skipped)`);
 	return slashData;
 }
 
@@ -263,19 +260,21 @@ async function loadPrefixCommands(discordClient, __dirname) {
 	const commandFiles = await collectCommandFiles(prefixRoot);
 	let loaded = 0;
 
+	let skippedCount = 0;
+
 	for (const file of commandFiles) {
 		const module = await import(pathToFileURL(file).href);
 		const command = module.default ?? module;
 
 		if (!command?.name || typeof command.execute !== 'function') {
-			console.warn(`Skipping prefix command at ${path.relative(__dirname, file)} (missing name or execute).`);
+			// Silently skip
+			skippedCount++;
 			continue;
 		}
 
 		const name = command.name.toLowerCase();
 
 		if (discordClient.prefixCommands.has(name)) {
-			console.warn(`Duplicate prefix command name "${name}" detected. Only the first definition will be used.`);
 			continue;
 		}
 
@@ -284,13 +283,10 @@ async function loadPrefixCommands(discordClient, __dirname) {
 		if (Array.isArray(command.aliases)) {
 			for (const alias of command.aliases) {
 				const aliasKey = typeof alias === 'string' ? alias.toLowerCase() : null;
-
-				if (!aliasKey) {
-					continue;
-				}
+				if (!aliasKey) continue;
 
 				if (discordClient.prefixCommands.has(aliasKey) || discordClient.prefixAliases.has(aliasKey)) {
-					console.warn(`Alias "${aliasKey}" for command "${name}" conflicts with an existing command or alias.`);
+					// Silently ignore conflicts or let them override depending on order, but supressing log
 					continue;
 				}
 
@@ -300,26 +296,15 @@ async function loadPrefixCommands(discordClient, __dirname) {
 
 		if (Array.isArray(command.components)) {
 			for (const component of command.components) {
-				if (!component?.customId || typeof component.execute !== 'function') {
-					console.warn(`Component in prefix command "${name}" is missing a valid customId or execute handler.`);
-					continue;
-				}
-
-				if (discordClient.components.has(component.customId)) {
-					console.warn(`Duplicate component customId "${component.customId}" detected. Overwriting previous handler.`);
-				}
-
-				discordClient.components.set(component.customId, {
-					...component,
-					commandName: name
-				});
+				if (!component?.customId || typeof component.execute !== 'function') continue;
+				discordClient.components.set(component.customId, { ...component, commandName: name });
 			}
 		}
 
 		loaded += 1;
 	}
 
-	console.log(`Loaded ${loaded} prefix command${loaded === 1 ? '' : 's'}.`);
+	console.log(`📜 [Prefix] Loaded ${loaded} commands (${skippedCount} skipped)`);
 }
 
 async function collectCommandFiles(dir) {

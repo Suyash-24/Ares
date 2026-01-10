@@ -298,6 +298,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'View monthly activity stats',
 	aliases,
 	execute,
 	components

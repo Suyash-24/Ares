@@ -36,4 +36,4 @@ async function execute(message, args, client) {
 	return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 }
 
-export default { name, aliases, description, usage, execute };
+export default { name, aliases, description, usage, category: 'Fun', execute };

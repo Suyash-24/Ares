@@ -25,6 +25,7 @@ const resolveTargetUser = async (message, args) => {
 
 export default {
   name: 'banner',
+	description: 'Displays user\'s banner',
   aliases: ['bg', 'userbanner', 'ub'],
   async execute(message, args) {
     let targetUser = await resolveTargetUser(message, args);

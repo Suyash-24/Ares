@@ -78,6 +78,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'Check who invited a user',
 	aliases,
 	execute
 };

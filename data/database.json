@@ -324,9 +324,6 @@
             "1442407077959176222",
             "1445670095610318942",
             "global"
-          ],
-          "moderation": [
-            "1442407077959176222"
           ]
         },
         "disableNotice": true
@@ -472,90 +469,6 @@
         }
       },
       "logs": [
-        {
-          "id": "mizkfi6p0tn6s",
-          "eventType": "channelCreate",
-          "timestamp": 1765344324050,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1448183796116623512",
-              "name": "wfojk"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1448183796116623512"
-          }
-        },
-        {
-          "id": "mizkfm9ewdq9t",
-          "eventType": "modBan",
-          "timestamp": 1765344329330,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Antinuke System"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "Antinuke channelCreate protection - ban",
-            "content": "**Module:** channelCreate\n**Action:** ban\n**Success:** true"
-          }
-        },
-        {
-          "id": "mizkfmcl77d8a",
-          "eventType": "channelCreate",
-          "timestamp": 1765344329445,
-          "data": {
-            "executor": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "channel": {
-              "id": "1448183817683865650",
-              "name": "skjds"
-            },
-            "content": "Type: Text Channel",
-            "channelId": "1448183817683865650"
-          }
-        },
-        {
-          "id": "mizkfnzdatp8y",
-          "eventType": "memberBan",
-          "timestamp": 1765344331561,
-          "data": {
-            "executor": {
-              "id": "1434107390856401049",
-              "name": "Kira#9201"
-            },
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "reason": "No reason provided",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
-        {
-          "id": "mizkfo9bxbi9g",
-          "eventType": "memberLeave",
-          "timestamp": 1765344331919,
-          "data": {
-            "target": {
-              "id": "1069248517555626024",
-              "name": ".nvrm1nd."
-            },
-            "content": "Was a member for 1d 0h",
-            "roles": "bots",
-            "userId": "1069248517555626024",
-            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/63d1a6bbb7959911b4bfc42e84c0f181.webp"
-          }
-        },
         {
           "id": "mj11o8wxzsqd6",
           "eventType": "usernameUpdate",
@@ -26170,6 +26083,466 @@
             "channelId": "1398578847250645097",
             "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
           }
+        },
+        {
+          "id": "mk6xrkrud9ukt",
+          "eventType": "roleRemove",
+          "timestamp": 1767966767850,
+          "data": {
+            "executor": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "roles": "gif",
+            "roleId": "1441685582760640643",
+            "userId": "1343508844453826673",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk6y603xpc2x9",
+          "eventType": "messageDelete",
+          "timestamp": 1767967440909,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "https://pin.it/PfGUgdVAR",
+            "attachments": [],
+            "messageId": "1459185940797984953",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6y67jr36ltp",
+          "eventType": "messageDelete",
+          "timestamp": 1767967450551,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "https://pin.it/PfGUgdVAR",
+            "attachments": [],
+            "messageId": "1459185981277208834",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6y880nng5nx",
+          "eventType": "messageDelete",
+          "timestamp": 1767967544471,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": ".botserveravatar https://cdn.discordapp.com/attachments/1453948836258119922/1459186286131937392/cd6fdc438e97484c51b6d03ecba42819.png?ex=69625ca0&is=69610b20&hm=11c618a88d8ec303859b2b3f04dda30e95be31164d51417a6cb8fbee94169602&",
+            "attachments": [],
+            "messageId": "1459186374229098569",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6y88d4ptr7g",
+          "eventType": "timeoutAdd",
+          "timestamp": 1767967544920,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "duration": "9m 58s",
+            "content": "Timeout until <t:1767968142:F>",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6yacvpaujf7",
+          "eventType": "timeoutRemove",
+          "timestamp": 1767967644085,
+          "data": {
+            "executor": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6ybi76onix2",
+          "eventType": "roleAdd",
+          "timestamp": 1767967697634,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "roles": "gif",
+            "roleId": "1441685582760640643",
+            "userId": "1343508844453826673",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1343508844453826673/d5e83acf173351e3b22165bc9ff8e905.webp"
+          }
+        },
+        {
+          "id": "mk6ynz2hpuosy",
+          "eventType": "roleAdd",
+          "timestamp": 1767968279369,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1069248517555626024",
+              "name": ".nvrm1nd."
+            },
+            "roles": "gif",
+            "roleId": "1441685582760640643",
+            "userId": "1069248517555626024",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1069248517555626024/640a20ed88c64b8090d8c53f9ddf327c.webp"
+          }
+        },
+        {
+          "id": "mk6yvma2soj12",
+          "eventType": "messageDelete",
+          "timestamp": 1767968636043,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "https://pin.it/PfGUgdVAR",
+            "attachments": [],
+            "messageId": "1459190953247248406",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6yvmum0sszg",
+          "eventType": "timeoutAdd",
+          "timestamp": 1767968636782,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "duration": "9m 58s",
+            "content": "Timeout until <t:1767969234:F>",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6z66852iifp",
+          "eventType": "timeoutRemove",
+          "timestamp": 1767969128453,
+          "data": {
+            "executor": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6z7e18ckfmt",
+          "eventType": "messageDelete",
+          "timestamp": 1767969185228,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "https://pin.it/PfGUgdVAR",
+            "attachments": [],
+            "messageId": "1459193256612204628",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6z7fbgfcekx",
+          "eventType": "timeoutAdd",
+          "timestamp": 1767969186892,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "duration": "59m 58s",
+            "content": "Timeout until <t:1767972783:F>",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6zb89hkqeoy",
+          "eventType": "timeoutRemove",
+          "timestamp": 1767969364373,
+          "data": {
+            "executor": {
+              "id": "1343508844453826673",
+              "name": ".1owk3y."
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6zbmdjknlcu",
+          "eventType": "messageDelete",
+          "timestamp": 1767969382663,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "https://pin.it/PfGUgdVAR",
+            "attachments": [],
+            "messageId": "1459194084458758366",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6zbmogu603l",
+          "eventType": "timeoutAdd",
+          "timestamp": 1767969383056,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "duration": "59m 58s",
+            "content": "Timeout until <t:1767972980:F>",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6zbuj1njuco",
+          "eventType": "messageDelete",
+          "timestamp": 1767969393229,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "<:security:1434588916652052620> <@1319707981377699920>, your message was removed for **External link detected**. Action: Delete (+1 strike)",
+            "attachments": [],
+            "messageId": "1459194096089305271",
+            "userId": "1434107390856401049",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1434107390856401049/a4919b80f86e160c878580d0a8adea47.webp"
+          }
+        },
+        {
+          "id": "mk6zgdgo9zbm3",
+          "eventType": "messageDelete",
+          "timestamp": 1767969604392,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "https://pin.it/PfGUgdVAR",
+            "attachments": [],
+            "messageId": "1459195013446762668",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk6zgejt0t8rv",
+          "eventType": "memberKick",
+          "timestamp": 1767969605801,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "reason": "Automod: 7 strikes reached",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk70gzqgbvmhz",
+          "eventType": "memberJoin",
+          "timestamp": 1767971312872,
+          "data": {
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "content": "Account created 384d 22h ago",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk70vavjdfuiq",
+          "eventType": "roleAdd",
+          "timestamp": 1767971980495,
+          "data": {
+            "executor": {
+              "id": "1434107390856401049",
+              "name": "Ares#9201"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "roles": "gif",
+            "roleId": "1441685582760640643",
+            "userId": "1319707981377699920",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
+        },
+        {
+          "id": "mk71u2flnhmb5",
+          "eventType": "messageDelete",
+          "timestamp": 1767973602513,
+          "data": {
+            "executor": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "target": {
+              "id": "1319707981377699920",
+              "name": "viunchained"
+            },
+            "channel": {
+              "id": "1442407077959176222",
+              "name": "general"
+            },
+            "content": "birthday",
+            "attachments": [],
+            "messageId": "1459211690024374303",
+            "userId": "1319707981377699920",
+            "channelId": "1442407077959176222",
+            "thumbnail": "https://cdn.discordapp.com/avatars/1319707981377699920/c8651b152a0ede861779cce9176be5e8.webp"
+          }
         }
       ],
       "antinuke": {
@@ -27379,6 +27752,54 @@
               }
             ],
             "lastStrike": 1766757490980
+          },
+          "1319707981377699920": {
+            "count": 7,
+            "history": [
+              {
+                "time": 1767967439330,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              },
+              {
+                "time": 1767967448616,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              },
+              {
+                "time": 1767967542399,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              },
+              {
+                "time": 1767968634514,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              },
+              {
+                "time": 1767969183515,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              },
+              {
+                "time": 1767969380837,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              },
+              {
+                "time": 1767969602490,
+                "amount": 1,
+                "reason": "antilink: External link detected",
+                "module": "antilink"
+              }
+            ],
+            "lastStrike": 1767969602490
           }
         },
         "strikeActions": {
@@ -27573,28 +27994,40 @@
           ]
         },
         "members": {
-          "1319707981377699920": {
-            "xp": 190,
-            "level": 4,
-            "totalXp": 960,
-            "lastMessageAt": 1767851917776,
-            "lastVoiceAt": 1767888659380,
-            "rewardsGranted": [
-              "1441685582760640643"
-            ],
-            "userId": "1319707981377699920",
-            "muteAnnouncements": false
-          },
           "1343508844453826673": {
-            "xp": 21,
-            "level": 3,
-            "totalXp": 496,
-            "lastMessageAt": 1767955317042,
+            "xp": 147,
+            "level": 5,
+            "totalXp": 1297,
+            "lastMessageAt": 1767973668771,
             "lastVoiceAt": 1767888364508,
             "rewardsGranted": [
               "1441685582760640643"
             ],
             "userId": "1343508844453826673",
+            "muteAnnouncements": false
+          },
+          "1069248517555626024": {
+            "xp": 110,
+            "level": 1,
+            "totalXp": 210,
+            "lastMessageAt": 1767968407568,
+            "lastVoiceAt": 0,
+            "rewardsGranted": [
+              "1441685582760640643"
+            ],
+            "userId": "1069248517555626024",
+            "muteAnnouncements": false
+          },
+          "1319707981377699920": {
+            "xp": 206,
+            "level": 4,
+            "totalXp": 976,
+            "lastMessageAt": 1767979748960,
+            "lastVoiceAt": 0,
+            "rewardsGranted": [
+              "1441685582760640643"
+            ],
+            "userId": "1319707981377699920",
             "muteAnnouncements": false
           }
         },
@@ -29383,6 +29816,274 @@
               {
                 "ts": 1767948808808,
                 "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767965098798,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767965108285,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966420448,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966450128,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966456759,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966467293,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966474929,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966481462,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966514670,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966538650,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966559339,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966565407,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966580125,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966593013,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966612572,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966631444,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966650470,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966659480,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966665943,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966676772,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966705507,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966710171,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966869498,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966875710,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966887387,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966949059,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966949629,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966998024,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967004452,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967020926,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967035468,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967043374,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967061170,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967073383,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967089753,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967438444,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967448093,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967541785,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968633721,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969182920,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969380255,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969601904,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767971630756,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767971859984,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767971979347,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767972246328,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767972298029,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767972338812,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767972580546,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767972586282,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767972969985,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767973381633,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767973567780,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767973577856,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767973979469,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767974330670,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767974738928,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767974925319,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767975134630,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767976014147,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767976199744,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767976474166,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767977331183,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767977862329,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767978130945,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767979746126,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767979748978,
+                "ch": "1442407077959176222"
               }
             ],
             "voice": [
@@ -29577,7 +30278,11 @@
                 "mins": 3
               }
             ],
-            "joins": []
+            "joins": [
+              1767971312232
+            ],
+            "invitedBy": "1343508844453826673",
+            "inviteCode": "WXzgUYMB6"
           },
           "1343508844453826673": {
             "messages": [
@@ -29860,6 +30565,102 @@
               {
                 "ts": 1767956243500,
                 "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966749161,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966752708,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966769590,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767966771425,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967657902,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967684964,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967697030,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967722424,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967935000,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767967946802,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968949907,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969118408,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969139416,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969147256,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969158332,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969632785,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969643245,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969661854,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767969667978,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767971167785,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767971198569,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767973651517,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767973659373,
+                "ch": "1452295366681821204"
+              },
+              {
+                "ts": 1767973668786,
+                "ch": "1452295366681821204"
               }
             ],
             "voice": [
@@ -29879,6 +30680,40 @@
                 "mins": 1
               }
             ],
+            "joins": []
+          },
+          "1069248517555626024": {
+            "messages": [
+              {
+                "ts": 1767968232670,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968255397,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968278553,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968292676,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968301179,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968404189,
+                "ch": "1442407077959176222"
+              },
+              {
+                "ts": 1767968407585,
+                "ch": "1442407077959176222"
+              }
+            ],
+            "voice": [],
             "joins": []
           }
         },
@@ -30848,6 +31683,390 @@
               {
                 "ts": 1767956243500,
                 "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767965098798,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767965108285,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966420448,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966450128,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966456759,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966467293,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966474929,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966481462,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966514670,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966538650,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966559339,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966565407,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966580125,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966593013,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966612572,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966631444,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966650470,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966659480,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966665943,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966676772,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966705507,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966710171,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966749161,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767966752708,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767966769590,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767966771425,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767966869498,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966875710,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966887387,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966949059,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966949629,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767966998024,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967004452,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967020926,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967035468,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967043374,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967061170,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967073383,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967089753,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967438444,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967448093,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967541785,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767967657902,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767967684964,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767967697030,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767967722424,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767967935000,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767967946802,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767968232670,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968255397,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968278553,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968292676,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968301179,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968404189,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968407585,
+                "u": "1069248517555626024"
+              },
+              {
+                "ts": 1767968633721,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767968949907,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969118408,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969139416,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969147256,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969158332,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969182920,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767969380255,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767969601904,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767969632785,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969643245,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969661854,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767969667978,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767971167785,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767971198569,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767971630756,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767971859984,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767971979347,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767972246328,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767972298029,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767972338812,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767972580546,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767972586282,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767972969985,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767973381633,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767973567780,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767973577856,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767973651517,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767973979469,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767974330670,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767974738928,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767974925319,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767975134630,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767976014147,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767976199744,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767976474166,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767977331183,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767977862329,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767978130945,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767979746126,
+                "u": "1319707981377699920"
+              },
+              {
+                "ts": 1767979748978,
+                "u": "1319707981377699920"
               }
             ],
             "voice": []
@@ -31140,6 +32359,19 @@
               }
             ],
             "voice": []
+          },
+          "1452295366681821204": {
+            "messages": [
+              {
+                "ts": 1767973659373,
+                "u": "1343508844453826673"
+              },
+              {
+                "ts": 1767973668786,
+                "u": "1343508844453826673"
+              }
+            ],
+            "voice": []
           }
         },
         "daily": {
@@ -31156,10 +32388,10 @@
             "leaves": 0
           },
           "2026-01-09": {
-            "messages": 54,
+            "messages": 152,
             "voice": 0,
-            "joins": 0,
-            "leaves": 0
+            "joins": 1,
+            "leaves": 1
           }
         },
         "settings": {
@@ -31173,18 +32405,46 @@
         "invites": {
           "1343508844453826673": {
             "total": 0,
-            "regular": 0,
+            "regular": 1,
             "left": 0,
             "fake": 0,
             "bonus": 0,
-            "invited": []
+            "invited": [
+              {
+                "userId": "1319707981377699920",
+                "ts": 1767971313677,
+                "left": false
+              }
+            ]
           }
         }
       },
       "botProfile": {
         "banner": "https://cdn.discordapp.com/attachments/1442407077959176222/1459135098099204259/4d99d4283182e0c083bfc0b15968c118.png?ex=69622cf4&is=6960db74&hm=f49d05b6d9a6b1c30c8a4c8c7d65e1159830bb040b244b1f793b0a602bfe9615&",
         "bio": "fine shyt!"
-      }
+      },
+      "prefix": "`"
+    },
+    {
+      "guildId": "_noprefix",
+      "users": [],
+      "servers": [
+        {
+          "id": "1398578846374297672",
+          "expiresAt": 9999999999999,
+          "grantedBy": "1343508844453826673",
+          "grantedAt": 1767967684986
+        }
+      ],
+      "roles": [
+        {
+          "guildId": "1398578846374297672",
+          "roleId": "1441685582760640643",
+          "expiresAt": 1775742949656,
+          "grantedBy": "1319707981377699920",
+          "grantedAt": 1767966949656
+        }
+      ]
     }
   ]
 }

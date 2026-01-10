@@ -38,4 +38,4 @@ async function execute(message, args, client) {
 	await message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 }
 
-export default { name, aliases, execute };
+export default { name, aliases, category: 'Leveling', description: 'View message XP stats', execute };

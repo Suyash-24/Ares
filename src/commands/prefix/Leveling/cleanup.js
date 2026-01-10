@@ -52,4 +52,4 @@ async function execute(message, args, client) {
 	await loadingMsg.edit({ components: [c], flags: MessageFlags.IsComponentsV2 });
 }
 
-export default { name, aliases, execute };
+export default { name, aliases, category: 'Leveling', description: 'Clean up leveling data', execute };

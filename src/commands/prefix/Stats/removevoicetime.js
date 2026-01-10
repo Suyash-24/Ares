@@ -113,6 +113,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'Remove voice time from a user',
 	aliases,
 	execute
 };

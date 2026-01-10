@@ -1,17 +1,21 @@
 import { ButtonBuilder, ButtonStyle, ContainerBuilder, MessageFlags, SeparatorSpacingSize } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
+import DatabaseManager from '../../../utils/DatabaseManager.js';
+
 const COMPONENT_IDS = {
   refresh: 'prefix:ping:refresh'
 };
 
-const buildComponentLayout = (client, state = 'active') => {
-  const latency = Math.round(client.ws.ping);
+const buildComponentLayout = async (client, state = 'active') => {
+  const gatewayLatency = Math.round(client.ws.ping);
+  const dbLatency = await DatabaseManager.ping();
 
   const container = new ContainerBuilder()
     .addTextDisplayComponents((textDisplay) =>
       textDisplay.setContent(
         state === 'active'
-          ? `**${EMOJIS.ping} Current gateway latency: ${latency}ms**`
+          ? `**${EMOJIS.ping} Gateway:** \`${gatewayLatency}ms\`\n` +
+            `**${EMOJIS.database || '🗄️'} Database:** \`${dbLatency === -1 ? 'N/A' : dbLatency + 'ms'}\``
           : 'Ping check closed.'
       )
     )
@@ -33,10 +37,12 @@ const buildComponentLayout = (client, state = 'active') => {
 
 export default {
   name: 'ping',
+	description: 'Check bot latency',
   aliases: ['pong'],
   async execute(message) {
+    const components = await buildComponentLayout(message.client);
     await message.reply({
-      components: buildComponentLayout(message.client),
+      components,
       flags: MessageFlags.IsComponentsV2,
       allowedMentions: { repliedUser: false }
     });
@@ -45,8 +51,9 @@ export default {
     {
       customId: COMPONENT_IDS.refresh,
       async execute(interaction) {
+        const components = await buildComponentLayout(interaction.client);
         await interaction.update({
-          components: buildComponentLayout(interaction.client),
+          components,
           flags: MessageFlags.IsComponentsV2
         });
       }

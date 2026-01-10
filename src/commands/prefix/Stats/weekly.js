@@ -306,6 +306,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'View weekly activity stats',
 	aliases,
 	execute,
 	components

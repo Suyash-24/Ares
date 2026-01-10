@@ -1,5 +1,5 @@
 /**
- * Kira Logging System - Complete Implementation
+ * Ares Logging System - Complete Implementation
  * Handles all server event logging with comprehensive configuration
  */
 
@@ -66,7 +66,7 @@ export const LOG_EVENTS = {
 	VOICE_MUTE: 'voiceMute',
 	VOICE_DEAFEN: 'voiceDeafen',
 
-	// Moderation Events (Kira Actions)
+	// Moderation Events (Ares Actions)
 	MOD_BAN: 'modBan',
 	MOD_KICK: 'modKick',
 	MOD_MUTE: 'modMute',

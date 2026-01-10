@@ -1023,5 +1023,5 @@ const execute = async (message, args, client) => {
 	}
 ];
 
-export default { name, aliases, execute, components };
+export default { name, aliases, category: 'Giveaways', execute, components };
 export { getGiveaway, getAllGiveaways, saveGiveaway, endGiveaway, buildGiveawayContainer, checkRequirements, pickWinners };

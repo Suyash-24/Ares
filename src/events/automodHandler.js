@@ -24,6 +24,15 @@ const COPYPASTAS = [
     'click here to claim'
 ];
 
+const PUNISHMENTS = {
+    warn: { name: 'Warn' },
+    delete: { name: 'Delete' },
+    mute: { name: 'Mute' },
+    kick: { name: 'Kick' },
+    ban: { name: 'Ban' },
+    protocol: { name: 'Protocol' }
+};
+
 const spamCache = new Map();
 
 const getConfig = async (client, guildId) => {
@@ -285,6 +294,26 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
         const strikeInfo = moduleStrikes > 0 ? ` (+${moduleStrikes} strike${moduleStrikes > 1 ? 's' : ''})` : '';
         await logViolation(message, client, config, moduleName, violation, punishments.join(' + ') + strikeInfo);
 
+        // Notify User if enabled
+        if (config.notifyUser !== false) {
+            try {
+                const container = new ContainerBuilder();
+                container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.security || '🛡️'} **Automod Action**`));
+                container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+                container.addTextDisplayComponents(td => td.setContent(
+                    `<@${message.author.id}>, your message was flagged for **${violation}**.\n` +
+                    `**Action:** ${punishments.map(p => PUNISHMENTS[p]?.name || p).join(', ')}${strikeInfo}`
+                ));
+                
+                await message.channel.send({ 
+                    components: [container], 
+                    flags: MessageFlags.IsComponentsV2,
+                    allowedMentions: { parse: [] }  // Suppress all pings
+                });
+            } catch (e) {
+                console.error('[Automod] Failed to send warning:', e.message);
+            }
+        }
     } catch (error) {
         console.error(`[Automod] Error applying punishment:`, error);
     }

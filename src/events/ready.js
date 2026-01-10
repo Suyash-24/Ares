@@ -9,9 +9,17 @@ import { handleReady as inviteTrackerReady, handleInviteCreate, handleInviteDele
 
 export default function registerReadyEvent(discordClient, config) {
 	discordClient.once(Events.ClientReady, async (readyClient) => {
-		console.log(`Kira is online as ${readyClient.user.tag}.`);
-
-		console.log('🎧 [Shoukaku] Music system is ready.');
+		console.log(`
+┌─────────────────────────────────────────────────────────────┐
+│                   ARES IS ONLINE                            │
+│           Logged in as ${readyClient.user.tag.padEnd(29, ' ')}│
+│                                                             │
+│  Bot ID:      ${readyClient.user.id.padEnd(30, ' ')}│
+│  Guilds:      ${readyClient.guilds.cache.size.toString().padEnd(30, ' ')}│
+│  Users:       ${readyClient.users.cache.size.toString().padEnd(30, ' ')}│
+└─────────────────────────────────────────────────────────────┘
+`);
+		console.log('🎧 [Shoukaku] Music system ready');
 		
 		// Restore detained users from database
 		await restoreDetainedUsers(readyClient);
@@ -29,9 +37,51 @@ export default function registerReadyEvent(discordClient, config) {
 		// Initialize voice sessions (detect users already in voice channels)
 		await initializeVoiceSessions(readyClient);
 		
-		if (config.presence) {
-			readyClient.user.setPresence(config.presence);
-		}
+		// Set bot status with command count (same logic as help command for consistency)
+		// Help command only counts PREFIX commands, not slash commands
+		// SUBCOMMAND_REGISTRY - must match help.js exactly
+		const SUBCOMMAND_REGISTRY = {
+			'antiraid': { 'config': 1, 'enable': 1, 'disable': 1, 'massjoin': 1, 'avatar': 1, 'newaccounts': 1, 'state': 1, 'whitelist': 1, 'log': 1 },
+			'automod': { 'on': 1, 'off': 1, 'config': 1, 'module': 1, 'preset': 1, 'ignore': 1, 'unignore': 1, 'words': 1, 'logchannel': 1, 'stats': 1, 'strikes': 1, 'notify': 1, 'reset': 1 },
+			'antinuke': { 'wizard': 1, 'setup': 1, 'enable': 1, 'disable': 1, 'preset': 1, 'admin': 1, 'admins': 1, 'extraowner': 1, 'extraowners': 1, 'whitelist': 1, 'list': 1, 'config': 1, 'protocol': 1, 'unprotocol': 1, 'protocol-list': 1, 'logs': 1, 'punishment': 1, 'threshold': 1, 'strictbot': 1, 'reset': 1 },
+			'welcome': { 'add': 1, 'remove': 1, 'list': 1, 'config': 1, 'toggle': 1, 'enable': 1, 'disable': 1, 'test': 1, 'reset': 1, 'show': 1 },
+			'goodbye': { 'add': 1, 'remove': 1, 'list': 1, 'config': 1, 'toggle': 1, 'enable': 1, 'disable': 1, 'test': 1, 'reset': 1, 'show': 1 },
+			'ticket': { 'create': 1, 'new': 1, 'open': 1, 'setup': 1, 'panel': 1, 'removepanel': 1, 'add': 1, 'remove': 1, 'claim': 1, 'close': 1, 'reopen': 1, 'rename': 1, 'transcript': 1, 'delete': 1, 'list': 1, 'stats': 1 },
+			'giveaway': { 'start': 1, 'end': 1, 'reroll': 1, 'cancel': 1, 'list': 1, 'edit': 1 },
+			'starboard': { 'unlock': 1, 'enable': 1, 'lock': 1, 'disable': 1, 'set': 1, 'channel': 1, 'emoji': 1, 'selfstar': 1, 'color': 1, 'timestamp': 1, 'jumpurl': 1, 'attachments': 1, 'ignore': 1, 'config': 1, 'reset': 1 },
+			'birthday': { 'set': 1, 'view': 1, 'upcoming': 1, 'remove': 1, 'setup': 1, 'check': 1, 'config': 1 },
+			'customrole': { 'add': 1, 'remove': 1, 'view': 1, 'list': 1, 'reqrole': 1 },
+			'noprefix': { 'add': 1, 'remove': 1, 'list': 1, 'status': 1 },
+			'bumpreminder': { 'channel': 1, 'enable': 1, 'disable': 1, 'thankyou': 1, 'message': 1, 'autolock': 1, 'autoclean': 1, 'config': 1 },
+			'logs': { 'search': 1, 'export': 1, 'ignore': 1, 'status': 1, 'purge': 1, 'stats': 1 }
+		};
+		
+		// Count function matching help.js exactly
+		const getSubcommandCount = (cmd) => {
+			const registered = SUBCOMMAND_REGISTRY[cmd.name?.toLowerCase()];
+			if (registered) return Object.keys(registered).length;
+			
+			if (cmd.usage) {
+				const match = cmd.usage.match(/<([^>]+\|[^>]+)>/);
+				if (match) return match[1].split('|').length;
+			}
+			return 1;
+		};
+		
+		// Count ONLY prefix commands (help menu doesn't show slash commands)
+		let totalCommands = 0;
+		readyClient.prefixCommands.forEach((cmd) => {
+			if (cmd.category === 'Bot Owner') return; // Skip Bot Owner category
+			totalCommands += getSubcommandCount(cmd);
+		});
+		
+		readyClient.user.setPresence({
+			activities: [{
+				name: `/help | ${totalCommands} commands`,
+				type: 3 // Watching
+			}],
+			status: 'online'
+		});
 
 		readyClient.on(Events.GuildMemberAdd, async (member) => {
 			try {

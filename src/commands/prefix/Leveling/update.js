@@ -60,4 +60,4 @@ async function execute(message, args, client) {
 	await message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 }
 
-export default { name, aliases, execute };
+export default { name, aliases, category: 'Leveling', description: 'Update leveling settings', execute };

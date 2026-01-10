@@ -168,6 +168,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'View channel statistics',
 	aliases,
 	execute,
 	components

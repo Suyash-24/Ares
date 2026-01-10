@@ -5,6 +5,7 @@ const numberFormatter = new Intl.NumberFormat('en-US');
 
 export default {
   name: 'botinfo',
+	description: 'Displays bot information',
   aliases: ['bi', 'bot'],
   async execute(message, args) {
     const bot = message.client.user;

@@ -57,4 +57,4 @@ async function execute(message, args, client) {
 	}
 }
 
-export default { name, aliases, description, usage, execute };
+export default { name, aliases, description, usage, category: 'Fun', execute };

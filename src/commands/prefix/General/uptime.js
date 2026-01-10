@@ -2,6 +2,7 @@ import { MessageFlags, ContainerBuilder, SeparatorSpacingSize } from 'discord.js
 
 export default {
   name: 'uptime',
+	description: 'Check bot uptime',
   async execute(message, args) {
     const uptime = message.client.uptime;
 

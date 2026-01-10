@@ -24,6 +24,7 @@ const resolveTargetUser = async (message, args) => {
 
 export default {
   name: 'avatar',
+	description: 'Displays user\'s avatar',
   aliases: ['av', 'pfp'],
   async execute(message, args) {
     const targetUser = await resolveTargetUser(message, args);

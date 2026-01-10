@@ -156,4 +156,6 @@ async function execute(message, args, client) {
 	return message.reply(replyOptions);
 }
 
-export default { name, aliases, description, usage, execute };
+const category = 'Fun';
+
+export default { name, aliases, description, usage, category, execute };

@@ -1,5 +1,5 @@
 /**
- * Kira Logging System - Toggle Event Command
+ * Ares Logging System - Toggle Event Command
  * Toggle specific logging events on/off
  */
 

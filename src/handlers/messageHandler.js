@@ -1,4 +1,4 @@
-import { Events, ContainerBuilder, MessageFlags, SeparatorSpacingSize, PermissionFlagsBits } from 'discord.js';
+import { Events, ContainerBuilder, MessageFlags, SeparatorSpacingSize, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
 import { handleMessageXp } from '../utils/leveling.js';
 import { handleMessageStats } from '../events/statsHandler.js';
@@ -31,13 +31,94 @@ export default function registerMessageHandler(discordClient) {
 			console.error('[Stats] Message stats handling failed:', err);
 		}
 
-		const prefix = discordClient.prefix;
+		// Get guild-specific prefix or use global
+		let prefix = discordClient.prefix;
+		try {
+			const guildData = await discordClient.db.findOne({ guildId: message.guildId });
+			if (guildData?.prefix) {
+				prefix = guildData.prefix;
+			}
+		} catch (err) {
+			// Use global prefix on error
+		}
 
-		if (!prefix || !message.content.startsWith(prefix)) {
+		// Check if bot is mentioned alone (no command after)
+		const mentionOnlyRegex = new RegExp(`^<@!?${discordClient.user.id}>\\s*$`);
+		if (mentionOnlyRegex.test(message.content.trim())) {
+			try {
+				const container = new ContainerBuilder();
+				
+				container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.bot || '🤖'} ${discordClient.user.username}`));
+				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+				container.addTextDisplayComponents(td => td.setContent(`**Prefix:** ${prefix}`));
+				container.addTextDisplayComponents(td => td.setContent(`> Use \`${prefix}help\` to see all commands.`));
+
+				// Add buttons if URLs exist in config
+				const supportUrl = discordClient.config?.supportServer;
+				const websiteUrl = discordClient.config?.website;
+				
+				if (supportUrl || websiteUrl) {
+					const buttons = [];
+					if (supportUrl) {
+						buttons.push(
+							new ButtonBuilder()
+								.setLabel('Support Server')
+								.setStyle(ButtonStyle.Link)
+								.setURL(supportUrl)
+								.setEmoji('💬')
+						);
+					}
+					if (websiteUrl) {
+						buttons.push(
+							new ButtonBuilder()
+								.setLabel('Website')
+								.setStyle(ButtonStyle.Link)
+								.setURL(websiteUrl)
+								.setEmoji('🌐')
+						);
+					}
+					container.addActionRowComponents(new ActionRowBuilder().addComponents(...buttons));
+				}
+
+				return message.reply({ 
+					components: [container], 
+					flags: MessageFlags.IsComponentsV2, 
+					allowedMentions: { repliedUser: false } 
+				});
+			} catch (err) {
+				console.error('[MessageHandler] Bot mention response failed:', err);
+			}
 			return;
 		}
 
-		const withoutPrefix = message.content.slice(prefix.length).trim();
+
+		// Check for no-prefix access (BOT OWNERS ONLY)
+		let hasNoPrefix = false;
+		
+		const startsWithPrefix = prefix && message.content.startsWith(prefix);
+		const startsWithMention = message.content.match(new RegExp(`^<@!?${discordClient.user.id}> `));
+		
+		if (!startsWithPrefix && !startsWithMention) {
+			// Only bot owners can use no-prefix
+			const ownerIds = discordClient.config?.ownerIds || [];
+			if (ownerIds.includes(message.author.id) || discordClient.application?.owner?.id === message.author.id) {
+				hasNoPrefix = true;
+			}
+			// All other no-prefix grants are silently ignored (bot owners only)
+		}
+
+		if (!startsWithPrefix && !startsWithMention && !hasNoPrefix) {
+			return;
+		}
+
+		let withoutPrefix;
+		if (startsWithPrefix) {
+			withoutPrefix = message.content.slice(prefix.length).trim();
+		} else if (startsWithMention) {
+			withoutPrefix = message.content.slice(startsWithMention[0].length).trim();
+		} else {
+			withoutPrefix = message.content.trim();
+		}
 
 		if (!withoutPrefix.length) {
 			return;
@@ -292,12 +373,15 @@ export default function registerMessageHandler(discordClient) {
 			console.error(`Error executing prefix command ${resolvedCommandName}:`, error);
 
 			try {
+				// Try to reply, but if the message was deleted, just log silently
 				await message.reply({
 					content: 'Something went wrong while executing that command.',
 					allowedMentions: { repliedUser: false }
+				}).catch(() => {
+					// Message was likely deleted, ignore
 				});
 			} catch (replyError) {
-				console.error('Failed to send command error message:', replyError);
+				// Silently ignore - message was likely deleted
 			}
 		}
 	});

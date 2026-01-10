@@ -84,6 +84,8 @@ const components = [];
 
 export default {
 	name,
+	category: 'Leveling',
+	description: 'View your rank card',
 	aliases,
 	execute,
 	components

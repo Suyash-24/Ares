@@ -27,7 +27,7 @@ export function initializeShoukaku(client, config) {
 			reconnectInterval: 5,
 			restTimeout: 60,
 			moveOnDisconnect: true,
-			userAgent: 'Kira/1.0.0 (Discord Bot)',
+			userAgent: 'Ares/1.0.0 (Discord Bot)',
 			voiceConnectionTimeout: 15
 		}
 	);
@@ -145,14 +145,14 @@ function registerNodeEvents(shoukaku) {
 	});
 
 	shoukaku.on('debug', (name, info) => {
-		if (typeof info === 'string' && info.toLowerCase().includes('heartbeat')) {
+		if (typeof info === 'string' && (info.toLowerCase().includes('heartbeat') || info.toLowerCase().includes('server load'))) {
 			return;
 		}
 		console.debug(`🛠️ [Lavalink:${name}] ${info}`);
 	});
 }
 
-const PLAYER_EVENT_KEY = Symbol('kiraPlayerEventHandlers');
+const PLAYER_EVENT_KEY = Symbol('aresPlayerEventHandlers');
 
 export function attachPlayerEvents(player, queue) {
 	if (!queue) {

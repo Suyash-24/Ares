@@ -1,5 +1,5 @@
 /**
- * Kira Logging System - Setup Command
+ * Ares Logging System - Setup Command
  * Interactive wizard to configure log channels
  */
 
@@ -69,7 +69,7 @@ export default {
 		);
 		container.addTextDisplayComponents((textDisplay) =>
 			textDisplay.setContent(
-				`Welcome to Kira's logging setup wizard!\n\n` +
+				`Welcome to Ares's logging setup wizard!\n\n` +
 				`**Current Status:** ${loggingConfig.enabled ? `${EMOJIS.enabletoggle} Enabled` : `${EMOJIS.disabletoggle} Disabled`}\n\n` +
 				`**Choose a setup option below:**\n` +
 				`• **Quick Setup** - Set one channel for all logs\n` +
@@ -217,7 +217,7 @@ async function handleMainMenu(interaction, client, guildData) {
 	);
 	container.addTextDisplayComponents((textDisplay) =>
 		textDisplay.setContent(
-			`Welcome to Kira's logging setup wizard!\n\n` +
+			`Welcome to Ares's logging setup wizard!\n\n` +
 			`**Current Status:** ${loggingConfig.enabled ? `${EMOJIS.enabletoggle} Enabled` : `${EMOJIS.disabletoggle} Disabled`}\n\n` +
 			`**Choose a setup option below:**\n` +
 			`• **Quick Setup** - Set one channel for all logs\n` +

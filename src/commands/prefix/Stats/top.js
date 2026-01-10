@@ -299,6 +299,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'View top members',
 	aliases,
 	execute,
 	components

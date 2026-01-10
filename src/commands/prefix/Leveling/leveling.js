@@ -1069,6 +1069,7 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Leveling',
 	aliases,
 	execute,
 	components

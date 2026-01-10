@@ -83,6 +83,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'Clear invite tracking data',
 	aliases,
 	execute
 };

@@ -2,7 +2,7 @@ import { MessageFlags, PermissionFlagsBits } from 'discord.js';
 import { ensureLevelingConfig, getMemberSnapshot, xpToNextLevel } from '../../../utils/leveling.js';
 
 const name = 'setxp';
-const aliases = ['set-xp', 'givexp'];
+const aliases = ['set-xp'];
 
 async function execute(message, args, client) {
 	if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
@@ -36,4 +36,4 @@ async function execute(message, args, client) {
 	await message.reply({ content: `✅ Set **${member.user.username}**'s XP to **${amount.toLocaleString()}** (Level ${state.level})`, allowedMentions: { repliedUser: false } });
 }
 
-export default { name, aliases, execute };
+export default { name, aliases, category: 'Leveling', description: 'Set a user\'s XP', execute };

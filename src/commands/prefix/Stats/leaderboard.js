@@ -347,6 +347,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'View server leaderboards',
 	aliases,
 	execute,
 	components

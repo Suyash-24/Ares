@@ -1,6 +1,6 @@
 import { MessageFlags, ContainerBuilder, SeparatorSpacingSize, PermissionFlagsBits, ButtonBuilder, ButtonStyle } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
-import { markMessageAsKiraDeleted } from '../../../events/loggingEvents.js';
+import { markMessageAsAresDeleted } from '../../../events/loggingEvents.js';
 
 const buildNotice = (title, description) => {
   const container = new ContainerBuilder();
@@ -12,6 +12,7 @@ const buildNotice = (title, description) => {
 
 export default {
   name: 'suggest',
+	description: 'Submit a suggestion',
   aliases: ['suggestion'],
   async execute(message, args) {
     const config = message.client.config;
@@ -338,7 +339,7 @@ ${reason}
       if (message.guild.members.me?.permissions.has(PermissionFlagsBits.ManageMessages)) {
         setTimeout(async () => {
           try {
-            markMessageAsKiraDeleted(reply.id);
+            markMessageAsAresDeleted(reply.id);
             await reply.delete();
           } catch (err) {
             console.error('Error deleting bot reply:', err);
@@ -348,7 +349,7 @@ ${reason}
 
       if (message.deletable) {
         setTimeout(() => {
-          markMessageAsKiraDeleted(message.id);
+          markMessageAsAresDeleted(message.id);
           message.delete().catch(() => {});
         }, 2000);
       }

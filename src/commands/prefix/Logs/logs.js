@@ -1,5 +1,5 @@
 /**
- * Kira Logging System - Logs Main Command
+ * Ares Logging System - Logs Main Command
  * Search, export, ignore, status, and purge logs
  */
 

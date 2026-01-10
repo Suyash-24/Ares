@@ -1,5 +1,5 @@
 /**
- * Kira Logging System - Log Events Reference Command
+ * Ares Logging System - Log Events Reference Command
  * Shows all available log events
  */
 

@@ -139,6 +139,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'See who a user has invited',
 	aliases,
 	execute,
 	components

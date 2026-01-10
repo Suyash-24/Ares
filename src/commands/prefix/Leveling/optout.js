@@ -17,6 +17,8 @@ async function execute(message) {
 
 export default {
 	name,
+	category: 'Leveling',
+	description: 'Opt out of leveling',
 	aliases,
 	execute
 };

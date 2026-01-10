@@ -2,6 +2,7 @@ import { PermissionFlagsBits, MessageFlags, ContainerBuilder, SeparatorSpacingSi
 import EMOJIS from '../../../utils/emojis.js';
 export default {
   name: 'say',
+	description: 'Make the bot say something',
   aliases: ['broadcast', 'announce'],
   async execute(message, args) {
     if (!message.member.permissions.has([PermissionFlagsBits.ManageGuild, PermissionFlagsBits.Administrator])) {

@@ -97,4 +97,4 @@ async function execute(message, args, client) {
 	}
 }
 
-export default { name, aliases, description, usage, permissions, execute };
+export default { name, aliases, description, usage, category: 'Voice Commands', permissions, execute };

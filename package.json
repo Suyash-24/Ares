@@ -1,8 +1,8 @@
 {
 	"$schema": "./schemas/package-simple.schema.json",
-	"name": "kira",
+	"name": "ares",
 	"version": "0.1.0",
-	"description": "Kira Discord bot built with discord.js v14",
+	"description": "Ares Discord bot built with discord.js v14",
 	"type": "module",
 	"main": "index.js",
 	"scripts": {
@@ -12,11 +12,13 @@
 		"node": ">=18.17.0"
 	},
 	"dependencies": {
+		"@napi-rs/canvas": "^0.1.54",
+		"archiver": "^5.3.1",
+		"better-sqlite3": "^12.5.0",
+		"denque": "^2.1.0",
 		"discord.js": "^14.15.3",
 		"dotenv": "^16.4.5",
-		"shoukaku": "^4.2.0",
-		"denque": "^2.1.0",
-		"archiver": "^5.3.1",
-		"@napi-rs/canvas": "^0.1.54"
+		"pg": "^8.16.3",
+		"shoukaku": "^4.2.0"
 	}
 }

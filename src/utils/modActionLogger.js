@@ -1,6 +1,6 @@
 /**
- * Kira Logging System - Mod Action Logger
- * Helper to log Kira's moderation actions
+ * Ares Logging System - Mod Action Logger
+ * Helper to log Ares's moderation actions
  */
 
 import { sendLog, LOG_EVENTS, formatDuration } from './LoggingManager.js';
@@ -116,7 +116,7 @@ export async function logMassAction(client, guildId, executor, action, count, re
  */
 export async function logAutomodAction(client, guildId, target, action, reason, content = null) {
 	await sendLog(client, guildId, LOG_EVENTS.AUTOMOD_ACTION, {
-		executor: { tag: 'Kira Automod', id: client.user.id },
+		executor: { tag: 'Ares Automod', id: client.user.id },
 		target,
 		content: content ? `Deleted: ${content.substring(0, 500)}` : null,
 		reason: `${action}: ${reason}`,

@@ -36,6 +36,7 @@ const fetchOwner = async (guild) => {
 
 export default {
   name: 'serverinfo',
+	description: 'Displays server information',
   aliases: ['guildinfo', 'si'],
   async execute(message) {
     const { guild } = message;

@@ -1,7 +1,7 @@
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize } from 'discord.js';
 import { ModerationPermissions, getModerationPermissionErrors } from '../../../utils/ModerationPermissions.js';
 import EMOJIS from '../../../utils/emojis.js';
-import { markMessageAsKiraDeleted, markCommandInvoker } from '../../../events/loggingEvents.js';
+import { markMessageAsAresDeleted, markCommandInvoker } from '../../../events/loggingEvents.js';
 
 export default {
 	name: 'delete',
@@ -245,17 +245,17 @@ export default {
 
 				// Delete the command message and reply after 5 seconds
 				setTimeout(() => {
-					markMessageAsKiraDeleted(message.id);
+					markMessageAsAresDeleted(message.id);
 					message.delete().catch(() => {});
-					markMessageAsKiraDeleted(reply.id);
+					markMessageAsAresDeleted(reply.id);
 					reply.delete().catch(() => {});
 				}, 5000);
 				return;
 			}
 
-			// Mark all messages as deleted by Kira for logging
+			// Mark all messages as deleted by Ares for logging
 			for (const msg of toDelete) {
-				markMessageAsKiraDeleted(msg.id);
+				markMessageAsAresDeleted(msg.id);
 			}
 
 			markCommandInvoker(message.guild.id, 'delete', message.channel.id, message.author);
@@ -289,9 +289,9 @@ export default {
 
 			// Delete the command message and reply after 5 seconds
 			setTimeout(() => {
-				markMessageAsKiraDeleted(message.id);
+				markMessageAsAresDeleted(message.id);
 				message.delete().catch(() => {});
-				markMessageAsKiraDeleted(reply.id);
+				markMessageAsAresDeleted(reply.id);
 				reply.delete().catch(() => {});
 			}, 5000);
 

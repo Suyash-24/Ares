@@ -1,5 +1,5 @@
 /**
- * Kira Logging System - Set Log Channel Command
+ * Ares Logging System - Set Log Channel Command
  * Set a channel for a specific event category
  */
 

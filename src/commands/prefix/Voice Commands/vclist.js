@@ -122,4 +122,4 @@ async function components(interaction, client) {
 	await interaction.update(payload);
 }
 
-export default { name, aliases, description, usage, permissions, execute, components };
+export default { name, aliases, description, usage, category: 'Voice Commands', permissions, execute, components };

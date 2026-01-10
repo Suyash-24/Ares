@@ -48,13 +48,20 @@ class DatabaseManager {
 			const pg = await import('pg');
 			const { Client } = pg.default;
 
-			this.postgresClient = new Client({
-				host: process.env.DB_HOST || 'localhost',
-				port: process.env.DB_PORT || 5432,
-				database: process.env.DB_NAME || 'kira_bot',
-				user: process.env.DB_USER || 'postgres',
-				password: process.env.DB_PASSWORD
-			});
+			// Try connection string first (for Neon), then fallback to individual parameters
+			const connectionString = process.env.DATABASE_URL;
+			const clientConfig = connectionString 
+				? { connectionString }
+				: {
+					host: process.env.DB_HOST || 'localhost',
+					port: process.env.DB_PORT || 5432,
+					database: process.env.DB_NAME || 'ares_bot',
+					user: process.env.DB_USER || 'postgres',
+					password: process.env.DB_PASSWORD,
+					ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
+				};
+
+			this.postgresClient = new Client(clientConfig);
 
 			await this.postgresClient.connect();
 			this.type = 'postgres';
@@ -63,7 +70,7 @@ class DatabaseManager {
 			await this.createPostgresTables();
 			return true;
 		} catch (error) {
-			console.log('PostgreSQL unavailable, trying SQLite...');
+			console.error('❌ PostgreSQL connection failed:', error.message);
 			return false;
 		}
 	}
@@ -110,7 +117,7 @@ class DatabaseManager {
 			const betterSqlite3 = await import('better-sqlite3');
 			const Database = betterSqlite3.default;
 
-			const dbPath = path.join(DATA_DIR, 'kira.db');
+			const dbPath = path.join(DATA_DIR, 'ares.db');
 			this.sqliteDb = new Database(dbPath);
 			this.sqliteDb.pragma('journal_mode = WAL');
 			this.type = 'sqlite';
@@ -454,6 +461,26 @@ class DatabaseManager {
 			findOne: (filter) => this.findOne('guilds', filter),
 			updateOne: (filter, update) => this.updateOne('guilds', filter, update)
 		};
+	}
+	/**
+	 * Ping the database to check latency
+	 * @returns {Promise<number>} Latency in ms
+	 */
+	async ping() {
+		const start = performance.now();
+		try {
+			if (this.type === 'postgres') {
+				await this.postgresClient.query('SELECT 1');
+			} else if (this.type === 'sqlite') {
+				this.sqliteDb.prepare('SELECT 1').get();
+			} else {
+				// JSON is just memory access
+				await new Promise(resolve => setImmediate(resolve));
+			}
+			return Math.round(performance.now() - start);
+		} catch (error) {
+			return -1;
+		}
 	}
 }
 

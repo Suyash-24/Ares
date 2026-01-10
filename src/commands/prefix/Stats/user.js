@@ -239,6 +239,8 @@ async function execute(message, args, client) {
 export default {
 	name,
 	aliases,
+	category: 'Stats',
+	description: 'View user statistics',
 	execute,
 	components
 };

@@ -2,6 +2,7 @@ import { MessageFlags, ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSp
 import EMOJIS from '../../../utils/emojis.js';
 export default {
   name: 'invitebot',
+	description: 'Get bot invite link',
   async execute(message, args) {
     const bot = message.client.user;
     const inviteUrl = `https://discord.com/oauth2/authorize?client_id=${bot.id}&scope=bot%20applications.commands&permissions=8`;

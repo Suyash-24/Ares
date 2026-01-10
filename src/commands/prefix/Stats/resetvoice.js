@@ -97,6 +97,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'Reset voice tracking',
 	aliases,
 	execute
 };

@@ -14,7 +14,7 @@ const aliases = ['lb', 'levels-top', 'leveltop'];
 
 const PER_PAGE = 10;
 
-export const buildPage = (leveling, page, authorId, guild = null, botName = 'Kira') => {
+export const buildPage = (leveling, page, authorId, guild = null, botName = 'Ares') => {
 	const entries = getLeaderboard(leveling, 200);
 	const totalPages = Math.max(1, Math.ceil(entries.length / PER_PAGE));
 	const current = Math.min(Math.max(0, page), totalPages - 1);
@@ -114,6 +114,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Leveling',
+	description: 'View XP leaderboard',
 	aliases,
 	execute,
 	components

@@ -105,6 +105,8 @@ async function execute(message, args, client) {
 
 export default {
 	name,
+	category: 'Stats',
+	description: 'Add voice time to a user',
 	aliases,
 	execute
 };
