@@ -52,7 +52,7 @@ export default {
     name: 'membercount',
     description: 'Shows the total member count of the server',
     category: 'General',
-    aliases: ['mc', 'members'],
+    aliases: ['mc'],
     async execute(message) {
         const { guild } = message;
 

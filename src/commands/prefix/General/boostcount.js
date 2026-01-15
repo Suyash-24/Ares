@@ -62,7 +62,7 @@ export default {
     name: 'boostcount',
     description: 'Shows the server boost count and tier',
     category: 'General',
-    aliases: ['boosts', 'boost', 'bc'],
+    aliases: ['bc'],
     async execute(message) {
         const { guild } = message;
 
