@@ -41,14 +41,27 @@ export default function registerBumpReminderHandler(client) {
         }
     });
 
+    // Run initial check after bot is ready to catch any missed reminders
+    client.once('ready', async () => {
+        console.log('[Bump Reminder] Running startup check for pending reminders...');
+        await checkAndSendReminders(client);
+    });
+
     // Schedule reminder checks every minute
     setInterval(async () => {
-        try {
-            let checkedCount = 0;
-            let remindersSent = 0;
-            
-            // Iterate through all cached guilds
-            for (const guild of client.guilds.cache.values()) {
+        await checkAndSendReminders(client);
+    }, 60 * 1000); // Check every minute
+    
+    console.log('[Bump Reminder] Handler registered');
+}
+
+async function checkAndSendReminders(client) {
+    try {
+        const now = Date.now();
+        
+        // Iterate through all cached guilds
+        for (const guild of client.guilds.cache.values()) {
+            try {
                 const guildData = await client.db.findOne({ guildId: guild.id });
                 if (!guildData) continue;
                 
@@ -56,18 +69,17 @@ export default function registerBumpReminderHandler(client) {
                 
                 if (!config || !config.enabled || !config.channel || !config.nextBump) continue;
                 
-                checkedCount++;
-                const now = Date.now();
-                
                 if (now >= config.nextBump) {
+                    console.log(`[Bump Reminder] Sending reminder to ${guild.name} (nextBump was ${new Date(config.nextBump).toISOString()})`);
                     await sendBumpReminder(client, guild, config);
-                    remindersSent++;
                 }
+            } catch (guildError) {
+                console.error(`[Bump Reminder] Error checking guild ${guild.name}:`, guildError);
             }
-        } catch (error) {
-            console.error('[Bump Reminder] Error in reminder check:', error);
         }
-    }, 60 * 1000); // Check every minute
+    } catch (error) {
+        console.error('[Bump Reminder] Error in reminder check:', error);
+    }
 }
 
 async function handleSuccessfulBump(client, guild, config, userId) {
@@ -120,7 +132,10 @@ async function handleSuccessfulBump(client, guild, config, userId) {
 async function sendBumpReminder(client, guild, config) {
     try {
         const channel = guild.channels.cache.get(config.channel);
-        if (!channel) return;
+        if (!channel) {
+            console.log(`[Bump Reminder] Channel ${config.channel} not found in ${guild.name}, skipping reminder`);
+            return;
+        }
 
         // Clear nextBump so we don't spam reminders
         config.nextBump = null;
@@ -154,9 +169,11 @@ async function sendBumpReminder(client, guild, config) {
             components: [container],
             flags: MessageFlags.IsComponentsV2,
             allowedMentions: { parse: ['users', 'everyone', 'roles'] }
-        }).catch(() => {});
+        });
+        
+        console.log(`[Bump Reminder] Successfully sent reminder in ${guild.name} (#${channel.name})`);
     } catch (error) {
-        console.error('[Bump Reminder] Error sending reminder:', error);
+        console.error(`[Bump Reminder] Error sending reminder to ${guild.name}:`, error);
     }
 }
 
