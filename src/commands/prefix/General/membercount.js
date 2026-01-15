@@ -74,11 +74,18 @@ export default {
         {
             customId: COMPONENT_IDS.refresh,
             async execute(interaction) {
-                const components = await buildMemberCountComponents(interaction.guild);
-                await interaction.update({
-                    components,
-                    flags: MessageFlags.IsComponentsV2
-                });
+                try {
+                    const components = await buildMemberCountComponents(interaction.guild);
+                    await interaction.update({
+                        components,
+                        flags: MessageFlags.IsComponentsV2
+                    });
+                } catch (error) {
+                    console.error('[MemberCount] Refresh button error:', error);
+                    if (!interaction.replied && !interaction.deferred) {
+                        await interaction.reply({ content: 'Failed to refresh. Please try again.', ephemeral: true });
+                    }
+                }
             }
         }
     ]
