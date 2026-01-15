@@ -178,7 +178,7 @@ export default {
 
         if (guildData.bumpReminder.enabled) {
             return message.reply({
-                components: [buildNotice(`# ${EMOJIS.info} Already Enabled`, 'Bump reminder system is already enabled!')],
+                components: [buildNotice(`# ℹ️ Already Enabled`, 'Bump reminder system is already enabled!')],
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false }
             });
@@ -197,7 +197,7 @@ export default {
     async handleDisable(message, args, client, guildData) {
         if (!guildData.bumpReminder.enabled) {
             return message.reply({
-                components: [buildNotice(`# ${EMOJIS.info} Already Disabled`, 'Bump reminder system is already disabled!')],
+                components: [buildNotice(`# ℹ️ Already Disabled`, 'Bump reminder system is already disabled!')],
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false }
             });
