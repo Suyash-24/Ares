@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, parseEmoji, ButtonBuilder, ButtonStyle, ActionRowBuilder, MessageFlags, ComponentType, ContainerBuilder, SeparatorSpacingSize, MediaGalleryBuilder, MediaGalleryItemBuilder, GuildPremiumTier } from 'discord.js';
+import { PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder, MessageFlags, ComponentType, ContainerBuilder, SeparatorSpacingSize, MediaGalleryBuilder, MediaGalleryItemBuilder, GuildPremiumTier } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
 
 // Helper function to fetch image as buffer
@@ -67,14 +67,10 @@ export default {
 
         // 1. Direct Arguments (Multiple Emojis)
         if (args.length > 0) {
-            // Parse all emojis from arguments
-            const emojisToAdd = [];
-            for (const arg of args) {
-                const customEmoji = parseEmoji(arg);
-                if (customEmoji && customEmoji.id) {
-                    emojisToAdd.push(customEmoji);
-                }
-            }
+            // Parse ALL emojis from the entire args string using regex
+            // This handles emojis typed together without spaces
+            const fullArgsText = args.join(' ');
+            const emojisToAdd = parseEmojisFromContent(fullArgsText);
 
             if (emojisToAdd.length > 0) {
                 return addMultipleEmojis(message, emojisToAdd);
