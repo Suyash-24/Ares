@@ -96,19 +96,62 @@ export default function registerMessageHandler(discordClient) {
 		}
 
 
-		// Check for no-prefix access (BOT OWNERS ONLY)
+		// Check for no-prefix access
 		let hasNoPrefix = false;
 		
 		const startsWithPrefix = prefix && message.content.startsWith(prefix);
 		const startsWithMention = message.content.match(new RegExp(`^<@!?${discordClient.user.id}> `));
 		
 		if (!startsWithPrefix && !startsWithMention) {
-			// Only bot owners can use no-prefix
+			// Check if user is a bot owner (always has no-prefix)
 			const ownerIds = discordClient.config?.ownerIds || [];
 			if (ownerIds.includes(message.author.id) || discordClient.application?.owner?.id === message.author.id) {
 				hasNoPrefix = true;
 			}
-			// All other no-prefix grants are silently ignored (bot owners only)
+			
+			// Check database for no-prefix grants (users, servers, roles)
+			if (!hasNoPrefix) {
+				try {
+					const NOPREFIX_KEY = '_noprefix';
+					const LIFETIME = 9999999999999;
+					const npData = await discordClient.db.findOne({ guildId: NOPREFIX_KEY });
+					
+					if (npData) {
+						const now = Date.now();
+						
+						// Check if user has no-prefix grant
+						if (npData.users && Array.isArray(npData.users)) {
+							const userEntry = npData.users.find(u => u.id === message.author.id);
+							if (userEntry && (userEntry.expiresAt > now || userEntry.expiresAt >= LIFETIME)) {
+								hasNoPrefix = true;
+							}
+						}
+						
+						// Check if server has no-prefix grant
+						if (!hasNoPrefix && npData.servers && Array.isArray(npData.servers)) {
+							const serverEntry = npData.servers.find(s => s.id === message.guildId);
+							if (serverEntry && (serverEntry.expiresAt > now || serverEntry.expiresAt >= LIFETIME)) {
+								hasNoPrefix = true;
+							}
+						}
+						
+						// Check if user has a role with no-prefix grant
+						if (!hasNoPrefix && npData.roles && Array.isArray(npData.roles)) {
+							const guildRoles = npData.roles.filter(r => r.guildId === message.guildId);
+							for (const roleGrant of guildRoles) {
+								if (roleGrant.expiresAt > now || roleGrant.expiresAt >= LIFETIME) {
+									if (message.member?.roles.cache.has(roleGrant.roleId)) {
+										hasNoPrefix = true;
+										break;
+									}
+								}
+							}
+						}
+					}
+				} catch (err) {
+					console.error('[MessageHandler] No-prefix check failed:', err);
+				}
+			}
 		}
 
 		if (!startsWithPrefix && !startsWithMention && !hasNoPrefix) {
