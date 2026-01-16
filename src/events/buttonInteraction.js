@@ -6381,6 +6381,15 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
+				if (customId === 'automod_strikes_toggle') {
+					await interaction.deferUpdate().catch(() => {});
+					config.strikesEnabled = config.strikesEnabled === false ? true : false;
+					await saveConfig();
+					await interaction.editReply({ components: [buildStrikesPage(config)] }).catch(() => {});
+					await interaction.followUp({ content: `✅ Strike system ${config.strikesEnabled ? 'enabled' : 'disabled'}.`, ephemeral: true }).catch(() => {});
+					return;
+				}
+
 				if (customId === 'automod_logchannel') {
 					const container = new ContainerBuilder();
 					container.addTextDisplayComponents(td => td.setContent(`📋 **SET LOG CHANNEL**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSelect where automod violations are logged`));

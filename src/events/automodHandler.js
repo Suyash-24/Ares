@@ -207,7 +207,8 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
             await message.delete().catch(() => {});
         }
 
-        if (moduleStrikes > 0) {
+        // Only process strikes if strikes system is enabled
+        if (moduleStrikes > 0 && config.strikesEnabled !== false) {
             if (!config.strikes) config.strikes = {};
             if (!config.strikes[message.author.id]) {
                 config.strikes[message.author.id] = { count: 0, history: [] };
@@ -297,18 +298,9 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
         // Notify User if enabled
         if (config.notifyUser !== false) {
             try {
-                const container = new ContainerBuilder();
-                container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.security || '🛡️'} **Automod Action**`));
-                container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-                container.addTextDisplayComponents(td => td.setContent(
-                    `<@${message.author.id}>, your message was flagged for **${violation}**.\n` +
-                    `**Action:** ${punishments.map(p => PUNISHMENTS[p]?.name || p).join(', ')}${strikeInfo}`
-                ));
-                
                 await message.channel.send({ 
-                    components: [container], 
-                    flags: MessageFlags.IsComponentsV2,
-                    allowedMentions: { parse: [] }  // Suppress all pings
+                    content: `<@${message.author.id}> ${violation}`,
+                    allowedMentions: { users: [message.author.id] }
                 });
             } catch (e) {
                 console.error('[Automod] Failed to send warning:', e.message);
@@ -618,20 +610,20 @@ const checkNicknameAI = async (member, config) => {
 };
 
 const MODULE_CHECKS = {
-    antiinvite: { check: checkAntiInvite, violation: 'Discord invite link detected' },
-    antilink: { check: checkAntiLink, violation: 'External link detected' },
-    antispam: { check: checkAntiSpam, violation: 'Spam detected' },
-    anticaps: { check: checkAntiCaps, violation: 'Excessive caps detected' },
-    antimention: { check: checkAntiMention, violation: 'Mass mentions detected' },
-    antiemoji: { check: checkAntiEmoji, violation: 'Excessive emojis detected' },
-    badwords: { check: checkBadWords, violation: 'Banned word detected' },
-    maxlines: { check: checkMaxLines, violation: 'Message too long (too many lines)' },
-    antieveryone: { check: checkAntiEveryone, violation: 'Attempted @everyone/@here or big role ping' },
-    antirole: { check: checkAntiRole, violation: 'Large role mention detected' },
-    antizalgo: { check: checkAntiZalgo, violation: 'Zalgo text detected' },
-    antinewlines: { check: checkAntiNewlines, violation: 'Excessive blank lines detected' },
-    anticopypasta: { check: checkAntiCopypasta, violation: 'Copypasta/spam content detected' },
-    antiai: { check: checkAI, violation: 'AI detected toxicity/hate speech' }
+    antiinvite: { check: checkAntiInvite, violation: 'Discord invite links are not allowed here.' },
+    antilink: { check: checkAntiLink, violation: 'Links are not allowed in this channel.' },
+    antispam: { check: checkAntiSpam, violation: 'Please slow down! No spamming.' },
+    anticaps: { check: checkAntiCaps, violation: 'Please avoid using excessive CAPS.' },
+    antimention: { check: checkAntiMention, violation: 'Too many mentions in one message.' },
+    antiemoji: { check: checkAntiEmoji, violation: 'Too many emojis in one message.' },
+    badwords: { check: checkBadWords, violation: 'Your message contained a banned word.' },
+    maxlines: { check: checkMaxLines, violation: 'Your message was too long.' },
+    antieveryone: { check: checkAntiEveryone, violation: 'You cannot use @everyone or @here.' },
+    antirole: { check: checkAntiRole, violation: 'You cannot mass ping roles.' },
+    antizalgo: { check: checkAntiZalgo, violation: 'Zalgo/glitchy text is not allowed.' },
+    antinewlines: { check: checkAntiNewlines, violation: 'Too many blank lines in your message.' },
+    anticopypasta: { check: checkAntiCopypasta, violation: 'Spam content is not allowed.' },
+    antiai: { check: checkAI, violation: 'Your message was flagged as inappropriate.' }
 };
 
 export default function registerAutomodHandler(client) {

@@ -489,6 +489,7 @@ const buildWordsPage = (config, disabled = false) => {
 const buildStrikesPage = (config, disabled = false) => {
     const container = new ContainerBuilder();
     
+    const strikesEnabled = config.strikesEnabled !== false; // Default to enabled
     const strikeActions = config.strikeActions || { 3: { action: 'mute', duration: '10m' }, 5: { action: 'mute', duration: '1h' }, 7: { action: 'kick' }, 10: { action: 'ban' } };
     const actionsText = Object.entries(strikeActions)
         .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
@@ -499,6 +500,7 @@ const buildStrikesPage = (config, disabled = false) => {
         td.setContent(
             `⚠️ **STRIKE SYSTEM**\n` +
             `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+            `**Status:** ${strikesEnabled ? '✅ Enabled' : '❌ Disabled'}\n\n` +
             `Strikes accumulate per user. Actions trigger at thresholds.\n\n` +
             `**Expiry:** ${config.strikeExpiry || 24} hours\n\n` +
             `**Current Actions:**\n${actionsText}`
@@ -525,6 +527,12 @@ const buildStrikesPage = (config, disabled = false) => {
             .setLabel('Back')
             .setEmoji('◀️')
             .setStyle(ButtonStyle.Secondary)
+            .setDisabled(disabled),
+        new ButtonBuilder()
+            .setCustomId('automod_strikes_toggle')
+            .setLabel(strikesEnabled ? 'Disable Strikes' : 'Enable Strikes')
+            .setEmoji(strikesEnabled ? '🔴' : '🟢')
+            .setStyle(strikesEnabled ? ButtonStyle.Danger : ButtonStyle.Success)
             .setDisabled(disabled)
     ));
 
@@ -1100,17 +1108,33 @@ export default {
         if (!config.strikes) config.strikes = {};
         if (!config.strikeActions) config.strikeActions = { 3: { action: 'mute', duration: '10m' }, 5: { action: 'mute', duration: '1h' }, 7: { action: 'kick' }, 10: { action: 'ban' } };
 
+        // Handle toggle on/off
+        if (action === 'on' || action === 'enable') {
+            config.strikesEnabled = true;
+            await this.saveConfig(client, message.guildId, config);
+            return this.sendSuccess(message, 'Strikes Enabled', 'The strike system is now **enabled**. Users will accumulate strikes for automod violations.');
+        }
+
+        if (action === 'off' || action === 'disable') {
+            config.strikesEnabled = false;
+            await this.saveConfig(client, message.guildId, config);
+            return this.sendSuccess(message, 'Strikes Disabled', 'The strike system is now **disabled**. Users will not accumulate strikes.');
+        }
+
         if (!action || action === 'help') {
+            const strikesEnabled = config.strikesEnabled !== false;
             const actionsText = Object.entries(config.strikeActions)
                 .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
                 .map(([strikes, cfg]) => `**${strikes} strikes** → ${cfg.action}${cfg.duration ? ` (${cfg.duration})` : ''}`)
                 .join('\n');
 
-            let content = `**Strike System (Vortex-style)**\n\n`;
+            let content = `**Strike System**\n\n`;
+            content += `**Status:** ${strikesEnabled ? '✅ Enabled' : '❌ Disabled'}\n\n`;
             content += `Strikes accumulate per-user. When thresholds are reached, automated actions trigger.\n\n`;
             content += `**Current Actions:**\n${actionsText || '*None configured*'}\n\n`;
             content += `**Strike Expiry:** ${config.strikeExpiry || 24} hours\n\n`;
             content += `**Commands:**\n`;
+            content += `\`.automod strikes on/off\` - Enable/disable strike system\n`;
             content += `\`.automod strikes @user\` - View user's strikes\n`;
             content += `\`.automod strikes give @user [amount]\` - Add strikes\n`;
             content += `\`.automod strikes remove @user [amount]\` - Remove strikes\n`;
