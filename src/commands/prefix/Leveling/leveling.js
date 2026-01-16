@@ -954,11 +954,11 @@ const components = [
 					.replace(/{timestamp}/g, new Date().toLocaleString());
 			};
 			
-			// Variable replacement for components (no pings)
+			// Variable replacement for components (uses actual mentions)
 			const replaceVarsNoPing = (str) => {
 				if (!str) return str;
 				return str
-					.replace(/{user\.mention}/g, `@${interaction.user.username}`)
+					.replace(/{user\.mention}/g, interaction.user.toString())
 					.replace(/{user\.name}/g, interaction.user.username)
 					.replace(/{user\.avatar}/g, interaction.user.displayAvatarURL({ size: 512 }))
 					.replace(/{level}/g, '5')

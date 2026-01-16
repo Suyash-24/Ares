@@ -232,11 +232,11 @@ const buildRichAnnouncement = (leveling, ctx) => {
 			.replace(/{timestamp}/g, new Date().toLocaleString());
 	};
 	
-	// Variable replacement for components (no pings)
+	// Variable replacement for components (uses actual mentions)
 	const replaceVarsNoPing = (str) => {
 		if (!str) return str;
 		return str
-			.replace(/{user\.mention}/g, `@${ctx.userName}`)
+			.replace(/{user\.mention}/g, ctx.userMention)
 			.replace(/{user\.name}/g, ctx.userName)
 			.replace(/{user\.avatar}/g, ctx.userAvatar || '')
 			.replace(/{level}/g, String(ctx.level))
