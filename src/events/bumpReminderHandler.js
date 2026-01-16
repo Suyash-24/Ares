@@ -159,13 +159,14 @@ async function sendBumpReminder(client, guild, config) {
         }
 
         // Send reminder
+        const mentionText = config.lastBumpUser ? `<@${config.lastBumpUser}>` : '@here';
         const reminderMsg = (config.reminderMessage || 'It\'s time to bump the server! Use `/bump`')
-            .replace('{user}', config.lastBumpUser ? `<@${config.lastBumpUser}>` : '@here')
+            .replace('{user}', mentionText)
             .replace('{server}', guild.name);
 
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => 
-            td.setContent(`# ⏰ Bump Reminder`)
+            td.setContent(`${mentionText}\n# ⏰ Bump Reminder`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => 
@@ -173,7 +174,6 @@ async function sendBumpReminder(client, guild, config) {
         );
 
         await channel.send({
-            content: config.lastBumpUser ? `<@${config.lastBumpUser}>` : '@here',
             components: [container],
             flags: MessageFlags.IsComponentsV2,
             allowedMentions: { parse: ['users', 'everyone', 'roles'] }

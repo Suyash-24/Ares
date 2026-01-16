@@ -1,12 +1,19 @@
 import { MessageFlags, ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MediaGalleryBuilder, ActionRowBuilder } from 'discord.js';
 
 const resolveTargetUser = async (message, args) => {
-  const mention = message.mentions.users.first();
-
-  if (mention) {
-    return mention;
+  // Priority 1: Check for mentioned users in the message content
+  // Filter out the replied-to user from mentions to prioritize explicit mentions
+  const mentions = message.mentions.users;
+  const repliedUserId = message.reference ? (await message.fetchReference().catch(() => null))?.author?.id : null;
+  
+  // Get the first mention that isn't the replied-to user (if replying)
+  const explicitMention = mentions.find(u => u.id !== repliedUserId) || (mentions.size > 0 && !repliedUserId ? mentions.first() : null);
+  
+  if (explicitMention) {
+    return explicitMention;
   }
 
+  // Priority 2: Check for user ID in args
   if (args.length > 0) {
     const idCandidate = args[0].replace(/[^0-9]/g, '');
 
@@ -19,6 +26,15 @@ const resolveTargetUser = async (message, args) => {
     }
   }
 
+  // Priority 3: If replying to a message without args/mentions, use replied-to user
+  if (message.reference) {
+    const repliedMessage = await message.fetchReference().catch(() => null);
+    if (repliedMessage?.author) {
+      return repliedMessage.author;
+    }
+  }
+
+  // Priority 4: Default to message author
   return message.author;
 };
 
