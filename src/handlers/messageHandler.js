@@ -397,6 +397,27 @@ export default function registerMessageHandler(discordClient) {
 				}
 			}
 
+			// 3. Check User Permissions (command.userPermissions)
+			if (command.userPermissions && command.userPermissions.length > 0) {
+				const isOwner = message.member.id === message.guild.ownerId;
+				const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
+				
+				if (!isOwner && !isAdmin) {
+					const missingPerms = command.userPermissions.filter(perm => !message.member.permissions.has(perm));
+					
+					if (missingPerms.length > 0) {
+						const permNames = missingPerms.map(p => {
+							// Convert permission flag to readable name
+							const permName = Object.keys(PermissionFlagsBits).find(key => PermissionFlagsBits[key] === p);
+							return permName ? permName.replace(/([A-Z])/g, ' $1').trim() : 'Unknown';
+						}).join(', ');
+						
+						const container = buildNotice(`# ${EMOJIS.error || '❌'} Permission Denied`, `You need **${permNames}** permission to use this command.`);
+						return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
+					}
+				}
+			}
+
 			const commandArgs = args.slice(consumedArgs);
 			await command.execute(message, commandArgs, discordClient);
 		} catch (error) {

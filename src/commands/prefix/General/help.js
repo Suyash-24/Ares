@@ -14,6 +14,7 @@ const getCategoryEmoji = (cat) => {
         'Moderation': EMOJIS.moderation || EMOJIS.security || '🛡️',
         'Fun': EMOJIS.fun || EMOJIS.game || '🎮',
         'Music': EMOJIS.music || '🎵',
+        'Configuration': EMOJIS.settings || EMOJIS.config || '⚙️',
         'Leveling': EMOJIS.leveling || EMOJIS.stats || '📊',
         'Server': EMOJIS.server || EMOJIS.settings || '⚙️',
         'Automod': EMOJIS.automod || EMOJIS.bot || '🤖',
@@ -40,6 +41,7 @@ const CATEGORY_DESCRIPTIONS = {
     'Moderation': 'Server moderation tools',
     'Fun': 'Fun and entertainment commands',
     'Music': 'Music player controls',
+    'Configuration': 'Server configuration & tools',
     'Leveling': 'XP and ranking system',
     'Server': 'Server configuration',
     'Automod': 'Automatic moderation',
@@ -238,6 +240,29 @@ const SUBCOMMAND_REGISTRY = {
         'status': 'View logging status',
         'purge': 'Clear old log entries',
         'stats': 'View logging statistics'
+    },
+    
+    // Configuration
+    'trigger': {
+        'add': 'Add a new trigger',
+        'remove': 'Remove a trigger',
+        'list': 'List all triggers',
+        'edit': 'Edit trigger response',
+        'matchmode': 'Set matching mode',
+        'toggle': 'Enable/disable trigger',
+        'info': 'View trigger details',
+        'plaintext': 'Toggle plain text mode'
+    },
+    
+    // Reaction Triggers
+    'reaction': {
+        'add': 'Add reaction trigger',
+        'remove': 'Remove reaction trigger',
+        'list': 'List all reaction triggers',
+        'messages': 'React to all messages in channel',
+        'messages list': 'List channels with auto-reactions',
+        'messages remove': 'Remove channel reactions',
+        'reset': 'Remove all reaction triggers'
     }
 };
 

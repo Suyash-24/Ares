@@ -138,7 +138,15 @@ export default {
             });
         }
 
-        const channel = message.mentions.channels.first() || message.guild.channels.cache.get(args[1]);
+        // Parse channel from mention or ID
+        let channel = message.mentions.channels.first();
+        
+        // If no mention found, try to parse channel ID from args
+        if (!channel) {
+            // Extract ID from <#123456> format or raw ID
+            const channelId = args[1].replace(/[<#>]/g, '');
+            channel = message.guild.channels.cache.get(channelId);
+        }
         
         if (!channel) {
             return message.reply({
@@ -151,6 +159,15 @@ export default {
         if (!channel.isTextBased()) {
             return message.reply({
                 components: [buildNotice(`# ${EMOJIS.error} Invalid Channel Type`, 'Bump reminder channel must be a text channel.')],
+                flags: MessageFlags.IsComponentsV2,
+                allowedMentions: { repliedUser: false }
+            });
+        }
+
+        // Check if already using this channel
+        if (guildData.bumpReminder.channel === channel.id) {
+            return message.reply({
+                components: [buildNotice(`# ℹ️ Already Set`, `Bump reminder is already using ${channel}.`)],
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false }
             });

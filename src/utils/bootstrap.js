@@ -27,6 +27,7 @@ import { initGiveawayHandler } from '../events/giveawayHandler.js';
 import ticketHandler from '../events/ticketHandler.js';
 import { startInactivityScheduler } from './ticketScheduler.js';
 import { registerSnipeEvents } from '../events/snipeHandler.js';
+import registerTriggerHandler from '../events/triggerHandler.js';
 
 const CONFIG_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../config.json');
 
@@ -97,6 +98,9 @@ export async function bootstrap(client, __dirname) {
 
 	// Register snipe events (for snipe, editsnipe, reactionsnipe commands)
 	registerSnipeEvents(client);
+
+	// Register trigger/autoresponder handler
+	registerTriggerHandler(client);
 
 	await initializeAntinuke(client);
 
