@@ -996,14 +996,20 @@ const components = [
 			// Body with thumbnail accessory in section
 			if (msg.body || msg.thumbnail) {
 				const thumbUrl = msg.thumbnail ? (replaceVars(msg.thumbnail) || '').trim() : null;
-				previewContainer.addSectionComponents(section => {
-					const bodyText = msg.body ? replaceVarsNoPing(msg.body) : '\u200b';
-					section.addTextDisplayComponents(td => td.setContent(bodyText));
-					if (thumbUrl && thumbUrl.startsWith('http')) {
+				const validThumb = thumbUrl && thumbUrl.startsWith('http');
+				
+				if (validThumb) {
+					// Use section with thumbnail
+					previewContainer.addSectionComponents(section => {
+						const bodyText = msg.body ? replaceVarsNoPing(msg.body) : '\u200b';
+						section.addTextDisplayComponents(td => td.setContent(bodyText));
 						section.setThumbnailAccessory(thumb => thumb.setURL(thumbUrl));
-					}
-					return section;
-				});
+						return section;
+					});
+				} else if (msg.body) {
+					// Just body text, no thumbnail
+					previewContainer.addTextDisplayComponents(td => td.setContent(replaceVarsNoPing(msg.body)));
+				}
 				hasContainerContent = true;
 			} else if (msg.body) {
 				previewContainer.addTextDisplayComponents(td => td.setContent(replaceVarsNoPing(msg.body)));
