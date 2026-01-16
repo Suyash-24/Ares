@@ -41,11 +41,11 @@ export default function registerBumpReminderHandler(client) {
         }
     });
 
-    // Run initial check after bot is ready to catch any missed reminders
-    client.once('ready', async () => {
+    // Run initial check after 10 seconds to ensure bot is fully connected
+    setTimeout(async () => {
         console.log('[Bump Reminder] Running startup check for pending reminders...');
         await checkAndSendReminders(client);
-    });
+    }, 10000);
 
     // Schedule reminder checks every minute
     setInterval(async () => {
@@ -58,6 +58,7 @@ export default function registerBumpReminderHandler(client) {
 async function checkAndSendReminders(client) {
     try {
         const now = Date.now();
+        let pendingCount = 0;
         
         // Iterate through all cached guilds
         for (const guild of client.guilds.cache.values()) {
@@ -67,10 +68,17 @@ async function checkAndSendReminders(client) {
                 
                 const config = guildData.bumpReminder;
                 
-                if (!config || !config.enabled || !config.channel || !config.nextBump) continue;
+                if (!config || !config.enabled || !config.channel) continue;
+                
+                if (!config.nextBump) {
+                    // No scheduled reminder
+                    continue;
+                }
+                
+                pendingCount++;
                 
                 if (now >= config.nextBump) {
-                    console.log(`[Bump Reminder] Sending reminder to ${guild.name} (nextBump was ${new Date(config.nextBump).toISOString()})`);
+                    console.log(`[Bump Reminder] Time to send reminder to ${guild.name} (nextBump: ${new Date(config.nextBump).toISOString()}, now: ${new Date(now).toISOString()})`);
                     await sendBumpReminder(client, guild, config);
                 }
             } catch (guildError) {

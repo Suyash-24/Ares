@@ -75,16 +75,16 @@ export default {
             customId: COMPONENT_IDS.refresh,
             async execute(interaction) {
                 try {
+                    // Defer immediately to prevent 3-second timeout
+                    await interaction.deferUpdate();
+                    
                     const components = await buildMemberCountComponents(interaction.guild);
-                    await interaction.update({
+                    await interaction.editReply({
                         components,
                         flags: MessageFlags.IsComponentsV2
                     });
                 } catch (error) {
                     console.error('[MemberCount] Refresh button error:', error);
-                    if (!interaction.replied && !interaction.deferred) {
-                        await interaction.reply({ content: 'Failed to refresh. Please try again.', ephemeral: true });
-                    }
                 }
             }
         }
