@@ -169,6 +169,13 @@ class DatabaseManager {
 	}
 
 	/**
+	 * Get database type currently in use
+	 */
+	getType() {
+		return this.type;
+	}
+
+	/**
 	 * Find guild data (with caching)
 	 */
 	async findOne(collection, filter) {
