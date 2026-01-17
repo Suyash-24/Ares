@@ -145,6 +145,29 @@ async function execute(message, args, client) {
 				}
 			}
 
+		} else if (subCommand === 'lookback') {
+			// Set lookback period
+			const days = parseInt(args[1]);
+			
+			if (!days || isNaN(days) || days < 1 || days > 365) {
+				container.addTextDisplayComponents(td => td.setContent(
+					`# ${EMOJIS.settings || '⚙️'} Stats Lookback Period\n\n` +
+					`**Current:** ${stats.lookback || 14} days\n\n` +
+					`To change, use: \`statsconfig lookback <days>\`\n` +
+					`Valid range: 1-365 days\n\n` +
+					`**Example:** \`statsconfig lookback 30\` for 30 days`
+				));
+			} else {
+				stats.lookback = days;
+				await client.db.updateOne({ guildId: message.guildId }, { $set: { 'stats.lookback': days } });
+				
+				container.addTextDisplayComponents(td => td.setContent(
+					`# ${EMOJIS.settings || '⚙️'} Stats Lookback Period\n\n` +
+					`${EMOJIS.check || '✅'} Lookback period set to **${days} days**\n\n` +
+					`Daily stats older than ${days} days will be cleaned up automatically.`
+				));
+			}
+
 		} else {
 			// Show current settings
 			container.addTextDisplayComponents(td => td.setContent(
@@ -160,6 +183,7 @@ async function execute(message, args, client) {
 				`${settings.trackMessages ? '✅' : '❌'} Messages\n` +
 				`${settings.trackVoice ? '✅' : '❌'} Voice\n` +
 				`${settings.trackInvites ? '✅' : '❌'} Invites\n\n` +
+				`**Lookback Period:** ${stats.lookback || 14} days\n\n` +
 				`**Access:**\n` +
 				`${settings.publicStats ? '👁️ Public' : '🔒 Admins only'}`
 			));
@@ -185,6 +209,7 @@ async function execute(message, args, client) {
 				`\`statsconfig voice\` - Toggle voice tracking\n` +
 				`\`statsconfig invites\` - Toggle invite tracking\n` +
 				`\`statsconfig public\` - Toggle public access\n` +
+				`\`statsconfig lookback <days>\` - Set lookback period (1-365)\n` +
 				`\`statsconfig ignore #channel\` - Toggle ignored channel\n` +
 				`\`statsconfig ignorerole @role\` - Toggle ignored role`
 			));

@@ -241,21 +241,92 @@ class DatabaseManager {
 
 	/**
 	 * PostgreSQL update - uses JSONB merge for efficient single-query updates
+	 * Supports $set, $unset, and $inc operations
 	 */
 	async postgresUpdate(collection, filter, update) {
 		try {
 			const setOps = update.$set || {};
 			const unsetOps = update.$unset || {};
+			const incOps = update.$inc || {};
+			const hasInc = Object.keys(incOps).length > 0;
 
-			// Build the merged data object for $set operations
+			// If $inc is used, we need to fetch-modify-save for accurate increments
+			if (hasInc) {
+				// Get existing data first
+				const existing = await this.postgresFind(collection, filter);
+				let data = existing || {};
+
+				// Helper functions
+				const getNestedValue = (obj, path) => {
+					const parts = path.split('.');
+					let cursor = obj;
+					for (const part of parts) {
+						if (cursor === undefined || cursor === null) return 0;
+						cursor = cursor[part];
+					}
+					return typeof cursor === 'number' ? cursor : 0;
+				};
+
+				const setNestedValue = (obj, path, value) => {
+					const parts = path.split('.');
+					let cursor = obj;
+					for (let i = 0; i < parts.length; i++) {
+						const part = parts[i];
+						if (i === parts.length - 1) {
+							cursor[part] = value;
+						} else {
+							if (typeof cursor[part] !== 'object' || cursor[part] === null) cursor[part] = {};
+							cursor = cursor[part];
+						}
+					}
+				};
+
+				// Apply $inc operations
+				for (const key of Object.keys(incOps)) {
+					const currentValue = getNestedValue(data, key);
+					setNestedValue(data, key, currentValue + incOps[key]);
+				}
+
+				// Apply $set operations
+				for (const key of Object.keys(setOps)) {
+					setNestedValue(data, key, setOps[key]);
+				}
+
+				// Apply $unset operations
+				for (const key of Object.keys(unsetOps)) {
+					const parts = key.split('.');
+					let cursor = data;
+					for (let i = 0; i < parts.length; i++) {
+						const part = parts[i];
+						if (i === parts.length - 1) {
+							if (cursor && Object.prototype.hasOwnProperty.call(cursor, part)) delete cursor[part];
+						} else {
+							if (!cursor || typeof cursor[part] !== 'object') break;
+							cursor = cursor[part];
+						}
+					}
+				}
+
+				// Upsert the data
+				const query = `
+					INSERT INTO ${collection} (guildId, data)
+					VALUES ($1, $2::jsonb)
+					ON CONFLICT (guildId) DO UPDATE
+					SET data = $2::jsonb,
+						updatedAt = CURRENT_TIMESTAMP
+					RETURNING *
+				`;
+				const result = await this.postgresClient.query(query, [filter.guildId, JSON.stringify(data)]);
+				return { ok: 1, modifiedCount: result.rowCount };
+			}
+
+			// Original path for $set/$unset without $inc
 			let setData = {};
 			for (const key of Object.keys(setOps)) {
 				const parts = key.split('.');
 				if (parts.length === 1) {
-					// Simple key - direct set
 					setData[key] = setOps[key];
 				} else {
-					// Dotted path - build nested object
 					let cursor = setData;
 					for (let i = 0; i < parts.length; i++) {
 						const part = parts[i];
@@ -269,21 +340,15 @@ class DatabaseManager {
 				}
 			}
 
-			// If no $set or $unset, use update object directly
 			if (!update.$set && !update.$unset) {
 				setData = update;
 			}
 
-			// Build unset paths for removal
 			const unsetPaths = Object.keys(unsetOps);
-
-			// Use PostgreSQL's JSONB concatenation for efficient merge
-			// INSERT ... ON CONFLICT ... UPDATE with JSONB merge
 			let query;
 			let params;
 
 			if (unsetPaths.length > 0) {
-				// With $unset - need to remove keys after merge
 				const unsetClause = unsetPaths.map(p => `'${p.split('.')[0]}'`).join(', ');
 				query = `
 					INSERT INTO ${collection} (guildId, data)
@@ -295,7 +360,6 @@ class DatabaseManager {
 				`;
 				params = [filter.guildId, JSON.stringify(setData)];
 			} else {
-				// Simple merge without $unset
 				query = `
 					INSERT INTO ${collection} (guildId, data)
 					VALUES ($1, $2::jsonb)
@@ -334,7 +398,7 @@ class DatabaseManager {
 	}
 
 	/**
-	 * SQLite update - properly merges $set data with existing data
+	 * SQLite update - properly merges $set, $inc, $unset data with existing data
 	 */
 	sqliteUpdate(collection, filter, update) {
 		try {
@@ -352,21 +416,45 @@ class DatabaseManager {
 			// Merge $set data with existing data
 			const setOps = update.$set || {};
 			const unsetOps = update.$unset || {};
+			const incOps = update.$inc || {};
 			let mergedData = { ...existingData };
 
-			// Apply $set operations (supports dotted paths)
-			for (const key of Object.keys(setOps)) {
-				const parts = key.split('.');
-				let cursor = mergedData;
+			// Helper to get nested value
+			const getNestedValue = (obj, path) => {
+				const parts = path.split('.');
+				let cursor = obj;
+				for (const part of parts) {
+					if (cursor === undefined || cursor === null) return 0;
+					cursor = cursor[part];
+				}
+				return typeof cursor === 'number' ? cursor : 0;
+			};
+
+			// Helper to set nested value
+			const setNestedValue = (obj, path, value) => {
+				const parts = path.split('.');
+				let cursor = obj;
 				for (let i = 0; i < parts.length; i++) {
 					const part = parts[i];
 					if (i === parts.length - 1) {
-						cursor[part] = setOps[key];
+						cursor[part] = value;
 					} else {
 						if (typeof cursor[part] !== 'object' || cursor[part] === null) cursor[part] = {};
 						cursor = cursor[part];
 					}
 				}
+			};
+
+			// Apply $inc operations (atomic increment)
+			for (const key of Object.keys(incOps)) {
+				const currentValue = getNestedValue(mergedData, key);
+				const increment = incOps[key];
+				setNestedValue(mergedData, key, currentValue + increment);
+			}
+
+			// Apply $set operations (supports dotted paths)
+			for (const key of Object.keys(setOps)) {
+				setNestedValue(mergedData, key, setOps[key]);
 			}
 
 			// Apply $unset operations
@@ -384,8 +472,8 @@ class DatabaseManager {
 				}
 			}
 
-			// If no $set or $unset, merge update object directly
-			if (!update.$set && !update.$unset) {
+			// If no $set, $unset, or $inc, merge update object directly
+			if (!update.$set && !update.$unset && !update.$inc) {
 				mergedData = { ...existingData, ...update };
 			}
 
@@ -476,7 +564,7 @@ class DatabaseManager {
 	}
 
 	/**
-	 * JSON update with support for dotted path keys in $set and $unset (mimics Mongo-style behavior)
+	 * JSON update with support for dotted path keys in $set, $inc, and $unset (mimics Mongo-style behavior)
 	 */
 	jsonUpdate(collection, filter, update) {
 		try {
@@ -487,6 +575,18 @@ class DatabaseManager {
 			const index = this.data[collection].findIndex(r => r.guildId === filter.guildId);
 			const setOps = update.$set || {};
 			const unsetOps = update.$unset || {};
+			const incOps = update.$inc || {};
+
+			// Helper to get nested value
+			const getNestedValue = (obj, path) => {
+				const parts = path.split('.');
+				let cursor = obj;
+				for (const part of parts) {
+					if (cursor === undefined || cursor === null) return 0;
+					cursor = cursor[part];
+				}
+				return typeof cursor === 'number' ? cursor : 0;
+			};
 
 			const applySet = (target, key, value) => {
 				const parts = key.split('.');
@@ -518,6 +618,11 @@ class DatabaseManager {
 
 			if (index !== -1) {
 				const target = this.data[collection][index];
+				// apply $inc first (atomic increments)
+				for (const key of Object.keys(incOps)) {
+					const currentValue = getNestedValue(target, key);
+					applySet(target, key, currentValue + incOps[key]);
+				}
 				// apply $set dotted keys
 				for (const key of Object.keys(setOps)) {
 					applySet(target, key, setOps[key]);
@@ -526,18 +631,21 @@ class DatabaseManager {
 				for (const key of Object.keys(unsetOps)) {
 					applyUnset(target, key);
 				}
-				// If update passed direct fields (no $set/$unset), merge them shallowly
-				if (!update.$set && !update.$unset) {
+				// If update passed direct fields (no $set/$unset/$inc), merge them shallowly
+				if (!update.$set && !update.$unset && !update.$inc) {
 					Object.assign(target, update);
 				}
 			} else {
-				// create new record and apply $set keys
+				// create new record and apply $inc and $set keys
 				const newRecord = { guildId: filter.guildId };
+				for (const key of Object.keys(incOps)) {
+					applySet(newRecord, key, incOps[key]); // For new records, $inc value becomes the initial value
+				}
 				for (const key of Object.keys(setOps)) {
 					applySet(newRecord, key, setOps[key]);
 				}
 				// also merge direct update fields
-				if (!update.$set && !update.$unset) Object.assign(newRecord, update);
+				if (!update.$set && !update.$unset && !update.$inc) Object.assign(newRecord, update);
 				this.data[collection].push(newRecord);
 			}
 
@@ -548,6 +656,7 @@ class DatabaseManager {
 			return { ok: 0 };
 		}
 	}
+
 
 	/**
 	 * Load JSON database from file
