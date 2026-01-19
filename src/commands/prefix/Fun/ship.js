@@ -1,5 +1,5 @@
 import { ContainerBuilder, MessageFlags, AttachmentBuilder, MediaGalleryBuilder, SeparatorSpacingSize } from 'discord.js';
-import { createCanvas, loadImage } from '@napi-rs/canvas';
+import { createCanvas, loadImage, GlobalFonts } from '@napi-rs/canvas';
 import EMOJIS from '../../../utils/emojis.js';
 
 const name = 'ship';
@@ -52,8 +52,17 @@ async function execute(message, args, client) {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Score
-	const score = Math.floor(Math.random() * 101);
+	// Score - Special case for owner + special person
+	const specialId = '1417438096185757748';
+	const owners = client.config?.owners || [];
+	const isOwner1 = owners.includes(user1.id);
+	const isOwner2 = owners.includes(user2.id);
+	const isSpecial1 = user1.id === specialId;
+	const isSpecial2 = user2.id === specialId;
+	
+	// If an owner is shipped with the special person, always 100%
+	const isSpecialPair = (isOwner1 && isSpecial2) || (isOwner2 && isSpecial1);
+	const score = isSpecialPair ? 100 : Math.floor(Math.random() * 101);
 	const progress = Math.round(score / 10);
 	const bar = '🟥'.repeat(progress) + '⬜'.repeat(10 - progress);
 
@@ -109,7 +118,7 @@ async function execute(message, args, client) {
 		ctx.restore();
 
 		ctx.fillStyle = '#FFFFFF';
-		ctx.font = 'bold 40px sans-serif';
+		ctx.font = 'bold 40px Arial, Helvetica';
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillText(`${score}%`, 350, 125);
