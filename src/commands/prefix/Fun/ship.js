@@ -54,7 +54,7 @@ async function execute(message, args, client) {
 
 	// Score - Special case for owner + special person
 	const specialId = '1417438096185757748';
-	const owners = client.config?.owners || [];
+	const owners = client.config?.ownerIds || [];
 	const isOwner1 = owners.includes(user1.id);
 	const isOwner2 = owners.includes(user2.id);
 	const isSpecial1 = user1.id === specialId;
@@ -117,8 +117,39 @@ async function execute(message, args, client) {
 		ctx.fill();
 		ctx.restore();
 
+		// Register font from system if not already registered
+		const fontName = 'ShipFont';
+		if (!GlobalFonts.families.some(f => f.family === fontName)) {
+			// Font paths for different operating systems
+			const fontPaths = [
+				// Windows paths
+				'C:/Windows/Fonts/arial.ttf',
+				'C:/Windows/Fonts/arialbd.ttf',
+				'C:/Windows/Fonts/segoeui.ttf',
+				// Linux paths
+				'/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+				'/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+				'/usr/share/fonts/TTF/DejaVuSans.ttf',
+				'/usr/share/fonts/dejavu/DejaVuSans.ttf'
+			];
+			
+			let fontLoaded = false;
+			for (const fontPath of fontPaths) {
+				try {
+					GlobalFonts.registerFromPath(fontPath, fontName);
+					fontLoaded = true;
+					break;
+				} catch {
+					// Try next font path
+				}
+			}
+			if (!fontLoaded) {
+				console.warn('[Ship] Could not register any font, text may not render');
+			}
+		}
+		
 		ctx.fillStyle = '#FFFFFF';
-		ctx.font = 'bold 40px Arial, Helvetica';
+		ctx.font = `bold 40px "${fontName}"`;
 		ctx.textAlign = 'center';
 		ctx.textBaseline = 'middle';
 		ctx.fillText(`${score}%`, 350, 125);
