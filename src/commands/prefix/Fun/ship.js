@@ -49,7 +49,7 @@ async function execute(message, args, client) {
 	}
 
 	const specialId = '1417438096185757748';
-	const owners = client.config?.ownerIds || [];
+	const owners = client.ownerIds || client.config?.ownerIds || [];
 	const isOwner1 = owners.includes(user1.id);
 	const isOwner2 = owners.includes(user2.id);
 	const isSpecial1 = user1.id === specialId;

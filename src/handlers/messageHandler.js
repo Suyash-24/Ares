@@ -96,7 +96,7 @@ export default function registerMessageHandler(discordClient) {
 
 		if (!startsWithPrefix && !startsWithMention) {
 
-			const ownerIds = discordClient.config?.ownerIds || [];
+			const ownerIds = discordClient.ownerIds || discordClient.config?.ownerIds || [];
 			if (ownerIds.includes(message.author.id) || discordClient.application?.owner?.id === message.author.id) {
 				hasNoPrefix = true;
 			}

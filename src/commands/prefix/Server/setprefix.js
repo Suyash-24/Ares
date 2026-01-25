@@ -12,7 +12,7 @@ async function execute(message, args, client) {
 
     const isOwner = message.member.id === message.guild.ownerId;
     const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
-    const ownerIds = client.config?.ownerIds || [];
+    const ownerIds = client.ownerIds || client.config?.ownerIds || [];
     const isBotOwner = ownerIds.includes(message.author.id) || client.application?.owner?.id === message.author.id;
 
     if (!isOwner && !isAdmin && !isBotOwner) {

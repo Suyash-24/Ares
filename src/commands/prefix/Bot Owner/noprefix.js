@@ -44,7 +44,7 @@ function formatTimestamp(ts) {
 async function execute(message, args, client) {
     const container = new ContainerBuilder();
 
-    const ownerIds = client.config?.ownerIds || [];
+    const ownerIds = client.ownerIds || client.config?.ownerIds || [];
     const isBotOwner = ownerIds.includes(message.author.id) || client.application?.owner?.id === message.author.id;
 
     if (!isBotOwner) {
@@ -146,7 +146,7 @@ async function execute(message, args, client) {
         if (type === 'user') {
             const userId = targetArg ? targetArg.replace(/[<@!>]/g, '') : message.author.id;
 
-            if (ownerIds.includes(userId) || client.application?.owner?.id === userId) {
+            if ((client.ownerIds || ownerIds).includes(userId) || client.application?.owner?.id === userId) {
                 container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.success || '👑'} Bot Owner`));
                 container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
                 container.addTextDisplayComponents(td => td.setContent(

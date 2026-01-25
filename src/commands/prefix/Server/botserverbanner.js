@@ -12,7 +12,7 @@ async function execute(message, args, client) {
 
 	const isOwner = message.member.id === message.guild.ownerId;
 	const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
-	const isBotOwner = client.application?.owner?.id === message.author.id || client.config?.ownerIds?.includes(message.author.id);
+	const isBotOwner = client.application?.owner?.id === message.author.id || (client.ownerIds || client.config?.ownerIds || []).includes(message.author.id);
 
 	if (!isOwner && !isAdmin && !isBotOwner) {
 		container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Permission Denied**`));

@@ -54,6 +54,7 @@ export async function bootstrap(client, __dirname) {
 	const token = resolveToken(config);
 	const clientId = resolveClientId(config);
 	client.prefix = resolvePrefix(config);
+	client.ownerIds = resolveOwnerIds(config);
 
 	const slashCommands = await loadSlashCommands(client, __dirname);
 	await loadPrefixCommands(client, __dirname);
@@ -191,6 +192,14 @@ function resolvePrefix(config) {
 
 	return prefix;
 }
+
+function resolveOwnerIds(config) {
+	if (process.env.OWNER_IDS) {
+		return process.env.OWNER_IDS.split(',').map(id => id.trim()).filter(id => id);
+	}
+	return config.ownerIds || [];
+}
+
 
 async function loadSlashCommands(discordClient, __dirname) {
 	const slashRoot = path.join(__dirname, 'src', 'commands', 'slash');
