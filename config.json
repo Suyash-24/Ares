@@ -1,11 +1,9 @@
 {
   "token": "",
-  "clientId": "1434107390856401049",
+  "clientId": "YOUR_CLIENT_ID",
   "prefix": ".",
   "ownerIds": [
-    "1319707981377699920",
-    "1343508844453826673",
-    "1069248517555626024"
+    "YOUR_USER_ID"
   ],
   "testGuildIds": [],
   "presence": {
@@ -23,9 +21,9 @@
     "nodes": [
       {
         "identifier": "Primary",
-        "host": "lavalinkv4.serenetia.com",
+        "host": "your-lavalink-host.com",
         "port": 443,
-        "password": "https://dsc.gg/ajidevserver",
+        "password": "your-password",
         "secure": true,
         "retryAmount": 5,
         "retryDelay": 5000

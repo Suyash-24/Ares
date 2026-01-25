@@ -5,4 +5,20 @@ node_modules/
 dist/
 coverage/
 
+# Database and data files
+data/
+*.db
+*.db-shm
+*.db-wal
 
+# IDE
+.idea/
+.vscode/
+
+# Temporary files
+temp_*.js
+cleanup-*.js
+verify-*.ps1
+
+# Artifacts
+*.vsix
