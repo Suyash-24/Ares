@@ -55,6 +55,7 @@ export async function bootstrap(client, __dirname) {
 	const clientId = resolveClientId(config);
 	client.prefix = resolvePrefix(config);
 	client.ownerIds = resolveOwnerIds(config);
+	console.log(`👤 [Owners] Loaded ${client.ownerIds.length} owner ID(s)${client.ownerIds.length > 0 ? ': ' + client.ownerIds.join(', ') : ''}`);
 
 	const slashCommands = await loadSlashCommands(client, __dirname);
 	await loadPrefixCommands(client, __dirname);
