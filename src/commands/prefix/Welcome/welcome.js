@@ -963,7 +963,7 @@ export default {
     }
 
     return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Unknown Subcommand`,
-      `**Available Commands:**\n\`add\`, \`remove\`, \`list\`, \`config\`, \`toggle\`, \`test\`, \`reset\`, \`show\`\n\n**Usage Examples:**\n\`welcome add #channel Hello {user}!\`\n\`welcome add #channel {title: Welcome!}$v{description: Hey {user}!} --self_destruct 30\`\n\`welcome config #channel title Welcome to {guild.name}!\`\n\`welcome config #channel buttons Join Discord && https:
+      `**Available Commands:**\n\`add\`, \`remove\`, \`list\`, \`config\`, \`toggle\`, \`test\`, \`reset\`, \`show\`\n\n**Usage Examples:**\n\`welcome add #channel Hello {user}!\`\n\`welcome add #channel {title: Welcome!}$v{description: Hey {user}!} --self_destruct 30\`\n\`welcome config #channel title Welcome to {guild.name}!\``)],
       flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
   }
 };
