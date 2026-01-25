@@ -6,11 +6,18 @@ import {
 	ButtonStyle
 } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
-import { ensureStatsConfig, formatNumber, formatVoiceTime, createSparkline } from '../../../utils/statsManager.js';
+import { ensureStatsConfig, formatNumber, formatVoiceTime, getTopMessageUsers, getTopVoiceUsers, getTodayKey } from '../../../utils/statsManager.js';
 import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 
 const name = 'daily';
 const aliases = ['dailystats', 'today', 'todaystats'];
+
+/**
+ * Get today's date key (YYYY-MM-DD)
+ */
+function getDateKey() {
+	return new Date().toISOString().split('T')[0];
+}
 
 // Component handlers for buttons
 const components = [
@@ -18,63 +25,42 @@ const components = [
 		customId: /^stats_daily_(overview|messages|voice)$/,
 		execute: async (interaction) => {
 			const subCommand = interaction.customId.split('_')[2];
-			const message = interaction.message;
 			const client = interaction.client;
 			const botName = client.user.username;
 
-			const today = new Date();
-			const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+			const dateKey = getDateKey();
 			const stats = await ensureStatsConfig(client.db, interaction.guildId);
 
+			// Get today's aggregate from daily stats
+			const todayDaily = stats.daily?.[dateKey] || { messages: 0, voice: 0, joins: 0, leaves: 0 };
+			const todayMessages = todayDaily.messages || 0;
+			const todayVoice = todayDaily.voice || 0;
+
+			// Get active voice sessions
 			const activeSessions = getActiveVoiceSessions(interaction.guildId);
 			let activeVoiceMinutes = 0;
 			for (const session of activeSessions) {
 				activeVoiceMinutes += Math.floor(session.duration / 60000);
 			}
 
-			const now = Date.now();
-			const startOfDay = new Date(today.setHours(0, 0, 0, 0)).getTime();
-			let todayMessages = 0;
-			let todayVoice = 0;
-			const topMessagers = [];
-			const topVoice = [];
+			const totalVoiceMinutes = todayVoice + activeVoiceMinutes;
 
-			for (const [userId, userData] of Object.entries(stats.users || {})) {
-				const messagesArray = Array.isArray(userData.messages) ? userData.messages : [];
-				const userTodayMsgs = messagesArray.filter(msg => {
-					const msgTime = typeof msg === 'number' ? msg : msg.ts;
-					return msgTime >= startOfDay;
-				}).length;
-				if (userTodayMsgs > 0) {
-					todayMessages += userTodayMsgs;
-					topMessagers.push({ userId, count: userTodayMsgs });
-				}
+			// Get top users (all-time, since we don't have per-user daily breakdown)
+			const topMessagers = getTopMessageUsers(stats, 10);
+			const topVoiceUsers = getTopVoiceUsers(stats, 10);
 
-				// Count voice from today (stored sessions)
-				const voiceArray = Array.isArray(userData.voice) ? userData.voice : [];
-				const userTodayVoice = voiceArray.filter(v => {
-					const vTime = typeof v === 'number' ? v : v.ts;
-					return vTime >= startOfDay;
-				}).reduce((sum, v) => sum + (v.mins || 1), 0);
-				if (userTodayVoice > 0) {
-					todayVoice += userTodayVoice;
-					topVoice.push({ userId, minutes: userTodayVoice });
-				}
-			}
-			topMessagers.sort((a, b) => b.count - a.count);
-
-			// Add active voice sessions
+			// Add active voice sessions to top voice
+			const voiceWithActive = [...topVoiceUsers];
 			for (const session of activeSessions) {
 				const mins = Math.floor(session.duration / 60000);
-				const existing = topVoice.find(u => u.userId === session.userId);
+				const existing = voiceWithActive.find(u => u.userId === session.userId);
 				if (existing) {
 					existing.minutes += mins;
 				} else if (mins > 0) {
-					topVoice.push({ userId: session.userId, minutes: mins });
+					voiceWithActive.push({ userId: session.userId, minutes: mins });
 				}
 			}
-			topVoice.sort((a, b) => b.minutes - a.minutes);
-			const totalVoiceMinutes = todayVoice + activeVoiceMinutes;
+			voiceWithActive.sort((a, b) => b.minutes - a.minutes);
 
 			const container = new ContainerBuilder();
 
@@ -85,18 +71,23 @@ const components = [
 				));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				if (topMessagers.length === 0) {
-					container.addTextDisplayComponents(td => td.setContent(`No message activity recorded today.`));
-				} else {
+				container.addTextDisplayComponents(td => td.setContent(
+					`**Today's Total:** ${formatNumber(todayMessages)} messages`
+				));
+
+				if (topMessagers.length > 0) {
+					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+					container.addTextDisplayComponents(td => td.setContent(`### Top Messagers (All Time)`));
 					const top10 = topMessagers.slice(0, 10);
 					const lines = top10.map((entry, i) => {
 						const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
 						return `${medal} <@${entry.userId}> — **${formatNumber(entry.count)}** messages`;
 					});
 					container.addTextDisplayComponents(td => td.setContent(lines.join('\n')));
+				} else {
+					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+					container.addTextDisplayComponents(td => td.setContent(`No message activity recorded yet.`));
 				}
-				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-				container.addTextDisplayComponents(td => td.setContent(`**Total Today:** ${formatNumber(todayMessages)} messages`));
 			} else if (subCommand === 'voice' || subCommand === 'vc') {
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.voice || '🎙️'} Daily Voice Activity\n\n` +
@@ -104,22 +95,26 @@ const components = [
 				));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				const voiceUsers = [...topVoice];
-				voiceUsers.sort((a, b) => b.minutes - a.minutes);
+				container.addTextDisplayComponents(td => td.setContent(
+					`**Today's Total:** ${formatVoiceTime(totalVoiceMinutes)}\n` +
+					`**Currently in VC:** ${activeSessions.length} user(s)`
+				));
 
-				if (voiceUsers.length === 0) {
-					container.addTextDisplayComponents(td => td.setContent(`No voice activity recorded today.`));
-				} else {
-					const top10 = voiceUsers.slice(0, 10);
+				if (voiceWithActive.length > 0) {
+					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+					container.addTextDisplayComponents(td => td.setContent(`### Top Voice Users (All Time)`));
+					const top10 = voiceWithActive.slice(0, 10);
 					const lines = top10.map((entry, i) => {
 						const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `**${i + 1}.**`;
 						return `${medal} <@${entry.userId}> — **${formatVoiceTime(entry.minutes)}**`;
 					});
 					container.addTextDisplayComponents(td => td.setContent(lines.join('\n')));
+				} else {
+					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+					container.addTextDisplayComponents(td => td.setContent(`No voice activity recorded yet.`));
 				}
-				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-				container.addTextDisplayComponents(td => td.setContent(`**Total Today:** ${formatVoiceTime(totalVoiceMinutes)}`));
 			} else {
+				// Overview
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.stats || '📊'} Daily Stats\n\n` +
 					`## ${interaction.guild.name} • Today`
@@ -133,7 +128,7 @@ const components = [
 
 				if (topMessagers.length > 0) {
 					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-					container.addTextDisplayComponents(td => td.setContent(`### Top Messagers Today`));
+					container.addTextDisplayComponents(td => td.setContent(`### Top Messagers (All Time)`));
 					const top3 = topMessagers.slice(0, 3);
 					const lines = top3.map((entry, i) => {
 						const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
@@ -143,6 +138,7 @@ const components = [
 				}
 			}
 
+			// Navigation buttons
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			container.addActionRowComponents(row => row
 				.addComponents(
@@ -184,12 +180,15 @@ async function execute(message, args, client) {
 	const botName = client.user.username;
 
 	// Get today's date key
-	const today = new Date();
-	const dateKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+	const dateKey = getDateKey();
 
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
-		const todayStats = stats.daily?.[dateKey] || { messages: 0, voiceMinutes: 0, joins: 0 };
+		
+		// Get today's aggregate from daily stats
+		const todayDaily = stats.daily?.[dateKey] || { messages: 0, voice: 0, joins: 0, leaves: 0 };
+		const todayMessages = todayDaily.messages || 0;
+		const todayVoice = todayDaily.voice || 0;
 
 		// Get active voice sessions
 		let activeVoiceMinutes = 0;
@@ -198,56 +197,12 @@ async function execute(message, args, client) {
 			activeVoiceMinutes += Math.floor(session.duration / 60000);
 		}
 
-		// Calculate today's stats from user data
-		const now = Date.now();
-		const startOfDay = new Date(today.setHours(0, 0, 0, 0)).getTime();
-		
-		let todayMessages = 0;
-		let todayVoice = 0;
-		const topMessagers = [];
-		const topVoice = [];
-
-		for (const [userId, userData] of Object.entries(stats.users || {})) {
-			// Count messages from today
-			const messagesArray = Array.isArray(userData.messages) ? userData.messages : [];
-			const userTodayMsgs = messagesArray.filter(msg => {
-				const msgTime = typeof msg === 'number' ? msg : msg.ts;
-				return msgTime >= startOfDay;
-			}).length;
-			if (userTodayMsgs > 0) {
-				todayMessages += userTodayMsgs;
-				topMessagers.push({ userId, count: userTodayMsgs });
-			}
-
-			// Count voice from today (stored sessions)
-			const voiceArray = Array.isArray(userData.voice) ? userData.voice : [];
-			const userTodayVoice = voiceArray.filter(v => {
-				const vTime = typeof v === 'number' ? v : v.ts;
-				return vTime >= startOfDay;
-			}).reduce((sum, v) => sum + (v.mins || 1), 0);
-			if (userTodayVoice > 0) {
-				todayVoice += userTodayVoice;
-				topVoice.push({ userId, minutes: userTodayVoice });
-			}
-		}
-
-		// Sort top users
-		topMessagers.sort((a, b) => b.count - a.count);
-
-		// Add active voice sessions to topVoice
-		for (const session of activeSessions) {
-			const mins = Math.floor(session.duration / 60000);
-			const existing = topVoice.find(u => u.userId === session.userId);
-			if (existing) {
-				existing.minutes += mins;
-			} else if (mins > 0) {
-				topVoice.push({ userId: session.userId, minutes: mins });
-			}
-		}
-		topVoice.sort((a, b) => b.minutes - a.minutes);
 		const totalVoiceMinutes = todayVoice + activeVoiceMinutes;
 
-		// Always show overview
+		// Get top users (all-time since we don't have per-user daily breakdown)
+		const topMessagers = getTopMessageUsers(stats, 10);
+
+		// Build the overview
 		container.addTextDisplayComponents(td => td.setContent(
 			`# ${EMOJIS.stats || '📊'} Daily Stats\n\n` +
 			`## ${message.guild.name} • Today`
@@ -262,10 +217,10 @@ async function execute(message, args, client) {
 			`${EMOJIS.member || '👤'} **Currently in VC:** ${activeSessions.length}`
 		));
 
-		// Top 3 messagers
+		// Top 3 messagers (all-time)
 		if (topMessagers.length > 0) {
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-			container.addTextDisplayComponents(td => td.setContent(`### Top Messagers Today`));
+			container.addTextDisplayComponents(td => td.setContent(`### Top Messagers (All Time)`));
 			
 			const top3 = topMessagers.slice(0, 3);
 			const lines = top3.map((entry, i) => {
