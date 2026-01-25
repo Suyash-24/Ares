@@ -40,7 +40,8 @@ const components = [
 			const topVoice = [];
 
 			for (const [userId, userData] of Object.entries(stats.users || {})) {
-				const userTodayMsgs = (userData.messages || []).filter(msg => {
+				const messagesArray = Array.isArray(userData.messages) ? userData.messages : [];
+				const userTodayMsgs = messagesArray.filter(msg => {
 					const msgTime = typeof msg === 'number' ? msg : msg.ts;
 					return msgTime >= startOfDay;
 				}).length;
@@ -50,7 +51,8 @@ const components = [
 				}
 
 				// Count voice from today (stored sessions)
-				const userTodayVoice = (userData.voice || []).filter(v => {
+				const voiceArray = Array.isArray(userData.voice) ? userData.voice : [];
+				const userTodayVoice = voiceArray.filter(v => {
 					const vTime = typeof v === 'number' ? v : v.ts;
 					return vTime >= startOfDay;
 				}).reduce((sum, v) => sum + (v.mins || 1), 0);
@@ -207,7 +209,8 @@ async function execute(message, args, client) {
 
 		for (const [userId, userData] of Object.entries(stats.users || {})) {
 			// Count messages from today
-			const userTodayMsgs = (userData.messages || []).filter(msg => {
+			const messagesArray = Array.isArray(userData.messages) ? userData.messages : [];
+			const userTodayMsgs = messagesArray.filter(msg => {
 				const msgTime = typeof msg === 'number' ? msg : msg.ts;
 				return msgTime >= startOfDay;
 			}).length;
@@ -217,7 +220,8 @@ async function execute(message, args, client) {
 			}
 
 			// Count voice from today (stored sessions)
-			const userTodayVoice = (userData.voice || []).filter(v => {
+			const voiceArray = Array.isArray(userData.voice) ? userData.voice : [];
+			const userTodayVoice = voiceArray.filter(v => {
 				const vTime = typeof v === 'number' ? v : v.ts;
 				return vTime >= startOfDay;
 			}).reduce((sum, v) => sum + (v.mins || 1), 0);
