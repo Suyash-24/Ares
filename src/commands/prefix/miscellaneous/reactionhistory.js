@@ -27,7 +27,7 @@ export default {
                     `**Usage:** \`.reactionhistory <messagelink|messageid>\`\n` +
                     `**Examples:**\n` +
                     `> \`.rh 1234567890123456789\`\n` +
-                    `> \`.rh https:
+                    `> \`.rh https://discord.com/channels/.../.../.../\``
                 ));
             return message.reply({
                 components: [c],
@@ -69,7 +69,7 @@ export default {
                     `${EMOJIS.error} Invalid format. Please provide a valid message link or message ID.\n\n` +
                     `**Examples:**\n` +
                     `> \`.rh 1234567890123456789\`\n` +
-                    `> \`.rh https:
+                    `> \`.rh https://discord.com/channels/.../.../.../\``
                 ));
             return message.reply({
                 components: [c],
