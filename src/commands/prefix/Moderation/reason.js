@@ -29,7 +29,6 @@ export default {
 			});
 		}
 
-		// Check if user can use reason command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -142,7 +141,6 @@ export default {
 				{ $set: guildData }
 			);
 
-			// Send mod log for reason update
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_CASE_REASON, {
 				executor: message.author,
 				caseId: caseNumber,

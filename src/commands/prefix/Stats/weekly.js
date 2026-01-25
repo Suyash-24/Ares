@@ -12,7 +12,6 @@ import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 const name = 'weekly';
 const aliases = ['weeklystats', 'thisweek', 'weekstats'];
 
-// Component handlers for buttons
 const components = [
 	{
 		customId: /^stats_weekly_(overview|messages|voice)$/,
@@ -48,7 +47,6 @@ const components = [
 					topMessagers.push({ userId, count: userWeekMsgs });
 				}
 
-				// Count voice from this week (stored sessions)
 				const userWeekVoice = (userData.voice || []).filter(v => {
 					const vTime = typeof v === 'number' ? v : v.ts;
 					return vTime >= startOfWeekTs;
@@ -59,7 +57,6 @@ const components = [
 				}
 			}
 
-			// Add active voice sessions to topVoice
 			let activeVoiceMinutes = 0;
 			for (const session of activeSessions) {
 				const sessionMinutes = Math.floor(session.duration / 60000);
@@ -179,16 +176,14 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Get start of week (Monday)
 	const now = new Date();
 	const dayOfWeek = now.getDay();
-	const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Adjust to Monday
+	const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
 	const startOfWeek = new Date(now);
 	startOfWeek.setDate(now.getDate() - diff);
 	startOfWeek.setHours(0, 0, 0, 0);
 	const startOfWeekTs = startOfWeek.getTime();
 
-	// Format date range
 	const endOfWeek = new Date(startOfWeek);
 	endOfWeek.setDate(startOfWeek.getDate() + 6);
 	const dateRange = `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
@@ -196,21 +191,19 @@ async function execute(message, args, client) {
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
 
-		// Get active voice sessions
 		let activeVoiceMinutes = 0;
 		const activeSessions = getActiveVoiceSessions(message.guildId);
 		for (const session of activeSessions) {
 			activeVoiceMinutes += Math.floor(session.duration / 60000);
 		}
 
-		// Calculate weekly stats from user data
 		let weekMessages = 0;
 		let weekVoice = 0;
 		const topMessagers = [];
 		const topVoice = [];
 
 		for (const [userId, userData] of Object.entries(stats.users || {})) {
-			// Count messages from this week
+
 			const userWeekMsgs = (userData.messages || []).filter(msg => {
 				const msgTime = typeof msg === 'number' ? msg : msg.ts;
 				return msgTime >= startOfWeekTs;
@@ -220,7 +213,6 @@ async function execute(message, args, client) {
 				topMessagers.push({ userId, count: userWeekMsgs });
 			}
 
-			// Count voice from this week (stored sessions)
 			const userWeekVoice = (userData.voice || []).filter(v => {
 				const vTime = typeof v === 'number' ? v : v.ts;
 				return vTime >= startOfWeekTs;
@@ -231,7 +223,6 @@ async function execute(message, args, client) {
 			}
 		}
 
-		// Add active voice sessions
 		for (const session of activeSessions) {
 			const sessionMinutes = Math.floor(session.duration / 60000);
 			const existing = topVoice.find(v => v.userId === session.userId);
@@ -242,14 +233,11 @@ async function execute(message, args, client) {
 			}
 		}
 
-		// Sort
 		topMessagers.sort((a, b) => b.count - a.count);
 		topVoice.sort((a, b) => b.minutes - a.minutes);
 
-		// Calculate total voice
 		const totalVoiceMinutes = weekVoice + activeVoiceMinutes;
 
-	// Display overview
 	container.addTextDisplayComponents(td => td.setContent(
 		`# ${EMOJIS.stats || '📊'} Weekly Stats\n\n` +
 		`## ${message.guild.name} • ${dateRange}`
@@ -271,7 +259,7 @@ async function execute(message, args, client) {
 		});
 		container.addTextDisplayComponents(td => td.setContent(lines.join('\n')));
 	}
-		// Navigation buttons
+
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		container.addActionRowComponents(row => row
 			.addComponents(

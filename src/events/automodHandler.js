@@ -136,16 +136,16 @@ const checkMaxLines = (message, config) => {
 
 const checkAntiEveryone = (message, config) => {
     if (message.member?.permissions.has(PermissionFlagsBits.MentionEveryone)) return false;
-    
+
     if (EVERYONE_HERE_REGEX.test(message.content)) return true;
-    
+
     const moduleConfig = config.modules.antieveryone;
     const threshold = moduleConfig?.threshold || 5;
     const usePercent = moduleConfig?.usePercent !== false;
     const serverMembers = message.guild.memberCount;
-    
+
     const minMembers = usePercent ? Math.ceil(serverMembers * (threshold / 100)) : threshold;
-    
+
     const mentionedRoles = message.mentions.roles;
     if (mentionedRoles.size > 0) {
         for (const [, role] of mentionedRoles) {
@@ -162,9 +162,9 @@ const checkAntiRole = async (message, config) => {
     const threshold = moduleConfig?.threshold || 5;
     const usePercent = moduleConfig?.usePercent !== false;
     const serverMembers = message.guild.memberCount;
-    
+
     const minMembers = usePercent ? Math.ceil(serverMembers * (threshold / 100)) : threshold;
-    
+
     const mentionedRoles = message.mentions.roles;
     if (!mentionedRoles.size) return false;
 
@@ -196,7 +196,7 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
     const moduleConfig = config.modules[moduleName];
     let punishments = moduleConfig?.punishments || (moduleConfig?.punishment ? [moduleConfig.punishment] : ['delete']);
     const moduleStrikes = moduleConfig?.strikes ?? 0;
-    
+
     if (!Array.isArray(punishments)) {
         punishments = [punishments];
     }
@@ -213,7 +213,7 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
             if (!config.strikes[message.author.id]) {
                 config.strikes[message.author.id] = { count: 0, history: [] };
             }
-            
+
             const expiryHours = config.strikeExpiry || 24;
             const expiryMs = expiryHours * 60 * 60 * 1000;
             const lastStrike = config.strikes[message.author.id].lastStrike || 0;
@@ -221,7 +221,7 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
                 config.strikes[message.author.id].count = 0;
                 config.strikes[message.author.id].history = [];
             }
-            
+
             config.strikes[message.author.id].count += moduleStrikes;
             config.strikes[message.author.id].lastStrike = Date.now();
             config.strikes[message.author.id].history.push({
@@ -230,12 +230,12 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
                 reason: `${moduleName}: ${violation}`,
                 module: moduleName
             });
-            
+
             await saveConfig(client, message.guild.id, config);
-            
+
             const totalStrikes = config.strikes[message.author.id].count;
             const strikeActions = config.strikeActions || { 3: { action: 'mute', duration: '10m' }, 5: { action: 'mute', duration: '1h' }, 7: { action: 'kick' }, 10: { action: 'ban' } };
-            
+
             for (const [threshold, actionConfig] of Object.entries(strikeActions).sort((a, b) => parseInt(b[0]) - parseInt(a[0]))) {
                 if (totalStrikes >= parseInt(threshold)) {
                     await applyStrikeAction(message, actionConfig, totalStrikes);
@@ -272,13 +272,13 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
                     const memberRoles = message.member.roles.cache
                         .filter(r => r.id !== message.guild.id && r.position < message.guild.members.me.roles.highest.position)
                         .map(r => r.id);
-                    
+
                     if (memberRoles.length > 0) {
                         await message.member.roles.remove(memberRoles, `Automod Protocol: ${violation}`).catch(() => {});
                     }
-                    
+
                     await message.member.timeout(28 * 24 * 60 * 60 * 1000, `Automod Protocol: ${violation}`).catch(() => {});
-                    
+
                     if (!config.protocol) config.protocol = [];
                     config.protocol.push({
                         id: message.author.id,
@@ -298,7 +298,7 @@ const applyPunishment = async (message, client, config, moduleName, violation) =
         // Notify User if enabled
         if (config.notifyUser !== false) {
             try {
-                await message.channel.send({ 
+                await message.channel.send({
                     content: `<@${message.author.id}> ${violation}`,
                     allowedMentions: { users: [message.author.id] }
                 });
@@ -404,9 +404,6 @@ const logViolation = async (message, client, config, moduleName, violation, puni
     }
 };
 
-
-
-
 const callPerspective = async (text) => {
     const apiKey = process.env.PERSPECTIVE_API_KEY;
     if (!apiKey) throw new Error('No Key');
@@ -428,7 +425,7 @@ const callPerspective = async (text) => {
     if (!scores) throw new Error('No Scores');
 
     const getScore = (attr) => scores[attr]?.summaryScore?.value || 0;
-    
+
     // Check scores
     if (getScore('SEVERE_TOXICITY') > 0.85) return { isToxic: true, reason: 'Severe Toxicity' };
     if (getScore('IDENTITY_ATTACK') > 0.85) return { isToxic: true, reason: 'Hate Speech' };
@@ -451,7 +448,7 @@ const callGemini = async (text) => {
 
     const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!response.ok) throw new Error(`Gemini API Error: ${response.status}`);
-    
+
     const data = await response.json();
     const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!resultText) throw new Error('No Result');
@@ -497,10 +494,9 @@ const callBytez = async (text) => {
     const apiKey = process.env.BYTEZ_API_KEY;
     if (!apiKey) throw new Error('No Key');
 
-    // Using OpenAI-compatible endpoint for Bytez
     const url = `https://api.bytez.com/v1/chat/completions`;
     const body = {
-        model: "openai/gpt-oss-20b", 
+        model: "openai/gpt-oss-20b",
         messages: [
             { role: "system", content: "You are a content moderator. Analyze the message for severe toxicity, hate speech, threats, sexual harassment, or scam. Answer strictly with JSON: {\"unsafe\": boolean, \"reason\": \"category\"}." },
             { role: "user", content: text }
@@ -523,32 +519,29 @@ const callBytez = async (text) => {
 };
 
 const analyzeTextWithFallback = async (text) => {
-    // 1. Try Perspective (High limits, Free)
+
     try {
         return await callPerspective(text);
     } catch (e) {
-        // Continue
+
     }
 
-    // 2. Try Gemini (Free tier)
     try {
         return await callGemini(text);
     } catch (e) {
-        // Continue
+
     }
 
-    // 3. Try OpenAI (Reliable, Paid)
     try {
         return await callOpenAI(text);
     } catch (e) {
-        // Continue
+
     }
-    
-    // 4. Try Bytez (Fallback)
+
     try {
         return await callBytez(text);
     } catch (e) {
-        // Continue
+
     }
 
     return { isToxic: false };
@@ -559,7 +552,7 @@ const checkAI = async (message, config) => {
     if (!message.content || message.content.length < 4) return false;
 
     const result = await analyzeTextWithFallback(message.content);
-    return result.isToxic; // We could pass result.reason to logViolation if supported later
+    return result.isToxic;
 };
 
 const checkNicknameAI = async (member, config) => {
@@ -572,10 +565,10 @@ const checkNicknameAI = async (member, config) => {
     if (result.isToxic) {
         const oldName = member.displayName;
         const newName = `Moderated User ${Math.floor(Math.random() * 10000)}`;
-        
+
         if (member.manageable) {
             await member.setNickname(newName, `Automod: AI detected ${result.reason}`).catch(() => {});
-            
+
             try {
                 const dmChannel = await member.createDM();
                 const container = new ContainerBuilder();
@@ -654,12 +647,12 @@ export default function registerAutomodHandler(client) {
 
     const handleNicknameCheck = async (member) => {
          if (member.user.bot) return;
-         // Skip if admin/mod to avoid API usage on trusted staff
+
          if (member.permissions.has(PermissionFlagsBits.Administrator) || member.permissions.has(PermissionFlagsBits.ManageGuild)) return;
 
          const config = await getConfig(client, member.guild.id);
          if (!config || !config.enabled) return;
-         
+
          await checkNicknameAI(member, config);
     };
 

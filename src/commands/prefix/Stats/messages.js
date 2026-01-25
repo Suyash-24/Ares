@@ -20,13 +20,10 @@ import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 const name = 'messages';
 const aliases = ['msgstats', 'messagestats'];
 
-/**
- * Build messages stats panel
- */
 function buildMessagesPanel(guild, stats, serverStats, topUsers, topChannels, breakdown, authorId, botName, view = 'overview') {
 	const container = new ContainerBuilder();
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${EMOJIS.messages || '💬'} Message Stats`)
 	);
 
@@ -38,7 +35,7 @@ function buildMessagesPanel(guild, stats, serverStats, topUsers, topChannels, br
 	const avgDaily = Math.round(serverStats.totalMessages / (stats.lookback || 14));
 
 	if (view === 'overview') {
-		// Main overview
+
 		const overviewText = [
 			`**${guild.name}**`,
 			'',
@@ -59,11 +56,11 @@ function buildMessagesPanel(guild, stats, serverStats, topUsers, topChannels, br
 		});
 
 	} else if (view === 'users') {
-		// Top message users
+
 		container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.trophy || '🏆'} Top Message Users`));
-		
+
 		if (topUsers.length > 0) {
-			const list = topUsers.slice(0, 10).map((u, i) => 
+			const list = topUsers.slice(0, 10).map((u, i) =>
 				`**#${i + 1}** <@${u.userId}> — ${formatNumber(u.count)} messages`
 			).join('\n');
 			container.addTextDisplayComponents(td => td.setContent(list));
@@ -72,11 +69,11 @@ function buildMessagesPanel(guild, stats, serverStats, topUsers, topChannels, br
 		}
 
 	} else if (view === 'channels') {
-		// Top message channels
+
 		container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.channelstats || '📁'} Top Message Channels`));
-		
+
 		if (topChannels.length > 0) {
-			const list = topChannels.slice(0, 10).map((c, i) => 
+			const list = topChannels.slice(0, 10).map((c, i) =>
 				`**#${i + 1}** <#${c.channelId}> — ${formatNumber(c.count)} messages`
 			).join('\n');
 			container.addTextDisplayComponents(td => td.setContent(list));
@@ -87,7 +84,6 @@ function buildMessagesPanel(guild, stats, serverStats, topUsers, topChannels, br
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Navigation buttons
 	container.addActionRowComponents(row => {
 		row.addComponents(
 			new ButtonBuilder()
@@ -117,38 +113,31 @@ function buildMessagesPanel(guild, stats, serverStats, topUsers, topChannels, br
 	return container;
 }
 
-/**
- * Get all required data
- */
 async function getMessagesData(client, guildId) {
 	const stats = await ensureStatsConfig(client.db, guildId);
-	
-	// Get active voice sessions for total voice calculation
+
 	const activeSessions = getActiveVoiceSessions(guildId);
 	const totalActiveVoiceMinutes = activeSessions.reduce((sum, s) => sum + Math.floor(s.duration / 60000), 0);
-	
+
 	const serverStats = getServerStats(stats, null, totalActiveVoiceMinutes);
 	const topUsers = getTopMessageUsers(stats, 50);
 	const topChannels = getTopMessageChannels(stats, 50);
 	const breakdown = getDailyBreakdown(stats);
-	
-	// Calculate message-only contributors (users with actual message activity)
+
 	const messageContributors = new Set();
 	const lookback = stats.lookback || 14;
 	const cutoff = Date.now() - (lookback * 24 * 60 * 60 * 1000);
-	
+
 	for (const [userId, user] of Object.entries(stats.users || {})) {
 		const hasMessages = user.messages?.some(m => m.ts > cutoff);
 		if (hasMessages) messageContributors.add(userId);
 	}
-	
-	// Override activeUsers count with message-only contributors
+
 	serverStats.activeUsers = messageContributors.size;
-	
+
 	return { stats, serverStats, topUsers, topChannels, breakdown };
 }
 
-// Component handlers
 const components = [
 	{
 		customId: /^msg_view:(\d+):(overview|users|channels|refresh)$/,
@@ -166,14 +155,14 @@ const components = [
 			const botName = interaction.client.user.username;
 			const actualView = view === 'refresh' ? 'overview' : view;
 			const panel = buildMessagesPanel(
-				interaction.guild, 
-				data.stats, 
-				data.serverStats, 
-				data.topUsers, 
-				data.topChannels, 
-				data.breakdown, 
-				authorId, 
-				botName, 
+				interaction.guild,
+				data.stats,
+				data.serverStats,
+				data.topUsers,
+				data.topChannels,
+				data.breakdown,
+				authorId,
+				botName,
 				actualView
 			);
 
@@ -192,14 +181,14 @@ async function execute(message, args, client) {
 	const data = await getMessagesData(client, message.guildId);
 	const botName = client.user.username;
 	const panel = buildMessagesPanel(
-		message.guild, 
-		data.stats, 
-		data.serverStats, 
-		data.topUsers, 
-		data.topChannels, 
-		data.breakdown, 
-		message.author.id, 
-		botName, 
+		message.guild,
+		data.stats,
+		data.serverStats,
+		data.topUsers,
+		data.topChannels,
+		data.breakdown,
+		message.author.id,
+		botName,
 		'overview'
 	);
 

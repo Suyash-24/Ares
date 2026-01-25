@@ -63,7 +63,7 @@ const formatRolePreview = (guild) => {
 
   const topRoles = roles.first(MAX_ROLE_PREVIEW);
   const remaining = roles.size - topRoles.length;
-  
+
   const lines = [];
   for (let i = 0; i < topRoles.length; i += 4) {
     const roleGroup = topRoles.slice(i, i + 4).map((role) => role.toString()).join(', ');

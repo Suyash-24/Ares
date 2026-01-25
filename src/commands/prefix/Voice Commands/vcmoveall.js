@@ -5,13 +5,12 @@ const name = 'vcmoveall';
 const aliases = ['voicemoveall', 'mvall'];
 const description = 'Moves all members in the current voice channel to a specified channel.';
 const usage = 'vcmoveall <destination_channel_id>';
-const permissions = [PermissionFlagsBits.MoveMembers]; // Access to move
+const permissions = [PermissionFlagsBits.MoveMembers];
 
-// Helper to check permissions
 function hasPerms(member, perm) {
 	return member.id === member.guild.ownerId ||
-		   member.permissions.has(perm) || 
-		   member.permissions.has(PermissionFlagsBits.Administrator) || 
+		   member.permissions.has(perm) ||
+		   member.permissions.has(PermissionFlagsBits.Administrator) ||
 		   member.permissions.has(PermissionFlagsBits.ManageGuild);
 }
 
@@ -19,68 +18,66 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 
 	if (!hasPerms(message.member, PermissionFlagsBits.MoveMembers)) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need **Move Members** permission to use this command.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Parse arguments
 	let targetChannel;
 	let sourceChannel;
-	
-	// Case 1: .vcmoveall <target> <source>
+
 	if (args[1]) {
 		const targetId = args[0].replace(/\D/g, '');
 		const sourceId = args[1].replace(/\D/g, '');
-		
+
 		targetChannel = message.guild.channels.cache.get(targetId);
 		sourceChannel = message.guild.channels.cache.get(sourceId);
-		
+
 		if (!sourceChannel || !sourceChannel.isVoiceBased()) {
-			container.addTextDisplayComponents(td => 
+			container.addTextDisplayComponents(td =>
 				td.setContent(`${EMOJIS.error || '❌'} Invalid source channel ID.`)
 			);
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 		}
 	} else if (args[0]) {
-		// Case 2: .vcmoveall <target> (source is current channel)
+
 		const targetId = args[0].replace(/\D/g, '');
 		targetChannel = message.guild.channels.cache.get(targetId);
-		
+
 		sourceChannel = message.member.voice.channel;
 		if (!sourceChannel) {
-			container.addTextDisplayComponents(td => 
+			container.addTextDisplayComponents(td =>
 				td.setContent(`${EMOJIS.error || '❌'} You need to be in a voice channel or specify a source channel ID.`)
 			);
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 		}
 	} else {
-		// No args
-		container.addTextDisplayComponents(td => 
+
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Please specify a destination channel ID. Usage: \`vcmoveall <target> [source]\``)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
 	if (!targetChannel || !targetChannel.isVoiceBased()) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Invalid destination voice channel.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
 	if (sourceChannel.id === targetChannel.id) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Source and destination channels are the same.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	const membersToMove = sourceChannel.members.filter(m => !m.user.bot); // Includes author
+	const membersToMove = sourceChannel.members.filter(m => !m.user.bot);
 
 	if (membersToMove.size === 0) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.info || 'ℹ️'} No members to move.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -89,11 +86,10 @@ async function execute(message, args, client) {
 	let successCount = 0;
 	let failCount = 0;
 
-	// Process in parallel
 	const promises = membersToMove.map(async (member) => {
-		// Hierarchy check (skip check for self if author is moving themselves)
-		if (member.id !== message.author.id && 
-			message.author.id !== message.guild.ownerId && 
+
+		if (member.id !== message.author.id &&
+			message.author.id !== message.guild.ownerId &&
 			message.member.roles.highest.position <= member.roles.highest.position) {
 			failCount++;
 			return;

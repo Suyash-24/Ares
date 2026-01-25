@@ -36,7 +36,6 @@ export default {
   async execute(message, args) {
     if (!message.guild) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Guild Only`, 'This command can only be used in a server.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    // Executor must have ManageRoles OR ManageChannels
     if (!message.member.permissions.has(PermissionFlagsBits.ManageRoles) && !message.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Missing Permission`, 'You need either **Manage Roles** or **Manage Channels** to use this command.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
@@ -45,20 +44,19 @@ export default {
     let targetChannel = null;
     let channelProvided = false;
 
-    // Parse arguments according to rules
     if (!args || args.length === 0) {
       targetMember = message.member;
-      targetChannel = null; // no channel => show guild-wide permissions
+      targetChannel = null;
       channelProvided = false;
     } else if (args.length === 1) {
-      // try member first
+
       const maybeMember = resolveMember(message.guild, args[0]);
       if (maybeMember) {
         targetMember = maybeMember;
         targetChannel = null;
         channelProvided = false;
       } else {
-        // try channel
+
         const maybeChannel = resolveChannel(message.guild, args[0]);
         if (maybeChannel) {
           targetMember = message.member;
@@ -69,7 +67,7 @@ export default {
         }
       }
     } else {
-      // args.length >= 2 => first is member, second is channel
+
       const maybeMember = resolveMember(message.guild, args[0]);
       if (!maybeMember) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Member`, 'Provide a valid guild member.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       const maybeChannel = resolveChannel(message.guild, args[1]);
@@ -79,19 +77,16 @@ export default {
       channelProvided = true;
     }
 
-    // If a channel was provided, validate it's text-capable and check view permissions
     if (channelProvided) {
       if (!targetChannel || typeof targetChannel.permissionsFor !== 'function') {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'The specified channel is not a text-based channel.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // Check view permission for executor in the channel
       const executorCanView = targetChannel.permissionsFor(message.member)?.has(PermissionFlagsBits.ViewChannel);
       if (!executorCanView) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Cannot View`, 'You do not have permission to view that channel.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // Check bot can view the channel
       const botMember = message.guild.members.me || message.guild.members.cache.get(message.client.user.id);
       const botCanView = targetChannel.permissionsFor(botMember)?.has(PermissionFlagsBits.ViewChannel);
       if (!botCanView) {
@@ -99,7 +94,6 @@ export default {
       }
     }
 
-    // Fetch effective permissions: if channelProvided => channel-specific, else guild-wide
     let perms;
     try {
       if (channelProvided) perms = targetMember.permissionsIn(targetChannel);

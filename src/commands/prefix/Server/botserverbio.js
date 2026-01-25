@@ -24,7 +24,7 @@ async function execute(message, args, client) {
 	const bio = args.join(' ');
 
 	try {
-        // Reset if no text
+
 		if (!bio) {
 			await message.guild.members.editMe({ bio: null });
 			container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Bio Reset**`));
@@ -32,16 +32,14 @@ async function execute(message, args, client) {
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 		}
 
-        // Check length
         if (bio.length > 190) {
              container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Too Long**`));
              container.addTextDisplayComponents(td => td.setContent('Bio must be under 190 characters.'));
              return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Set New Bio
 		await message.guild.members.editMe({ bio: bio });
-            
+
         container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Bio Updated**`));
 		container.addTextDisplayComponents(td => td.setContent('The bot\'s server bio has been updated successfully!'));
 		container.addTextDisplayComponents(td => td.setContent(`**New Bio:**\n> ${bio}`));

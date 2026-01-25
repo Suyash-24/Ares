@@ -34,7 +34,6 @@ export default {
 			});
 		}
 
-		// Check if user can use notes command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -180,7 +179,6 @@ export default {
 				)
 			);
 
-			// Send log for note remove
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_NOTE_REMOVE, {
 				executor: message.author,
 				target: target.user,

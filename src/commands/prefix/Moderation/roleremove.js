@@ -30,13 +30,12 @@ export default {
 			});
 		}
 
-		// Check antinuke admin + Discord admin
 		const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
 		const isOwner = message.guild.ownerId === message.author.id;
 		const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
 		const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
 		const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-		
+
 		if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
 			const container = buildNotice(
 				`# ${EMOJIS.error} Missing Permissions`,
@@ -137,12 +136,11 @@ export default {
 		}
 
 		try {
-			// Mark this as a command-invoked action so logging knows who did it
+
 			markCommandInvoker(message.guild.id, 'roleremove', targetMember.id, message.author);
-			
+
 			await targetMember.roles.remove(role);
 
-			// Send log for role remove
 			await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_ROLE_REMOVE, {
 				executor: message.author,
 				target: targetMember.user,

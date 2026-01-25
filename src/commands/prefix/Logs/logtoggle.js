@@ -1,7 +1,4 @@
-/**
- * Ares Logging System - Toggle Event Command
- * Toggle specific logging events on/off
- */
+
 
 import {
 	ContainerBuilder,
@@ -16,7 +13,6 @@ import {
 	CATEGORY_NAMES
 } from '../../../utils/LoggingManager.js';
 
-// Get all event names for autocomplete/help
 const ALL_EVENTS = Object.values(LOG_CATEGORIES).flat();
 
 export default {
@@ -27,7 +23,7 @@ export default {
 	aliases: ['togglelog', 'toggleevent'],
 
 	async execute(message, args, client) {
-		// Check permissions
+
 		if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -51,14 +47,12 @@ export default {
 		if (!guildData.logging) guildData.logging = getDefaultLoggingConfig();
 		if (!guildData.logging.events) guildData.logging.events = {};
 
-		// Show list if no args or "list"
 		if (!args.length || args[0].toLowerCase() === 'list') {
 			return showEventList(message, guildData);
 		}
 
 		const eventName = args[0].toLowerCase();
 
-		// Check if it's a valid event
 		if (!ALL_EVENTS.includes(eventName)) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -81,7 +75,6 @@ export default {
 			});
 		}
 
-		// Toggle the event
 		const currentState = guildData.logging.events[eventName] !== false;
 		guildData.logging.events[eventName] = !currentState;
 

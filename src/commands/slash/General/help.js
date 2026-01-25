@@ -1,7 +1,6 @@
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, SlashCommandBuilder } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
 
-// Category emojis - use EMOJIS from file, with fallbacks
 const getCategoryEmoji = (cat) => {
     const emojiMap = {
         'General': EMOJIS.general || EMOJIS.info || '📋',
@@ -53,9 +52,8 @@ const CATEGORY_DESCRIPTIONS = {
     'miscellaneous': 'Miscellaneous commands'
 };
 
-// Explicit subcommand registry with descriptions
 const SUBCOMMAND_REGISTRY = {
-    // Anti Raid
+
     'antiraid': {
         'config': 'View current antiraid settings',
         'enable': 'Turn on antiraid protection',
@@ -67,8 +65,7 @@ const SUBCOMMAND_REGISTRY = {
         'whitelist': 'Manage whitelisted users',
         'log': 'Set antiraid log channel'
     },
-    
-    // Automod
+
     'automod': {
         'on': 'Enable automod system',
         'off': 'Disable automod system',
@@ -84,8 +81,7 @@ const SUBCOMMAND_REGISTRY = {
         'notify': 'Toggle violation notifications',
         'reset': 'Reset all automod settings'
     },
-    
-    // Antinuke
+
     'antinuke': {
         'wizard': 'Interactive setup wizard',
         'setup': 'Quick configuration setup',
@@ -108,8 +104,7 @@ const SUBCOMMAND_REGISTRY = {
         'strictbot': 'Toggle strict bot mode',
         'reset': 'Reset antinuke settings'
     },
-    
-    // Welcome
+
     'welcome': {
         'add': 'Add welcome channel',
         'remove': 'Remove welcome channel',
@@ -134,8 +129,7 @@ const SUBCOMMAND_REGISTRY = {
         'reset': 'Reset goodbye settings',
         'show': 'Show current configuration'
     },
-    
-    // Tickets
+
     'ticket': {
         'create': 'Create a new ticket',
         'new': 'Open a new support ticket',
@@ -154,8 +148,7 @@ const SUBCOMMAND_REGISTRY = {
         'list': 'List all tickets',
         'stats': 'View ticket statistics'
     },
-    
-    // Giveaways
+
     'giveaway': {
         'start': 'Start a new giveaway',
         'end': 'End giveaway early',
@@ -164,8 +157,7 @@ const SUBCOMMAND_REGISTRY = {
         'list': 'List all giveaways',
         'edit': 'Edit giveaway settings'
     },
-    
-    // Starboard
+
     'starboard': {
         'unlock': 'Unlock starboard system',
         'enable': 'Enable starboard',
@@ -183,8 +175,7 @@ const SUBCOMMAND_REGISTRY = {
         'config': 'View configuration',
         'reset': 'Reset starboard settings'
     },
-    
-    // Birthday
+
     'birthday': {
         'set': 'Set your birthday',
         'view': 'View a user\'s birthday',
@@ -194,8 +185,7 @@ const SUBCOMMAND_REGISTRY = {
         'check': 'Check birthday status',
         'config': 'View birthday settings'
     },
-    
-    // Custom Roles
+
     'customrole': {
         'add': 'Create a new role alias',
         'remove': 'Delete a role alias',
@@ -203,16 +193,14 @@ const SUBCOMMAND_REGISTRY = {
         'list': 'List configured aliases',
         'reqrole': 'Set required role to use'
     },
-    
-    // No Prefix
+
     'noprefix': {
         'add': 'Grant no-prefix access',
         'remove': 'Revoke no-prefix access',
         'list': 'List no-prefix users',
         'status': 'Check no-prefix status'
     },
-    
-    // Bump Reminder
+
     'bumpreminder': {
         'channel': 'Set bump channel',
         'enable': 'Enable bump reminders',
@@ -223,8 +211,7 @@ const SUBCOMMAND_REGISTRY = {
         'autoclean': 'Toggle auto-cleanup',
         'config': 'View configuration'
     },
-    
-    // Logs
+
     'logs': {
         'search': 'Search through server logs',
         'export': 'Export logs to file',
@@ -235,9 +222,8 @@ const SUBCOMMAND_REGISTRY = {
     }
 };
 
-// Extract subcommands - check registry first, then usage pattern
 function getSubcommands(cmd) {
-    // Check if this command has explicit subcommands
+
     const registeredSubs = SUBCOMMAND_REGISTRY[cmd.name.toLowerCase()];
     if (registeredSubs && typeof registeredSubs === 'object') {
         return Object.entries(registeredSubs).map(([subName, subDesc]) => ({
@@ -246,8 +232,7 @@ function getSubcommands(cmd) {
             parent: cmd.name
         }));
     }
-    
-    // Fallback: parse from usage pattern like <add|remove|list>
+
     if (cmd.usage) {
         const match = cmd.usage.match(/<([^>]+\|[^>]+)>/);
         if (match) {
@@ -259,15 +244,14 @@ function getSubcommands(cmd) {
             }));
         }
     }
-    
-    // No subcommands - return as single command
+
     return [{ name: cmd.name, description: cmd.description, parent: null }];
 }
 
 function getTotalCommandCount(grouped) {
     let total = 0;
     for (const cat of Object.keys(grouped)) {
-        if (cat === 'Bot Owner') continue;  // Skip Bot Owner category
+        if (cat === 'Bot Owner') continue;
         for (const cmd of grouped[cat]) {
             total += getSubcommands(cmd).length;
         }
@@ -285,7 +269,7 @@ function getCategoryCommandCount(commands) {
 
 function groupCommandsByCategory(client) {
     const grouped = {};
-    
+
     client.prefixCommands.forEach((cmd) => {
         const cat = cmd.category || 'General';
         if (!grouped[cat]) {
@@ -293,18 +277,17 @@ function groupCommandsByCategory(client) {
         }
         grouped[cat].push(cmd);
     });
-    
-    // Sort commands alphabetically within each category
+
     for (const cat of Object.keys(grouped)) {
         grouped[cat].sort((a, b) => a.name.localeCompare(b.name));
     }
-    
+
     return grouped;
 }
 
 function buildMainMenu(client, prefix, grouped, expired = false) {
     const container = new ContainerBuilder();
-    
+
     if (expired) {
         container.addTextDisplayComponents(td => td.setContent(
             `# ${EMOJIS.error || '❌'} Help Menu Expired`
@@ -316,59 +299,50 @@ function buildMainMenu(client, prefix, grouped, expired = false) {
         return container;
     }
 
-    // Header
     container.addTextDisplayComponents(td => td.setContent(
         `# ${EMOJIS.help || '📚'} ${client.user.username} Help`
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    // Total command count
+
     const totalCommands = getTotalCommandCount(grouped);
     container.addTextDisplayComponents(td => td.setContent(
         `**${EMOJIS.commands || '📜'} Commands:** ${totalCommands}`
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
-    
-    // Categories Section
+
     let categoryList = `**${EMOJIS.folder || '📁'} Categories**\n\n`;
-    
+
     const sortedCategories = Object.keys(grouped)
-        .filter(cat => cat !== 'Bot Owner')  // Hide Bot Owner category
+        .filter(cat => cat !== 'Bot Owner')
         .sort((a, b) => a.localeCompare(b));
-    
+
     for (const cat of sortedCategories) {
         const emoji = getCategoryEmoji(cat);
         const cmdCount = getCategoryCommandCount(grouped[cat]);
         categoryList += `${emoji} **${cat}** — ${cmdCount} command${cmdCount !== 1 ? 's' : ''}\n`;
     }
-    
+
     categoryList += `\n*Use \`/help <category>\` to view commands*`;
-    
+
     container.addTextDisplayComponents(td => td.setContent(categoryList));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
-    
-    // Quick Tips
+
     container.addTextDisplayComponents(td => td.setContent(
         `**${EMOJIS.lightbulb || '💡'} Quick Tips**\n` +
         `> **${prefix}help <command>** — View command details\n` +
         `> **${prefix}help <category>** — View category commands`
     ));
-    
-    // Category Select Menu
-    // We must ensure unique values. Some categories might map to same value if we aren't careful, 
-    // but the biggest risk is duplicates in sortedCategories itself, which shouldn't happen with Object.keys.
-    // However, the error "SELECT_COMPONENT_OPTION_VALUE_DUPLICATED" means we are passing the same value key multiple times.
-    // Let's filter carefully.
+
     const seenValues = new Set();
     const selectOptions = [];
-    
+
     for (const cat of sortedCategories.slice(0, 25)) {
         const value = cat.toLowerCase().replace(/\s+/g, '_');
         if (seenValues.has(value)) continue;
-        
+
         seenValues.add(value);
         const emoji = getCategoryEmoji(cat);
         selectOptions.push({
@@ -378,18 +352,17 @@ function buildMainMenu(client, prefix, grouped, expired = false) {
             emoji: typeof emoji === 'string' && emoji.match(/^\d+$/) ? undefined : emoji
         });
     }
-    
+
     const selectMenu = new StringSelectMenuBuilder()
         .setCustomId('slash_help_category_select')
         .setPlaceholder('📁 Select a category...')
         .addOptions(selectOptions);
-    
+
     container.addActionRowComponents(new ActionRowBuilder().addComponents(selectMenu));
-    
-    // Link buttons if available
+
     const supportUrl = client.config?.supportServer;
     const websiteUrl = client.config?.website;
-    
+
     if (supportUrl || websiteUrl) {
         const buttons = [];
         if (supportUrl) {
@@ -412,7 +385,7 @@ function buildMainMenu(client, prefix, grouped, expired = false) {
         }
         container.addActionRowComponents(new ActionRowBuilder().addComponents(...buttons));
     }
-    
+
     return container;
 }
 
@@ -420,7 +393,7 @@ function buildCategoryPage(client, prefix, categoryName, commands, expired = fal
     const container = new ContainerBuilder();
     const emoji = getCategoryEmoji(categoryName);
     const desc = CATEGORY_DESCRIPTIONS[categoryName] || 'Commands';
-    
+
     if (expired) {
         container.addTextDisplayComponents(td => td.setContent(
             `# ${EMOJIS.error || '❌'} Help Menu Expired`
@@ -431,23 +404,21 @@ function buildCategoryPage(client, prefix, categoryName, commands, expired = fal
         ));
         return container;
     }
-    
-    // Header
+
     container.addTextDisplayComponents(td => td.setContent(
         `# ${emoji} ${categoryName}`
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
+
     const cmdCount = getCategoryCommandCount(commands);
     container.addTextDisplayComponents(td => td.setContent(
         `*${desc}*\n` +
         `**${cmdCount}** command${cmdCount !== 1 ? 's' : ''} available`
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
-    
-    // Commands list - including subcommands as separate entries
+
     const allCommands = [];
     for (const cmd of commands) {
         const subs = getSubcommands(cmd);
@@ -459,33 +430,30 @@ function buildCategoryPage(client, prefix, categoryName, commands, expired = fal
             });
         }
     }
-    
-    // Pagination - 10 commands per page
+
     const page = typeof pageNum === 'number' ? pageNum : 0;
     const perPage = 10;
     const totalPages = Math.ceil(allCommands.length / perPage);
     const startIdx = page * perPage;
     const endIdx = Math.min(startIdx + perPage, allCommands.length);
     const pageCommands = allCommands.slice(startIdx, endIdx);
-    
-    // Build command list with descriptions
+
     const arrow = EMOJIS.giveawayarrow || '>';
     let commandList = '';
     for (const cmd of pageCommands) {
-        // Truncate description to keep it clean
-        const shortDesc = cmd.description.length > 50 
-            ? cmd.description.slice(0, 47) + '...' 
+
+        const shortDesc = cmd.description.length > 50
+            ? cmd.description.slice(0, 47) + '...'
             : cmd.description;
         commandList += `${arrow} **${prefix}${cmd.name}** — ${shortDesc}\n`;
     }
-    
+
     container.addTextDisplayComponents(td => td.setContent(
         `**${EMOJIS.commands || '📜'} Commands**\n\n${commandList || '*No commands*'}`
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
-    
-    // Footer with page info
+
     if (totalPages > 1) {
         container.addTextDisplayComponents(td => td.setContent(
             `📄 Page **${page + 1}**/${totalPages} • Use \`/help <command>\` for details`
@@ -495,11 +463,9 @@ function buildCategoryPage(client, prefix, categoryName, commands, expired = fal
             `*Use \`/help <command>\` for detailed info*`
         ));
     }
-    
-    // Navigation buttons
+
     const categoryKey = categoryName.toLowerCase().replace(/\s+/g, '_');
-    
-    // Parse button emoji
+
     const parseButtonEmoji = (emojiStr) => {
         const match = emojiStr?.match(/<(a)?:(\w+):(\d+)>/);
         if (match) {
@@ -507,54 +473,51 @@ function buildCategoryPage(client, prefix, categoryName, commands, expired = fal
         }
         return emojiStr;
     };
-    
+
     const prevButton = new ButtonBuilder()
         .setCustomId(`slash_help_page_${categoryKey}_${page - 1}`)
         .setStyle(ButtonStyle.Primary)
         .setEmoji(parseButtonEmoji(EMOJIS.pageprevious) || '◀️')
         .setDisabled(page <= 0);
-    
+
     const homeButton = new ButtonBuilder()
         .setCustomId('slash_help_back_main')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji(parseButtonEmoji(EMOJIS.homepage) || '🏠');
-    
+
     const nextButton = new ButtonBuilder()
         .setCustomId(`slash_help_page_${categoryKey}_${page + 1}`)
         .setStyle(ButtonStyle.Primary)
         .setEmoji(parseButtonEmoji(EMOJIS.pagenext) || '▶️')
         .setDisabled(page >= totalPages - 1);
-    
+
     container.addActionRowComponents(new ActionRowBuilder().addComponents(prevButton, homeButton, nextButton));
-    
+
     return container;
 }
 
 function buildCommandPage(client, prefix, cmd) {
     const container = new ContainerBuilder();
     const emoji = getCategoryEmoji(cmd.category);
-    
-    // Header
+
     container.addTextDisplayComponents(td => td.setContent(
         `# ${emoji} ${prefix}${cmd.name}`
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    // Command info
+
     let content = `*${cmd.description || 'No description available'}*\n\n`;
     content += `**Category:** ${cmd.category || 'General'}\n`;
     content += `**Usage:** \`${prefix}${cmd.usage || cmd.name}\`\n`;
-    
+
     if (cmd.aliases && cmd.aliases.length > 0) {
         content += `**Aliases:** ${cmd.aliases.map(a => `\`${a}\``).join(', ')}\n`;
     }
-    
+
     if (cmd.cooldown) {
         content += `**Cooldown:** ${cmd.cooldown} seconds\n`;
     }
-    
-    // Show subcommands if any
+
     const subs = getSubcommands(cmd);
     if (subs.length > 1) {
         content += `\n**Subcommands:**\n`;
@@ -562,26 +525,25 @@ function buildCommandPage(client, prefix, cmd) {
             content += `> \`${prefix}${sub.name}\`\n`;
         }
     }
-    
+
     container.addTextDisplayComponents(td => td.setContent(content));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
-    
-    // Back buttons
+
     const backButton = new ButtonBuilder()
         .setCustomId('slash_help_back_main')
         .setLabel('Main Menu')
         .setStyle(ButtonStyle.Secondary)
         .setEmoji('🏠');
-    
+
     const categoryButton = new ButtonBuilder()
         .setCustomId(`slash_help_category_${(cmd.category || 'General').toLowerCase().replace(/\s+/g, '_')}`)
         .setLabel(cmd.category || 'General')
         .setStyle(ButtonStyle.Primary)
         .setEmoji('📁');
-    
+
     container.addActionRowComponents(new ActionRowBuilder().addComponents(backButton, categoryButton));
-    
+
     return container;
 }
 
@@ -589,20 +551,19 @@ export default {
     data: new SlashCommandBuilder()
         .setName('help')
         .setDescription('View bot commands and categories')
-        .addStringOption(option => 
+        .addStringOption(option =>
             option.setName('command')
                 .setDescription('View specific command details')
                 .setRequired(false)
         )
-        .addStringOption(option => 
+        .addStringOption(option =>
             option.setName('category')
                 .setDescription('View command category')
                 .setRequired(false)
         ),
     async execute(interaction) {
         const client = interaction.client;
-        
-        // Use guild prefix for display purposes
+
         let prefix = client.prefix || '.';
         try {
             const guildData = await client.db.findOne({ guildId: interaction.guildId });
@@ -611,64 +572,50 @@ export default {
             }
         } catch (err) {}
         if (!prefix) prefix = '.';
-        
+
         const grouped = groupCommandsByCategory(client);
         const commandQuery = interaction.options.getString('command');
         const categoryQuery = interaction.options.getString('category');
         const query = (commandQuery || categoryQuery || '').toLowerCase();
-        
-        // No arguments - show main menu
+
         if (!query) {
             const container = buildMainMenu(client, prefix, grouped);
-            const reply = await interaction.reply({ 
-                components: [container], 
+            const reply = await interaction.reply({
+                components: [container],
                 flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
             });
-            
-            // Store session
+
             if (!client.helpSessions) client.helpSessions = new Map();
-            // Need message Id, but reply() is interaction. 
-            // Interaction doesn't return message unless fetchReply: true, but IsComponentsV2 sends response.
-            // Actually, we can just use interaction.id or wait for fetch.
-            // But ephemeral messages cannot be fetched easily.
-            // We can just rely on component handlers to reconstruct state if needed.
-            // But prefix command relied on message ID. 
-            // Slash command interactions carry customId.
-            // We can use interaction.message.id in component handler.
-            // For now, let's skip session storing for slash (it's ephemeral/interaction based).
-            // Actually, build* functions don't need session if we pass params.
-            // The component handlers below check for session, I should adapt them.
+
         } else {
-            // Check if query matches a category
-            const categoryMatch = Object.keys(grouped).find(cat => 
-                cat.toLowerCase() === query || 
+
+            const categoryMatch = Object.keys(grouped).find(cat =>
+                cat.toLowerCase() === query ||
                 cat.toLowerCase().replace(/\s+/g, '') === query.replace(/\s+/g, '') ||
                 cat.toLowerCase().replace(/\s+/g, '_') === query.replace(/\s+/g, '_')
             );
-            
+
             if (categoryMatch) {
                 const container = buildCategoryPage(client, prefix, categoryMatch, grouped[categoryMatch]);
-                await interaction.reply({ 
-                    components: [container], 
+                await interaction.reply({
+                    components: [container],
                     flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
                 });
                 return;
             }
-            
-            // Check if query matches a command
-            const cmd = client.prefixCommands.get(query) || 
+
+            const cmd = client.prefixCommands.get(query) ||
                         [...client.prefixCommands.values()].find(c => c.aliases?.includes(query));
-            
+
             if (cmd) {
                 const container = buildCommandPage(client, prefix, cmd);
-                await interaction.reply({ 
-                    components: [container], 
+                await interaction.reply({
+                    components: [container],
                     flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
                 });
                 return;
             }
-            
-            // Not found
+
             const container = new ContainerBuilder();
             container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} Not Found`));
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -676,9 +623,9 @@ export default {
                 `No command or category found matching \`${query}\`.\n\n` +
                 `Use \`/help\` to see all categories.`
             ));
-            
-            await interaction.reply({ 
-                components: [container], 
+
+            await interaction.reply({
+                components: [container],
                 flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
             });
         }
@@ -688,18 +635,18 @@ export default {
             customId: 'slash_help_back_main',
             async execute(interaction) {
                 const client = interaction.client;
-                // We don't need session here, just rebuild main menu with default prefix (or fetch if cheap)
+
                 let prefix = client.prefix || '.';
                 try {
                     const guildData = await client.db.findOne({ guildId: interaction.guildId });
                     if (guildData?.prefix) prefix = guildData.prefix;
                 } catch(e) {}
-                
+
                 const grouped = groupCommandsByCategory(client);
                 const container = buildMainMenu(client, prefix, grouped);
-                
-                await interaction.update({ 
-                    components: [container], 
+
+                await interaction.update({
+                    components: [container],
                     flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
                 });
             }
@@ -713,24 +660,24 @@ export default {
                     const guildData = await client.db.findOne({ guildId: interaction.guildId });
                     if (guildData?.prefix) prefix = guildData.prefix;
                 } catch(e) {}
-                
+
                 const selectedValue = interaction.values[0];
                 const grouped = groupCommandsByCategory(client);
-                
-                const categoryName = Object.keys(grouped).find(cat => 
+
+                const categoryName = Object.keys(grouped).find(cat =>
                     cat.toLowerCase().replace(/\s+/g, '_') === selectedValue
                 );
-                
+
                 if (categoryName && grouped[categoryName]) {
                     const container = buildCategoryPage(client, prefix, categoryName, grouped[categoryName]);
-                    await interaction.update({ 
-                        components: [container], 
+                    await interaction.update({
+                        components: [container],
                         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
                     });
                 } else {
-                    await interaction.reply({ 
-                        content: 'Category not found.', 
-                        ephemeral: true 
+                    await interaction.reply({
+                        content: 'Category not found.',
+                        ephemeral: true
                     });
                 }
             }
@@ -744,18 +691,18 @@ export default {
                     const guildData = await client.db.findOne({ guildId: interaction.guildId });
                     if (guildData?.prefix) prefix = guildData.prefix;
                 } catch(e) {}
-                
+
                 const categoryValue = interaction.customId.replace('slash_help_category_', '');
                 const grouped = groupCommandsByCategory(client);
-                
-                const categoryName = Object.keys(grouped).find(cat => 
+
+                const categoryName = Object.keys(grouped).find(cat =>
                     cat.toLowerCase().replace(/\s+/g, '_') === categoryValue
                 );
-                
+
                 if (categoryName && grouped[categoryName]) {
                     const container = buildCategoryPage(client, prefix, categoryName, grouped[categoryName]);
-                    await interaction.update({ 
-                        components: [container], 
+                    await interaction.update({
+                        components: [container],
                         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
                     });
                 }
@@ -770,20 +717,20 @@ export default {
                     const guildData = await client.db.findOne({ guildId: interaction.guildId });
                     if (guildData?.prefix) prefix = guildData.prefix;
                 } catch(e) {}
-                
+
                 const parts = interaction.customId.replace('slash_help_page_', '').split('_');
                 const pageNum = parseInt(parts.pop());
                 const categoryKey = parts.join('_');
-                
+
                 const grouped = groupCommandsByCategory(client);
-                const categoryName = Object.keys(grouped).find(cat => 
+                const categoryName = Object.keys(grouped).find(cat =>
                     cat.toLowerCase().replace(/\s+/g, '_') === categoryKey
                 );
-                
+
                 if (categoryName && grouped[categoryName]) {
                     const container = buildCategoryPage(client, prefix, categoryName, grouped[categoryName], false, pageNum);
-                    await interaction.update({ 
-                        components: [container], 
+                    await interaction.update({
+                        components: [container],
                         flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
                     });
                 }

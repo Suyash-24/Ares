@@ -58,8 +58,7 @@ export async function cleanupExpiredTemporaryRoles(client, guildId) {
 	return client.db.findOne({ guildId });
 }
 
-
-const EXPIRATION_POLL_INTERVAL_MS = 5000; // 5 seconds for better accuracy
+const EXPIRATION_POLL_INTERVAL_MS = 5000;
 
 async function restoreTemporaryRoles(client) {
 	for (const guild of client.guilds.cache.values()) {

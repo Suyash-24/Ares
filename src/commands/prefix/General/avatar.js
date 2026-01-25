@@ -1,19 +1,16 @@
 import { MessageFlags, ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MediaGalleryBuilder, ActionRowBuilder } from 'discord.js';
 
 const resolveTargetUser = async (message, args) => {
-  // Priority 1: Check for mentioned users in the message content
-  // Filter out the replied-to user from mentions to prioritize explicit mentions
+
   const mentions = message.mentions.users;
   const repliedUserId = message.reference ? (await message.fetchReference().catch(() => null))?.author?.id : null;
-  
-  // Get the first mention that isn't the replied-to user (if replying)
+
   const explicitMention = mentions.find(u => u.id !== repliedUserId) || (mentions.size > 0 && !repliedUserId ? mentions.first() : null);
-  
+
   if (explicitMention) {
     return explicitMention;
   }
 
-  // Priority 2: Check for user ID in args
   if (args.length > 0) {
     const idCandidate = args[0].replace(/[^0-9]/g, '');
 
@@ -26,7 +23,6 @@ const resolveTargetUser = async (message, args) => {
     }
   }
 
-  // Priority 3: If replying to a message without args/mentions, use replied-to user
   if (message.reference) {
     const repliedMessage = await message.fetchReference().catch(() => null);
     if (repliedMessage?.author) {
@@ -34,7 +30,6 @@ const resolveTargetUser = async (message, args) => {
     }
   }
 
-  // Priority 4: Default to message author
   return message.author;
 };
 
@@ -53,7 +48,6 @@ export default {
       return;
     }
 
-    // Check if user has a server avatar
     const member = message.guild?.members.cache.get(targetUser.id);
     const hasServerAvatar = member?.avatar ? true : false;
 
@@ -99,7 +93,6 @@ export default {
       return actionRow;
     });
 
-    // Add server avatar button on separate row if user has one
     if (hasServerAvatar) {
       container.addActionRowComponents((actionRow) => {
         actionRow.setComponents(

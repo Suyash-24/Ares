@@ -28,9 +28,9 @@ export const buildPage = (leveling, page, authorId, guild = null, botName = 'Are
 	const serverIcon = guild?.iconURL?.({ size: 128 });
 
 	if (!slice.length) {
-		container.addTextDisplayComponents(td => td.setContent('No tracked members yet.')); 
+		container.addTextDisplayComponents(td => td.setContent('No tracked members yet.'));
 	} else {
-		// Build all entries text
+
 		const entriesText = slice.map((entry, idx) => {
 			const rank = current * PER_PAGE + idx + 1;
 			const needed = 5 * entry.level * entry.level + 50 * entry.level + 100;
@@ -41,7 +41,6 @@ export const buildPage = (leveling, page, authorId, guild = null, botName = 'Are
 			return `**#${rank} — [Lvl. ${entry.level}] <@${entry.userId}>**\n${progressBar} \`${progress}%\``;
 		}).join('\n\n');
 
-		// Single section with all entries and thumbnail
 		if (serverIcon) {
 			container.addSectionComponents(section => {
 				section.addTextDisplayComponents(td => td.setContent(entriesText));

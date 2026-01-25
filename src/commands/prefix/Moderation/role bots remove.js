@@ -47,13 +47,13 @@ export default {
 	category: 'Moderation',
 
 	async execute(message, args, client) {
-		// Check antinuke admin + Discord admin first
+
 		const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
 		const isOwner = message.guild.ownerId === message.author.id;
 		const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
 		const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
 		const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-		
+
 		if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
 			return message.reply({
 				components: [buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'You need **Discord Administrator** + **Antinuke Admin** permissions.')],
@@ -62,7 +62,6 @@ export default {
 			});
 		}
 
-		// Shared cooldown: 1 minute per user for all mass role commands (global)
 		if (!globalThis._roleMassCooldowns) globalThis._roleMassCooldowns = new Map();
 		const cooldownKey = `${message.guildId}_${message.author.id}`;
 		const now = Date.now();
@@ -141,14 +140,12 @@ export default {
 			});
 		}
 
-		// Send initial processing message BEFORE fetching
 		const processingMsg = await message.reply({
 			components: [buildNotice(`# ${EMOJIS.loading} Processing`, 'Fetching members...')],
 			flags: MessageFlags.IsComponentsV2,
 			allowedMentions: { repliedUser: false }
 		});
 
-		// Create a unique task ID and set it as active BEFORE fetching
 		const taskId = `${message.guild.id}-${Date.now()}`;
 		setActiveTask(message.guild.id, taskId);
 
@@ -163,7 +160,6 @@ export default {
 		}
 		const bots = members.filter((member) => member.user.bot);
 
-		// Update message with member count
 		await processingMsg.edit({
 			components: [buildNotice(`# ${EMOJIS.loading} Processing`, `Removing role from ${bots.size} bot(s)...`)]
 		});
@@ -172,7 +168,7 @@ export default {
 		let failures = 0;
 
 		for (const member of bots.values()) {
-			// Check if task was cancelled
+
 			if (shouldCancelTask(message.guild.id)) {
 				clearActiveTask(message.guild.id);
 				return processingMsg.edit({
@@ -200,7 +196,6 @@ export default {
 
 		clearActiveTask(message.guild.id);
 
-		// Send mod log for mass role remove
 		if (affected > 0) {
 			await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_MASS_ACTION, {
 				executor: message.author,

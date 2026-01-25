@@ -5,13 +5,12 @@ const name = 'vcmove';
 const aliases = ['voicemove', 'mv'];
 const description = 'Moves a member to a different voice channel.';
 const usage = 'vcmove <user> <channel_id>';
-const permissions = [PermissionFlagsBits.MoveMembers]; // Access to move
+const permissions = [PermissionFlagsBits.MoveMembers];
 
-// Helper to check permissions
 function hasPerms(member, perm) {
 	return member.id === member.guild.ownerId ||
-		   member.permissions.has(perm) || 
-		   member.permissions.has(PermissionFlagsBits.Administrator) || 
+		   member.permissions.has(perm) ||
+		   member.permissions.has(PermissionFlagsBits.Administrator) ||
 		   member.permissions.has(PermissionFlagsBits.ManageGuild);
 }
 
@@ -19,15 +18,14 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 
 	if (!hasPerms(message.member, PermissionFlagsBits.MoveMembers)) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need **Move Members** permission to use this command.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Resolve target member
 	let targetMember;
-	// Support mention or ID as first arg, but args[0] might be messy if mentions are used
+
 	if (message.mentions.members.size > 0) {
 		targetMember = message.mentions.members.first();
 	} else if (args[0]) {
@@ -42,29 +40,23 @@ async function execute(message, args, client) {
 	}
 
 	if (!targetMember) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Please specify a valid member to move.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
 	if (!targetMember.voice.channel) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} **${targetMember.user.username}** is not in a voice channel.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Resolve target channel
-	// If mention was used, channel is likely args[1]. If ID was used for user, channel is likely args[1].
-	// args array in messageHandler usually strips the command.
-	// If ".vcmove @user 12345", args = ["@user", "12345"] (simplified) or ["<@...>", "12345"]
-	
-	let channelArg = message.mentions.members.size > 0 ? args[1] : args[1]; // usually args[1] if user is first arg
-	// if user provided ID as first arg?
-	
+	let channelArg = message.mentions.members.size > 0 ? args[1] : args[1];
+
 	if (!channelArg) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Please specify a destination channel ID.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -74,16 +66,15 @@ async function execute(message, args, client) {
 	const targetChannel = message.guild.channels.cache.get(targetChannelId);
 
 	if (!targetChannel || !targetChannel.isVoiceBased()) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Invalid destination voice channel.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Hierarchy check
-	if (message.author.id !== message.guild.ownerId && 
+	if (message.author.id !== message.guild.ownerId &&
 		message.member.roles.highest.position <= targetMember.roles.highest.position) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You cannot move this member due to role hierarchy.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -91,13 +82,13 @@ async function execute(message, args, client) {
 
 	try {
 		await targetMember.voice.setChannel(targetChannel, `Voice move by ${message.author.tag}`);
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.success || '✅'} Moved **${targetMember.user.username}** to **${targetChannel.name}**.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	} catch (error) {
 		console.error(error);
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Failed to move member.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });

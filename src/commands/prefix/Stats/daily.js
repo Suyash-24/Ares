@@ -12,14 +12,10 @@ import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 const name = 'daily';
 const aliases = ['dailystats', 'today', 'todaystats'];
 
-/**
- * Get today's date key (YYYY-MM-DD)
- */
 function getDateKey() {
 	return new Date().toISOString().split('T')[0];
 }
 
-// Component handlers for buttons
 const components = [
 	{
 		customId: /^stats_daily_(overview|messages|voice)$/,
@@ -31,12 +27,10 @@ const components = [
 			const dateKey = getDateKey();
 			const stats = await ensureStatsConfig(client.db, interaction.guildId);
 
-			// Get today's aggregate from daily stats
 			const todayDaily = stats.daily?.[dateKey] || { messages: 0, voice: 0, joins: 0, leaves: 0 };
 			const todayMessages = todayDaily.messages || 0;
 			const todayVoice = todayDaily.voice || 0;
 
-			// Get active voice sessions
 			const activeSessions = getActiveVoiceSessions(interaction.guildId);
 			let activeVoiceMinutes = 0;
 			for (const session of activeSessions) {
@@ -45,11 +39,9 @@ const components = [
 
 			const totalVoiceMinutes = todayVoice + activeVoiceMinutes;
 
-			// Get top users (all-time, since we don't have per-user daily breakdown)
 			const topMessagers = getTopMessageUsers(stats, 10);
 			const topVoiceUsers = getTopVoiceUsers(stats, 10);
 
-			// Add active voice sessions to top voice
 			const voiceWithActive = [...topVoiceUsers];
 			for (const session of activeSessions) {
 				const mins = Math.floor(session.duration / 60000);
@@ -114,7 +106,7 @@ const components = [
 					container.addTextDisplayComponents(td => td.setContent(`No voice activity recorded yet.`));
 				}
 			} else {
-				// Overview
+
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.stats || '📊'} Daily Stats\n\n` +
 					`## ${interaction.guild.name} • Today`
@@ -138,7 +130,6 @@ const components = [
 				}
 			}
 
-			// Navigation buttons
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			container.addActionRowComponents(row => row
 				.addComponents(
@@ -168,7 +159,6 @@ const components = [
 	}
 ];
 
-
 async function execute(message, args, client) {
 	if (!message.guild) {
 		const c = new ContainerBuilder();
@@ -179,18 +169,15 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Get today's date key
 	const dateKey = getDateKey();
 
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
-		
-		// Get today's aggregate from daily stats
+
 		const todayDaily = stats.daily?.[dateKey] || { messages: 0, voice: 0, joins: 0, leaves: 0 };
 		const todayMessages = todayDaily.messages || 0;
 		const todayVoice = todayDaily.voice || 0;
 
-		// Get active voice sessions
 		let activeVoiceMinutes = 0;
 		const activeSessions = getActiveVoiceSessions(message.guildId);
 		for (const session of activeSessions) {
@@ -199,10 +186,8 @@ async function execute(message, args, client) {
 
 		const totalVoiceMinutes = todayVoice + activeVoiceMinutes;
 
-		// Get top users (all-time since we don't have per-user daily breakdown)
 		const topMessagers = getTopMessageUsers(stats, 10);
 
-		// Build the overview
 		container.addTextDisplayComponents(td => td.setContent(
 			`# ${EMOJIS.stats || '📊'} Daily Stats\n\n` +
 			`## ${message.guild.name} • Today`
@@ -210,18 +195,16 @@ async function execute(message, args, client) {
 
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-		// Stats summary
 		container.addTextDisplayComponents(td => td.setContent(
 			`${EMOJIS.message || '💬'} **Messages:** ${formatNumber(todayMessages)}\n` +
 			`${EMOJIS.voice || '🎙️'} **Voice Time:** ${formatVoiceTime(totalVoiceMinutes)}\n` +
 			`${EMOJIS.member || '👤'} **Currently in VC:** ${activeSessions.length}`
 		));
 
-		// Top 3 messagers (all-time)
 		if (topMessagers.length > 0) {
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			container.addTextDisplayComponents(td => td.setContent(`### Top Messagers (All Time)`));
-			
+
 			const top3 = topMessagers.slice(0, 3);
 			const lines = top3.map((entry, i) => {
 				const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉';
@@ -230,7 +213,6 @@ async function execute(message, args, client) {
 			container.addTextDisplayComponents(td => td.setContent(lines.join('\n')));
 		}
 
-		// Navigation buttons
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		container.addActionRowComponents(row => row
 			.addComponents(

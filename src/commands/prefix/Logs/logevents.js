@@ -1,7 +1,4 @@
-/**
- * Ares Logging System - Log Events Reference Command
- * Shows all available log events
- */
+
 
 import {
 	ContainerBuilder,
@@ -30,10 +27,9 @@ export default {
 			separator.setSpacing(SeparatorSpacingSize.Small)
 		);
 
-		// If a specific category is requested
 		if (args.length && args[0].toLowerCase() !== 'all') {
 			const category = args[0].toLowerCase();
-			
+
 			if (!LOG_CATEGORIES[category]) {
 				const validCategories = Object.keys(LOG_CATEGORIES).join(', ');
 				container.addTextDisplayComponents((textDisplay) =>
@@ -45,7 +41,7 @@ export default {
 			} else {
 				const categoryName = CATEGORY_NAMES[category];
 				const events = LOG_CATEGORIES[category];
-				
+
 				container.addTextDisplayComponents((textDisplay) =>
 					textDisplay.setContent(
 						`**${categoryName}**\n\n` +
@@ -54,9 +50,9 @@ export default {
 				);
 			}
 		} else {
-			// Show all categories
+
 			let content = '';
-			
+
 			for (const [category, events] of Object.entries(LOG_CATEGORIES)) {
 				const categoryName = CATEGORY_NAMES[category];
 				const emoji = getCategoryEmoji(category);

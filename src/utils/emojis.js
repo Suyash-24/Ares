@@ -6,7 +6,7 @@ const EMOJIS = {
   channels: '<:channel:1434583519920783402>',
   voice: '<:voice:1434582916448387082>',
   members: '<:member:1434586641145528330>',
-  bot: '<:bot:1434585487770910904>',  
+  bot: '<:bot:1434585487770910904>',
   security: '<:security:1434588916652052620>',
   id: '<:id:1434589268550090752>',
   date: '<:calendar:1434580623715995679>',
@@ -63,7 +63,6 @@ const EMOJIS = {
   afk:'<:afk:1456326991958642845>',
   afkremoved:'<:afkremoved:1456327134053273712>',
 
-  // Stats System Emojis
   stats: '<:viewstats:1445774910088548352>',
   messages: '<:message:1445777686705344542>',
   voicestats: '<:voice48:1445779525701992549>',
@@ -76,8 +75,7 @@ const EMOJIS = {
   channelstats: '<:channellog:1445782302385901728>',
   online: '<:enabletoggle:1445346263028600903>',
   offline: '<:disabletoggle:1445346396910911528>',
-  
-  // Logging System Emojis
+
   log: '<:setupwizard:1445775144470577286>',
   logMessage: '<:message:1445777686705344542>',
   logMember: '<:member:1434586641145528330>',
@@ -96,8 +94,7 @@ const EMOJIS = {
   logKick: '<:kick:1445784583571509299>',
   logTimeout: '<:timeout:1445785021158785074>',
   logWarn: '<:warn:1445785369202262158>',
-  
-  // Giveaway emojis
+
   tada: '<a:giveaway:1457248225353535530>',
   giveaway: '<:gift:1457248740933894339>',
   giveawayarrow: '<a:giveawayarrow:1457248315245854740>'

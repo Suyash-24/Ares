@@ -45,13 +45,12 @@ export default {
       });
     }
 
-    // Check antinuke admin + Discord admin
     const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
     const isOwner = message.guild.ownerId === message.author.id;
     const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
     const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
     const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-    
+
     if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
       const c = buildNotice(
         `# ${EMOJIS.error || '❌'} Missing Permissions`,
@@ -312,14 +311,14 @@ export default {
     for (const member of toProcess) {
       try {
         if (action === 'ban') {
-          // Mark this as a command-invoked action so logging knows who did it
+
           markCommandInvoker(message.guild.id, 'raidwipe', member.id, message.author);
-          
+
           await member.ban({ reason, deleteMessageSeconds: 0 });
         } else {
-          // Mark this as a command-invoked action so logging knows who did it
+
           markCommandInvoker(message.guild.id, 'raidwipe', member.id, message.author);
-          
+
           await member.kick(reason);
         }
         results.successful++;
@@ -341,7 +340,6 @@ export default {
     summary.addTextDisplayComponents(td => td.setContent(`**Failed removals:** ${results.failed}`));
     summary.addTextDisplayComponents(td => td.setContent(`**Protected:** ${results.protectedByHierarchy}`));
 
-    // Send mod log if any users were successfully removed
     if (results.successful > 0) {
       await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_RAIDWIPE, {
         executor: message.author,

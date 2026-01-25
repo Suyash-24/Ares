@@ -36,7 +36,6 @@ export default {
 			});
 		}
 
-		// Check if user can use notes command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -78,7 +77,6 @@ export default {
 			});
 		}
 
-		// Check if a page number was provided
 		if (args[1]) {
 			requestedPage = parseInt(args[1]) || 0;
 		}
@@ -126,13 +124,11 @@ export default {
 
 			const notes = guildData.moderation.notes[target.id];
 
-			// Pagination: 3 notes per page
 			const NOTES_PER_PAGE = 3;
 			const sortedNotes = notes.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).reverse();
 			const totalPages = Math.ceil(sortedNotes.length / NOTES_PER_PAGE);
 			const currentPage = Math.min(Math.max(0, requestedPage), totalPages - 1);
 
-			// Build notes display for a specific page
 			const buildNotesPage = (pageNum) => {
 				const startIdx = pageNum * NOTES_PER_PAGE;
 				const endIdx = startIdx + NOTES_PER_PAGE;
@@ -176,7 +172,6 @@ export default {
 					textDisplay.setContent(`**Page:** ${pageNum + 1}/${totalPages} | **Total:** ${notes.length} note${notes.length === 1 ? '' : 's'}`)
 				);
 
-				// Add buttons inside container using addActionRowComponents
 				if (totalPages > 1) {
 					container.addActionRowComponents((row) => {
 						const prevBtn = new ButtonBuilder()
@@ -199,7 +194,6 @@ export default {
 				return container;
 			};
 
-			// Send initial page
 			const initialContainer = buildNotesPage(currentPage);
 			await message.reply({
 				components: [initialContainer],

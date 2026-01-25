@@ -60,10 +60,9 @@ export default {
 
 		const reason = args.slice(1).join(' ') || 'No reason provided';
 
-		// For permission check, we need a member-like object with roles
 		let targetMember = target;
 		if (!target.roles) {
-			// User not in guild, create a mock member object for hierarchy check
+
 			targetMember = {
 				id: target.id || target.user?.id,
 				roles: { highest: { position: -1 } },
@@ -119,17 +118,14 @@ export default {
 		}
 
 		try {
-			// Get the actual user ID for logging and banning
+
 			const userId = target.id || target.user?.id;
 			const userObj = target.user || target;
-			
-			// Mark this as a command-invoked action so logging knows who did it
+
 			markCommandInvoker(message.guild.id, 'ban', userId, message.author);
-			
-			// Ban the user by ID (works for guild members and non-members)
+
 			await message.guild.members.ban(userId, { reason, deleteMessageSeconds: 24 * 60 * 60 });
 
-			// Save action to database
 			let caseNum;
 			try {
 				const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
@@ -159,7 +155,6 @@ export default {
 				caseNum = 'N/A';
 			}
 
-			// Send the response with case number
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.banned} User Banned`)
@@ -180,7 +175,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Send log for ban
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_BAN, {
 				executor: message.author,
 				target: userObj,
@@ -209,7 +203,7 @@ export default {
 					}]
 				});
 			} catch {
-				// Silently continue if DM send fails
+
 			}
 
 		} catch (error) {

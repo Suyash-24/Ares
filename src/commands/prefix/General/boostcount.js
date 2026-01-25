@@ -45,16 +45,16 @@ const getProgressBar = (tier) => {
         { level: 2, boosts: 7 },
         { level: 3, boosts: 14 }
     ];
-    
+
     let currentLevel = 0;
     if (tier === GuildPremiumTier.Tier1) currentLevel = 1;
     else if (tier === GuildPremiumTier.Tier2) currentLevel = 2;
     else if (tier === GuildPremiumTier.Tier3) currentLevel = 3;
-    
+
     const filled = '▰';
     const empty = '▱';
     const bar = Array(3).fill(empty).map((_, i) => i < currentLevel ? filled : empty).join('');
-    
+
     return bar;
 };
 
@@ -81,11 +81,11 @@ export default {
         const progressBar = getProgressBar(tier);
 
         const container = new ContainerBuilder()
-            .addTextDisplayComponents(td => 
+            .addTextDisplayComponents(td =>
                 td.setContent(`# ${EMOJIS.star || '⭐'} Server Boost Status`)
             )
             .addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
-            .addTextDisplayComponents(td => 
+            .addTextDisplayComponents(td =>
                 td.setContent(
                     `${EMOJIS.trending || '📈'} **Total Boosts:** \`${boostCount}\`\n` +
                     `${EMOJIS.trophy || '🏆'} **Boost Tier:** \`${tierName}\`\n\n` +
@@ -94,7 +94,7 @@ export default {
                 )
             )
             .addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
-            .addTextDisplayComponents(td => 
+            .addTextDisplayComponents(td =>
                 td.setContent(
                     `**Current Perks:**\n` +
                     `> ${perks}`

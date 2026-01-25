@@ -28,7 +28,6 @@ export default {
   async execute(message, args) {
     if (!message.guild) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Guild Only`, 'This command can only be used in a server.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    // If first arg is a channel mention or id, treat as channel, otherwise target is current channel
     let targetChannel = null;
     let textArgStart = 0;
     if (args[0]) {
@@ -48,13 +47,10 @@ export default {
 
     const isClear = topic.toLowerCase() === 'clear';
 
-    // If not clearing, validate length
     if (!isClear && topic.length > 1024) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Too Long`, 'Topic cannot exceed 1024 characters.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    // Check channel is text-editable
     if (typeof targetChannel.setTopic !== 'function') return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'The specified channel is not a text-based channel.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    // Permissions: executor must have ManageChannels overall and for the channel
     if (!message.member.permissions.has(PermissionFlagsBits.ManageChannels) || !targetChannel.permissionsFor(message.member)?.has(PermissionFlagsBits.ManageChannels)) {
       return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'You need the **Manage Channels** permission to update the channel topic.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
@@ -85,7 +81,6 @@ export default {
 Previous: ${previous}
 ${isClear ? 'Current: (none)' : topic}`));
 
-    // Send log for channel topic change
     await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_CHANNEL_TOPIC, {
       executor: message.author,
       channel: targetChannel,

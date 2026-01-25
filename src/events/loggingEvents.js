@@ -1,7 +1,4 @@
-﻿/**
- * Ares Logging System - Event Handlers
- * Registers all Discord events for comprehensive logging
- */
+
 
 import { Events, AuditLogEvent, ChannelType } from 'discord.js';
 import {
@@ -13,144 +10,100 @@ import {
 	LOG_EVENTS
 } from '../utils/LoggingManager.js';
 
-// Track messages that Ares deletes (to identify as executor)
-// Map of messageId -> timestamp, auto-cleaned after 10 seconds
 const aresDeletedMessages = new Map();
 
-// Track command invokers (who ran the command that caused the action)
-// Map of `guildId:actionType:targetId` -> { invoker, timestamp }
-// Auto-cleaned after 5 seconds
 export const commandInvokers = new Map();
 
-/**
- * Mark a command invoker (track who ran a command)
- * @param {string} guildId - Guild ID
- * @param {string} actionType - Type of action (e.g., 'mute', 'kick', 'ban')
- * @param {string} targetId - ID of the target (user/role/channel being acted upon)
- * @param {User} invoker - The user who ran the command
- */
 export function markCommandInvoker(guildId, actionType, targetId, invoker) {
 	const key = `${guildId}:${actionType}:${targetId}`;
 	commandInvokers.set(key, {
 		invoker: { tag: invoker.tag, id: invoker.id },
 		timestamp: Date.now()
 	});
-	// Auto-cleanup after 10 seconds (increased for multi-step operations like softban)
+
 	setTimeout(() => commandInvokers.delete(key), 10000);
 }
 
-/**
- * Get the command invoker for an action
- * @param {string} guildId - Guild ID
- * @param {string} actionType - Type of action
- * @param {string} targetId - ID of the target
- * @returns {Object|null} - Invoker object or null
- */
 export function getCommandInvoker(guildId, actionType, targetId) {
 	const key = `${guildId}:${actionType}:${targetId}`;
 	const data = commandInvokers.get(key);
 	if (!data) return null;
-	// Valid if within last 10 seconds (increased for multi-step operations like softban)
+
 	return Date.now() - data.timestamp < 10000 ? data.invoker : null;
 }
 
-/**
- * Mark a message as deleted by Ares (call this before deleting)
- */
 export function markMessageAsAresDeleted(messageId) {
 	aresDeletedMessages.set(messageId, Date.now());
-	// Auto-cleanup after 10 seconds
+
 	setTimeout(() => aresDeletedMessages.delete(messageId), 10000);
 }
 
-/**
- * Check if a message was deleted by Ares
- */
 function wasDeletedByAres(messageId) {
 	const timestamp = aresDeletedMessages.get(messageId);
 	if (!timestamp) return false;
-	// Valid if within last 10 seconds
+
 	return Date.now() - timestamp < 10000;
 }
 
-/**
- * Register all logging event handlers
- */
 export function registerLoggingEvents(client) {
 	console.log('ðŸ“‹ [Logging] Registering event handlers...');
 
-	// Message Events
 	registerMessageEvents(client);
 
-	// Member Events
 	registerMemberEvents(client);
 
-	// Channel Events
 	registerChannelEvents(client);
 
-	// Role Events
 	registerRoleEvents(client);
 
-	// Emoji & Sticker Events
 	registerEmojiEvents(client);
 
-	// Server Events
 	registerServerEvents(client);
 
-	// Voice Events
 	registerVoiceEvents(client);
 
-	// Invite Events
 	registerInviteEvents(client);
 
-	// Audit Log Events (for catching actions by other bots)
 	registerAuditLogEvents(client);
 
 	console.log('âœ… [Logging] All event handlers registered');
 }
 
-/**
- * Message Event Handlers
- */
 function registerMessageEvents(client) {
-	// Message Delete
+
 	client.on(Events.MessageDelete, async (message) => {
 		if (!message.guild) return;
-		if (message.partial) return; // Can't log partial messages
+		if (message.partial) return;
 
-		// Check if Ares deleted this message (tracked)
 		const deletedByAres = wasDeletedByAres(message.id);
-		
+
 		let resolvedExecutor;
-		
+
 		if (deletedByAres) {
-			// Ares deleted this message (command auto-delete, moderation, etc.)
+
 			resolvedExecutor = { tag: `${client.user.tag}`, id: client.user.id };
 		} else {
-			// Check audit log for who deleted it
+
 			const executor = await fetchAuditLogExecutor(
 				message.guild,
 				AuditLogEvent.MessageDelete,
 				message.author?.id
 			);
-			
+
 			if (executor) {
 				resolvedExecutor = executor;
 			} else {
-				// No audit log entry - user likely deleted their own message
+
 				resolvedExecutor = message.author || { tag: 'Unknown', id: 'Unknown' };
 			}
 		}
 
-		// Build content description
 		let contentDescription = '';
-		
-		// Check for text content
+
 		if (message.content && message.content.trim()) {
 			contentDescription = message.content;
 		}
-		
-		// Check for embeds
+
 		if (message.embeds && message.embeds.length > 0) {
 			const embedInfo = message.embeds.map(e => {
 				const parts = [];
@@ -161,34 +114,30 @@ function registerMessageEvents(client) {
 			}).join('\n');
 			contentDescription += (contentDescription ? '\n\n' : '') + `ðŸ“¦ **Embeds (${message.embeds.length}):**\n${embedInfo}`;
 		}
-		
-		// Check for components
+
 		if (message.components && message.components.length > 0) {
 			const componentCount = message.components.reduce((acc, row) => acc + (row.components?.length || 0), 0);
 			contentDescription += (contentDescription ? '\n\n' : '') + `ðŸ”˜ **Components:** ${componentCount} button(s)/select menu(s)`;
 		}
-		
-		// Check for stickers
+
 		if (message.stickers && message.stickers.size > 0) {
 			const stickerNames = message.stickers.map(s => s.name).join(', ');
 			contentDescription += (contentDescription ? '\n\n' : '') + `ðŸŽ¨ **Stickers:** ${stickerNames}`;
 		}
 
-		// If still no content, show appropriate message
 		if (!contentDescription) {
 			contentDescription = '*Empty message*';
 		}
 
-		// Get first image attachment for display
-		const attachmentsList = message.attachments?.map(a => ({ 
-			name: a.name, 
+		const attachmentsList = message.attachments?.map(a => ({
+			name: a.name,
 			url: a.url,
 			contentType: a.contentType,
 			size: a.size
 		})) || [];
-		
-		const imageAttachment = attachmentsList.find(a => 
-			a.contentType?.startsWith('image/') || 
+
+		const imageAttachment = attachmentsList.find(a =>
+			a.contentType?.startsWith('image/') ||
 			/\.(png|jpg|jpeg|gif|webp)$/i.test(a.name || a.url)
 		);
 
@@ -206,12 +155,11 @@ function registerMessageEvents(client) {
 		});
 	});
 
-	// Message Edit
 	client.on(Events.MessageUpdate, async (oldMessage, newMessage) => {
 		if (!newMessage.guild) return;
-		if (newMessage.author?.bot) return; // Ignore bot edits
+		if (newMessage.author?.bot) return;
 		if (oldMessage.partial || newMessage.partial) return;
-		if (oldMessage.content === newMessage.content) return; // Only content changes
+		if (oldMessage.content === newMessage.content) return;
 
 		await sendLog(client, newMessage.guild.id, LOG_EVENTS.MESSAGE_EDIT, {
 			target: newMessage.author,
@@ -225,7 +173,6 @@ function registerMessageEvents(client) {
 		});
 	});
 
-	// Bulk Delete
 	client.on(Events.MessageBulkDelete, async (messages, channel) => {
 		if (!channel.guild) return;
 
@@ -235,12 +182,10 @@ function registerMessageEvents(client) {
 			channel.id
 		);
 
-		// Sort messages by timestamp (oldest first)
-		const sortedMessages = [...messages.values()].sort((a, b) => 
+		const sortedMessages = [...messages.values()].sort((a, b) =>
 			a.createdTimestamp - b.createdTimestamp
 		);
 
-		// Create transcript content
 		const transcriptLines = [
 			`â•”â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•—`,
 			`â•‘                    BULK DELETE TRANSCRIPT                       â•‘`,
@@ -270,12 +215,11 @@ function registerMessageEvents(client) {
 
 			const author = msg.author?.tag || 'Unknown User';
 			const authorId = msg.author?.id || 'Unknown';
-			
+
 			transcriptLines.push(`â”Œâ”€ ${author} (${authorId})`);
 			transcriptLines.push(`â”‚  Time: ${timestamp} UTC`);
 			transcriptLines.push(`â”‚  Message ID: ${msg.id}`);
-			
-			// Content
+
 			if (msg.content && msg.content.trim()) {
 				const contentLines = msg.content.split('\n');
 				transcriptLines.push(`â”‚  Content:`);
@@ -285,8 +229,7 @@ function registerMessageEvents(client) {
 			} else {
 				transcriptLines.push(`â”‚  Content: [No text content]`);
 			}
-			
-			// Embeds
+
 			if (msg.embeds && msg.embeds.length > 0) {
 				transcriptLines.push(`â”‚  Embeds: ${msg.embeds.length}`);
 				for (const embed of msg.embeds) {
@@ -295,20 +238,18 @@ function registerMessageEvents(client) {
 					if (embed.url) transcriptLines.push(`â”‚    - URL: ${embed.url}`);
 				}
 			}
-			
-			// Attachments
+
 			if (msg.attachments && msg.attachments.size > 0) {
 				transcriptLines.push(`â”‚  Attachments: ${msg.attachments.size}`);
 				msg.attachments.forEach(att => {
 					transcriptLines.push(`â”‚    - ${att.name}: ${att.url}`);
 				});
 			}
-			
-			// Stickers
+
 			if (msg.stickers && msg.stickers.size > 0) {
 				transcriptLines.push(`â”‚  Stickers: ${[...msg.stickers.values()].map(s => s.name).join(', ')}`);
 			}
-			
+
 			transcriptLines.push(`â””${'â”€'.repeat(69)}`);
 			transcriptLines.push(``);
 		}
@@ -317,12 +258,10 @@ function registerMessageEvents(client) {
 		transcriptLines.push(`End of transcript - ${messages.size} messages`);
 
 		const transcriptContent = transcriptLines.join('\n');
-		
-		// Create attachment buffer
+
 		const transcriptBuffer = Buffer.from(transcriptContent, 'utf-8');
 		const fileName = `bulk-delete-${channel.id}-${Date.now()}.txt`;
 
-		// Get unique authors
 		const uniqueAuthors = new Set(sortedMessages.map(m => m.author?.id).filter(Boolean));
 
 		await sendLog(client, channel.guild.id, LOG_EVENTS.BULK_DELETE, {
@@ -340,12 +279,9 @@ function registerMessageEvents(client) {
 		});
 	});
 
-	// Message Pin/Unpin (via channel pins update)
 	client.on(Events.ChannelPinsUpdate, async (channel, time) => {
 		if (!channel.guild) return;
 
-		// We can't easily tell if it was a pin or unpin without tracking state
-		// This event fires for both, so we'll log it as a generic pin update
 		await sendLog(client, channel.guild.id, LOG_EVENTS.MESSAGE_PIN, {
 			channel,
 			content: `Pins updated in channel`,
@@ -354,18 +290,14 @@ function registerMessageEvents(client) {
 	});
 }
 
-/**
- * Member Event Handlers
- */
 function registerMemberEvents(client) {
-	// Member Join
+
 	client.on(Events.GuildMemberAdd, async (member) => {
 		const accountAge = Date.now() - member.user.createdTimestamp;
 		const accountAgeStr = formatDuration(accountAge);
 
-		// Check if it's a bot
 		if (member.user.bot) {
-			// Try to get who added the bot from audit logs
+
 			const executor = await fetchAuditLogExecutor(
 				member.guild,
 				AuditLogEvent.BotAdd,
@@ -380,7 +312,7 @@ function registerMemberEvents(client) {
 				thumbnail: member.user.displayAvatarURL()
 			});
 		} else {
-			// Regular member join
+
 			await sendLog(client, member.guild.id, LOG_EVENTS.MEMBER_JOIN, {
 				target: member.user,
 				content: `Account created ${accountAgeStr} ago`,
@@ -390,28 +322,24 @@ function registerMemberEvents(client) {
 		}
 	});
 
-	// Member Leave (includes kicks)
 	client.on(Events.GuildMemberRemove, async (member) => {
-		// Small delay to ensure markCommandInvoker has time to register
+
 		await new Promise(resolve => setTimeout(resolve, 100));
-		
-		// Check if this was triggered by a Ares kick command - if so, skip native log
+
 		const kickInvoker = getCommandInvoker(member.guild.id, 'kick', member.id) ||
 			getCommandInvoker(member.guild.id, 'masskick', member.id);
-		
-		// Check if this was triggered by a Ares ban command (ban also triggers MemberRemove first)
+
 		const banInvoker = getCommandInvoker(member.guild.id, 'ban', member.id) ||
 			getCommandInvoker(member.guild.id, 'massban', member.id) ||
 			getCommandInvoker(member.guild.id, 'softban', member.id) ||
 			getCommandInvoker(member.guild.id, 'tempban', member.id) ||
 			getCommandInvoker(member.guild.id, 'raidwipe', member.id);
-		
+
 		if (kickInvoker || banInvoker) {
-			// Command already sent its own log, don't duplicate
+
 			return;
 		}
 
-		// Check if it was a kick
 		const kickExecutor = await fetchAuditLogExecutor(
 			member.guild,
 			AuditLogEvent.MemberKick,
@@ -419,7 +347,7 @@ function registerMemberEvents(client) {
 		);
 
 		if (kickExecutor) {
-			// Fetch audit log for reason
+
 			const auditLogs = await member.guild.fetchAuditLogs({
 				limit: 1,
 				type: AuditLogEvent.MemberKick
@@ -434,7 +362,7 @@ function registerMemberEvents(client) {
 				thumbnail: member.user.displayAvatarURL()
 			});
 		} else {
-			// Regular leave
+
 			const joinedAt = member.joinedTimestamp;
 			const memberDuration = joinedAt ? formatDuration(Date.now() - joinedAt) : 'Unknown';
 
@@ -448,20 +376,18 @@ function registerMemberEvents(client) {
 		}
 	});
 
-	// Member Ban
 	client.on(Events.GuildBanAdd, async (ban) => {
-		// Small delay to ensure markCommandInvoker has time to register
+
 		await new Promise(resolve => setTimeout(resolve, 100));
-		
-		// Check if this was triggered by a Ares command - if so, skip native log
+
 		const commandInvoker = getCommandInvoker(ban.guild.id, 'ban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'massban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'softban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'tempban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'raidwipe', ban.user.id);
-		
+
 		if (commandInvoker) {
-			// Command already sent its own log, don't duplicate
+
 			return;
 		}
 
@@ -480,18 +406,16 @@ function registerMemberEvents(client) {
 		});
 	});
 
-	// Member Unban
 	client.on(Events.GuildBanRemove, async (ban) => {
-		// Small delay to ensure markCommandInvoker has time to register
+
 		await new Promise(resolve => setTimeout(resolve, 100));
-		
-		// Check if this was triggered by a Ares command - if so, skip native log
+
 		const commandInvoker = getCommandInvoker(ban.guild.id, 'unban', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'unbanall', ban.user.id) ||
 			getCommandInvoker(ban.guild.id, 'softban', ban.user.id);
-		
+
 		if (commandInvoker) {
-			// Command already sent its own log, don't duplicate
+
 			return;
 		}
 
@@ -509,19 +433,17 @@ function registerMemberEvents(client) {
 		});
 	});
 
-	// Member Update (nickname, roles, timeout)
 	client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
-		// Small delay to ensure markCommandInvoker has time to register
+
 		await new Promise(resolve => setTimeout(resolve, 100));
-		
-		// Nickname change
+
 		if (oldMember.nickname !== newMember.nickname) {
-			// Check if this was triggered by a Ares nick command - if so, skip native log
+
 			const nickInvoker = getCommandInvoker(newMember.guild.id, 'nick', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'forcenickname', newMember.id);
-			
+
 			if (nickInvoker) {
-				// Command already sent its own log, don't duplicate
+
 				return;
 			}
 
@@ -541,7 +463,6 @@ function registerMemberEvents(client) {
 			});
 		}
 
-		// Role changes
 		const oldRoles = oldMember.roles.cache;
 		const newRoles = newMember.roles.cache;
 
@@ -549,7 +470,7 @@ function registerMemberEvents(client) {
 		const removedRoles = oldRoles.filter(r => !newRoles.has(r.id));
 
 		if (addedRoles.size > 0) {
-			// Check if this was triggered by a Ares role command - if so, skip native log
+
 			const roleAddInvoker = getCommandInvoker(newMember.guild.id, 'roleadd', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'role', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'temprole', newMember.id) ||
@@ -559,9 +480,9 @@ function registerMemberEvents(client) {
 				getCommandInvoker(newMember.guild.id, 'cascade', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'detain', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'release', newMember.id);
-			
+
 			if (roleAddInvoker) {
-				// Command already sent its own log, don't duplicate
+
 				return;
 			}
 
@@ -584,7 +505,7 @@ function registerMemberEvents(client) {
 		}
 
 		if (removedRoles.size > 0) {
-			// Check if this was triggered by a Ares role command - if so, skip native log
+
 			const roleRemoveInvoker = getCommandInvoker(newMember.guild.id, 'roleremove', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'role', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'rolebotsremove', newMember.id) ||
@@ -593,9 +514,9 @@ function registerMemberEvents(client) {
 				getCommandInvoker(newMember.guild.id, 'cascade', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'detain', newMember.id) ||
 				getCommandInvoker(newMember.guild.id, 'release', newMember.id);
-			
+
 			if (roleRemoveInvoker) {
-				// Command already sent its own log, don't duplicate
+
 				return;
 			}
 
@@ -617,21 +538,18 @@ function registerMemberEvents(client) {
 			}
 		}
 
-		// Timeout changes
 		const oldTimeout = oldMember.communicationDisabledUntilTimestamp;
 		const newTimeout = newMember.communicationDisabledUntilTimestamp;
 
 		if (oldTimeout !== newTimeout) {
-			// Check if this was triggered by a command invoker - if so, skip native log (command already logs)
+
 			const commandInvoker = getCommandInvoker(newMember.guild.id, 'mute', newMember.id);
-			
-			// Skip native timeout log if a Ares command triggered it (the command itself sends the log)
+
 			if (commandInvoker) {
-				// Command already sent its own log, don't duplicate
+
 				return;
 			}
-			
-			// If no command invoker, check audit log for external timeout
+
 			const auditExecutor = await fetchAuditLogExecutor(
 				newMember.guild,
 				AuditLogEvent.MemberUpdate,
@@ -640,7 +558,7 @@ function registerMemberEvents(client) {
 			const executor = auditExecutor;
 
 			if (newTimeout && newTimeout > Date.now()) {
-				// Timeout added/updated
+
 				await sendLog(client, newMember.guild.id, LOG_EVENTS.TIMEOUT_ADD, {
 					executor: executor || { tag: 'Unknown', id: 'Unknown' },
 					target: newMember.user,
@@ -650,7 +568,7 @@ function registerMemberEvents(client) {
 					thumbnail: newMember.user.displayAvatarURL()
 				});
 			} else if (oldTimeout && oldTimeout > Date.now()) {
-				// Timeout removed
+
 				await sendLog(client, newMember.guild.id, LOG_EVENTS.TIMEOUT_REMOVE, {
 					executor: executor || { tag: 'Unknown', id: 'Unknown' },
 					target: newMember.user,
@@ -661,14 +579,12 @@ function registerMemberEvents(client) {
 		}
 	});
 
-	// User Update (username, avatar, global name)
 	client.on(Events.UserUpdate, async (oldUser, newUser) => {
-		// We need to log this to all mutual guilds
+
 		for (const [, guild] of client.guilds.cache) {
 			const member = guild.members.cache.get(newUser.id);
 			if (!member) continue;
 
-			// Username change
 			if (oldUser.username !== newUser.username) {
 				await sendLog(client, guild.id, LOG_EVENTS.USERNAME_UPDATE, {
 					target: newUser,
@@ -679,7 +595,6 @@ function registerMemberEvents(client) {
 				});
 			}
 
-			// Avatar change
 			if (oldUser.avatar !== newUser.avatar) {
 				await sendLog(client, guild.id, LOG_EVENTS.AVATAR_UPDATE, {
 					target: newUser,
@@ -693,11 +608,8 @@ function registerMemberEvents(client) {
 	});
 }
 
-/**
- * Channel Event Handlers
- */
 function registerChannelEvents(client) {
-	// Channel Create
+
 	client.on(Events.ChannelCreate, async (channel) => {
 		if (!channel.guild) return;
 
@@ -715,7 +627,6 @@ function registerChannelEvents(client) {
 		});
 	});
 
-	// Channel Delete
 	client.on(Events.ChannelDelete, async (channel) => {
 		if (!channel.guild) return;
 
@@ -732,18 +643,15 @@ function registerChannelEvents(client) {
 		});
 	});
 
-	// Channel Update
 	client.on(Events.ChannelUpdate, async (oldChannel, newChannel) => {
 		if (!newChannel.guild) return;
 
-		// Try multiple audit log types for channel changes
 		let executor = await fetchAuditLogExecutor(
 			newChannel.guild,
 			AuditLogEvent.ChannelUpdate,
 			newChannel.id
 		);
-		
-		// If not found, try permission overwrite audit logs
+
 		if (!executor || executor.tag === 'Unknown') {
 			executor = await fetchAuditLogExecutor(
 				newChannel.guild,
@@ -762,53 +670,43 @@ function registerChannelEvents(client) {
 
 		const changes = [];
 
-		// Name change
 		if (oldChannel.name !== newChannel.name) {
 			changes.push(`**Name:** ${oldChannel.name} â†’ ${newChannel.name}`);
 		}
 
-		// Topic change (text channels)
 		if (oldChannel.topic !== newChannel.topic) {
 			changes.push(`**Topic:** ${oldChannel.topic || '*None*'} â†’ ${newChannel.topic || '*None*'}`);
 		}
 
-		// NSFW change
 		if (oldChannel.nsfw !== newChannel.nsfw) {
 			changes.push(`**NSFW:** ${oldChannel.nsfw ? 'Yes' : 'No'} â†’ ${newChannel.nsfw ? 'Yes' : 'No'}`);
 		}
 
-		// Parent (category) change
 		if (oldChannel.parentId !== newChannel.parentId) {
 			const oldParent = oldChannel.parent?.name || 'None';
 			const newParent = newChannel.parent?.name || 'None';
 			changes.push(`**Category:** ${oldParent} â†’ ${newParent}`);
 		}
 
-		// Position change
 		if (oldChannel.position !== newChannel.position) {
 			changes.push(`**Position:** ${oldChannel.position} â†’ ${newChannel.position}`);
 		}
 
-		// Slowmode change
 		if (oldChannel.rateLimitPerUser !== newChannel.rateLimitPerUser) {
 			changes.push(`**Slowmode:** ${oldChannel.rateLimitPerUser}s â†’ ${newChannel.rateLimitPerUser}s`);
 		}
 
-		// Bitrate change (voice)
 		if (oldChannel.bitrate !== newChannel.bitrate) {
 			changes.push(`**Bitrate:** ${oldChannel.bitrate}kbps â†’ ${newChannel.bitrate}kbps`);
 		}
 
-		// User limit change (voice)
 		if (oldChannel.userLimit !== newChannel.userLimit) {
 			changes.push(`**User Limit:** ${oldChannel.userLimit || 'Unlimited'} â†’ ${newChannel.userLimit || 'Unlimited'}`);
 		}
 
-		// Permission Changes
 		const oldPermissions = new Map(oldChannel.permissionOverwrites.cache);
 		const newPermissions = new Map(newChannel.permissionOverwrites.cache);
-		
-		// Helper function to get permission names from bitfield difference
+
 		const getPermissionChanges = (oldAllow, oldDeny, newAllow, newDeny) => {
 			const permChanges = [];
 			const allPerms = [
@@ -821,13 +719,13 @@ function registerChannelEvents(client) {
 				'DeafenMembers', 'MoveMembers', 'UseEmbeddedActivities', 'UseSoundboard',
 				'UseExternalSounds', 'RequestToSpeak', 'ManageEvents', 'ManageWebhooks'
 			];
-			
+
 			for (const perm of allPerms) {
 				const oldAllowed = oldAllow.has(perm);
 				const oldDenied = oldDeny.has(perm);
 				const newAllowed = newAllow.has(perm);
 				const newDenied = newDeny.has(perm);
-				
+
 				if (oldAllowed !== newAllowed || oldDenied !== newDenied) {
 					let oldState = oldAllowed ? 'âœ…' : oldDenied ? 'âŒ' : 'â¬œ';
 					let newState = newAllowed ? 'âœ…' : newDenied ? 'âŒ' : 'â¬œ';
@@ -836,21 +734,20 @@ function registerChannelEvents(client) {
 			}
 			return permChanges;
 		};
-		
-		// Check for added or modified permission overwrites
+
 		for (const [id, newPerm] of newPermissions) {
 			const oldPerm = oldPermissions.get(id);
 			const target = newPerm.type === 0
 				? newChannel.guild.roles.cache.get(id)
 				: newChannel.guild.members.cache.get(id)?.user;
-			
+
 			const targetName = newPerm.type === 0
 				? (target?.name || `Unknown Role`)
 				: (target?.username || `Unknown User`);
 			const targetType = newPerm.type === 0 ? 'ðŸ·ï¸ Role' : 'ðŸ‘¤ Member';
-			
+
 			if (!oldPerm) {
-				// New permission overwrite added
+
 				const permDetails = [];
 				if (newPerm.allow.bitfield > 0n) {
 					const allowed = newPerm.allow.toArray();
@@ -862,7 +759,7 @@ function registerChannelEvents(client) {
 				}
 				changes.push(`**${targetType} ${targetName}:** Permission overwrite added\n${permDetails.join('\n')}`);
 			} else if (oldPerm.allow.bitfield !== newPerm.allow.bitfield || oldPerm.deny.bitfield !== newPerm.deny.bitfield) {
-				// Permission overwrite modified
+
 				const permChanges = getPermissionChanges(oldPerm.allow, oldPerm.deny, newPerm.allow, newPerm.deny);
 				if (permChanges.length > 0) {
 					changes.push(`**${targetType} ${targetName}:** Permissions changed\n${permChanges.slice(0, 10).join('\n')}${permChanges.length > 10 ? `\n...and ${permChanges.length - 10} more` : ''}`);
@@ -870,13 +767,12 @@ function registerChannelEvents(client) {
 			}
 		}
 
-		// Check for removed permission overwrites
 		for (const [id, oldPerm] of oldPermissions) {
 			if (!newPermissions.has(id)) {
 				const target = oldPerm.type === 0
 					? newChannel.guild.roles.cache.get(id)
 					: newChannel.guild.members.cache.get(id)?.user;
-				
+
 				const targetName = oldPerm.type === 0
 					? (target?.name || `Unknown Role`)
 					: (target?.username || `Unknown User`);
@@ -895,7 +791,6 @@ function registerChannelEvents(client) {
 		}
 	});
 
-	// Thread Create
 	client.on(Events.ThreadCreate, async (thread, newlyCreated) => {
 		if (!newlyCreated) return;
 
@@ -907,7 +802,6 @@ function registerChannelEvents(client) {
 		});
 	});
 
-	// Thread Delete
 	client.on(Events.ThreadDelete, async (thread) => {
 		const executor = await fetchAuditLogExecutor(
 			thread.guild,
@@ -922,7 +816,6 @@ function registerChannelEvents(client) {
 		});
 	});
 
-	// Thread Update
 	client.on(Events.ThreadUpdate, async (oldThread, newThread) => {
 		const changes = [];
 
@@ -948,11 +841,8 @@ function registerChannelEvents(client) {
 	});
 }
 
-/**
- * Role Event Handlers
- */
 function registerRoleEvents(client) {
-	// Role Create
+
 	client.on(Events.GuildRoleCreate, async (role) => {
 		const executor = await fetchAuditLogExecutor(
 			role.guild,
@@ -968,7 +858,6 @@ function registerRoleEvents(client) {
 		});
 	});
 
-	// Role Delete
 	client.on(Events.GuildRoleDelete, async (role) => {
 		const executor = await fetchAuditLogExecutor(
 			role.guild,
@@ -983,7 +872,6 @@ function registerRoleEvents(client) {
 		});
 	});
 
-	// Role Update
 	client.on(Events.GuildRoleUpdate, async (oldRole, newRole) => {
 		const executor = await fetchAuditLogExecutor(
 			newRole.guild,
@@ -1034,11 +922,8 @@ function registerRoleEvents(client) {
 	});
 }
 
-/**
- * Emoji & Sticker Event Handlers
- */
 function registerEmojiEvents(client) {
-	// Emoji Create
+
 	client.on(Events.GuildEmojiCreate, async (emoji) => {
 		const executor = await fetchAuditLogExecutor(
 			emoji.guild,
@@ -1054,7 +939,6 @@ function registerEmojiEvents(client) {
 		});
 	});
 
-	// Emoji Delete
 	client.on(Events.GuildEmojiDelete, async (emoji) => {
 		const executor = await fetchAuditLogExecutor(
 			emoji.guild,
@@ -1069,7 +953,6 @@ function registerEmojiEvents(client) {
 		});
 	});
 
-	// Emoji Update (Name Changed)
 	client.on(Events.GuildEmojiUpdate, async (oldEmoji, newEmoji) => {
 		const executor = await fetchAuditLogExecutor(
 			newEmoji.guild,
@@ -1086,7 +969,6 @@ function registerEmojiEvents(client) {
 		});
 	});
 
-	// Sticker Create
 	client.on(Events.GuildStickerCreate, async (sticker) => {
 		const executor = await fetchAuditLogExecutor(
 			sticker.guild,
@@ -1101,7 +983,6 @@ function registerEmojiEvents(client) {
 		});
 	});
 
-	// Sticker Delete
 	client.on(Events.GuildStickerDelete, async (sticker) => {
 		const executor = await fetchAuditLogExecutor(
 			sticker.guild,
@@ -1115,7 +996,6 @@ function registerEmojiEvents(client) {
 		});
 	});
 
-	// Sticker Update
 	client.on(Events.GuildStickerUpdate, async (oldSticker, newSticker) => {
 		const executor = await fetchAuditLogExecutor(
 			newSticker.guild,
@@ -1141,11 +1021,8 @@ function registerEmojiEvents(client) {
 	});
 }
 
-/**
- * Server Event Handlers
- */
 function registerServerEvents(client) {
-	// Guild Update
+
 	client.on(Events.GuildUpdate, async (oldGuild, newGuild) => {
 		const executor = await fetchAuditLogExecutor(
 			newGuild,
@@ -1168,7 +1045,7 @@ function registerServerEvents(client) {
 		}
 
 		if (oldGuild.description !== newGuild.description) {
-			// Don't log if both are None/empty
+
 			if ((oldGuild.description || newGuild.description)) {
 				changes.push(`**Description:** ${oldGuild.description || '*None*'} â†’ ${newGuild.description || '*None*'}`);
 			}
@@ -1203,13 +1080,8 @@ function registerServerEvents(client) {
 		}
 	});
 
-	// Boost (via member update - premium subscription count)
-	// This is handled in GuildMemberUpdate by checking roles
 }
 
-/**
- * Voice Event Handlers
- */
 function registerVoiceEvents(client) {
 	client.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 		const member = newState.member || oldState.member;
@@ -1218,7 +1090,6 @@ function registerVoiceEvents(client) {
 		const guild = newState.guild || oldState.guild;
 		if (!guild) return;
 
-		// Voice Join
 		if (!oldState.channelId && newState.channelId) {
 			await sendLog(client, guild.id, LOG_EVENTS.VOICE_JOIN, {
 				target: member.user,
@@ -1229,7 +1100,6 @@ function registerVoiceEvents(client) {
 			});
 		}
 
-		// Voice Leave
 		else if (oldState.channelId && !newState.channelId) {
 			await sendLog(client, guild.id, LOG_EVENTS.VOICE_LEAVE, {
 				target: member.user,
@@ -1240,7 +1110,6 @@ function registerVoiceEvents(client) {
 			});
 		}
 
-		// Voice Move
 		else if (oldState.channelId && newState.channelId && oldState.channelId !== newState.channelId) {
 			const executor = await fetchAuditLogExecutor(
 				guild,
@@ -1258,7 +1127,6 @@ function registerVoiceEvents(client) {
 			});
 		}
 
-		// Server Mute Change (only if user was already in voice - not just joining)
 		if (oldState.channelId && oldState.serverMute !== newState.serverMute) {
 			const executor = await fetchAuditLogExecutor(
 				guild,
@@ -1275,7 +1143,6 @@ function registerVoiceEvents(client) {
 			});
 		}
 
-		// Self Mute Change (only if user was already in voice - not just joining)
 		if (oldState.channelId && oldState.selfMute !== newState.selfMute) {
 			await sendLog(client, guild.id, LOG_EVENTS.VOICE_MUTE, {
 				executor: member.user,
@@ -1286,7 +1153,6 @@ function registerVoiceEvents(client) {
 			});
 		}
 
-		// Server Deafen Change (only if user was already in voice - not just joining)
 		if (oldState.channelId && oldState.serverDeaf !== newState.serverDeaf) {
 			const executor = await fetchAuditLogExecutor(
 				guild,
@@ -1303,7 +1169,6 @@ function registerVoiceEvents(client) {
 			});
 		}
 
-		// Self Deafen Change (only if user was already in voice - not just joining)
 		if (oldState.channelId && oldState.selfDeaf !== newState.selfDeaf) {
 			await sendLog(client, guild.id, LOG_EVENTS.VOICE_DEAFEN, {
 				executor: member.user,
@@ -1316,11 +1181,8 @@ function registerVoiceEvents(client) {
 	});
 }
 
-/**
- * Invite Event Handlers
- */
 function registerInviteEvents(client) {
-	// Invite Create
+
 	client.on(Events.InviteCreate, async (invite) => {
 		if (!invite.guild) return;
 
@@ -1332,7 +1194,6 @@ function registerInviteEvents(client) {
 		});
 	});
 
-	// Invite Delete
 	client.on(Events.InviteDelete, async (invite) => {
 		if (!invite.guild) return;
 
@@ -1351,23 +1212,16 @@ function registerInviteEvents(client) {
 	});
 }
 
-/**
- * Audit Log Events - For catching actions by other bots
- */
 function registerAuditLogEvents(client) {
-	// This event catches all audit log entries, including those from other bots
-	client.on(Events.GuildAuditLogEntryCreate, async (auditLogEntry, guild) => {
-		// We primarily handle this for actions that might not trigger other events
-		// or for getting more accurate executor information
 
-		// Skip if the executor is this bot (we already logged it)
+	client.on(Events.GuildAuditLogEntryCreate, async (auditLogEntry, guild) => {
+
 		if (auditLogEntry.executorId === client.user.id) return;
 
-		// Handle AutoMod actions
 		if (auditLogEntry.action === AuditLogEvent.AutoModerationBlockMessage ||
 			auditLogEntry.action === AuditLogEvent.AutoModerationFlagToChannel ||
 			auditLogEntry.action === AuditLogEvent.AutoModerationUserCommunicationDisabled) {
-			
+
 			await sendLog(client, guild.id, LOG_EVENTS.AUTOMOD_ACTION, {
 				executor: { tag: 'AutoMod', id: 'AutoMod' },
 				target: auditLogEntry.target,
@@ -1379,4 +1233,3 @@ function registerAuditLogEvents(client) {
 }
 
 export default { registerLoggingEvents };
-

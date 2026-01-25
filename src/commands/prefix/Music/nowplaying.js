@@ -11,7 +11,6 @@ export default {
 	async execute(message, args, client) {
 		const queue = client.queue.get(message.guildId);
 
-
 		if (!queue || queue.stopped || !queue.tracks.peekAt(0)) {
 			return message.reply({
 				content: '❌ I\'m not playing any music.',
@@ -29,7 +28,7 @@ export default {
 			});
 
 			const container = new ContainerBuilder();
-			const nowPlayingInfo = 
+			const nowPlayingInfo =
 				`${EMOJIS?.success || '🎵'} **Now Playing**\n\n` +
 				`[${track.info.title}](${track.info.uri || 'https://unknown'})\n` +
 				`by **${track.info.author || 'Unknown'}**\n\n` +

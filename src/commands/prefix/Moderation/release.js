@@ -34,7 +34,6 @@ export default {
 			});
 		}
 
-		// Check if user can use release command (headmod only)
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'detain', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -55,7 +54,6 @@ export default {
 			});
 		}
 
-		// Parse target user
 		const target = await parseUserInput(args[0], message.guild, client);
 		if (!target) {
 			const container = new ContainerBuilder();
@@ -121,29 +119,24 @@ export default {
 				});
 			}
 
-			// Restore the user
 			const member = await message.guild.members.fetch(target.id).catch(() => null);
 
 			if (member) {
-				// Mark command invoker for logging
+
 				markCommandInvoker(message.guild.id, 'release', member.id, message.author);
-				
-				// Remove detain role
+
 				await member.roles.remove(detainRecord.detainRole).catch(() => {});
 
-				// Restore old roles
 				if (detainRecord.oldRoles && detainRecord.oldRoles.length > 0) {
 					await member.roles.add(detainRecord.oldRoles).catch(() => {});
 				}
 			}
 
-			// Remove from database
 			guildData.moderation.detains = guildData.moderation.detains.filter(
 				d => !(d.userId === target.id && d.timestamp === detainRecord.timestamp)
 			);
 			await client.db.updateOne({ guildId: message.guildId }, guildData);
 
-			// Cancel the auto-restore timer if it exists
 			const timerKey = `${message.guildId}_${target.id}`;
 			const timerId = detainCommand.detainTimers.get(timerKey);
 			if (timerId) {
@@ -151,10 +144,8 @@ export default {
 				detainCommand.detainTimers.delete(timerKey);
 			}
 
-			// Get custom messages
 			const messages = getDetainMessages(guildData);
 
-			// Send DM to user if possible
 			try {
 				const dmMessage = formatDetainMessage(messages.release, {
 					user: formatUserDisplay(target.user),
@@ -167,7 +158,6 @@ export default {
 				console.error('Error sending DM to released user:', err);
 			}
 
-			// Send message to detain channel if configured
 			if (guildData.moderation.detainChannel) {
 				try {
 					const detainChannel = message.guild.channels.cache.get(guildData.moderation.detainChannel);
@@ -181,7 +171,6 @@ export default {
 				}
 			}
 
-			// Send confirmation
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.success || '✅'} User Released`)
@@ -196,7 +185,6 @@ export default {
 				textDisplay.setContent(info)
 			);
 
-			// Send log for release
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_RELEASE, {
 				executor: message.author,
 				target: target.user,

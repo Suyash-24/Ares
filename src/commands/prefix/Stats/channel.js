@@ -17,26 +17,22 @@ import {
 const name = 'channel';
 const aliases = ['channelstats', 'ch'];
 
-/**
- * Build channel stats panel
- */
 function buildChannelPanel(channel, guild, stats, channelStats, authorId, botName) {
 	const container = new ContainerBuilder();
 
-	const isVoice = channel.type === ChannelType.GuildVoice || 
+	const isVoice = channel.type === ChannelType.GuildVoice ||
 		channel.type === ChannelType.GuildStageVoice;
 	const isCategory = channel.type === ChannelType.GuildCategory;
 
 	const emoji = isVoice ? (EMOJIS.voicestats || '🎤') : (EMOJIS.channelstats || '💬');
 	const typeLabel = isVoice ? 'Voice Channel' : isCategory ? 'Category' : 'Text Channel';
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${emoji} Channel Stats`)
 	);
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Channel info
 	const channelInfo = [
 		`**${channel.name}**`,
 		`Type: ${typeLabel}`,
@@ -75,14 +71,13 @@ function buildChannelPanel(channel, guild, stats, channelStats, authorId, botNam
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Activity indicator
 	let activityLevel = 'Low';
 	if (channelStats.messages > 100 || channelStats.voiceMinutes > 60) activityLevel = 'Medium';
 	if (channelStats.messages > 500 || channelStats.voiceMinutes > 300) activityLevel = 'High';
 	if (channelStats.messages > 1000 || channelStats.voiceMinutes > 600) activityLevel = 'Very High';
 
-	const activityEmoji = activityLevel === 'Very High' ? '🔥' : 
-		activityLevel === 'High' ? '⚡' : 
+	const activityEmoji = activityLevel === 'Very High' ? '🔥' :
+		activityLevel === 'High' ? '⚡' :
 		activityLevel === 'Medium' ? '📊' : '💤';
 
 	container.addTextDisplayComponents(td => td.setContent(
@@ -91,7 +86,6 @@ function buildChannelPanel(channel, guild, stats, channelStats, authorId, botNam
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Action button
 	container.addActionRowComponents(row => {
 		row.addComponents(
 			new ButtonBuilder()
@@ -109,7 +103,6 @@ function buildChannelPanel(channel, guild, stats, channelStats, authorId, botNam
 	return container;
 }
 
-// Component handlers
 const components = [
 	{
 		customId: /^channel_refresh:(\d+):(\d+)$/,
@@ -145,11 +138,10 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Get channel from mention or use current channel
 	let channel = message.mentions.channels.first();
-	
+
 	if (!channel && args[0]) {
-		// Try to find by ID
+
 		const channelId = args[0].replace(/[<#>]/g, '');
 		channel = message.guild.channels.cache.get(channelId);
 	}

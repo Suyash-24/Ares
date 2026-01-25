@@ -21,14 +21,11 @@ async function execute(message, args, client) {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 	}
 
-
-
-	// Determine Source
 	const attachment = message.attachments.first();
 	const avatarURL = attachment ? attachment.url : args[0];
 
 	try {
-        // Reset if no URL
+
 		if (!avatarURL) {
 			await message.guild.members.editMe({ avatar: null });
 			container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Avatar Reset**`));
@@ -36,10 +33,8 @@ async function execute(message, args, client) {
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 		}
 
-        // Validate Format (Simple check for URL)
-        // If attachment, we assume valid content-type or d.js handles it, but verify link.
         const validExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
-        // Remove query params for check
+
         const cleanUrl = avatarURL.split('?')[0].toLowerCase();
         if (!validExtensions.some(ext => cleanUrl.endsWith(ext))) {
              container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Invalid Image**`));
@@ -47,7 +42,6 @@ async function execute(message, args, client) {
              return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Fetch and Buffer
         let buffer;
         try {
             const response = await fetch(avatarURL);
@@ -61,9 +55,8 @@ async function execute(message, args, client) {
              return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Set New Avatar
 		await message.guild.members.editMe({ avatar: buffer });
-            
+
         container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Avatar Updated**`));
 		container.addTextDisplayComponents(td => td.setContent('The bot\'s server avatar has been updated successfully!'));
 		container.addMediaGalleryComponents(mg => mg.addItems(i => i.setURL(avatarURL)));
@@ -74,7 +67,7 @@ async function execute(message, args, client) {
 		console.error('ServerAvatar Error:', err);
 		container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Failed**`));
         if (err.code === 50013) {
-             container.addTextDisplayComponents(td => td.setContent('I lack permissions to change my avatar in this server.'));   
+             container.addTextDisplayComponents(td => td.setContent('I lack permissions to change my avatar in this server.'));
         } else if (err.code === 50035) {
              container.addTextDisplayComponents(td => td.setContent('Invalid image form body (too large or unsupported).'));
         } else {

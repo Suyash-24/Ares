@@ -99,7 +99,7 @@ export default {
       const existed = Boolean(overwrite);
       try {
         await client.db.updateOne({ guildId: message.guildId }, { $set: { [`moderation.hiddenChannelStates.${channel.id}.r:${role.id}`]: { allow: prevAllow, deny: prevDeny, existed } } }, { upsert: true });
-        // verify persistence
+
         const doc = await client.db.findOne({ guildId: message.guildId }).catch(() => null);
         const stored = doc?.moderation?.hiddenChannelStates?.[channel.id]?.[`r:${role.id}`];
         if (!stored) {
@@ -111,9 +111,9 @@ export default {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} DB Error`, 'Failed to persist previous overwrite state. Aborting hide to avoid data loss.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
       try {
-        // Mark this as a command-invoked action so logging knows who did it
+
         markCommandInvoker(message.guild.id, 'hide', role.id, message.author);
-        
+
         await channel.permissionOverwrites.edit(role, { ViewChannel: false });
       } catch (err) {
         console.error('[hide] failed to edit overwrite:', err?.stack ?? err?.message ?? err);
@@ -121,7 +121,6 @@ export default {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Action Failed`, `Failed to update permission overwrites. Ensure I have sufficient permissions and role hierarchy.${reason}`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // Send log for channel hide (role)
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_HIDE, {
         executor: message.author,
         channel: channel,
@@ -143,7 +142,7 @@ export default {
       const existed = Boolean(overwrite);
       try {
         await client.db.updateOne({ guildId: message.guildId }, { $set: { [`moderation.hiddenChannelStates.${channel.id}.m:${member.id}`]: { allow: prevAllow, deny: prevDeny, existed } } }, { upsert: true });
-        // verify persistence
+
         const doc = await client.db.findOne({ guildId: message.guildId }).catch(() => null);
         const stored = doc?.moderation?.hiddenChannelStates?.[channel.id]?.[`m:${member.id}`];
         if (!stored) {
@@ -155,9 +154,9 @@ export default {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} DB Error`, 'Failed to persist previous overwrite state. Aborting hide to avoid data loss.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
       try {
-        // Mark this as a command-invoked action so logging knows who did it
+
         markCommandInvoker(message.guild.id, 'hide', member.id, message.author);
-        
+
         await channel.permissionOverwrites.edit(member, { ViewChannel: false });
       } catch (err) {
         console.error('[hide] failed to edit overwrite:', err?.stack ?? err?.message ?? err);
@@ -165,7 +164,6 @@ export default {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Action Failed`, `Failed to update permission overwrites. Ensure I have sufficient permissions and role hierarchy.${reason}`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // Send log for channel hide (member)
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_HIDE, {
         executor: message.author,
         target: member.user,

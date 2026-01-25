@@ -34,10 +34,10 @@ const CONFIG_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../
 async function initializeAntinuke(client) {
 	const engine = new AntiNukeEngine(client);
 	await engine.initialize();
-	
+
 	client.antinuke = engine;
 	console.log('🛡️ [Antinuke] System ready');
-	
+
 	return engine;
 }
 
@@ -47,7 +47,6 @@ export async function bootstrap(client, __dirname) {
 	client.shoukaku = initializeShoukaku(client, config);
 	client.queue = new Map();
 
-	// Initialize database manager
 	await DatabaseManager.initialize();
 	client.db = DatabaseManager.getGuilds();
 	console.log(`✅ Database initialized: ${DatabaseManager.getType()}`);
@@ -58,7 +57,7 @@ export async function bootstrap(client, __dirname) {
 
 	const slashCommands = await loadSlashCommands(client, __dirname);
 	await loadPrefixCommands(client, __dirname);
-	
+
 	client.components.set(recommendationHandler.customId, recommendationHandler);
 	client.components.set(musicControlHandler.customId, musicControlHandler);
 
@@ -70,66 +69,50 @@ export async function bootstrap(client, __dirname) {
 	registerReadyEvent(client, config);
 	registerButtonInteraction(client);
 	registerModalInteraction(client);
-	
-	// Register logging event handlers
+
 	registerLoggingEvents(client);
 
-	// Register antinuke protection handlers with whitelist integration
 	registerAntinukeProtection(client);
 
-	// Register starboard event handler
 	registerStarboardHandler(client);
 
-	// Register bump reminder handler
 	registerBumpReminderHandler(client);
 
-	// Register automod message handler
 	registerAutomodHandler(client);
 
-	// Register antiraid handler
 	registerAntiraidHandler(client);
 
-	// Register birthday handler
 	registerBirthdayHandler(client);
 
-	// Register AFK handler
 	registerAfkHandler(client);
 	registerVoiceLeveling(client);
 
-	// Register snipe events (for snipe, editsnipe, reactionsnipe commands)
 	registerSnipeEvents(client);
 
-	// Register trigger/autoresponder handler
 	registerTriggerHandler(client);
 
 	await initializeAntinuke(client);
 
-	// Initialize giveaway handler (schedules active giveaways)
 	initGiveawayHandler(client);
 
-	// Register ticket handler
 	client.on('interactionCreate', (interaction) => ticketHandler(client, interaction));
 
-	// Register ticket auto-close on member leave
 	client.on('guildMemberRemove', async (member) => {
 		try {
 			const guildData = await client.db.findOne({ guildId: member.guild.id });
 			if (!guildData?.tickets?.length) return;
 
-			// Find open tickets for this user
 			const userTickets = guildData.tickets.filter(t => t.userId === member.id && !t.closed);
 			if (!userTickets.length) return;
 
 			for (const ticket of userTickets) {
-				// Get panel config to check if auto-close is enabled
+
 				const panel = guildData.ticketPanels?.find(p => p.messageId === ticket.panelMessageId);
 				if (!panel?.config?.autoCloseOnLeave) continue;
 
-				// Close the ticket
 				const channel = await member.guild.channels.fetch(ticket.channelId).catch(() => null);
 				if (!channel) continue;
 
-				// Update DB
 				const idx = guildData.tickets.findIndex(t => t.channelId === ticket.channelId);
 				if (idx !== -1) {
 					guildData.tickets[idx].closed = true;
@@ -139,7 +122,6 @@ export async function bootstrap(client, __dirname) {
 
 				await channel.setName(`closed-${ticket.ticketId.toString().padStart(4, '0')}`).catch(() => {});
 
-				// Send message in channel
 				const { ContainerBuilder, SeparatorSpacingSize, ActionRowBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = await import('discord.js');
 				const container = new ContainerBuilder()
 					.addTextDisplayComponents(td => td.setContent(`# 🔒 Ticket Auto-Closed\nThe ticket owner <@${member.id}> left the server.`))
@@ -161,7 +143,6 @@ export async function bootstrap(client, __dirname) {
 		}
 	});
 
-	// Start ticket inactivity scheduler
 	startInactivityScheduler(client);
 
 	await client.login(token);
@@ -216,7 +197,7 @@ async function loadSlashCommands(discordClient, __dirname) {
 	const commandFiles = await collectCommandFiles(slashRoot);
 	const slashData = [];
 	const DISABLED_SLASH = new Set([
-		// Trim low-usage moderation utilities to stay under the 100 global command cap
+
 		'fluxfiles', 'crimefile', 'detain', 'detainlist', 'voidstaff', 'raidwipe', 'unbanall', 'massban', 'snapshot'
 	]);
 
@@ -228,7 +209,7 @@ async function loadSlashCommands(discordClient, __dirname) {
 		const command = module.default ?? module;
 
 		if (!command?.data || typeof command.execute !== 'function') {
-			// Silently skip utility files or incomplete commands
+
 			skippedCount++;
 			continue;
 		}
@@ -271,7 +252,7 @@ async function loadPrefixCommands(discordClient, __dirname) {
 		const command = module.default ?? module;
 
 		if (!command?.name || typeof command.execute !== 'function') {
-			// Silently skip
+
 			skippedCount++;
 			continue;
 		}
@@ -290,7 +271,7 @@ async function loadPrefixCommands(discordClient, __dirname) {
 				if (!aliasKey) continue;
 
 				if (discordClient.prefixCommands.has(aliasKey) || discordClient.prefixAliases.has(aliasKey)) {
-					// Silently ignore conflicts or let them override depending on order, but supressing log
+
 					continue;
 				}
 

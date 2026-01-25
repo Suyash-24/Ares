@@ -27,7 +27,6 @@ export default {
 			return;
 		}
 
-		
 		if (interaction.message && queue.nowPlayingMessageId && interaction.message.id !== queue.nowPlayingMessageId) {
 			await disableInteractionMessage(interaction).catch(() => {});
 			await interaction.followUp({ content: '⛔ This panel is no longer active.', ephemeral: true }).catch(() => {});
@@ -109,7 +108,6 @@ async function updateControlButtons(interaction, queue) {
 		return;
 	}
 
-
 	const buildControlRow = () => new ActionRowBuilder().addComponents(
 		new ButtonBuilder()
 			.setCustomId('music_previous')
@@ -128,7 +126,6 @@ async function updateControlButtons(interaction, queue) {
 	const updatedComponents = message.components?.map((topLevel) => {
 		const topJson = topLevel.toJSON ? topLevel.toJSON() : topLevel;
 
-		
 		if (Array.isArray(topJson.components) && topJson.components.some((c) => Array.isArray(c.components))) {
 			const newContainer = { ...topJson };
 			newContainer.components = topJson.components.map((childRow) => {
@@ -189,4 +186,3 @@ async function disableInteractionMessage(interaction) {
 		await message.edit({ components: updated, flags: MessageFlags.IsComponentsV2 });
 	}
 }
-

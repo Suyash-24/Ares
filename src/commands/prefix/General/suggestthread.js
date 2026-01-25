@@ -40,7 +40,6 @@ export default {
       return false;
     };
 
-    // Admin: Enable/Disable suggestion threads
     if (subcommand === 'enable') {
       if (!(await requireAdmin())) return;
 
@@ -87,7 +86,6 @@ export default {
       });
     }
 
-    // Admin: Configure channel
     if (subcommand === 'channel') {
       if (!(await requireAdmin())) return;
 
@@ -163,12 +161,10 @@ export default {
       }
     }
 
-    // Check if suggestion threads are enabled
     if (!config.suggestThreadEnabled || !config.suggestThreadChannelId) {
-      return; // Silently ignore when disabled
+      return;
     }
 
-    // Regular member: Create suggestion thread in configured channel
     const channelInput = args[0];
     const threadName = args[1];
     const suggestionText = args.slice(2).join(' ');
@@ -207,7 +203,7 @@ export default {
     }
 
     try {
-      // Use the configured channel instead of user input
+
       const channel = await message.guild.channels.fetch(config.suggestThreadChannelId);
 
       if (!channel) {
@@ -222,11 +218,11 @@ export default {
       }
 
       const thread = await channel.threads.create({
-        name: channelInput, // First arg is now the thread name
+        name: channelInput,
         autoArchiveDuration: 60
       });
 
-      const suggestionContent = `**Suggestion from ${message.author.username}** (ID: ${message.author.id})\n\n${threadName}`; // Second arg is now the content
+      const suggestionContent = `**Suggestion from ${message.author.username}** (ID: ${message.author.id})\n\n${threadName}`;
       await thread.send(suggestionContent);
 
       await saveSuggestionThread(message.client, message.guild.id, thread.id);

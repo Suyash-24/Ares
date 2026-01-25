@@ -19,7 +19,7 @@ export default {
   category: 'Moderation',
 
   async execute(message, args, client) {
-    // Check if user can use modstats command
+
     const canUse = await ModerationPermissions.canUseCommand(message.member, 'modstats', client, message.guildId);
     if (!canUse.allowed) {
       const container = new ContainerBuilder();

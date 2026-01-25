@@ -22,25 +22,22 @@ const aliases = ['leaderboards', 'rankings', 'topstats'];
 
 const PER_PAGE = 10;
 
-/**
- * Build top panel with pagination
- */
 function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview', pageNum = 0) {
 	const container = new ContainerBuilder();
 
 	const iconUrl = guild.iconURL({ size: 64, extension: 'png' });
 	const headerText = `# ${EMOJIS.trophy || '🏆'} Top — ${guild.name}`;
-	
+
 	container.addTextDisplayComponents(td => td.setContent(headerText));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
 	switch (page) {
 		case 'overview': {
-			// Combined overview of top 5 each
+
 			container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.messages || '💬'} Top Message Users`));
-			
+
 			if (data.topMessages.length > 0) {
-				const list = data.topMessages.slice(0, 5).map((u, i) => 
+				const list = data.topMessages.slice(0, 5).map((u, i) =>
 					`**#${i + 1}** <@${u.userId}> — ${formatNumber(u.count)} msgs`
 				).join('\n');
 				container.addTextDisplayComponents(td => td.setContent(list));
@@ -50,9 +47,9 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.voicestats || '🎤'} Top Voice Users`));
-			
+
 			if (data.topVoice.length > 0) {
-				const list = data.topVoice.slice(0, 5).map((u, i) => 
+				const list = data.topVoice.slice(0, 5).map((u, i) =>
 					`**#${i + 1}** <@${u.userId}> — ${formatVoiceTime(u.minutes)}`
 				).join('\n');
 				container.addTextDisplayComponents(td => td.setContent(list));
@@ -64,11 +61,11 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 
 		case 'msg-users': {
 			container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.messages || '💬'} Top Message Users`));
-			
+
 			const totalPages = Math.max(1, Math.ceil(data.topMessages.length / PER_PAGE));
 			const currentPage = Math.min(Math.max(0, pageNum), totalPages - 1);
 			const slice = data.topMessages.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE);
-			
+
 			if (slice.length > 0) {
 				const list = slice.map((u, i) => {
 					const rank = currentPage * PER_PAGE + i + 1;
@@ -78,7 +75,7 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 			} else {
 				container.addTextDisplayComponents(td => td.setContent('*No activity recorded*'));
 			}
-			
+
 			if (totalPages > 1) {
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`Page ${currentPage + 1}/${totalPages}`));
@@ -88,11 +85,11 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 
 		case 'voice-users': {
 			container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.voicestats || '🎤'} Top Voice Users`));
-			
+
 			const totalPages = Math.max(1, Math.ceil(data.topVoice.length / PER_PAGE));
 			const currentPage = Math.min(Math.max(0, pageNum), totalPages - 1);
 			const slice = data.topVoice.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE);
-			
+
 			if (slice.length > 0) {
 				const list = slice.map((u, i) => {
 					const rank = currentPage * PER_PAGE + i + 1;
@@ -102,7 +99,7 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 			} else {
 				container.addTextDisplayComponents(td => td.setContent('*No activity recorded*'));
 			}
-			
+
 			if (totalPages > 1) {
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`Page ${currentPage + 1}/${totalPages}`));
@@ -112,11 +109,11 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 
 		case 'msg-channels': {
 			container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.channelstats || '📁'} Top Message Channels`));
-			
+
 			const totalPages = Math.max(1, Math.ceil(data.topMsgChannels.length / PER_PAGE));
 			const currentPage = Math.min(Math.max(0, pageNum), totalPages - 1);
 			const slice = data.topMsgChannels.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE);
-			
+
 			if (slice.length > 0) {
 				const list = slice.map((c, i) => {
 					const rank = currentPage * PER_PAGE + i + 1;
@@ -126,7 +123,7 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 			} else {
 				container.addTextDisplayComponents(td => td.setContent('*No activity recorded*'));
 			}
-			
+
 			if (totalPages > 1) {
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`Page ${currentPage + 1}/${totalPages}`));
@@ -136,11 +133,11 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 
 		case 'voice-channels': {
 			container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.voicestats || '🎤'} Top Voice Channels`));
-			
+
 			const totalPages = Math.max(1, Math.ceil(data.topVoiceChannels.length / PER_PAGE));
 			const currentPage = Math.min(Math.max(0, pageNum), totalPages - 1);
 			const slice = data.topVoiceChannels.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE);
-			
+
 			if (slice.length > 0) {
 				const list = slice.map((c, i) => {
 					const rank = currentPage * PER_PAGE + i + 1;
@@ -150,7 +147,7 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 			} else {
 				container.addTextDisplayComponents(td => td.setContent('*No activity recorded*'));
 			}
-			
+
 			if (totalPages > 1) {
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`Page ${currentPage + 1}/${totalPages}`));
@@ -161,7 +158,6 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Page selector buttons (row 1)
 	container.addActionRowComponents(row => {
 		row.addComponents(
 			new ButtonBuilder()
@@ -180,7 +176,6 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 		return row;
 	});
 
-	// Channel selector + pagination (row 2)
 	container.addActionRowComponents(row => {
 		const buttons = [
 			new ButtonBuilder()
@@ -193,7 +188,6 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 				.setStyle(page === 'voice-channels' ? ButtonStyle.Primary : ButtonStyle.Secondary)
 		];
 
-		// Add pagination if not overview
 		if (page !== 'overview') {
 			let dataLen = 0;
 			if (page === 'msg-users') dataLen = data.topMessages.length;
@@ -228,38 +222,32 @@ function buildTopPanel(guild, stats, data, authorId, botName, page = 'overview',
 	return container;
 }
 
-/**
- * Get all required data
- */
 async function getTopData(client, guildId) {
 	const stats = await ensureStatsConfig(client.db, guildId);
 	const topMessages = getTopMessageUsers(stats, 100);
 	let topVoice = getTopVoiceUsers(stats, 100);
 	const topMsgChannels = getTopMessageChannels(stats, 100);
 	const topVoiceChannels = getTopVoiceChannels(stats, 100);
-	
-	// Merge with active voice sessions (current/live voice time)
+
 	const activeSessions = getActiveVoiceSessions(guildId);
 	if (activeSessions.length > 0) {
 		for (const active of activeSessions) {
 			const activeMinutes = Math.floor(active.duration / 60000);
 			const existingIndex = topVoice.findIndex(v => v.userId === active.userId);
-			
+
 			if (existingIndex >= 0) {
 				topVoice[existingIndex].minutes += activeMinutes;
 			} else {
 				topVoice.push({ userId: active.userId, minutes: activeMinutes });
 			}
 		}
-		
-		// Re-sort after merging
+
 		topVoice = topVoice.sort((a, b) => b.minutes - a.minutes).slice(0, 100);
 	}
-	
+
 	return { stats, topMessages, topVoice, topMsgChannels, topVoiceChannels };
 }
 
-// Component handlers
 const components = [
 	{
 		customId: /^top_page:(\d+):(overview|msg-users|voice-users|msg-channels|voice-channels):(-?\d+)$/,

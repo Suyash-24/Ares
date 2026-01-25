@@ -7,7 +7,6 @@ export class ModerationPermissions {
 		HEADMOD: 'headmod'
 	};
 
-	// Define which commands each role can use
 	static ROLE_COMMANDS = {
 		support: ['warn', 'delete'],
 		mod: ['warn', 'delete', 'kick', 'mute', 'unmute', 'imute', 'iunmute', 'rmute', 'runmute', 'warnings', 'crimefile', 'modhistory', 'modstats'],
@@ -34,7 +33,7 @@ export class ModerationPermissions {
 			}
 
 			const guildData = await client.db.findOne({ guildId });
-			
+
 			if (!guildData || !guildData.moderation) {
 				return false;
 			}
@@ -62,10 +61,10 @@ export class ModerationPermissions {
 
 	static compareRoles(role1, role2) {
 		if (!role1 || !role2) return 0;
-		
+
 		const pos1 = role1.position || (role1.isOwner ? Infinity : 0);
 		const pos2 = role2.position || (role2.isOwner ? Infinity : 0);
-		
+
 		if (pos1 > pos2) return 1;
 		if (pos1 < pos2) return -1;
 		return 0;
@@ -78,7 +77,7 @@ export class ModerationPermissions {
 
 		const moderatorHighest = this.getHighestRole(moderator);
 		const targetHighest = this.getHighestRole(target);
-		
+
 		if (!targetHighest) {
 			return { valid: true };
 		}
@@ -103,7 +102,7 @@ export class ModerationPermissions {
 
 	static async validatePermission(member, target, client, guildId, level) {
 		const discordPerms = this.DISCORD_PERMISSIONS[level];
-		
+
 		const hasDefaultPerm = await this.hasDefaultPermission(member, discordPerms);
 		const hasCustomRole = await this.hasCustomRole(member, client, guildId, level);
 
@@ -120,19 +119,17 @@ export class ModerationPermissions {
 	}
 
 	static async canUseCommand(member, commandName, client, guildId) {
-		// Check if user is server owner (always allowed)
+
 		if (member.id === member.guild.ownerId) {
 			return { allowed: true, reason: 'owner' };
 		}
 
-		// Check Manage Messages for general moderation
 		if (member.permissions.has('ManageMessages')) {
 			return { allowed: true, reason: 'discord_permission' };
 		}
 
-		// Check if user has a moderation role
 		const roleOrder = ['headmod', 'mod', 'support'];
-		
+
 		for (const role of roleOrder) {
 			const hasRole = await this.hasCustomRole(member, client, guildId, role);
 			if (hasRole) {

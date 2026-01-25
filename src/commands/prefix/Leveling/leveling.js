@@ -63,7 +63,7 @@ export const buildDashboard = (leveling, authorId) => {
 			.setPlaceholder('Choose announce channel (if channel mode)')
 			.setMinValues(0)
 			.setMaxValues(1)
-			.addChannelTypes(0, 5) // GuildText, GuildAnnouncement
+			.addChannelTypes(0, 5)
 	);
 
 	const navRow = new ActionRowBuilder().addComponents(
@@ -86,14 +86,13 @@ export const buildDashboard = (leveling, authorId) => {
 export const buildSettings = (leveling, authorId) => {
 	const container = new ContainerBuilder();
 	const xp = leveling.xp || {};
-	
+
 	container.addTextDisplayComponents(td => td.setContent(`# ⚙️ XP Settings`));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// XP Info display
+
 	const textXp = xp.text || { enabled: true, minXp: 15, maxXp: 25 };
 	const voiceXp = xp.voice || { enabled: true, minXp: 10, maxXp: 20 };
-	
+
 	container.addTextDisplayComponents(td => td.setContent(
 		`**Text XP:** ${textXp.enabled !== false ? `${textXp.minXp}-${textXp.maxXp} per message` : 'Disabled'}\n` +
 		`**Voice XP:** ${voiceXp.enabled !== false ? `${voiceXp.minXp}-${voiceXp.maxXp} per minute` : 'Disabled'}\n` +
@@ -101,16 +100,14 @@ export const buildSettings = (leveling, authorId) => {
 		`**Multiplier:** x${formatNumber(xp.multiplier || 1)}`
 	));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Multiplier controls
+
 	const multiplierRow = new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`leveling_mult_down:${authorId}`).setLabel('−0.5x').setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_mult_up:${authorId}`).setLabel('+0.5x').setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_mult_double:${authorId}`).setLabel('2x Event').setStyle(ButtonStyle.Success),
 		new ButtonBuilder().setCustomId(`leveling_mult_reset:${authorId}`).setLabel('Reset (1x)').setStyle(ButtonStyle.Danger)
 	);
-	
-	// Cooldown controls
+
 	const cooldownRow = new ActionRowBuilder().addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId(`leveling_cooldown_select:${authorId}`)
@@ -129,8 +126,7 @@ export const buildSettings = (leveling, authorId) => {
 				{ label: '5 minutes', value: '300000', default: (xp.cooldownMs || 60000) === 300000 }
 			])
 	);
-	
-	// Text XP range
+
 	const textXpRow = new ActionRowBuilder().addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId(`leveling_textxp_select:${authorId}`)
@@ -147,8 +143,7 @@ export const buildSettings = (leveling, authorId) => {
 				{ label: '30-50 XP (extremely fast)', value: '30:50', default: textXp.minXp === 30 && textXp.maxXp === 50 }
 			])
 	);
-	
-	// Voice XP range
+
 	const voiceXpRow = new ActionRowBuilder().addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId(`leveling_voicexp_select:${authorId}`)
@@ -164,10 +159,9 @@ export const buildSettings = (leveling, authorId) => {
 				{ label: '25-50 XP/min (extremely fast)', value: '25:50', default: voiceXp.minXp === 25 && voiceXp.maxXp === 50 }
 			])
 	);
-	
+
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Toggle row
+
 	const toggleRow = new ActionRowBuilder().addComponents(
 		new ButtonBuilder()
 			.setCustomId(`leveling_textxp_toggle:${authorId}`)
@@ -179,13 +173,13 @@ export const buildSettings = (leveling, authorId) => {
 			.setStyle(voiceXp.enabled !== false ? ButtonStyle.Success : ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_nav_back:${authorId}`).setLabel('← Back').setStyle(ButtonStyle.Secondary)
 	);
-	
+
 	container.addActionRowComponents(multiplierRow);
 	container.addActionRowComponents(cooldownRow);
 	container.addActionRowComponents(textXpRow);
 	container.addActionRowComponents(voiceXpRow);
 	container.addActionRowComponents(toggleRow);
-	
+
 	return container;
 };
 
@@ -298,16 +292,14 @@ export const buildWizard = (leveling, authorId) => {
 	const container = new ContainerBuilder();
 	container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.wand || '🪄'} Quick Setup`));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Status summary
+
 	container.addTextDisplayComponents(td => td.setContent(
 		`**Current Status:** ${leveling.enabled ? '✅ Enabled' : '❌ Disabled'}\n` +
 		`**XP Rate:** x${formatNumber(leveling.xp?.multiplier || 1)} • **Cooldown:** ${(leveling.xp?.cooldownMs || 0) / 1000}s\n` +
 		`**Cleanup:** Leave: ${leveling.autoCleanup?.leave ? '🟢' : '⚪'} • Kick: ${leveling.autoCleanup?.kick ? '🟢' : '⚪'} • Ban: ${leveling.autoCleanup?.ban ? '🟢' : '⚪'}`
 	));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Step 1: Enable/Disable
+
 	container.addTextDisplayComponents(td => td.setContent('**Step 1:** Enable leveling'));
 	const toggleRow = new ActionRowBuilder().addComponents(
 		new ButtonBuilder()
@@ -315,8 +307,7 @@ export const buildWizard = (leveling, authorId) => {
 			.setLabel(leveling.enabled ? 'Disable Leveling' : 'Enable Leveling')
 			.setStyle(leveling.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
 	);
-	
-	// Step 2: Announce mode
+
 	container.addTextDisplayComponents(td => td.setContent('**Step 2:** Choose where level-up messages appear'));
 	const announceRow = new ActionRowBuilder().addComponents(
 		new StringSelectMenuBuilder()
@@ -339,8 +330,7 @@ export const buildWizard = (leveling, authorId) => {
 			.setMaxValues(1)
 			.addChannelTypes(0, 5)
 	);
-	
-	// Step 3: XP settings
+
 	container.addTextDisplayComponents(td => td.setContent('**Step 3:** Adjust XP rate and cooldown'));
 	const xpRow = new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`leveling_mult_down:${authorId}`).setLabel('−0.1 Rate').setStyle(ButtonStyle.Secondary),
@@ -349,19 +339,17 @@ export const buildWizard = (leveling, authorId) => {
 		new ButtonBuilder().setCustomId(`leveling_cooldown_up:${authorId}`).setLabel('+5s CD').setStyle(ButtonStyle.Secondary)
 	);
 
-	// Step 4: Cleanup behavior
 	container.addTextDisplayComponents(td => td.setContent('**Step 4:** Handle members who leave / are kicked / banned'));
 	const cleanupNavRow = new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`leveling_nav_cleanup:${authorId}`).setLabel('Open Auto Cleanup').setStyle(ButtonStyle.Secondary)
 	);
-	
-	// Navigation
+
 	const navRow = new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`leveling_nav_rewards:${authorId}`).setLabel('⭐ Role Rewards').setStyle(ButtonStyle.Primary),
 		new ButtonBuilder().setCustomId(`leveling_nav_ignores:${authorId}`).setLabel('🚫 No XP').setStyle(ButtonStyle.Primary),
 		new ButtonBuilder().setCustomId(`leveling_nav_back:${authorId}`).setLabel('← Back').setStyle(ButtonStyle.Secondary)
 	);
-	
+
 	container.addActionRowComponents(toggleRow);
 	container.addActionRowComponents(announceRow);
 	container.addActionRowComponents(channelRow);
@@ -406,19 +394,17 @@ export const buildCleanup = (leveling, authorId) => {
 export const buildMessageEditor = (leveling, authorId) => {
 	const container = new ContainerBuilder();
 	const msg = leveling.announce?.message || {};
-	
+
 	container.addTextDisplayComponents(td => td.setContent(`# ✉️ Level-up Message Editor`));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Variable reference
+
 	container.addTextDisplayComponents(td => td.setContent(
 		`**Available Variables:**\n` +
 		`\`{user.mention}\` \`{user.name}\` \`{user.avatar}\` \`{level}\` \`{xp}\`\n` +
 		`\`{server}\` \`{server.icon}\` \`{server.members}\` \`{timestamp}\``
 	));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Current preview
+
 	const preview = [];
 	if (msg.content) preview.push(`**Content:** ${msg.content.substring(0, 50)}${msg.content.length > 50 ? '...' : ''}`);
 	if (msg.title) preview.push(`**Title:** ${msg.title}`);
@@ -426,21 +412,19 @@ export const buildMessageEditor = (leveling, authorId) => {
 	if (msg.thumbnail) preview.push(`**Thumbnail:** ✅`);
 	if (msg.image) preview.push(`**Image:** ✅`);
 	if (msg.footer) preview.push(`**Footer:** ${msg.footer}`);
-	
+
 	container.addTextDisplayComponents(td => td.setContent(
 		preview.length ? `**Current Setup:**\n${preview.join('\n')}` : '*No custom message configured. Using default.*'
 	));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
-	// Edit buttons - Row 1: Text fields
+
 	const row1 = new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`leveling_msg_content:${authorId}`).setLabel('Content').setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_msg_title:${authorId}`).setLabel('Title').setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_msg_body:${authorId}`).setLabel('Body').setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_msg_footer:${authorId}`).setLabel('Footer').setStyle(ButtonStyle.Secondary)
 	);
-	
-	// Row 2: Media and actions
+
 	const row2 = new ActionRowBuilder().addComponents(
 		new ButtonBuilder().setCustomId(`leveling_msg_thumbnail:${authorId}`).setLabel('Thumbnail').setStyle(ButtonStyle.Secondary),
 		new ButtonBuilder().setCustomId(`leveling_msg_image:${authorId}`).setLabel('Image').setStyle(ButtonStyle.Secondary),
@@ -448,7 +432,7 @@ export const buildMessageEditor = (leveling, authorId) => {
 		new ButtonBuilder().setCustomId(`leveling_msg_reset:${authorId}`).setLabel('🗑️ Reset').setStyle(ButtonStyle.Danger),
 		new ButtonBuilder().setCustomId(`leveling_nav_back:${authorId}`).setLabel('← Back').setStyle(ButtonStyle.Secondary)
 	);
-	
+
 	container.addActionRowComponents(row1);
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	container.addActionRowComponents(row2);
@@ -793,7 +777,7 @@ const components = [
 			const [, authorId] = interaction.customId.match(/^leveling_rewards_syncnow:(\d+)$/) || [];
 			const leveling = await handleDashboard(interaction, authorId);
 			if (!leveling) return;
-			// Best-effort apply rewards to all cached members
+
 			try {
 				const members = await interaction.guild.members.fetch();
 				for (const member of members.values()) {
@@ -880,7 +864,7 @@ const components = [
 			await updatePanel(interaction, leveling, authorId);
 		}
 	},
-	// Message Editor Navigation
+
 	{
 		customId: /^leveling_nav_message:(\d+)$/,
 		execute: async (interaction) => {
@@ -891,16 +875,16 @@ const components = [
 			await interaction.update({ components: [panel], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS }).catch(() => {});
 		}
 	},
-	// Message field modals
+
 	{
 		customId: /^leveling_msg_(content|title|body|footer|thumbnail|image):(\d+)$/,
 		execute: async (interaction) => {
 			const [, field, authorId] = interaction.customId.match(/^leveling_msg_(content|title|body|footer|thumbnail|image):(\d+)$/) || [];
 			if (interaction.user.id !== authorId) return interaction.reply({ content: '❌ Locked to the invoker.', ephemeral: true });
-			
+
 			const leveling = await ensureLevelingConfig(interaction.client.db, interaction.guildId);
 			const msg = leveling.announce?.message || {};
-			
+
 			const fieldConfig = {
 				content: { label: 'Content (plain text)', placeholder: '{user.mention} leveled up!', max: 2000, style: TextInputStyle.Paragraph, current: msg.content },
 				title: { label: 'Title', placeholder: '🎉 Level Up!', max: 256, style: TextInputStyle.Short, current: msg.title },
@@ -909,12 +893,12 @@ const components = [
 				thumbnail: { label: 'Thumbnail URL', placeholder: '{user.avatar} or {server.icon} or https://...', max: 500, style: TextInputStyle.Short, current: msg.thumbnail },
 				image: { label: 'Image URL', placeholder: '{user.banner} or https://...', max: 500, style: TextInputStyle.Short, current: msg.image }
 			};
-			
+
 			const cfg = fieldConfig[field];
 			const modal = new ModalBuilder()
 				.setCustomId(`leveling_msg_modal:${field}:${authorId}`)
 				.setTitle(`Edit ${cfg.label}`);
-			
+
 			const input = new TextInputBuilder()
 				.setCustomId('value')
 				.setLabel(cfg.label)
@@ -922,24 +906,23 @@ const components = [
 				.setStyle(cfg.style)
 				.setMaxLength(cfg.max)
 				.setRequired(false);
-			
+
 			if (cfg.current) input.setValue(cfg.current);
-			
+
 			modal.addComponents(new ActionRowBuilder().addComponents(input));
 			await interaction.showModal(modal);
 		}
 	},
-	// Message preview
+
 	{
 		customId: /^leveling_msg_preview:(\d+)$/,
 		execute: async (interaction) => {
 			const [, authorId] = interaction.customId.match(/^leveling_msg_preview:(\d+)$/) || [];
 			const leveling = await handleDashboard(interaction, authorId);
 			if (!leveling) return;
-			
+
 			const msg = leveling.announce?.message || {};
-			
-			// Variable replacement helper
+
 			const replaceVars = (str) => {
 				if (!str) return str;
 				return str
@@ -953,8 +936,7 @@ const components = [
 					.replace(/{server\.members}/g, interaction.guild.memberCount.toString())
 					.replace(/{timestamp}/g, new Date().toLocaleString());
 			};
-			
-			// Variable replacement for components (uses actual mentions)
+
 			const replaceVarsNoPing = (str) => {
 				if (!str) return str;
 				return str
@@ -968,11 +950,11 @@ const components = [
 					.replace(/{server\.members}/g, interaction.guild.memberCount.toString())
 					.replace(/{timestamp}/g, new Date().toLocaleString());
 			};
-			
+
 			const hasCustom = msg.content || msg.title || msg.body || msg.thumbnail || msg.footer || msg.image;
-			
+
 			if (!hasCustom) {
-				// Default preview
+
 				const previewContainer = new ContainerBuilder();
 				previewContainer.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Level Up!`));
 				previewContainer.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -982,24 +964,22 @@ const components = [
 				await interaction.reply({ components: [previewContainer], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral, allowedMentions: { parse: ['users'] } });
 				return;
 			}
-			
-			// Build custom preview
+
 			const previewContainer = new ContainerBuilder();
 			let hasContainerContent = false;
-			
+
 			if (msg.title) {
 				previewContainer.addTextDisplayComponents(td => td.setContent(`**${replaceVarsNoPing(msg.title)}**`));
 				previewContainer.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				hasContainerContent = true;
 			}
-			
-			// Body with thumbnail accessory in section
+
 			if (msg.body || msg.thumbnail) {
 				const thumbUrl = msg.thumbnail ? (replaceVars(msg.thumbnail) || '').trim() : null;
 				const validThumb = thumbUrl && thumbUrl.startsWith('http');
-				
+
 				if (validThumb) {
-					// Use section with thumbnail
+
 					previewContainer.addSectionComponents(section => {
 						const bodyText = msg.body ? replaceVarsNoPing(msg.body) : '\u200b';
 						section.addTextDisplayComponents(td => td.setContent(bodyText));
@@ -1007,7 +987,7 @@ const components = [
 						return section;
 					});
 				} else if (msg.body) {
-					// Just body text, no thumbnail
+
 					previewContainer.addTextDisplayComponents(td => td.setContent(replaceVarsNoPing(msg.body)));
 				}
 				hasContainerContent = true;
@@ -1015,8 +995,7 @@ const components = [
 				previewContainer.addTextDisplayComponents(td => td.setContent(replaceVarsNoPing(msg.body)));
 				hasContainerContent = true;
 			}
-			
-			// Add image as MediaGallery if provided
+
 			if (msg.image) {
 				const imgUrl = (replaceVars(msg.image) || '').trim();
 				if (imgUrl && imgUrl.startsWith('http')) {
@@ -1025,28 +1004,28 @@ const components = [
 					hasContainerContent = true;
 				}
 			}
-			
+
 			if (msg.footer) {
 				previewContainer.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				previewContainer.addTextDisplayComponents(td => td.setContent(`-# ${replaceVarsNoPing(msg.footer)}`));
 				hasContainerContent = true;
 			}
-			
+
 			const reply = { flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral, allowedMentions: { parse: ['users'] } };
 			const components = [];
-			
+
 			if (msg.content) {
 				components.push(new TextDisplayBuilder().setContent(replaceVars(msg.content)));
 			}
 			if (hasContainerContent) {
 				components.push(previewContainer);
 			}
-			
+
 			reply.components = components;
 			await interaction.reply(reply);
 		}
 	},
-	// Message reset
+
 	{
 		customId: /^leveling_msg_reset:(\d+)$/,
 		execute: async (interaction) => {

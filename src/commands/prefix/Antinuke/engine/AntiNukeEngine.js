@@ -21,7 +21,7 @@ class AntiNukeEngine {
 
         const guildData = await this.client.db.findOne({ guildId });
         const config = guildData?.antinuke || this.getDefaultConfig();
-        
+
         this.cache.set(guildId, { data: config, timestamp: Date.now() });
         return config;
     }
@@ -72,9 +72,9 @@ class AntiNukeEngine {
         const config = await this.getConfig(guildId);
         if (config.extraOwners?.includes(userId)) return true;
         if (config.whitelist?.includes(userId)) return true;
-        // Check if user is an admin with immune flag
-        if (config.admins?.some(admin => 
-            (typeof admin === 'string' ? admin === userId : admin.id === userId) && 
+
+        if (config.admins?.some(admin =>
+            (typeof admin === 'string' ? admin === userId : admin.id === userId) &&
             (typeof admin === 'object' ? admin.immune : false)
         )) return true;
         if (config.admins?.includes(userId)) return true;

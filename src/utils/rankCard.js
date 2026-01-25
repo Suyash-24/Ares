@@ -33,19 +33,16 @@ export async function renderRankCard({
 		const canvas = createCanvas(WIDTH, HEIGHT);
 		const ctx = canvas.getContext('2d');
 
-		// Background
 		const gradient = ctx.createLinearGradient(0, 0, WIDTH, HEIGHT);
 		gradient.addColorStop(0, '#0b1220');
 		gradient.addColorStop(1, '#111827');
 		ctx.fillStyle = gradient;
 		ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-		// Card container
 		ctx.fillStyle = '#0f172a';
 		drawRoundedRect(ctx, PADDING, PADDING, WIDTH - PADDING * 2, HEIGHT - PADDING * 2, 20);
 		ctx.fill();
 
-		// Avatar
 		const avatarUrl = user.displayAvatarURL({ size: 256, extension: 'png' });
 		const avatar = await loadImage(avatarUrl);
 		const avatarX = PADDING * 2;
@@ -58,7 +55,6 @@ export async function renderRankCard({
 		ctx.drawImage(avatar, avatarX, avatarY, AVATAR_SIZE, AVATAR_SIZE);
 		ctx.restore();
 
-		// Text
 		ctx.fillStyle = '#fff';
 		ctx.font = '32px "Segoe UI", "Arial"';
 		ctx.fillText(user.username || 'User', avatarX + AVATAR_SIZE + 24, avatarY + 40);
@@ -66,12 +62,10 @@ export async function renderRankCard({
 		ctx.font = '20px "Segoe UI", "Arial"';
 		ctx.fillText(`#${user.discriminator ?? '0000'}`, avatarX + AVATAR_SIZE + 24, avatarY + 70);
 
-		// Rank position
 		ctx.fillStyle = '#fff';
 		ctx.font = '24px "Segoe UI", "Arial"';
 		ctx.fillText(`Rank #${position ?? '-'}`, avatarX + AVATAR_SIZE + 24, avatarY + 105);
 
-		// Levels and XP
 		const barX = avatarX + AVATAR_SIZE + 24;
 		const barY = avatarY + 170;
 		const barWidth = WIDTH - barX - PADDING * 1.5;

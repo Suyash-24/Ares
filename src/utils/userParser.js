@@ -10,7 +10,7 @@ export async function parseUserInput(input, guild, client) {
 		} catch (guildError) {
 			try {
 				const user = await client.users.fetch(cleaned);
-				// Return a member-like object with the user property
+
 				return {
 					user,
 					id: user.id,
@@ -23,14 +23,13 @@ export async function parseUserInput(input, guild, client) {
 		}
 	}
 
-	// Try to search by username if not a number
 	try {
 		const members = await guild.members.search({ query: input, limit: 1 });
 		if (members.size > 0) {
 			return members.first();
 		}
 	} catch (searchError) {
-		// Silently fail, will return null below
+
 	}
 
 	return null;

@@ -31,7 +31,7 @@ export default {
   category: 'Moderation',
 
   async execute(message, args, client) {
-    // Check if user can use modhistory command
+
     const { ModerationPermissions, getModerationPermissionErrors } = await import('../../../utils/ModerationPermissions.js');
     const canUse = await ModerationPermissions.canUseCommand(message.member, 'modhistory', client, message.guildId);
     if (!canUse.allowed) {
@@ -156,12 +156,10 @@ export default {
         });
       }
 
-      // Pagination: 3 actions per page
       const ACTIONS_PER_PAGE = 3;
       const sortedActions = modActions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).reverse();
       const totalPages = Math.ceil(sortedActions.length / ACTIONS_PER_PAGE);
 
-      // Check if a page number was provided
       let requestedPage = 0;
       if (args[1]) {
         requestedPage = parseInt(args[1]) || 0;
@@ -189,7 +187,6 @@ export default {
             const date = formatDate(action.timestamp);
             const caseNum = action.caseNumber || '?';
 
-            // Get target user display (fetch or use ID)
             const targetDisplay = `<@${action.userId}>`;
 
             const actionText = `${emoji} **#${caseNum} ${type}**\n**Target:** ${targetDisplay}\n**Date:** ${date}\n**Reason:** ${reason}`;
@@ -209,7 +206,6 @@ export default {
           separator.setSpacing(SeparatorSpacingSize.Small)
         );
 
-        // Count actions by type
         const actionCounts = {};
         modActions.forEach(action => {
           actionCounts[action.type] = (actionCounts[action.type] || 0) + 1;
@@ -218,7 +214,6 @@ export default {
         const statEntries = Object.entries(actionCounts)
           .map(([type, count]) => `${getActionEmoji(type)} **${type.toUpperCase()}**: ${count}`);
 
-        // Build summary in rows of 2
         let summaryContent = '**📊 Summary:**\n';
         for (let i = 0; i < statEntries.length; i += 2) {
           const line = [statEntries[i], statEntries[i + 1]].filter(Boolean).join(' | ');
@@ -237,7 +232,6 @@ export default {
           textDisplay.setContent(`**Total Actions: ${modActions.length}** | **Page: ${pageNum + 1}/${totalPages}**`)
         );
 
-        // Add pagination buttons (always visible)
         container.addActionRowComponents((row) => {
           const prevBtn = new ButtonBuilder()
             .setCustomId(`modhistory_prev_${message.author.id}_${moderator.user.id}_${pageNum - 1}`)

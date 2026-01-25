@@ -2,19 +2,16 @@ import { MessageFlags, ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSp
 import EMOJIS from '../../../utils/emojis.js';
 
 const resolveTargetUser = async (message, args) => {
-  // Priority 1: Check for mentioned users in the message content
-  // Filter out the replied-to user from mentions to prioritize explicit mentions
+
   const mentions = message.mentions.users;
   const repliedUserId = message.reference ? (await message.fetchReference().catch(() => null))?.author?.id : null;
-  
-  // Get the first mention that isn't the replied-to user (if replying)
+
   const explicitMention = mentions.find(u => u.id !== repliedUserId) || (mentions.size > 0 && !repliedUserId ? mentions.first() : null);
-  
+
   if (explicitMention) {
     return explicitMention;
   }
 
-  // Priority 2: Check for user ID in args
   if (args.length > 0) {
     const idCandidate = args[0].replace(/[^0-9]/g, '');
 
@@ -27,7 +24,6 @@ const resolveTargetUser = async (message, args) => {
     }
   }
 
-  // Priority 3: If replying to a message without args/mentions, use replied-to user
   if (message.reference) {
     const repliedMessage = await message.fetchReference().catch(() => null);
     if (repliedMessage?.author) {
@@ -35,7 +31,6 @@ const resolveTargetUser = async (message, args) => {
     }
   }
 
-  // Priority 4: Default to message author
   return message.author;
 };
 
@@ -54,18 +49,16 @@ export default {
       return;
     }
 
-    // Force fetch to get banner data
     const fullUser = await message.client.users.fetch(targetUser.id, { force: true });
     const bannerUrl = fullUser.bannerURL({ size: 4096, extension: 'png' });
 
-    // Check if user has a banner
     if (!bannerUrl) {
       const container = new ContainerBuilder();
-      container.addTextDisplayComponents(td => 
+      container.addTextDisplayComponents(td =>
         td.setContent(`# ${EMOJIS.error || '❌'} **No Banner**`)
       );
       container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-      container.addTextDisplayComponents(td => 
+      container.addTextDisplayComponents(td =>
         td.setContent(`${fullUser.tag ?? fullUser.username} doesn't have a banner.`)
       );
       await message.reply({
@@ -76,7 +69,6 @@ export default {
       return;
     }
 
-    // Check if user has a server banner
     const member = message.guild?.members.cache.get(fullUser.id);
     const hasServerBanner = member?.banner ? true : false;
 
@@ -120,7 +112,6 @@ export default {
       return actionRow;
     });
 
-    // Add server banner button on separate row if user has one
     if (hasServerBanner) {
       container.addActionRowComponents((actionRow) => {
         actionRow.setComponents(

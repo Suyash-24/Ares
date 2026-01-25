@@ -19,7 +19,7 @@ export default {
 	category: 'Moderation',
 
 	async execute(message, args, client) {
-		// Preload guild data upfront so it is always in scope (prevents ReferenceError)
+
 		let guildData = await client.db.findOne({ guildId: message.guildId })
 			|| { guildId: message.guildId, moderation: {} };
 		if (!guildData.moderation) guildData.moderation = {};
@@ -94,10 +94,8 @@ export default {
 
 			await target.timeout(null, reason);
 
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'unmute', target.id, message.author);
 
-			// Send mod log
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_UNMUTE, {
 				executor: message.author,
 				target: target.user,
@@ -106,7 +104,6 @@ export default {
 				thumbnail: target.user.displayAvatarURL()
 			});
 
-			// Save action to database
 			try {
 				caseNumber = generateCaseNumber(guildData);
 

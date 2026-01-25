@@ -50,13 +50,11 @@ export default {
     const member = await resolveMember(message.guild, targetArg);
     if (!member) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Member Not Found`, 'Could not find the specified member in this server.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    // Can't edit higher or equal roles than bot
     const botHighest = botMember.roles.highest?.position ?? 0;
     if (member.roles.highest?.position >= botHighest) {
       return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Cannot Modify`, 'I cannot change the nickname of a member with an equal or higher role than me.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Interpret reset
     let newNick = rest;
     if (!newNick || ['reset', 'remove', '-'].includes(newNick.toLowerCase())) newNick = null;
     if (newNick && newNick.length > 32) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Too Long`, 'Nickname must be 32 characters or fewer.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
@@ -64,12 +62,11 @@ export default {
     const oldNick = member.nickname || member.user.username;
 
     try {
-      // Mark this as a command-invoked action so logging knows who did it
+
       markCommandInvoker(message.guild.id, 'nick', member.id, message.author);
-      
+
       await member.setNickname(newNick, `Changed by ${message.author.tag} (${message.author.id})`).catch(e => { throw e; });
-      
-      // Send mod log for nickname change
+
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_NICK, {
         executor: message.author,
         target: member.user,
@@ -77,7 +74,7 @@ export default {
         newNickname: newNick || member.user.username,
         details: newNick ? `Nickname changed to "${newNick}"` : 'Nickname reset'
       });
-      
+
       if (newNick) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Nickname Changed`, `Changed **${member.user.tag}**'s nickname to **${newNick}**.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }

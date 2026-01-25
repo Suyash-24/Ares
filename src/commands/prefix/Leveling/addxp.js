@@ -40,7 +40,6 @@ async function execute(message, args, client) {
 	state.xp += amount;
 	state.totalXp += amount;
 
-	// Check for level ups
 	let leveledUp = false;
 	while (state.xp >= xpToNextLevel(state.level, leveling)) {
 		state.xp -= xpToNextLevel(state.level, leveling);
@@ -49,13 +48,13 @@ async function execute(message, args, client) {
 	}
 
 	await client.db.updateOne({ guildId: message.guildId }, { $set: { leveling } });
-	
+
 	const c = new ContainerBuilder();
 	c.addTextDisplayComponents(td => td.setContent(`## ${EMOJIS.success || '✅'} XP Added`));
 	c.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	const levelMsg = leveledUp ? `\n${EMOJIS.trending || '📈'} Level: **${oldLevel}** → **${state.level}**` : '';
 	c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.star || '⭐'} Added **${amount.toLocaleString()}** XP to **${member.user.username}**${levelMsg}`));
-	
+
 	await message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 }
 

@@ -12,12 +12,10 @@ export default {
 	async execute(message, args, client) {
 		let requestedPage = 0;
 
-		// Check if a page number was provided
 		if (args[0]) {
 			requestedPage = parseInt(args[0]) || 0;
 		}
 
-		// Check if user can use detain-related commands
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'detain', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -100,12 +98,10 @@ export default {
 				});
 			}
 
-			// Pagination: 3 members per page
 			const MEMBERS_PER_PAGE = 3;
 			const totalPages = Math.ceil(detainedUsers.length / MEMBERS_PER_PAGE);
 			const currentPage = Math.min(Math.max(0, requestedPage), totalPages - 1);
 
-			// Build detained members display for a specific page
 			const buildDetainedPage = (pageNum) => {
 				const startIdx = pageNum * MEMBERS_PER_PAGE;
 				const endIdx = startIdx + MEMBERS_PER_PAGE;
@@ -152,7 +148,6 @@ export default {
 					textDisplay.setContent(`**Page:** ${pageNum + 1}/${totalPages} | **Total:** ${detainedUsers.length} detained member${detainedUsers.length === 1 ? '' : 's'}`)
 				);
 
-				// Add buttons inside container using addActionRowComponents
 				if (totalPages > 1) {
 					container.addActionRowComponents((row) => {
 						const prevBtn = new ButtonBuilder()
@@ -175,7 +170,6 @@ export default {
 				return container;
 			};
 
-			// Send initial page
 			const initialContainer = buildDetainedPage(currentPage);
 			await message.reply({
 				components: [initialContainer],
@@ -205,7 +199,6 @@ export default {
 	}
 };
 
-// Helper function to format duration
 function formatDuration(ms) {
 	const seconds = Math.floor(ms / 1000);
 	const minutes = Math.floor(seconds / 60);

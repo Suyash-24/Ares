@@ -10,7 +10,6 @@ const category = 'Server';
 async function execute(message, args, client) {
     const container = new ContainerBuilder();
 
-    // Check permissions - Administrator only
     const isOwner = message.member.id === message.guild.ownerId;
     const isAdmin = message.member.permissions.has(PermissionFlagsBits.Administrator);
     const ownerIds = client.config?.ownerIds || [];
@@ -26,7 +25,7 @@ async function execute(message, args, client) {
     const newPrefix = args[0];
 
     if (!newPrefix) {
-        // Show current prefix and usage
+
         let currentPrefix = client.prefix || '.';
         try {
             const guildData = await client.db.findOne({ guildId: message.guildId });
@@ -37,7 +36,7 @@ async function execute(message, args, client) {
 
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.info || '⚙️'} Set Prefix`));
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        
+
         let content = `**Current Prefix:** \`${currentPrefix}\`\n\n`;
         content += `**Usage:**\n`;
         content += `- \`${currentPrefix}setprefix <symbol>\` — Set new prefix\n`;
@@ -48,7 +47,7 @@ async function execute(message, args, client) {
     }
 
     try {
-        // Reset to global prefix
+
         if (newPrefix.toLowerCase() === 'reset') {
             await client.db.updateOne(
                 { guildId: message.guildId },
@@ -64,7 +63,6 @@ async function execute(message, args, client) {
             return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Validate prefix
         if (newPrefix.length > 5) {
             container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} Invalid Prefix`));
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -79,7 +77,6 @@ async function execute(message, args, client) {
             return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Set new prefix
         await client.db.updateOne(
             { guildId: message.guildId },
             { $set: { prefix: newPrefix } },
@@ -88,7 +85,7 @@ async function execute(message, args, client) {
 
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.success || '✅'} Prefix Updated`));
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        
+
         let content = `**New Prefix:** \`${newPrefix}\`\n\n`;
         content += `> Use \`${newPrefix}help\` to see all commands.\n`;
         content += `> Use \`${newPrefix}setprefix reset\` to revert to default.`;

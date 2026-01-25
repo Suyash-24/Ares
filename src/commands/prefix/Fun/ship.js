@@ -13,7 +13,6 @@ async function execute(message, args, client) {
 	let user1;
 	let user2;
 
-	// Helper to resolve user safely
 	const resolveUser = async (input) => {
 		if (!input) return null;
 		if (message.mentions.users.size > 0 && input.startsWith('<@')) {
@@ -27,16 +26,13 @@ async function execute(message, args, client) {
 
 	if (args.length === 0) {
 		user1 = message.author;
-		// Fetch all members to ensure true randomness (if not already cached)
-        // Optimization: Checking cache size vs memberCount could determine if fetch is needed, 
-        // but fetching ensures we get everyone including offline users.
+
         if (message.guild.memberCount > message.guild.members.cache.size) {
              await message.guild.members.fetch().catch(() => {});
         }
-		
-		// Allow bots, just exclude self
+
 		const randomMember = message.guild.members.cache.filter(m => m.id !== message.author.id).random();
-		user2 = randomMember ? randomMember.user : message.author; 
+		user2 = randomMember ? randomMember.user : message.author;
 	} else if (args[1]) {
 		user1 = await resolveUser(args[0]);
 		user2 = await resolveUser(args[1]);
@@ -46,21 +42,19 @@ async function execute(message, args, client) {
 	}
 
 	if (!user1 || !user2) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Could not resolve one of the users.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Score - Special case for owner + special person
 	const specialId = '1417438096185757748';
 	const owners = client.config?.ownerIds || [];
 	const isOwner1 = owners.includes(user1.id);
 	const isOwner2 = owners.includes(user2.id);
 	const isSpecial1 = user1.id === specialId;
 	const isSpecial2 = user2.id === specialId;
-	
-	// If an owner is shipped with the special person, always 100%
+
 	const isSpecialPair = (isOwner1 && isSpecial2) || (isOwner2 && isSpecial1);
 	const score = isSpecialPair ? 100 : Math.floor(Math.random() * 101);
 	const progress = Math.round(score / 10);
@@ -75,13 +69,12 @@ async function execute(message, args, client) {
 	else if (score > 10) comment = '💔 **Not looking good.** Friendzone territory.';
 	else comment = '💀 **Run away!** Disaster imminent.';
 
-	// Canvas Generation
 	const canvas = createCanvas(700, 250);
 	const ctx = canvas.getContext('2d');
 	let attachment;
 
 	try {
-        // Use global fetch to get buffer
+
 		const avatar1URL = user1.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 		const avatar2URL = user2.displayAvatarURL({ extension: 'png', forceStatic: true, size: 256 });
 
@@ -91,7 +84,6 @@ async function execute(message, args, client) {
 		const avatar1 = await loadImage(Buffer.from(avatar1Buffer));
 		const avatar2 = await loadImage(Buffer.from(avatar2Buffer));
 
-		// Draw Avatar 1 (Left)
 		ctx.save();
 		ctx.beginPath();
 		ctx.arc(125, 125, 100, 0, Math.PI * 2, true);
@@ -100,7 +92,6 @@ async function execute(message, args, client) {
 		ctx.drawImage(avatar1, 25, 25, 200, 200);
 		ctx.restore();
 
-		// Draw Avatar 2 (Right)
 		ctx.save();
 		ctx.beginPath();
 		ctx.arc(575, 125, 100, 0, Math.PI * 2, true);
@@ -109,7 +100,6 @@ async function execute(message, args, client) {
 		ctx.drawImage(avatar2, 475, 25, 200, 200);
 		ctx.restore();
 
-		// Draw Heart in Center
 		ctx.save();
 		ctx.beginPath();
 		ctx.arc(350, 125, 60, 0, Math.PI * 2, true);
@@ -117,22 +107,21 @@ async function execute(message, args, client) {
 		ctx.fill();
 		ctx.restore();
 
-		// Register font from system if not already registered
 		const fontName = 'ShipFont';
 		if (!GlobalFonts.families.some(f => f.family === fontName)) {
-			// Font paths for different operating systems
+
 			const fontPaths = [
-				// Windows paths
+
 				'C:/Windows/Fonts/arial.ttf',
 				'C:/Windows/Fonts/arialbd.ttf',
 				'C:/Windows/Fonts/segoeui.ttf',
-				// Linux paths
+
 				'/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
 				'/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
 				'/usr/share/fonts/TTF/DejaVuSans.ttf',
 				'/usr/share/fonts/dejavu/DejaVuSans.ttf'
 			];
-			
+
 			let fontLoaded = false;
 			for (const fontPath of fontPaths) {
 				try {
@@ -140,14 +129,14 @@ async function execute(message, args, client) {
 					fontLoaded = true;
 					break;
 				} catch {
-					// Try next font path
+
 				}
 			}
 			if (!fontLoaded) {
 				console.warn('[Ship] Could not register any font, text may not render');
 			}
 		}
-		
+
 		ctx.fillStyle = '#FFFFFF';
 		ctx.font = `bold 40px "${fontName}"`;
 		ctx.textAlign = 'center';
@@ -159,37 +148,32 @@ async function execute(message, args, client) {
 		console.error('[Ship] Canvas error details:', e);
 	}
 
-	// 1. Title
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# 💘 Matchmaking 💘`)
 	);
 
-	// 2. Separator
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// 3. Names and Bar
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`🔻 **${user1.username}**\n🔺 **${user2.username}**\n\n**${score}%** ${bar}`)
 	);
 
-	// 4. Image
 	if (attachment) {
 		const gallery = new MediaGalleryBuilder();
-		gallery.addItems((item) => 
+		gallery.addItems((item) =>
 			item.setURL('attachment://ship.png')
 		);
 		container.addMediaGalleryComponents((mg) => gallery);
 	}
 
-	// 5. Comment (below image)
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`### ${comment}`)
 	);
 
-	const replyOptions = { 
-		components: [container], 
-		flags: MessageFlags.IsComponentsV2, 
-		allowedMentions: { repliedUser: false, parse: [] } 
+	const replyOptions = {
+		components: [container],
+		flags: MessageFlags.IsComponentsV2,
+		allowedMentions: { repliedUser: false, parse: [] }
 	};
 	if (attachment) replyOptions.files = [attachment];
 

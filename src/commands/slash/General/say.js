@@ -80,7 +80,6 @@ export default {
       const textToSay = interaction.options.getString('text');
       const targetChannel = interaction.options.getChannel('channel') || interaction.channel;
 
-      
       const botPermissions = targetChannel.permissionsFor(interaction.guild.members.me);
       if (!botPermissions.has(PermissionFlagsBits.SendMessages)) {
         const container = new ContainerBuilder();
@@ -105,9 +104,7 @@ export default {
         return;
       }
 
-     
       await targetChannel.send(textToSay);
-
 
       const container = new ContainerBuilder();
 
@@ -134,19 +131,18 @@ export default {
 
       try {
         let targetMessage = null;
-        
-   
+
         try {
           targetMessage = await interaction.channel.messages.fetch(messageId);
         } catch (err) {
-      
+
           const channels = interaction.guild.channels.cache.filter(ch => ch.isTextBased());
           for (const [, channel] of channels) {
             try {
               targetMessage = await channel.messages.fetch(messageId);
               if (targetMessage) break;
             } catch (e) {
-        
+
             }
           }
         }
@@ -203,12 +199,11 @@ export default {
 
       try {
         let targetMessage = null;
-        
-        
+
         try {
           targetMessage = await interaction.channel.messages.fetch(messageId);
         } catch (err) {
-          
+
           const channels = interaction.guild.channels.cache.filter(ch => ch.isTextBased());
           for (const [, channel] of channels) {
             try {

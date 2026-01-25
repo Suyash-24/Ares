@@ -2,7 +2,6 @@ import { Events, ContainerBuilder, MessageFlags, SeparatorSpacingSize, Permissio
 import EMOJIS from '../utils/emojis.js';
 import { getDefaultConfig } from '../commands/prefix/Anti Raid/antiraid.js';
 
-// Track joins per guild
 const joinCache = new Map();
 
 const getConfig = async (client, guildId) => {
@@ -16,7 +15,7 @@ const saveConfig = async (client, guildId, config) => {
 
 const logAction = async (guild, config, title, description) => {
     if (!config.logChannel) return;
-    
+
     const channel = guild.channels.cache.get(config.logChannel);
     if (!channel) return;
 
@@ -33,8 +32,8 @@ const logAction = async (guild, config, title, description) => {
 
 const lockAllChannels = async (guild, client) => {
     try {
-        const textChannels = guild.channels.cache.filter(c => 
-            c.type === ChannelType.GuildText && 
+        const textChannels = guild.channels.cache.filter(c =>
+            c.type === ChannelType.GuildText &&
             c.permissionsFor(guild.roles.everyone).has(PermissionFlagsBits.SendMessages)
         );
 
@@ -76,9 +75,8 @@ export default function registerAntiraidHandler(client) {
         const guildId = member.guild.id;
         const userId = member.id;
 
-        // --- Whitelist Check ---
         if (config.whitelist && config.whitelist.includes(userId)) {
-            // Remove from whitelist (one-time use)
+
             config.whitelist = config.whitelist.filter(id => id !== userId);
             await saveConfig(client, guildId, config);
             await logAction(member.guild, config, 'Whitelist Bypass',
@@ -86,13 +84,12 @@ export default function registerAntiraidHandler(client) {
                 `**Action:** Allowed to join (whitelisted)\n` +
                 `**Time:** <t:${Math.floor(Date.now() / 1000)}:F>`
             );
-            return; // Skip all checks
+            return;
         }
 
         let violated = false;
         let violationReason = '';
 
-        // --- Avatar Check ---
         if (!violated && config.avatar?.enabled) {
             if (!member.user.avatar) {
                 violated = true;
@@ -109,7 +106,6 @@ export default function registerAntiraidHandler(client) {
             }
         }
 
-        // --- Account Age Check ---
         if (!violated && config.newaccounts?.enabled) {
             const accountAge = Date.now() - member.user.createdTimestamp;
             const minAgeDays = config.newaccounts.threshold || 7;
@@ -132,7 +128,6 @@ export default function registerAntiraidHandler(client) {
             }
         }
 
-        // --- Raid State Check ---
         if (!violated && config.raidState) {
             violated = true;
             violationReason = 'Raid mode active';
@@ -148,10 +143,9 @@ export default function registerAntiraidHandler(client) {
             }
         }
 
-        // --- Mass Join Detection ---
         if (!violated && config.massjoin?.enabled) {
             const now = Date.now();
-            const window = 10000; // 10 seconds
+            const window = 10000;
             const threshold = config.massjoin.threshold || 5;
 
             if (!joinCache.has(guildId)) {
@@ -161,12 +155,11 @@ export default function registerAntiraidHandler(client) {
             const joins = joinCache.get(guildId);
             joins.push(now);
 
-            // Filter to only recent joins
             const recentJoins = joins.filter(t => now - t < window);
             joinCache.set(guildId, recentJoins);
 
             if (recentJoins.length >= threshold && !config.raidState) {
-                // Trigger raid state
+
                 config.raidState = true;
                 await saveConfig(client, guildId, config);
 
@@ -183,13 +176,11 @@ export default function registerAntiraidHandler(client) {
                     `*Use \`.antiraid state\` to disable raid mode when the raid is over.*`
                 );
 
-                // Punish this member
                 await punishMember(member, config.massjoin.action, 'AntiRaid: Mass join detected');
             }
         }
     });
 
-    // Cleanup old join data every minute
     setInterval(() => {
         const now = Date.now();
         for (const [guildId, joins] of joinCache.entries()) {

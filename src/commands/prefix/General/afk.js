@@ -1,7 +1,6 @@
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize, PermissionFlagsBits, ButtonBuilder, ButtonStyle } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
 
-// Helper to format duration
 const formatDuration = (ms) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -14,7 +13,6 @@ const formatDuration = (ms) => {
     return `${seconds}s`;
 };
 
-// Helper to build AFK set message
 const buildAfkSetContainer = (reason) => {
     const container = new ContainerBuilder();
     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.afk || '💤'} AFK Set`));
@@ -25,7 +23,6 @@ const buildAfkSetContainer = (reason) => {
     return container;
 };
 
-// Helper to build AFK removed message
 const buildAfkRemovedContainer = (duration, mentionsCount) => {
     const container = new ContainerBuilder();
     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.afkremoved || '👋'} Welcome Back!`));
@@ -38,7 +35,6 @@ const buildAfkRemovedContainer = (duration, mentionsCount) => {
     return container;
 };
 
-// Helper to build mentions list
 const buildMentionsContainer = (mentions, page = 1) => {
     const perPage = 5;
     const totalPages = Math.ceil(mentions.length / perPage) || 1;
@@ -60,35 +56,33 @@ const buildMentionsContainer = (mentions, page = 1) => {
                 content += `\n-# [Go to Message](${m.messageUrl})`;
             }
             container.addTextDisplayComponents(td => td.setContent(content));
-            
-            // Add spacing between mentions (no divider line)
+
             if (i < pageItems.length - 1) {
                 container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(false));
             }
         });
-        
-        // Add pagination buttons if multiple pages
+
         if (totalPages > 1) {
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            
+
             const prevBtn = new ButtonBuilder()
                 .setCustomId(`afk_mentions_${safePage - 1}`)
                 .setLabel('◀ Prev')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(safePage <= 1);
-            
+
             const pageBtn = new ButtonBuilder()
                 .setCustomId('afk_mentions_page')
                 .setLabel(`${safePage}/${totalPages}`)
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(true);
-            
+
             const nextBtn = new ButtonBuilder()
                 .setCustomId(`afk_mentions_${safePage + 1}`)
                 .setLabel('Next ▶')
                 .setStyle(ButtonStyle.Secondary)
                 .setDisabled(safePage >= totalPages);
-            
+
             container.addActionRowComponents(row => row.addComponents(prevBtn, pageBtn, nextBtn));
         }
     }
@@ -107,13 +101,11 @@ export default {
         const guildId = guild.id;
         const userId = author.id;
 
-        // Get current AFK data
         const guildData = await client.db.findOne({ guildId }) || {};
         const afkUsers = guildData.afkUsers || {};
 
-        // --- REMOVE SUBCOMMAND (Admin only) ---
         if (args[0]?.toLowerCase() === 'remove') {
-            // Check permission
+
             if (!member.permissions.has(PermissionFlagsBits.ManageMessages)) {
                 return message.reply({
                     content: '❌ You need **Manage Messages** permission to remove someone\'s AFK.',
@@ -136,7 +128,6 @@ export default {
                 });
             }
 
-            // Restore nickname
             const afkData = afkUsers[targetUser.id];
             try {
                 const targetMember = await guild.members.fetch(targetUser.id).catch(() => null);
@@ -145,7 +136,6 @@ export default {
                 }
             } catch (e) {}
 
-            // Remove from database
             delete afkUsers[targetUser.id];
             await client.db.updateOne(
                 { guildId },
@@ -165,36 +155,31 @@ export default {
             });
         }
 
-        // --- MENTIONS SUBCOMMAND ---
         if (args[0]?.toLowerCase() === 'mentions') {
             const myAfk = afkUsers[userId];
             const mentions = myAfk?.mentions || [];
 
-            // Check stored mentions after AFK was removed (expires after 30 minutes)
             const storedData = guildData.afkMentionsHistory?.[userId];
             let storedMentions = [];
-            
+
             if (storedData) {
                 const thirtyMinutes = 30 * 60 * 1000;
                 const storedAt = storedData.storedAt || 0;
-                
+
                 if (Date.now() - storedAt < thirtyMinutes) {
                     storedMentions = storedData.mentions || [];
                 } else {
-                    // Expired - clear from database
+
                     await client.db.updateOne(
                         { guildId },
                         { $unset: { [`afkMentionsHistory.${userId}`]: '' } }
                     );
                 }
             }
-            
+
             const allMentions = [...mentions, ...storedMentions].sort((a, b) => b.timestamp - a.timestamp);
 
             const container = buildMentionsContainer(allMentions);
-
-            // Mentions expire after 30 minutes automatically, don't clear on view
-            // so pagination can work
 
             return message.reply({
                 components: [container],
@@ -203,13 +188,10 @@ export default {
             });
         }
 
-        // --- SET AFK ---
         const reason = args.join(' ') || null;
 
-        // Store original nickname
         let originalNickname = member.nickname;
 
-        // Add [AFK] prefix to nickname
         try {
             const newNickname = `[AFK] ${member.displayName}`.slice(0, 32);
             if (member.manageable && !member.displayName.startsWith('[AFK]')) {
@@ -217,7 +199,6 @@ export default {
             }
         } catch (e) {}
 
-        // Save to database
         afkUsers[userId] = {
             reason,
             timestamp: Date.now(),
@@ -241,5 +222,4 @@ export default {
     }
 };
 
-// Export helpers for use in messageCreate
 export { formatDuration, buildAfkRemovedContainer };

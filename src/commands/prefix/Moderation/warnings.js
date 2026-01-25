@@ -8,7 +8,7 @@ export default {
 	category: 'Moderation',
 
 	async execute(message, args, client) {
-		// Check if user can use warnings command
+
 		const { ModerationPermissions, getModerationPermissionErrors } = await import('../../../utils/ModerationPermissions.js');
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warnings', client, message.guildId);
 		if (!canUse.allowed) {
@@ -39,8 +39,7 @@ export default {
 			try {
 				target = await message.guild.members.fetch(args[0].replace(/[<@!>]/g, ''));
 				target = target.user;
-				
-				// Check if a page number was provided
+
 				if (args[1]) {
 					requestedPage = parseInt(args[1]) || 0;
 				}
@@ -126,16 +125,14 @@ export default {
 			});
 		}
 
-		// Get all warn actions for this user to match with warnings
 		const allActions = guildData.moderation.actions || [];
 		const userWarnActions = allActions.filter(a => a.type === 'warn' && a.userId === target.id && !a.deletedFromCrimefile);
 
-		// Combine warnings with their corresponding action data (case number, current reason)
 		const warningsWithCaseData = userWarnings.map(warning => {
-			// Find matching warn action by timestamp (or by closest timestamp)
-			const matchingAction = userWarnActions.find(a => 
+
+			const matchingAction = userWarnActions.find(a =>
 				new Date(a.timestamp).getTime() === new Date(warning.timestamp).getTime()
-			) || userWarnActions.find(a => 
+			) || userWarnActions.find(a =>
 				Math.abs(new Date(a.timestamp).getTime() - new Date(warning.timestamp).getTime()) < 1000
 			);
 
@@ -146,13 +143,11 @@ export default {
 			};
 		});
 
-		// Pagination: 3 warnings per page
 		const WARNINGS_PER_PAGE = 3;
 		const sortedWarnings = warningsWithCaseData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).reverse();
 		const totalPages = Math.ceil(sortedWarnings.length / WARNINGS_PER_PAGE);
 		const currentPage = Math.min(Math.max(0, requestedPage), totalPages - 1);
 
-		// Build warning display for a specific page
 		const buildWarningPage = (pageNum) => {
 			const startIdx = pageNum * WARNINGS_PER_PAGE;
 			const endIdx = startIdx + WARNINGS_PER_PAGE;
@@ -189,7 +184,6 @@ export default {
 				textDisplay.setContent(`**Page:** ${pageNum + 1}/${totalPages} | **Total:** ${userWarnings.length} warning${userWarnings.length === 1 ? '' : 's'}`)
 			);
 
-			// Add buttons inside container using addActionRowComponents
 			if (totalPages > 1) {
 				container.addActionRowComponents((row) => {
 					const prevBtn = new ButtonBuilder()
@@ -212,7 +206,6 @@ export default {
 			return container;
 		};
 
-		// Send initial page
 		const initialContainer = buildWarningPage(currentPage);
 		await message.reply({
 			components: [initialContainer],
@@ -239,4 +232,3 @@ export default {
 		}
 	}
 };
-

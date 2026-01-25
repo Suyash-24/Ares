@@ -16,11 +16,8 @@ import EMOJIS from '../../../utils/emojis.js';
 const name = 'giveaway';
 const aliases = ['gw', 'giveaways'];
 const SAFE_MENTIONS = { parse: [] };
-const DEFAULT_COLOR = null; // No default color - will use Discord's default
+const DEFAULT_COLOR = null;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Duration parser (supports 1d2h3m4s format)
-// ─────────────────────────────────────────────────────────────────────────────
 function parseDuration(str) {
 	if (!str || typeof str !== 'string') return null;
 	const regex = /(\d+)\s*(d|h|m|s)/gi;
@@ -59,9 +56,6 @@ function formatFullTimestamp(ms) {
 	return `<t:${Math.floor(ms / 1000)}:F>`;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Parse a message link or raw message ID
-// ─────────────────────────────────────────────────────────────────────────────
 function parseMessageIdentifier(value) {
 	if (!value) return null;
 
@@ -78,9 +72,6 @@ function parseMessageIdentifier(value) {
 	return null;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Giveaway data helpers
-// ─────────────────────────────────────────────────────────────────────────────
 async function getGiveaway(client, guildId, messageId) {
 	const data = await client.db.findOne({ guildId });
 	if (!data?.giveaways) return null;
@@ -114,9 +105,6 @@ async function removeGiveaway(client, guildId, messageId) {
 	await client.db.updateOne({ guildId }, { $set: { giveaways } });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Build simple response container
-// ─────────────────────────────────────────────────────────────────────────────
 function buildResponseContainer(content, color = null) {
 	const container = new ContainerBuilder();
 	if (color) container.setAccentColor(color);
@@ -129,39 +117,32 @@ function replyContainer(message, content) {
 	return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Build giveaway embed using Components V2
-// ─────────────────────────────────────────────────────────────────────────────
 function buildGiveawayContainer(giveaway, ended = false) {
 	giveaway.entries = giveaway.entries || [];
 	giveaway.winners = giveaway.winners || [];
-	giveaway.giveawayId = giveaway.giveawayId || giveaway.messageId; // fallback for legacy
+	giveaway.giveawayId = giveaway.giveawayId || giveaway.messageId;
 	const container = new ContainerBuilder();
-	
-	// Set accent color if specified
+
 	if (giveaway.color) {
 		container.setAccentColor(giveaway.color);
 	}
 
-	// Title with custom tada emoji and a clear separator
 	const titleEmoji = EMOJIS.tada || '🎉';
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${titleEmoji} ${giveaway.prize}`)
 	);
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
 
-	// Description if set
 	if (giveaway.description) {
 		container.addTextDisplayComponents(td => td.setContent(giveaway.description));
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	}
 
-	// Info section with giveaway arrows (with optional thumbnail accessory)
 	const arrow = EMOJIS.giveawayarrow || '➡️';
 	let infoText = '';
 	if (ended) {
-		const winners = giveaway.winners?.length > 0 
+		const winners = giveaway.winners?.length > 0
 			? giveaway.winners.map(id => `<@${id}>`).join(', ')
 			: 'No valid winners';
 		infoText = `${arrow} **Winners:** ${winners}\n`;
@@ -177,7 +158,6 @@ function buildGiveawayContainer(giveaway, ended = false) {
 		infoText += `${arrow} **Hosted by:** <@${giveaway.hostId}>`;
 	}
 
-	// Use section with thumbnail accessory if thumbnail is set
 	if (giveaway.thumbnail) {
 		container.addSectionComponents(section => {
 			section.addTextDisplayComponents(td => td.setContent(infoText));
@@ -188,7 +168,6 @@ function buildGiveawayContainer(giveaway, ended = false) {
 		container.addTextDisplayComponents(td => td.setContent(infoText));
 	}
 
-	// Requirements section
 	const requirements = [];
 	if (giveaway.requiredRoles?.length > 0) {
 		requirements.push(`**Required Roles:** ${giveaway.requiredRoles.map(r => `<@&${r}>`).join(', ')}`);
@@ -211,26 +190,23 @@ function buildGiveawayContainer(giveaway, ended = false) {
 		container.addTextDisplayComponents(td => td.setContent(`### Requirements\n${requirements.join('\n')}`));
 	}
 
-	// Image if set
 	if (giveaway.image) {
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		const gallery = new MediaGalleryBuilder().addItems(item => item.setURL(giveaway.image));
 		container.addMediaGalleryComponents(gallery);
 	}
 
-	// Join/view buttons (only if not ended)
 	if (!ended) {
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-		
-		// Parse emoji for button (extract ID from <a:name:id> or <:name:id>)
+
 		const parseButtonEmoji = (emojiStr) => {
 			const match = emojiStr?.match(/<(a)?:(\w+):(\d+)>/);
 			if (match) {
 				return { id: match[3], name: match[2], animated: !!match[1] };
 			}
-			return emojiStr; // fallback to string emoji
+			return emojiStr;
 		};
-		
+
 		const joinRow = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId(`giveaway_join:${giveaway.giveawayId}`)
@@ -249,22 +225,15 @@ function buildGiveawayContainer(giveaway, ended = false) {
 	return container;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Pick random winners
-// ─────────────────────────────────────────────────────────────────────────────
 function pickWinners(entries, count) {
 	if (!entries || entries.length === 0) return [];
 	const shuffled = [...entries].sort(() => Math.random() - 0.5);
 	return shuffled.slice(0, Math.min(count, shuffled.length));
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Check entry requirements
-// ─────────────────────────────────────────────────────────────────────────────
 async function checkRequirements(member, giveaway, client) {
 	const errors = [];
 
-	// Check required roles
 	if (giveaway.requiredRoles?.length > 0) {
 		const hasRole = giveaway.requiredRoles.some(roleId => member.roles.cache.has(roleId));
 		if (!hasRole) {
@@ -272,7 +241,6 @@ async function checkRequirements(member, giveaway, client) {
 		}
 	}
 
-	// Check min level (requires leveling system)
 	if (giveaway.minLevel > 0 || giveaway.maxLevel > 0) {
 		const data = await client.db.findOne({ guildId: member.guild.id });
 		const userLevel = data?.leveling?.members?.[member.id]?.level || 0;
@@ -284,7 +252,6 @@ async function checkRequirements(member, giveaway, client) {
 		}
 	}
 
-	// Check account age
 	if (giveaway.minAge > 0) {
 		const accountAge = (Date.now() - member.user.createdTimestamp) / 86400000;
 		if (accountAge < giveaway.minAge) {
@@ -292,7 +259,6 @@ async function checkRequirements(member, giveaway, client) {
 		}
 	}
 
-	// Check server stay
 	if (giveaway.minStay > 0) {
 		const stayDays = (Date.now() - member.joinedTimestamp) / 86400000;
 		if (stayDays < giveaway.minStay) {
@@ -303,12 +269,9 @@ async function checkRequirements(member, giveaway, client) {
 	return errors;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Award winner roles
-// ─────────────────────────────────────────────────────────────────────────────
 async function awardWinnerRoles(guild, giveaway) {
 	if (!giveaway.winnerRoles?.length || !giveaway.winners?.length) return;
-	
+
 	for (const winnerId of giveaway.winners) {
 		try {
 			const member = await guild.members.fetch(winnerId).catch(() => null);
@@ -321,9 +284,6 @@ async function awardWinnerRoles(guild, giveaway) {
 	}
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// End giveaway
-// ─────────────────────────────────────────────────────────────────────────────
 async function endGiveaway(client, giveaway, guild) {
 	const channel = await guild.channels.fetch(giveaway.channelId).catch(() => null);
 	if (!channel) return null;
@@ -331,7 +291,6 @@ async function endGiveaway(client, giveaway, guild) {
 	const message = await channel.messages.fetch(giveaway.messageId).catch(() => null);
 	if (!message) return null;
 
-	// Filter valid entries
 	const validEntries = [];
 	for (const userId of giveaway.entries || []) {
 		const member = await guild.members.fetch(userId).catch(() => null);
@@ -341,22 +300,17 @@ async function endGiveaway(client, giveaway, guild) {
 		}
 	}
 
-	// Pick winners
 	const winners = pickWinners(validEntries, giveaway.winnerCount);
 	giveaway.winners = winners;
 	giveaway.ended = true;
 
-	// Update message
 	const container = buildGiveawayContainer(giveaway, true);
 	await message.edit({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS }).catch(() => {});
 
-	// Award roles
 	await awardWinnerRoles(guild, giveaway);
 
-	// Save
 	await saveGiveaway(client, guild.id, giveaway);
 
-	// Announce winners
 	if (winners.length > 0) {
 		const winnerMentions = winners.map(id => `<@${id}>`).join(', ');
 		const winContainer = buildResponseContainer(`# 🎊 Congratulations!\n${winnerMentions} won **${giveaway.prize}**!`);
@@ -377,12 +331,9 @@ async function endGiveaway(client, giveaway, guild) {
 	return giveaway;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Command execution
-// ─────────────────────────────────────────────────────────────────────────────
 const execute = async (message, args, client) => {
 	if (!message.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
-		// Allow list without perms
+
 		if (args[0]?.toLowerCase() !== 'list') {
 			const permContainer = buildResponseContainer(`${EMOJIS.error} You need **Manage Channels** permission.`);
 			return message.reply({ components: [permContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
@@ -391,9 +342,6 @@ const execute = async (message, args, client) => {
 
 	const sub = args[0]?.toLowerCase();
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway / giveaway help - Show help
-	// ─────────────────────────────────────────────────────────────────────────
 	if (!sub || sub === 'help') {
 		const container = new ContainerBuilder();
 		container.addTextDisplayComponents(td => td.setContent('# 🎉 Giveaway Commands'));
@@ -419,29 +367,23 @@ const execute = async (message, args, client) => {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway start <channel> <duration> <winners> <prize> [--options]
-	// ─────────────────────────────────────────────────────────────────────────
 	if (sub === 'start') {
-		// Join all args to parse flags
+
 		const fullArgs = args.slice(1).join(' ');
-		
-		// Extract flags from the command
+
 		const flagPattern = /--(\w+)\s+([^--]+?)(?=\s*--|$)/gi;
 		const flags = {};
 		let match;
 		while ((match = flagPattern.exec(fullArgs)) !== null) {
 			flags[match[1].toLowerCase()] = match[2].trim();
 		}
-		
-		// Remove flags from args to get base parameters
+
 		const cleanArgs = fullArgs.replace(/--\w+\s+[^--]+?(?=\s*--|$)/gi, '').trim().split(/\s+/);
-		
-		// Parse channel
+
 		const channelArg = cleanArgs[0];
 		let channel = message.mentions.channels.first();
 		if (!channel && channelArg) {
-			channel = message.guild.channels.cache.get(channelArg.replace(/[<#>]/g, '')) || 
+			channel = message.guild.channels.cache.get(channelArg.replace(/[<#>]/g, '')) ||
 				message.guild.channels.cache.find(c => c.name === channelArg);
 		}
 		if (!channel) {
@@ -449,7 +391,6 @@ const execute = async (message, args, client) => {
 			return message.reply({ components: [errContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 		}
 
-		// Parse duration
 		const durationArg = cleanArgs[1];
 		const durationMs = parseDuration(durationArg);
 		if (!durationMs) {
@@ -457,7 +398,6 @@ const execute = async (message, args, client) => {
 			return message.reply({ components: [errContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 		}
 
-		// Parse winner count
 		const winnersArg = cleanArgs[2];
 		const winnerCount = parseInt(winnersArg, 10);
 		if (!winnerCount || winnerCount < 1 || winnerCount > 50) {
@@ -465,24 +405,22 @@ const execute = async (message, args, client) => {
 			return message.reply({ components: [errContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 		}
 
-		// Parse prize (everything after winner count, before any flags)
 		const prizeEndIndex = fullArgs.indexOf('--');
 		let prize;
 		if (prizeEndIndex > -1) {
-			// Get text between winner count and first flag
+
 			const beforeFlags = fullArgs.substring(0, prizeEndIndex).trim();
 			const parts = beforeFlags.split(/\s+/);
 			prize = parts.slice(3).join(' ');
 		} else {
 			prize = cleanArgs.slice(3).join(' ');
 		}
-		
+
 		if (!prize) {
 			const errContainer = buildResponseContainer(`${EMOJIS.error} Please specify a prize.\n**Usage:** \`.giveaway start #channel 1d 1 Nitro Classic\``);
 			return message.reply({ components: [errContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 		}
 
-		// Create giveaway object with pre-generated id for buttons
 		const endTime = Date.now() + durationMs;
 		const giveawayId = `${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
 		const giveaway = {
@@ -510,7 +448,6 @@ const execute = async (message, args, client) => {
 			minStay: 0
 		};
 
-		// Apply optional flags
 		if (flags.description || flags.desc) {
 			giveaway.description = flags.description || flags.desc;
 		}
@@ -562,20 +499,16 @@ const execute = async (message, args, client) => {
 			if (hostId) giveaway.hostId = hostId;
 		}
 
-		// Build and send once (giveawayId is used for buttons)
 		const container = buildGiveawayContainer(giveaway);
 		const sentMsg = await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 		giveaway.messageId = sentMsg.id;
 
-		// Save
 		await saveGiveaway(client, message.guild.id, giveaway);
 
-		// Schedule end
 		const delay = durationMs;
 		setTimeout(async () => {
 			const current = await getGiveaway(client, message.guild.id, giveaway.messageId);
-			// Only end if not already ended AND the current time has passed the endTime
-			// This allows duration edits to extend the giveaway
+
 			if (current && !current.ended && Date.now() >= current.endTime) {
 				await endGiveaway(client, current, message.guild);
 			}
@@ -585,9 +518,6 @@ const execute = async (message, args, client) => {
 		return message.reply({ components: [successContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway end <message_link|id>
-	// ─────────────────────────────────────────────────────────────────────────
 	if (sub === 'end') {
 		const link = args[1];
 		const parsed = parseMessageIdentifier(link);
@@ -614,9 +544,6 @@ const execute = async (message, args, client) => {
 		return message.reply({ components: [endedContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway reroll <message_link|id> [winners]
-	// ─────────────────────────────────────────────────────────────────────────
 	if (sub === 'reroll') {
 		const link = args[1];
 		const parsed = parseMessageIdentifier(link);
@@ -639,8 +566,7 @@ const execute = async (message, args, client) => {
 		}
 
 		const rerollCount = parseInt(args[2], 10) || giveaway.winnerCount;
-		
-		// Filter valid entries (exclude previous winners if possible)
+
 		const validEntries = [];
 		for (const userId of giveaway.entries || []) {
 			const member = await message.guild.members.fetch(userId).catch(() => null);
@@ -650,7 +576,6 @@ const execute = async (message, args, client) => {
 			}
 		}
 
-		// Pick new winners
 		const newWinners = pickWinners(validEntries, rerollCount);
 		if (newWinners.length === 0) {
 			const noEntriesContainer = buildResponseContainer(`${EMOJIS.error} No valid entries to reroll.`);
@@ -660,7 +585,6 @@ const execute = async (message, args, client) => {
 		giveaway.winners = newWinners;
 		await saveGiveaway(client, message.guild.id, giveaway);
 
-		// Update message
 		const channel = await message.guild.channels.fetch(giveaway.channelId).catch(() => null);
 		if (channel) {
 			const msg = await channel.messages.fetch(giveaway.messageId).catch(() => null);
@@ -668,11 +592,9 @@ const execute = async (message, args, client) => {
 				const container = buildGiveawayContainer(giveaway, true);
 				await msg.edit({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS }).catch(() => {});
 			}
-			
-			// Award roles
+
 			await awardWinnerRoles(message.guild, giveaway);
-			
-			// Announce
+
 			const winnerMentions = newWinners.map(id => `<@${id}>`).join(', ');
 			const rerollContainer = buildResponseContainer(`# 🎊 Reroll!\nCongratulations ${winnerMentions}! You won **${giveaway.prize}**!`);
 			await channel.send({
@@ -686,9 +608,6 @@ const execute = async (message, args, client) => {
 		return message.reply({ components: [rerollSuccessContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway cancel <message_link|id>
-	// ─────────────────────────────────────────────────────────────────────────
 	if (sub === 'cancel') {
 		const link = args[1];
 		const parsed = parseMessageIdentifier(link);
@@ -706,23 +625,18 @@ const execute = async (message, args, client) => {
 			return message.reply({ components: [errContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 		}
 
-		// Delete message
 		const channel = await message.guild.channels.fetch(giveaway.channelId).catch(() => null);
 		if (channel) {
 			const msg = await channel.messages.fetch(giveaway.messageId).catch(() => null);
 			if (msg) await msg.delete().catch(() => {});
 		}
 
-		// Remove from DB
 		await removeGiveaway(client, message.guild.id, giveaway.messageId);
 
 		const cancelContainer = buildResponseContainer(`${EMOJIS.success} Giveaway cancelled and deleted.`);
 		return message.reply({ components: [cancelContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway list
-	// ─────────────────────────────────────────────────────────────────────────
 	if (sub === 'list') {
 		const giveaways = await getAllGiveaways(client, message.guild.id);
 		if (giveaways.length === 0) {
@@ -759,9 +673,6 @@ const execute = async (message, args, client) => {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────
-	// giveaway edit <property> <link> <value>
-	// ─────────────────────────────────────────────────────────────────────────
 	if (sub === 'edit') {
 		const prop = args[1]?.toLowerCase();
 		const link = args[2];
@@ -771,7 +682,6 @@ const execute = async (message, args, client) => {
 			return replyContainer(message, `${EMOJIS.error} Please provide a valid message link or ID.\n**Usage:** \`.giveaway edit prize <link|id> <new_prize>\``);
 		}
 
-		// Try to find giveaway by messageId or giveawayId
 		let giveaway = await getGiveaway(client, message.guild.id, parsed.messageId);
 		if (!giveaway) {
 			giveaway = await getGiveawayById(client, message.guild.id, parsed.messageId);
@@ -803,10 +713,10 @@ const execute = async (message, args, client) => {
 				const ms = parseDuration(value);
 				if (!ms) return replyContainer(message, `${EMOJIS.error} Invalid duration format.`);
 				giveaway.endTime = Date.now() + ms;
-				// Reschedule the end timeout
+
 				setTimeout(async () => {
 					const current = await getGiveaway(client, message.guild.id, giveaway.messageId);
-					// Only end if not already ended AND the current time has passed the endTime
+
 					if (current && !current.ended && Date.now() >= current.endTime) {
 						await endGiveaway(client, current, message.guild);
 					}
@@ -816,7 +726,7 @@ const execute = async (message, args, client) => {
 			case 'host': {
 				let user = message.mentions.users.first();
 				if (!user && value) {
-					// Try to fetch by user ID
+
 					const userId = value.replace(/[<@!>]/g, '');
 					if (/^\d{17,}$/.test(userId)) {
 						user = await client.users.fetch(userId).catch(() => null);
@@ -863,10 +773,10 @@ const execute = async (message, args, client) => {
 				break;
 			}
 			case 'requiredroles': {
-				// Accept both role mentions and raw role IDs
+
 				let roles = message.mentions.roles.map(r => r.id);
 				if (roles.length === 0 && value) {
-					// Try parsing raw role IDs from value
+
 					const idMatches = value.match(/\d{17,}/g);
 					if (idMatches) {
 						roles = idMatches;
@@ -880,11 +790,10 @@ const execute = async (message, args, client) => {
 			}
 			case 'roles':
 			case 'winnerroles': {
-				// Winner roles - roles given to winners when giveaway ends
-				// Accept both role mentions and raw role IDs
+
 				let roles = message.mentions.roles.map(r => r.id);
 				if (roles.length === 0 && value) {
-					// Try parsing raw role IDs from value
+
 					const idMatches = value.match(/\d{17,}/g);
 					if (idMatches) {
 						roles = idMatches;
@@ -924,7 +833,6 @@ const execute = async (message, args, client) => {
 				return replyContainer(message, `${EMOJIS.error} Unknown property. Use \`.giveaway help\` for options.`);
 		}
 
-		// Save and update message
 		await saveGiveaway(client, message.guild.id, giveaway);
 
 		const channel = await message.guild.channels.fetch(giveaway.channelId).catch(() => null);
@@ -939,13 +847,9 @@ const execute = async (message, args, client) => {
 		return replyContainer(message, `${EMOJIS.success} Giveaway updated!`);
 	}
 
-	// Unknown subcommand
 	return replyContainer(message, `${EMOJIS.error} Unknown subcommand. Use \`.giveaway help\` for options.`);
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Button handler for joining giveaways
-// ─────────────────────────────────────────────────────────────────────────────
 	const components = [
 	{
 		customId: /^giveaway_join:([\w-]+)$/,
@@ -962,27 +866,23 @@ const execute = async (message, args, client) => {
 
 				giveaway.entries = giveaway.entries || [];
 
-				// Check requirements
 				const errors = await checkRequirements(interaction.member, giveaway, interaction.client);
 				if (errors.length > 0) {
 					return interaction.reply({ content: `${EMOJIS.error} ${errors.join('\n')}`, ephemeral: true });
 				}
 
-				// Toggle entry
 				const idx = giveaway.entries.indexOf(interaction.user.id);
 				if (idx >= 0) {
 					giveaway.entries.splice(idx, 1);
 					await saveGiveaway(interaction.client, interaction.guildId, giveaway);
-					
-					// Update button
+
 					const container = buildGiveawayContainer(giveaway);
 					await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS }).catch(() => {});
 					await interaction.followUp({ content: `${EMOJIS.success} You left the giveaway.`, ephemeral: true }).catch(() => {});
 				} else {
 					giveaway.entries.push(interaction.user.id);
 					await saveGiveaway(interaction.client, interaction.guildId, giveaway);
-					
-					// Update button
+
 					const container = buildGiveawayContainer(giveaway);
 					await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: SAFE_MENTIONS }).catch(() => {});
 					await interaction.followUp({ content: `${EMOJIS.success} You entered the giveaway! Good luck! 🍀`, ephemeral: true }).catch(() => {});

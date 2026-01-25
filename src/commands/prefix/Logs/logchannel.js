@@ -1,7 +1,4 @@
-/**
- * Ares Logging System - Set Log Channel Command
- * Set a channel for a specific event category
- */
+
 
 import {
 	ContainerBuilder,
@@ -24,7 +21,7 @@ export default {
 	aliases: ['setchannel', 'setlogchannel'],
 
 	async execute(message, args, client) {
-		// Check permissions
+
 		if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -48,14 +45,13 @@ export default {
 		if (!guildData.logging) guildData.logging = getDefaultLoggingConfig();
 		if (!guildData.logging.channels) guildData.logging.channels = {};
 
-		// Show list if no args or "list"
 		if (!args.length || args[0].toLowerCase() === 'list') {
 			return showChannelList(message, guildData);
 		}
 
 		const category = args[0].toLowerCase();
 		const validCategories = Object.keys(CATEGORY_NAMES);
-		validCategories.push('combined', 'all'); // Special categories
+		validCategories.push('combined', 'all');
 
 		if (!validCategories.includes(category)) {
 			const container = new ContainerBuilder();
@@ -129,7 +125,6 @@ export default {
 			}
 		}
 
-		// Handle "all" category (sets combined channel and clears individual channels)
 		if (category === 'all') {
 			guildData.logging.channels = {
 				message: null,

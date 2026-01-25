@@ -1,19 +1,17 @@
-import { 
-    EmbedBuilder, 
-    ContainerBuilder, 
-    MessageFlags, 
-    SeparatorSpacingSize, 
-    ButtonBuilder, 
+import {
+    EmbedBuilder,
+    ContainerBuilder,
+    MessageFlags,
+    SeparatorSpacingSize,
+    ButtonBuilder,
     ButtonStyle,
     ChannelType,
     PermissionFlagsBits
 } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
 
-// Store in-progress embeds per user
 const embedSessions = new Map();
 
-// Variable replacement
 const replaceVariables = (text, context) => {
     if (!text) return text;
     const now = new Date();
@@ -39,7 +37,6 @@ const replaceVariables = (text, context) => {
         .replace(/\{timestamp\.full\}/gi, `<t:${Math.floor(now.getTime() / 1000)}:F>`);
 };
 
-// Parse embed code syntax: {param: value}$v{param: value}
 const parseEmbedCode = (code, context) => {
     const embedData = {
         content: null,
@@ -54,30 +51,27 @@ const parseEmbedCode = (code, context) => {
         timestamp: false,
         url: null
     };
-    
-    // Split by $v separator
+
     const parts = code.split(/\$v/gi);
-    
+
     for (const part of parts) {
         const trimmed = part.trim();
         if (!trimmed) continue;
-        
-        // Match {param: value} or {param: val1 && val2}
+
         const match = trimmed.match(/^\{(\w+):\s*(.+)\}$/s);
         if (!match) {
-            // Check for {timestamp} without value
+
             if (trimmed.match(/^\{timestamp\}$/i)) {
                 embedData.timestamp = true;
             }
             continue;
         }
-        
+
         const param = match[1].toLowerCase();
         let value = match[2].trim();
-        
-        // Replace variables
+
         value = replaceVariables(value, context);
-        
+
         switch (param) {
             case 'content':
             case 'message':
@@ -107,7 +101,7 @@ const parseEmbedCode = (code, context) => {
                 embedData.url = value;
                 break;
             case 'author':
-                // Format: name && icon && url
+
                 const authorParts = value.split('&&').map(p => p.trim());
                 embedData.author = {
                     name: authorParts[0] || null,
@@ -116,7 +110,7 @@ const parseEmbedCode = (code, context) => {
                 };
                 break;
             case 'footer':
-                // Format: text && icon
+
                 const footerParts = value.split('&&').map(p => p.trim());
                 embedData.footer = {
                     text: footerParts[0] || null,
@@ -124,7 +118,7 @@ const parseEmbedCode = (code, context) => {
                 };
                 break;
             case 'field':
-                // Format: name && value && inline
+
                 const fieldParts = value.split('&&').map(p => p.trim());
                 if (fieldParts[0] && fieldParts[1]) {
                     embedData.fields.push({
@@ -139,11 +133,10 @@ const parseEmbedCode = (code, context) => {
                 break;
         }
     }
-    
+
     return embedData;
 };
 
-// Helper to check if a string is a valid URL
 export const isValidUrl = (str) => {
     if (!str) return false;
     try {
@@ -154,10 +147,9 @@ export const isValidUrl = (str) => {
     }
 };
 
-// Build Discord embed from data
 const buildEmbed = (data) => {
     const embed = new EmbedBuilder();
-    
+
     if (data.title) embed.setTitle(data.title);
     if (data.description) embed.setDescription(data.description);
     if (data.color) embed.setColor(data.color);
@@ -177,18 +169,16 @@ const buildEmbed = (data) => {
     }
     if (data.timestamp) embed.setTimestamp();
     if (data.fields?.length > 0) embed.addFields(data.fields);
-    
+
     return embed;
 };
 
-// Build interactive embed builder UI
 const buildEmbedBuilderUI = (userId, embedData = {}) => {
     const container = new ContainerBuilder();
-    
+
     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.embed || '📝'} Embed Builder`));
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    // Preview info
+
     let previewText = '';
     if (embedData.title) previewText += `**Title:** ${embedData.title}\n`;
     if (embedData.description) previewText += `**Description:** ${embedData.description.substring(0, 50)}${embedData.description.length > 50 ? '...' : ''}\n`;
@@ -198,28 +188,25 @@ const buildEmbedBuilderUI = (userId, embedData = {}) => {
     if (embedData.author?.name) previewText += `**Author:** ${embedData.author.name}\n`;
     if (embedData.footer?.text) previewText += `**Footer:** ${embedData.footer.text}\n`;
     if (embedData.fields?.length > 0) previewText += `**Fields:** ${embedData.fields.length}\n`;
-    
+
     container.addTextDisplayComponents(td => td.setContent(previewText || '-# No properties set yet. Use the buttons below to build your embed.'));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    // Row 1: Basic properties
+
     container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder().setCustomId(`embed_title_${userId}`).setLabel('Title').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_desc_${userId}`).setLabel('Description').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_color_${userId}`).setLabel('Color').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_url_${userId}`).setLabel('URL').setStyle(ButtonStyle.Secondary)
     ));
-    
-    // Row 2: Media
+
     container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder().setCustomId(`embed_author_${userId}`).setLabel('Author').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_footer_${userId}`).setLabel('Footer').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_thumb_${userId}`).setLabel('Thumbnail').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_image_${userId}`).setLabel('Image').setStyle(ButtonStyle.Secondary)
     ));
-    
-    // Row 3: Fields & Actions
+
     container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder().setCustomId(`embed_field_${userId}`).setLabel('Add Field').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`embed_timestamp_${userId}`).setLabel('Timestamp').setStyle(embedData.timestamp ? ButtonStyle.Success : ButtonStyle.Secondary),
@@ -227,8 +214,7 @@ const buildEmbedBuilderUI = (userId, embedData = {}) => {
         new ButtonBuilder().setCustomId(`embed_send_${userId}`).setLabel('Send').setStyle(ButtonStyle.Success),
         new ButtonBuilder().setCustomId(`embed_code_${userId}`).setLabel('Get Code').setStyle(ButtonStyle.Secondary)
     ));
-    
-    // Variables Reference
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
     container.addTextDisplayComponents(td => td.setContent(
         '-# **User:** `{user}` `{user.name}` `{user.tag}` `{user.id}` `{user.avatar}`\n' +
@@ -236,14 +222,13 @@ const buildEmbedBuilderUI = (userId, embedData = {}) => {
         '-# **Channel:** `{channel}` `{channel.name}` `{channel.id}`\n' +
         '-# **Time:** `{timestamp}` `{timestamp.relative}` `{timestamp.date}` `{timestamp.time}` `{timestamp.full}`'
     ));
-    
+
     return container;
 };
 
-// Generate embed code from data
 const generateEmbedCode = (data) => {
     const parts = [];
-    
+
     if (data.content) parts.push(`{content: ${data.content}}`);
     if (data.title) parts.push(`{title: ${data.title}}`);
     if (data.description) parts.push(`{description: ${data.description}}`);
@@ -268,11 +253,10 @@ const generateEmbedCode = (data) => {
         }
     }
     if (data.timestamp) parts.push(`{timestamp}`);
-    
+
     return parts.join('$v');
 };
 
-// Extract embed from message
 const extractEmbedCode = (embed) => {
     const data = {
         title: embed.title || null,
@@ -294,15 +278,13 @@ export default {
     description: 'Create and send rich embeds with an interactive builder or code syntax',
     usage: '.embed - Interactive builder\n.embed #channel {code} - Send with code\n.embed edit <msgId> {code} - Edit embed\n.embed copy <msgId> - Copy embed as code\n.embed variables - Show variables',
     category: 'miscellaneous',
-    
+
     async execute(message, args) {
         const { client, guild, author, channel } = message;
         const userId = author.id;
-        
-        // Subcommands
+
         const subcommand = args[0]?.toLowerCase();
-        
-        // --- VARIABLES ---
+
         if (subcommand === 'variables' || subcommand === 'vars') {
             const container = new ContainerBuilder();
             container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.info || 'ℹ️'} Embed Variables`));
@@ -327,15 +309,14 @@ export default {
                 '`{timestamp.time}` - Time only\n' +
                 '`{timestamp.full}` - Full date and time'
             ));
-            
+
             return message.reply({
                 components: [container],
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false }
             });
         }
-        
-        // --- COPY ---
+
         if (subcommand === 'copy') {
             const messageId = args[1];
             if (!messageId) {
@@ -345,17 +326,15 @@ export default {
                 container.addTextDisplayComponents(td => td.setContent('**Usage:** `.embed copy <messageId>`'));
                 return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
             }
-            
+
             try {
-                // Try to find the message in multiple channels
+
                 let targetMsg = null;
-                
-                // First try current channel
+
                 try {
                     targetMsg = await channel.messages.fetch(messageId);
                 } catch {}
-                
-                // If not found, search other text channels
+
                 if (!targetMsg) {
                     const textChannels = guild.channels.cache.filter(c => c.type === 0);
                     for (const [, ch] of textChannels) {
@@ -366,7 +345,7 @@ export default {
                         } catch {}
                     }
                 }
-                
+
                 if (!targetMsg) {
                     const container = new ContainerBuilder();
                     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} Message Not Found`));
@@ -374,7 +353,7 @@ export default {
                     container.addTextDisplayComponents(td => td.setContent('Could not find that message. Make sure the ID is correct.'));
                     return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
                 }
-                
+
                 if (!targetMsg.embeds || targetMsg.embeds.length === 0) {
                     const container = new ContainerBuilder();
                     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} No Embeds`));
@@ -382,14 +361,14 @@ export default {
                     container.addTextDisplayComponents(td => td.setContent('That message has no embeds to copy.'));
                     return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
                 }
-                
+
                 const code = extractEmbedCode(targetMsg.embeds[0]);
-                
+
                 const container = new ContainerBuilder();
                 container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.success || '✅'} Embed Code Copied`));
                 container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
                 container.addTextDisplayComponents(td => td.setContent(`\`\`\`\n${code}\n\`\`\``));
-                
+
                 return message.reply({
                     components: [container],
                     flags: MessageFlags.IsComponentsV2,
@@ -403,12 +382,11 @@ export default {
                 return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
             }
         }
-        
-        // --- EDIT ---
+
         if (subcommand === 'edit') {
             const messageId = args[1];
             const codeStart = args.slice(2).join(' ');
-            
+
             if (!messageId || !codeStart) {
                 const container = new ContainerBuilder();
                 container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} Usage Error`));
@@ -416,17 +394,15 @@ export default {
                 container.addTextDisplayComponents(td => td.setContent('**Usage:** `.embed edit <messageId> {code}`'));
                 return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
             }
-            
+
             try {
-                // Try to find the message in multiple channels
+
                 let targetMsg = null;
-                
-                // First try current channel
+
                 try {
                     targetMsg = await channel.messages.fetch(messageId);
                 } catch {}
-                
-                // If not found, search other text channels
+
                 if (!targetMsg) {
                     const textChannels = guild.channels.cache.filter(c => c.type === 0);
                     for (const [, ch] of textChannels) {
@@ -437,7 +413,7 @@ export default {
                         } catch {}
                     }
                 }
-                
+
                 if (!targetMsg) {
                     const container = new ContainerBuilder();
                     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} Message Not Found`));
@@ -445,7 +421,7 @@ export default {
                     container.addTextDisplayComponents(td => td.setContent('Could not find that message. Make sure the ID is correct.'));
                     return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
                 }
-                
+
                 if (targetMsg.author.id !== client.user.id) {
                     const container = new ContainerBuilder();
                     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error || '❌'} Cannot Edit`));
@@ -453,15 +429,15 @@ export default {
                     container.addTextDisplayComponents(td => td.setContent('I can only edit my own messages.'));
                     return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
                 }
-                
+
                 const context = { user: author, guild, channel };
                 const embedData = parseEmbedCode(codeStart, context);
                 const embed = buildEmbed(embedData);
                 const editPayload = { embeds: [embed] };
                 if (embedData.content) editPayload.content = embedData.content;
-                
+
                 await targetMsg.edit(editPayload);
-                
+
                 const container = new ContainerBuilder();
                 container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.success || '✅'} Embed Updated`));
                 container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -475,41 +451,37 @@ export default {
                 return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
             }
         }
-        
-        // --- SEND WITH CODE ---
-        // Check if first arg is a channel mention and rest is code
+
         const targetChannel = message.mentions.channels.first();
         if (targetChannel || (args[0] && args.join(' ').includes('{'))) {
             const codeText = targetChannel ? args.slice(1).join(' ') : args.join(' ');
-            
+
             if (!codeText.includes('{')) {
-                // No code, show interactive builder
+
             } else {
                 const sendChannel = targetChannel || channel;
-                
-                // Check permissions
+
                 if (!sendChannel.permissionsFor(message.member).has(PermissionFlagsBits.SendMessages)) {
                     return message.reply({ content: '❌ You don\'t have permission to send messages in that channel.', allowedMentions: { repliedUser: false } });
                 }
-                
+
                 const context = { user: author, guild, channel: sendChannel };
                 const embedData = parseEmbedCode(codeText, context);
-                
-                // Check if we have any content
+
                 if (!embedData.title && !embedData.description && !embedData.image && !embedData.thumbnail && !embedData.content) {
                     return message.reply({ content: '❌ Your embed needs at least a title, description, image, or content.', allowedMentions: { repliedUser: false } });
                 }
-                
+
                 const embed = buildEmbed(embedData);
                 const sendPayload = { embeds: [embed] };
                 if (embedData.content) sendPayload.content = embedData.content;
-                
+
                 try {
                     await sendChannel.send(sendPayload);
                     if (sendChannel.id !== channel.id) {
                         return message.reply({ content: `✅ Embed sent to ${sendChannel}!`, allowedMentions: { repliedUser: false } });
                     } else {
-                        // Delete command message if sent to same channel
+
                         message.delete().catch(() => {});
                     }
                 } catch (err) {
@@ -518,9 +490,7 @@ export default {
                 return;
             }
         }
-        
-        // --- INTERACTIVE BUILDER ---
-        // Initialize or get session
+
         if (!embedSessions.has(userId)) {
             embedSessions.set(userId, {
                 title: null,
@@ -535,10 +505,10 @@ export default {
                 timestamp: false
             });
         }
-        
+
         const embedData = embedSessions.get(userId);
         const container = buildEmbedBuilderUI(userId, embedData);
-        
+
         return message.reply({
             components: [container],
             flags: MessageFlags.IsComponentsV2,
@@ -547,5 +517,4 @@ export default {
     }
 };
 
-// Export for use in button/modal handlers
 export { embedSessions, buildEmbedBuilderUI, buildEmbed, generateEmbedCode, parseEmbedCode, replaceVariables };

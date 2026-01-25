@@ -18,7 +18,6 @@ export default {
 		const userChannel = message.member.voice.channel;
 		let queue = client.queue.get(message.guildId);
 
-
 		if (!queue || !queue.player) {
 			if (!message.guild.members.me?.permissions.has('Connect')) {
 				return message.reply({
@@ -26,7 +25,6 @@ export default {
 					allowedMentions: { repliedUser: false }
 				});
 			}
-
 
 			const { Queue } = await import('../../../utils/Queue.js');
 
@@ -60,8 +58,8 @@ export default {
 			const container = new ContainerBuilder();
 			const status = queue.is247 ? 'Enabled' : 'Disabled';
 			const emoji = queue.is247 ? EMOJIS.success : EMOJIS.error;
-			const description = queue.is247 
-				? 'Bot will stay in voice channel indefinitely.\nMusic will stop, but bot won\'t leave.' 
+			const description = queue.is247
+				? 'Bot will stay in voice channel indefinitely.\nMusic will stop, but bot won\'t leave.'
 				: 'Bot will not stay in voice channel for 24/7.';
 
 			container.addTextDisplayComponents((textDisplay) =>

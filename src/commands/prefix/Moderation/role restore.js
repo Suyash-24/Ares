@@ -14,7 +14,7 @@ const buildNotice = (title, description) => {
 const resolveMember = async (guild, input) => {
 	if (!input) return null;
 	const clean = input.replace(/[<@!>]/g, '');
-	
+
 	try {
 		return await guild.members.fetch(clean);
 	} catch (error) {
@@ -29,13 +29,13 @@ export default {
 	category: 'Moderation',
 
 	async execute(message, args, client) {
-		// Check antinuke admin + Discord admin
+
 		const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
 		const isOwner = message.guild.ownerId === message.author.id;
 		const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
 		const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
 		const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-		
+
 		if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
 			return message.reply({
 				components: [buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'You need **Discord Administrator** + **Antinuke Admin** permissions.')],
@@ -94,7 +94,7 @@ export default {
 
 		for (const roleId of savedRoleIds) {
 			const role = message.guild.roles.cache.get(roleId);
-			
+
 			if (!role) {
 				skippedRoles.push(roleId);
 				continue;

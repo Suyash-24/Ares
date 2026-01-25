@@ -12,7 +12,6 @@ import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 const name = 'monthly';
 const aliases = ['monthlystats', 'thismonth', 'monthstats'];
 
-// Component handlers for buttons
 const components = [
 	{
 		customId: /^stats_monthly_(overview|messages|voice)$/,
@@ -45,7 +44,6 @@ const components = [
 					topMessagers.push({ userId, count: userMonthMsgs });
 				}
 
-				// Count voice from this month (stored sessions)
 				const userMonthVoice = (userData.voice || []).filter(v => {
 					const vTime = typeof v === 'number' ? v : v.ts;
 					return vTime >= startOfMonth;
@@ -56,7 +54,6 @@ const components = [
 				}
 			}
 
-			// Add active voice sessions to topVoice
 			let activeVoiceMinutes = 0;
 			for (const session of activeSessions) {
 				const sessionMinutes = Math.floor(session.duration / 60000);
@@ -176,33 +173,29 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Get current month
 	const now = new Date();
 	const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	const currentMonth = monthNames[now.getMonth()];
 	const currentYear = now.getFullYear();
-	
-	// Start of month
+
 	const startOfMonth = new Date(currentYear, now.getMonth(), 1).getTime();
 
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
 
-		// Get active voice sessions
 		let activeVoiceMinutes = 0;
 		const activeSessions = getActiveVoiceSessions(message.guildId);
 		for (const session of activeSessions) {
 			activeVoiceMinutes += Math.floor(session.duration / 60000);
 		}
 
-		// Calculate monthly stats from user data
 		let monthMessages = 0;
 		let monthVoice = 0;
 		const topMessagers = [];
 		const topVoice = [];
 
 		for (const [userId, userData] of Object.entries(stats.users || {})) {
-			// Count messages from this month
+
 			const userMonthMsgs = (userData.messages || []).filter(msg => {
 				const msgTime = typeof msg === 'number' ? msg : msg.ts;
 				return msgTime >= startOfMonth;
@@ -212,7 +205,6 @@ async function execute(message, args, client) {
 				topMessagers.push({ userId, count: userMonthMsgs });
 			}
 
-			// Count voice from this month (stored sessions)
 			const userMonthVoice = (userData.voice || []).filter(v => {
 				const vTime = typeof v === 'number' ? v : v.ts;
 				return vTime >= startOfMonth;
@@ -223,7 +215,6 @@ async function execute(message, args, client) {
 			}
 		}
 
-		// Add active voice sessions
 		for (const session of activeSessions) {
 			const sessionMinutes = Math.floor(session.duration / 60000);
 			const existing = topVoice.find(v => v.userId === session.userId);
@@ -234,14 +225,11 @@ async function execute(message, args, client) {
 			}
 		}
 
-		// Sort
 		topMessagers.sort((a, b) => b.count - a.count);
 		topVoice.sort((a, b) => b.minutes - a.minutes);
 
-		// Calculate total voice
 		const totalVoiceMinutes = monthVoice + activeVoiceMinutes;
 
-	// Display overview
 	container.addTextDisplayComponents(td => td.setContent(
 		`# ${EMOJIS.stats || '📊'} Monthly Stats\n\n` +
 		`## ${message.guild.name} • ${currentMonth} ${currentYear}`
@@ -263,7 +251,7 @@ async function execute(message, args, client) {
 		});
 		container.addTextDisplayComponents(td => td.setContent(lines.join('\n')));
 	}
-		// Navigation buttons
+
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		container.addActionRowComponents(row => row
 			.addComponents(

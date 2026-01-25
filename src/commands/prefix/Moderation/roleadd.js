@@ -138,12 +138,11 @@ export default {
 		}
 
 		try {
-			// Mark this as a command-invoked action so logging knows who did it
+
 			markCommandInvoker(message.guild.id, 'roleadd', targetMember.id, message.author);
-			
+
 			await targetMember.roles.add(role);
 
-			// Send log for role add
 			await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_ROLE_ADD, {
 				executor: message.author,
 				target: targetMember.user,

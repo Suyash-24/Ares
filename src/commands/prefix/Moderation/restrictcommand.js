@@ -64,7 +64,7 @@ export default {
     if (!guildData.moderation.restrictedCommands) guildData.moderation.restrictedCommands = {};
 
     if (sub === 'reset') {
-      // Ask for confirmation before resetting all restricted commands for this guild
+
       const confirmId = `restrictreset_confirm_${message.author.id}_${message.guildId}`;
       const cancelId = `restrictreset_cancel_${message.author.id}_${message.guildId}`;
       const confirmContainer = new ContainerBuilder();
@@ -152,10 +152,6 @@ export default {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Removed`, `Role **${role.name}** can no longer use \`${cmdName}\`.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // Main toggle behaviour:
-      // - If the command currently has restrictions -> disable (clear all allowed roles)
-      // - Otherwise, if a role is provided -> enable restriction for that role
-      // - Otherwise, ask for a role to enable
       if (current.length > 0) {
         delete guildData.moderation.restrictedCommands[cmdName];
         await client.db.updateOne({ guildId: message.guildId }, { $set: { moderation: guildData.moderation } }, { upsert: true });

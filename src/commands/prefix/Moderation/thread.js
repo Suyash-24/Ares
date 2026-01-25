@@ -47,7 +47,6 @@ const executeThreadLock = async (message, args, client) => {
 		markCommandInvoker(message.guild.id, 'threadlock', thread.id, message.author);
 		await thread.edit({ locked: true });
 
-		// Send log for thread lock
 		await sendLog(client, message.guildId, LOG_EVENTS.MOD_THREAD_LOCK, {
 			executor: message.author,
 			thread: thread,
@@ -94,7 +93,6 @@ const executeThreadUnlock = async (message, args, client) => {
 		markCommandInvoker(message.guild.id, 'threadunlock', thread.id, message.author);
 		await thread.edit({ locked: false });
 
-		// Send log for thread unlock
 		await sendLog(client, message.guildId, LOG_EVENTS.MOD_THREAD_UNLOCK, {
 			executor: message.author,
 			thread: thread,

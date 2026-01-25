@@ -58,7 +58,7 @@ export default {
     }
 
     const userMention = message.mentions.users.first() || (args[0] && await message.guild.members.fetch(args[0]).then(m => m.user).catch(() => null));
-    
+
     if (!userMention) {
       const container = buildNotice(
         `${EMOJIS.error} **Invalid User**`,
@@ -73,7 +73,7 @@ export default {
 
     try {
       const member = await message.guild.members.fetch(userMention.id);
-      
+
       if (!member) {
         const container = buildNotice(
           `${EMOJIS.error} **Member Not Found**`,
@@ -118,7 +118,7 @@ export default {
         config.headmodRoles
       ].filter(Boolean).flat();
 
-      const staffRolesToRemove = member.roles.cache.filter(role => 
+      const staffRolesToRemove = member.roles.cache.filter(role =>
         role.id !== message.guild.id && (isStaffRole(role) || customStaffRoles.includes(role.id))
       );
 
@@ -149,7 +149,6 @@ export default {
         `Removed ${removedRoleNames.length} staff role(s) from ${userMention.username}:\n${removedRoleNames.map(r => `• ${r}`).join('\n')}`
       );
 
-      // Send log for voidstaff
       await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_VOIDSTAFF, {
         executor: message.author,
         target: userMention,

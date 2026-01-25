@@ -21,13 +21,13 @@ export default {
   category: 'Moderation',
 
   async execute(message, args, client) {
-    // Check antinuke admin + Discord admin
+
     const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
     const isOwner = message.guild.ownerId === message.author.id;
     const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
     const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
     const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-    
+
     if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
       const container = buildNotice(
         `# ${EMOJIS.error} **Permission Denied**`,
@@ -140,9 +140,9 @@ export default {
       }
 
       try {
-        // Mark this as a command-invoked action so logging knows who did it
+
         markCommandInvoker(message.guild.id, 'masskick', userId, message.author);
-        
+
         await member.kick(`Mass kick: ${reasonText}`);
         successes.push(formatUserDisplay(member.user));
       } catch (error) {
@@ -163,7 +163,6 @@ ${failures.join('\n')}`);
 
     const description = summaryParts.join('\n\n') || 'No users were processed.';
 
-    // Send mod log if any users were successfully kicked
     if (successes.length > 0) {
       await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_MASS_ACTION, {
         executor: message.author,

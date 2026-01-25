@@ -33,7 +33,7 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 
 	if (!args.length) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need to ask a question!`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -42,7 +42,7 @@ async function execute(message, args, client) {
 	const answer = responses[Math.floor(Math.random() * responses.length)];
 	const question = args.join(' ');
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`**🎱 8-Ball**\n\n**Question:** ${question}\n**Answer:** ${answer}`)
 	);
 

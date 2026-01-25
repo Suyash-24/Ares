@@ -23,7 +23,7 @@ export const buildProfile = (user, state, config, client) => {
 	const needed = xpToNextLevel(state.level, config);
 	const { position, total } = getRankPosition(config, user.id);
 	const progress = Math.round((state.xp / needed) * 100);
-	
+
 	const container = new ContainerBuilder();
 	container.addTextDisplayComponents(td => td.setContent(`## ${user.displayName || user.username}'s Rank Card`));
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -31,7 +31,7 @@ export const buildProfile = (user, state, config, client) => {
 		section.addTextDisplayComponents(td => td.setContent(
 			`**Level:** ${state.level}\n**Server Rank:** #${position || '?'} out of ${total}\n**Experience:** ${state.xp.toLocaleString()}/${needed.toLocaleString()} XP`
 		));
-		section.setThumbnailAccessory(thumbnail => 
+		section.setThumbnailAccessory(thumbnail =>
 			thumbnail.setURL(user.displayAvatarURL({ size: 128 }))
 		);
 		return section;

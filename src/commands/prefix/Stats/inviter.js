@@ -16,9 +16,8 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Target user (mentioned, user ID, or self)
 	let targetUser = message.mentions.users.first();
-	
+
 	if (!targetUser && args[0]) {
 		const userId = args[0].replace(/[<@!>]/g, '');
 		try {
@@ -27,26 +26,25 @@ async function execute(message, args, client) {
 			targetUser = message.author;
 		}
 	}
-	
+
 	if (!targetUser) {
 		targetUser = message.author;
 	}
-	
+
 	const stats = await ensureStatsConfig(client.db, message.guildId);
 	const botName = client.user.username;
-	
+
 	const container = new ContainerBuilder();
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${EMOJIS.invite || '📨'} Inviter Lookup`)
 	);
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Find who invited this user
 	let inviterId = null;
 	let inviteTime = null;
-	
+
 	if (stats.invites) {
 		for (const [userId, data] of Object.entries(stats.invites)) {
 			const invite = data.invited?.find(inv => inv.userId === targetUser.id);

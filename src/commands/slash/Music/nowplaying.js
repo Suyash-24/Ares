@@ -21,7 +21,7 @@ export default {
 			const remainingTracks = queue.tracks.length - 1;
 
 			const container = new ContainerBuilder();
-			const nowPlayingInfo = 
+			const nowPlayingInfo =
 				`${EMOJIS?.success || '🎵'} **Now Playing**\n\n` +
 				`[${track.info.title}](${track.info.uri || 'https://unknown'})\n` +
 				`by **${track.info.author || 'Unknown'}**\n\n` +

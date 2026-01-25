@@ -21,13 +21,10 @@ import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 const name = 'voice';
 const aliases = ['voicestats', 'vc', 'vcstats'];
 
-/**
- * Build voice stats panel
- */
 function buildVoicePanel(guild, stats, serverStats, topUsers, topChannels, breakdown, authorId, botName, view = 'overview') {
 	const container = new ContainerBuilder();
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${EMOJIS.voicestats || '🎤'} Voice Stats`)
 	);
 
@@ -39,7 +36,7 @@ function buildVoicePanel(guild, stats, serverStats, topUsers, topChannels, break
 	const avgDaily = Math.round(serverStats.totalVoiceMinutes / (stats.lookback || 14));
 
 	if (view === 'overview') {
-		// Main overview
+
 		const overviewText = [
 			`**${guild.name}**`,
 			'',
@@ -60,11 +57,11 @@ function buildVoicePanel(guild, stats, serverStats, topUsers, topChannels, break
 		});
 
 	} else if (view === 'users') {
-		// Top voice users
+
 		container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.trophy || '🏆'} Top Voice Users`));
-		
+
 		if (topUsers.length > 0) {
-			const list = topUsers.slice(0, 10).map((u, i) => 
+			const list = topUsers.slice(0, 10).map((u, i) =>
 				`**#${i + 1}** <@${u.userId}> — ${formatVoiceTime(u.minutes)}`
 			).join('\n');
 			container.addTextDisplayComponents(td => td.setContent(list));
@@ -73,11 +70,11 @@ function buildVoicePanel(guild, stats, serverStats, topUsers, topChannels, break
 		}
 
 	} else if (view === 'channels') {
-		// Top voice channels
+
 		container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.channelstats || '📁'} Top Voice Channels`));
-		
+
 		if (topChannels.length > 0) {
-			const list = topChannels.slice(0, 10).map((c, i) => 
+			const list = topChannels.slice(0, 10).map((c, i) =>
 				`**#${i + 1}** <#${c.channelId}> — ${formatVoiceTime(c.minutes)}`
 			).join('\n');
 			container.addTextDisplayComponents(td => td.setContent(list));
@@ -88,7 +85,6 @@ function buildVoicePanel(guild, stats, serverStats, topUsers, topChannels, break
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Navigation buttons
 	container.addActionRowComponents(row => {
 		row.addComponents(
 			new ButtonBuilder()
@@ -118,61 +114,49 @@ function buildVoicePanel(guild, stats, serverStats, topUsers, topChannels, break
 	return container;
 }
 
-/**
- * Get all required data
- */
 async function getVoiceData(client, guildId) {
 	const stats = await ensureStatsConfig(client.db, guildId);
-	
-	// Get active voice sessions and convert to minutes
+
 	const activeSessions = getActiveVoiceSessions(guildId);
 	const totalActiveVoiceMinutes = activeSessions.reduce((sum, s) => sum + Math.floor(s.duration / 60000), 0);
-	
+
 	const serverStats = getServerStats(stats, null, totalActiveVoiceMinutes);
 	let topUsers = getTopVoiceUsers(stats, 50);
 	const topChannels = getTopVoiceChannels(stats, 50);
 	const breakdown = getDailyBreakdown(stats);
-	
-	// Merge with active voice sessions (current/live voice time)
-	// This ensures users currently in VC are shown even if they haven't left yet
+
 	for (const active of activeSessions) {
 		const activeMinutes = Math.floor(active.duration / 60000);
 		const existingIndex = topUsers.findIndex(u => u.userId === active.userId);
-		
+
 		if (existingIndex >= 0) {
 			topUsers[existingIndex].minutes += activeMinutes;
 		} else {
-			// Include even with 0 minutes to count as contributor
+
 			topUsers.push({ userId: active.userId, minutes: activeMinutes });
 		}
 	}
-	
-	// Re-sort after merging
+
 	topUsers = topUsers.sort((a, b) => b.minutes - a.minutes).slice(0, 50);
-	
-	// Calculate voice-only contributors (users with actual voice time from stored sessions OR currently in VC)
+
 	const voiceContributors = new Set();
 	const lookback = stats.lookback || 14;
 	const cutoff = Date.now() - (lookback * 24 * 60 * 60 * 1000);
-	
-	// Add users with stored voice sessions
+
 	for (const [userId, user] of Object.entries(stats.users || {})) {
 		const hasVoice = user.voice?.some(v => v.ts > cutoff);
 		if (hasVoice) voiceContributors.add(userId);
 	}
-	
-	// Add users currently in VC
+
 	for (const active of activeSessions) {
 		voiceContributors.add(active.userId);
 	}
-	
-	// Override activeUsers count with voice-only contributors
+
 	serverStats.activeUsers = voiceContributors.size;
-	
+
 	return { stats, serverStats, topUsers, topChannels, breakdown };
 }
 
-// Component handlers
 const components = [
 	{
 		customId: /^voice_view:(\d+):(overview|users|channels|refresh)$/,
@@ -190,14 +174,14 @@ const components = [
 			const botName = interaction.client.user.username;
 			const actualView = view === 'refresh' ? 'overview' : view;
 			const panel = buildVoicePanel(
-				interaction.guild, 
-				data.stats, 
-				data.serverStats, 
-				data.topUsers, 
-				data.topChannels, 
-				data.breakdown, 
-				authorId, 
-				botName, 
+				interaction.guild,
+				data.stats,
+				data.serverStats,
+				data.topUsers,
+				data.topChannels,
+				data.breakdown,
+				authorId,
+				botName,
 				actualView
 			);
 
@@ -216,14 +200,14 @@ async function execute(message, args, client) {
 	const data = await getVoiceData(client, message.guildId);
 	const botName = client.user.username;
 	const panel = buildVoicePanel(
-		message.guild, 
-		data.stats, 
-		data.serverStats, 
-		data.topUsers, 
-		data.topChannels, 
-		data.breakdown, 
-		message.author.id, 
-		botName, 
+		message.guild,
+		data.stats,
+		data.serverStats,
+		data.topUsers,
+		data.topChannels,
+		data.breakdown,
+		message.author.id,
+		botName,
 		'overview'
 	);
 

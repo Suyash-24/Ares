@@ -13,13 +13,10 @@ const aliases = ['invitedlist', 'invitedusers'];
 
 const PER_PAGE = 10;
 
-/**
- * Build invited users panel
- */
 function buildInvitedPanel(guild, user, invitedUsers, authorId, botName, page = 0) {
 	const container = new ContainerBuilder();
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${EMOJIS.users || '👥'} Users Invited by ${user.username}`)
 	);
 
@@ -43,7 +40,6 @@ function buildInvitedPanel(guild, user, invitedUsers, authorId, botName, page = 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	container.addTextDisplayComponents(td => td.setContent(`Total: ${formatNumber(invitedUsers.length)} users • Page ${currentPage + 1}/${totalPages}`));
 
-	// Pagination buttons
 	if (totalPages > 1) {
 		container.addActionRowComponents(row => {
 			row.addComponents(
@@ -68,20 +64,16 @@ function buildInvitedPanel(guild, user, invitedUsers, authorId, botName, page = 
 	return container;
 }
 
-/**
- * Get invited users for a user
- */
 async function getInvitedUsers(client, guildId, userId) {
 	const stats = await ensureStatsConfig(client.db, guildId);
-	
+
 	if (!stats.invites?.[userId]) {
 		return [];
 	}
-	
+
 	return stats.invites[userId].invited || [];
 }
 
-// Component handlers
 const components = [
 	{
 		customId: /^invited_page:(\d+):(\d+):(-?\d+)$/,
@@ -113,9 +105,8 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Target user (mentioned, user ID, or self)
 	let targetUser = message.mentions.users.first();
-	
+
 	if (!targetUser && args[0]) {
 		const userId = args[0].replace(/[<@!>]/g, '');
 		try {
@@ -124,14 +115,14 @@ async function execute(message, args, client) {
 			targetUser = message.author;
 		}
 	}
-	
+
 	if (!targetUser) {
 		targetUser = message.author;
 	}
-	
+
 	const invitedUsers = await getInvitedUsers(client, message.guildId, targetUser.id);
 	const botName = client.user.username;
-	
+
 	const panel = buildInvitedPanel(message.guild, targetUser, invitedUsers, message.author.id, botName, 0);
 
 	await message.reply({ components: [panel], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });

@@ -26,14 +26,14 @@ export default {
         'reaction reset'
     ],
     userPermissions: [PermissionFlagsBits.ManageGuild],
-    
+
     async execute(message, args, client) {
         if (!message.guild) {
             return message.reply('This command can only be used in a server.');
         }
 
         const subcommand = args[0]?.toLowerCase();
-        
+
         if (!subcommand) {
             return this.showHelp(message);
         }
@@ -42,29 +42,29 @@ export default {
             case 'add':
             case 'create':
                 return this.addReaction(message, args.slice(1), client);
-            
+
             case 'remove':
             case 'delete':
             case 'del':
                 return this.removeReaction(message, args.slice(1), client);
-            
+
             case 'list':
             case 'ls':
                 return this.listReactions(message, client);
-            
+
             case 'messages':
             case 'msg':
             case 'channel':
                 return this.handleMessages(message, args.slice(1), client);
-            
+
             case 'reset':
             case 'clear':
                 return this.resetReactions(message, client);
-            
+
             case 'matchmode':
             case 'mode':
                 return this.setMatchMode(message, args.slice(1), client);
-            
+
             default:
                 return this.showHelp(message);
         }
@@ -72,11 +72,11 @@ export default {
 
     async showHelp(message) {
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# 😀 Reaction Triggers`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `Auto-react to messages containing specific triggers.\n\n` +
                 `**Subcommands:**\n` +
@@ -112,20 +112,16 @@ export default {
             return this.sendError(message, 'Please provide a trigger text.');
         }
 
-        // Validate emoji - must be a valid Unicode or custom emoji, not plain text
         if (!this.isValidEmoji(emojiArg)) {
             return this.sendError(message, `\`${emojiArg}\` is not a valid emoji!\n\nPlease use a valid emoji like 👍 or a custom server emoji.`);
         }
 
-        // Parse emoji for storage
         const emoji = this.parseEmoji(emojiArg);
 
-        // Get guild data
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const reactionTriggers = guildData.reactionTriggers || [];
 
-        // Check if this emoji+trigger combo already exists
-        const exists = reactionTriggers.some(rt => 
+        const exists = reactionTriggers.some(rt =>
             rt.emoji === emoji && rt.trigger.toLowerCase() === trigger.toLowerCase()
         );
 
@@ -133,12 +129,11 @@ export default {
             return this.sendError(message, `Reaction trigger \`${trigger}\` with ${emojiArg} already exists!`);
         }
 
-        // Add new reaction trigger
         reactionTriggers.push({
             emoji: emoji,
             emojiDisplay: emojiArg,
             trigger: trigger,
-            matchMode: MATCH_MODES.INCLUDES, // Default to includes
+            matchMode: MATCH_MODES.INCLUDES,
             createdBy: message.author.id,
             createdAt: Date.now()
         });
@@ -150,11 +145,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Reaction Trigger Added`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Emoji:** ${emojiArg}\n` +
                 `**Trigger:** \`${trigger}\`\n` +
@@ -186,7 +181,7 @@ export default {
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const reactionTriggers = guildData.reactionTriggers || [];
 
-        const index = reactionTriggers.findIndex(rt => 
+        const index = reactionTriggers.findIndex(rt =>
             rt.emoji === emoji && rt.trigger.toLowerCase() === trigger.toLowerCase()
         );
 
@@ -202,11 +197,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Reaction Trigger Removed`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`Removed ${emojiArg} reaction for trigger \`${trigger}\`.`)
         );
 
@@ -223,11 +218,11 @@ export default {
 
         if (reactionTriggers.length === 0) {
             const container = new ContainerBuilder();
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`# ℹ️ No Reaction Triggers`)
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`This server has no reaction triggers. Use \`.reaction add\` to create one!`)
             );
 
@@ -238,7 +233,6 @@ export default {
             });
         }
 
-        // Group by trigger with match mode
         const grouped = [];
         const seenTriggers = new Set();
         for (const rt of reactionTriggers) {
@@ -255,7 +249,6 @@ export default {
             }
         }
 
-        // Pagination - 5 per page
         const pageSize = 5;
         const pages = [];
         for (let i = 0; i < grouped.length; i += pageSize) {
@@ -272,15 +265,15 @@ export default {
 
         const buildPage = (page) => {
             const container = new ContainerBuilder();
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`# 😀 Reaction Triggers`)
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(pages[page])
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`Page ${page + 1}/${pages.length} • Total: ${grouped.length} trigger(s)`)
             );
 
@@ -337,7 +330,7 @@ export default {
     async setMatchMode(message, args, client) {
         const triggerText = args.slice(0, -1).join(' ').trim();
         const mode = args[args.length - 1]?.toLowerCase();
-        
+
         if (!triggerText || !mode) {
             return this.sendError(message, 'Usage: `.reaction matchmode <trigger> <mode>`\nModes: `exact`, `startswith`, `endswith`, `includes`, `regex`');
         }
@@ -349,20 +342,18 @@ export default {
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const reactionTriggers = guildData.reactionTriggers || [];
-        
-        // Find all reaction triggers with this trigger text
+
         const matchingIndices = [];
         reactionTriggers.forEach((rt, idx) => {
             if (rt.trigger.toLowerCase() === triggerText.toLowerCase()) {
                 matchingIndices.push(idx);
             }
         });
-        
+
         if (matchingIndices.length === 0) {
             return this.sendError(message, `No reaction triggers found with text \`${triggerText}\`.`);
         }
 
-        // Update match mode for all matching triggers
         for (const idx of matchingIndices) {
             reactionTriggers[idx].matchMode = mode;
         }
@@ -373,11 +364,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Match Mode Updated`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Trigger:** \`${triggerText}\`\n` +
                 `**New Match Mode:** ${MATCH_MODE_NAMES[mode]}\n\n` +
@@ -407,14 +398,13 @@ export default {
             return this.removeMessageReactions(message, args.slice(1), client);
         }
 
-        // Otherwise, it's adding channel reactions
         return this.addMessageReactions(message, args, client);
     },
 
     async addMessageReactions(message, args, client) {
-        // First arg should be channel, rest are emojis
+
         let channel = message.mentions.channels.first();
-        
+
         if (!channel) {
             const channelId = args[0].replace(/[<#>]/g, '');
             channel = message.guild.channels.cache.get(channelId);
@@ -434,10 +424,9 @@ export default {
         }
 
         const emojis = [];
-        
-        // Process each emoji arg - they might be combined without spaces
+
         for (const emojiArg of emojiArgs) {
-            // Try to split custom emojis first: <:name:id> or <a:name:id>
+
             const customEmojiMatches = emojiArg.match(/<a?:\w+:\d+>/g);
             if (customEmojiMatches && customEmojiMatches.length > 0) {
                 for (const match of customEmojiMatches) {
@@ -447,15 +436,14 @@ export default {
                     }
                 }
             } else {
-                // Handle unicode emojis - they might be combined
-                // Split on emoji boundaries using regex
+
                 const unicodeEmojis = emojiArg.match(/(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/gu);
                 if (unicodeEmojis && unicodeEmojis.length > 0) {
                     for (const emoji of unicodeEmojis) {
                         emojis.push({ emoji, display: emoji });
                     }
                 } else {
-                    // Fallback: treat as single emoji
+
                     const emoji = this.parseEmoji(emojiArg);
                     if (emoji) {
                         emojis.push({ emoji, display: emojiArg });
@@ -463,8 +451,7 @@ export default {
                 }
             }
         }
-        
-        // Limit to 3 emojis
+
         const finalEmojis = emojis.slice(0, 3);
 
         if (finalEmojis.length === 0) {
@@ -474,9 +461,8 @@ export default {
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const channelReactions = guildData.channelReactions || [];
 
-        // Check if channel already has reactions
         const existingIndex = channelReactions.findIndex(cr => cr.channelId === channel.id);
-        
+
         if (existingIndex !== -1) {
             channelReactions[existingIndex].emojis = finalEmojis;
         } else {
@@ -495,11 +481,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Channel Reactions Set`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Channel:** ${channel}\n` +
                 `**Reactions:** ${finalEmojis.map(e => e.display).join(' ')}\n\n` +
@@ -520,11 +506,11 @@ export default {
 
         if (channelReactions.length === 0) {
             const container = new ContainerBuilder();
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`# ℹ️ No Channel Reactions`)
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`No channels have auto-reactions. Use \`.reaction messages <#channel> <emojis>\` to set up!`)
             );
 
@@ -534,7 +520,7 @@ export default {
                 allowedMentions: { repliedUser: false }
             });
         }
-        // Pagination - 5 per page
+
         const pageSize = 5;
         const pages = [];
         for (let i = 0; i < channelReactions.length; i += pageSize) {
@@ -551,15 +537,15 @@ export default {
 
         const buildPage = (page) => {
             const container = new ContainerBuilder();
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`# 📺 Channel Reactions`)
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(pages[page])
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`Page ${page + 1}/${pages.length} • Total: ${channelReactions.length} channel(s)`)
             );
 
@@ -615,7 +601,7 @@ export default {
 
     async removeMessageReactions(message, args, client) {
         let channel = message.mentions.channels.first();
-        
+
         if (!channel && args[0]) {
             const channelId = args[0].replace(/[<#>]/g, '');
             channel = message.guild.channels.cache.get(channelId);
@@ -642,11 +628,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Channel Reactions Removed`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`Removed auto-reactions from ${channel}.`)
         );
 
@@ -664,11 +650,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ All Reactions Reset`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`All reaction triggers and channel reactions have been removed.`)
         );
 
@@ -681,42 +667,37 @@ export default {
 
     parseEmoji(str) {
         if (!str) return null;
-        
-        // Custom emoji: <:name:id> or <a:name:id>
+
         const customMatch = str.match(/^<(a)?:(\w+):(\d+)>$/);
         if (customMatch) {
-            // For message.react(), use format: name:id (or a:name:id for animated)
+
             const animated = customMatch[1] ? 'a:' : '';
             const name = customMatch[2];
             const id = customMatch[3];
             return `${animated}${name}:${id}`;
         }
-        
-        // Unicode emoji - check if it's actually an emoji, not plain text
-        // Emojis should be very short (1-4 chars typically) and contain emoji characters
-        if (str.length > 10) return null; // Too long to be an emoji
-        
-        // Check for emoji characters
+
+        if (str.length > 10) return null;
+
         const hasEmoji = /(\p{Emoji_Presentation}|\p{Emoji}\uFE0F)/u.test(str);
         if (hasEmoji) {
             return str;
         }
-        
-        // Not a valid emoji
+
         return null;
     },
-    
+
     isValidEmoji(str) {
         return this.parseEmoji(str) !== null;
     },
 
     async sendError(message, errorText) {
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ❌ Error`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(errorText)
         );
 

@@ -107,16 +107,15 @@ export default {
             await channel.permissionOverwrites.delete(role).catch(() => {});
             restoreSucceeded = true;
           } else {
-            // Try to apply stored allow/deny first
-            // Mark this as a command-invoked action so logging knows who did it
+
             markCommandInvoker(message.guild.id, 'unhide', role.id, message.author);
-            
+
             await channel.permissionOverwrites.edit(role, { allow: prevAllow, deny: prevDeny }).catch(() => {});
             let afterEffective = channel.permissionsFor(role)?.has(PermissionFlagsBits.ViewChannel);
             if (afterEffective) {
               restoreSucceeded = true;
             } else {
-              // Fallback: delete existing overwrite and reapply explicit allow/deny
+
               await channel.permissionOverwrites.delete(role).catch(() => {});
               await channel.permissionOverwrites.edit(role, { allow: prevAllow, deny: prevDeny }).catch(() => {});
               afterEffective = channel.permissionsFor(role)?.has(PermissionFlagsBits.ViewChannel);
@@ -125,10 +124,9 @@ export default {
             }
           }
         } else {
-          // No stored state: remove any explicit overwrite so the channel returns to neutral/inherited state
-          // Mark this as a command-invoked action so logging knows who did it
+
           markCommandInvoker(message.guild.id, 'unhide', role.id, message.author);
-          
+
           if (overwrite) {
             await channel.permissionOverwrites.delete(role).catch(() => {});
             console.log('[unhide debug] deleted existing overwrite because no stored state was found');
@@ -150,7 +148,6 @@ export default {
         console.log('[unhide debug] restore did not succeed; leaving stored state intact for retry');
       }
 
-      // Send log for channel unhide (role)
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_UNHIDE, {
         executor: message.author,
         channel: channel,
@@ -187,7 +184,6 @@ export default {
       }
       try { await client.db.updateOne({ guildId: message.guildId }, { $unset: { [`moderation.hiddenChannelStates.${channel.id}.m:${member.id}`]: '' } }); } catch (e) {}
 
-      // Send log for channel unhide (member)
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_UNHIDE, {
         executor: message.author,
         target: member.user,

@@ -28,9 +28,8 @@ async function execute(message, args, client) {
 	let isCategory = false;
 	let resolvedName = null;
 
-	// Check if it's a command
 	const command = client.prefixCommands.get(targetName) || client.prefixCommands.get(client.prefixAliases.get(targetName));
-	
+
 	if (command) {
 		if (command.name === 'disable' || command.name === 'enable') {
 			container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Safety**`));
@@ -39,7 +38,7 @@ async function execute(message, args, client) {
 		}
 		resolvedName = command.name;
 	} else {
-		// Check if it's a category
+
 		const categories = new Set(client.prefixCommands.map(c => c.category ? c.category.toLowerCase() : null).filter(c => c));
 		if (categories.has(targetName)) {
 			isCategory = true;
@@ -53,7 +52,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 	}
 
-	// Determine Scope
 	let scope = 'global';
 	let scopeName = 'Server-wide';
 
@@ -68,8 +66,7 @@ async function execute(message, args, client) {
 			scopeName = 'Server-wide';
 		}
 	} else {
-		// If mention in first arg? No, first arg is command text.
-		// Default to global
+
 		scope = 'global';
 		scopeName = 'Server-wide';
 	}
@@ -101,7 +98,7 @@ async function execute(message, args, client) {
 		container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Disabled**`));
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		container.addTextDisplayComponents(td => td.setContent(`${isCategory ? 'Category' : 'Command'} \`${resolvedName}\` has been disabled **${scopeName}**.`));
-		
+
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
 	} catch (err) {

@@ -17,7 +17,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -27,19 +26,18 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Target user or server-wide
 	const targetUser = message.mentions.users.first();
-	
+
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
-		
+
 		if (targetUser) {
-			// Reset for specific user
+
 			if (stats.users[targetUser.id]) {
 				const oldCount = stats.users[targetUser.id].messages?.length || 0;
 				stats.users[targetUser.id].messages = [];
 				await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-				
+
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.check || '✅'} Messages Reset\n\n` +
 					`Reset message count for <@${targetUser.id}>.\n` +
@@ -51,25 +49,23 @@ async function execute(message, args, client) {
 				));
 			}
 		} else {
-			// Reset all messages for server
+
 			let totalCleared = 0;
 			for (const userId of Object.keys(stats.users || {})) {
 				totalCleared += stats.users[userId].messages?.length || 0;
 				stats.users[userId].messages = [];
 			}
-			
-			// Clear daily message counts
+
 			for (const day of Object.keys(stats.daily || {})) {
 				stats.daily[day].messages = 0;
 			}
-			
-			// Clear channel message stats
+
 			for (const chId of Object.keys(stats.channels || {})) {
 				stats.channels[chId].messages = [];
 			}
-			
+
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-			
+
 			container.addTextDisplayComponents(td => td.setContent(
 				`# ${EMOJIS.check || '✅'} All Messages Reset\n\n` +
 				`Reset all message statistics for **${message.guild.name}**.\n` +

@@ -60,23 +60,16 @@ export default {
     let timeArg = args[0];
     let durationArg = args[1];
 
-    // Support alternative separators and compact forms:
-    // - `.sm 5m 30s` (existing)
-    // - `.sm 5m | 30s` (space-separated pipe)
-    // - `.sm 5m|30s` (compact)
-    // - `.sm 5m,30s` or `.sm 5m/30s`
     if (args.length >= 3 && durationArg === '|' && args[2]) {
       durationArg = args[2];
     }
 
-    // If the first argument contains a separator like `|`, `,`, or `/`, split it
     if (typeof timeArg === 'string' && /[|,\/]/.test(timeArg)) {
       const parts = timeArg.split(/[|,\/]/).map(p => p.trim()).filter(Boolean);
       if (parts.length >= 1) timeArg = parts[0];
       if (!durationArg && parts.length >= 2) durationArg = parts[1];
     }
 
-    // Show current status
     if (!timeArg) {
       const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId };
       const stored = guildData.moderation?.slowmode?.[channel.id];
@@ -86,7 +79,6 @@ export default {
         return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // active
       const interval = channel.rateLimitPerUser;
       let remaining = null;
       if (stored && stored.expiresAt) {
@@ -114,15 +106,13 @@ export default {
       return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Handle off
     if (timeArg.toLowerCase() === 'off') {
       try {
-        // Mark this as a command-invoked action so logging knows who did it
+
         markCommandInvoker(message.guild.id, 'slowmode', channel.id, message.author);
-        
+
         await channel.setRateLimitPerUser(0);
 
-        // Send mod log
         await sendLog(client, message.guildId, LOG_EVENTS.MOD_SLOWMODE, {
           executor: message.author,
           channel: channel,
@@ -136,7 +126,6 @@ export default {
         return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
 
-      // remove stored record
       try {
         const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId };
         if (guildData.moderation && guildData.moderation.slowmode && guildData.moderation.slowmode[channel.id]) {
@@ -150,7 +139,6 @@ export default {
       return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Parse time argument
     const intervalMs = parseTime(timeArg);
     if (intervalMs === null) {
       const container = buildEmbed(`# ${EMOJIS.error} Invalid Time`, 'Provide a valid interval like `5s`, `10m`, or `1h`.');
@@ -167,7 +155,6 @@ export default {
       return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // If durationArg provided, parse
     let expiresAt = null;
     if (durationArg) {
       const durMs = parseTime(durationArg);
@@ -180,14 +167,12 @@ export default {
       expiresAt = new Date(Date.now() + durMs).toISOString();
     }
 
-    // Apply slowmode
     try {
-      // Mark this as a command-invoked action so logging knows who did it
+
       markCommandInvoker(message.guild.id, 'slowmode', channel.id, message.author);
-      
+
       await channel.setRateLimitPerUser(intervalSeconds);
 
-      // Send mod log
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_SLOWMODE, {
         executor: message.author,
         channel: channel,
@@ -202,7 +187,6 @@ export default {
       return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Persist if duration provided
     if (expiresAt) {
       try {
         const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
@@ -216,7 +200,6 @@ export default {
       }
     }
 
-    // Responses
     if (expiresAt) {
       const ms = new Date(expiresAt).getTime() - Date.now();
       const humanDur = formatDuration(ms);

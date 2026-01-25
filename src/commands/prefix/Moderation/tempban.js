@@ -55,7 +55,7 @@ export default {
     }
 
     const userMention = message.mentions.users.first() || (args[0] && await message.guild.members.fetch(args[0]).then(m => m.user).catch(() => null));
-    
+
     if (!userMention) {
       const container = buildNotice(
         `# ${EMOJIS.error} **Invalid User**`,
@@ -124,7 +124,6 @@ export default {
         });
       }
 
-      // Mark this as a command-invoked action so logging knows who did it
       markCommandInvoker(message.guild.id, 'tempban', userMention.id, message.author);
 
       await message.guild.bans.create(userMention.id, {
@@ -132,7 +131,6 @@ export default {
         deleteMessageSeconds: 24 * 60 * 60
       });
 
-      // Save action to database
       try {
         const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
         if (!guildData.moderation) guildData.moderation = {};
@@ -185,7 +183,6 @@ export default {
         allowedMentions: { repliedUser: false }
       });
 
-      // Send log for tempban
       await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_TEMPBAN, {
         executor: message.author,
         target: userMention,

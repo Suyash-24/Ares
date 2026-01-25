@@ -14,17 +14,17 @@ export function buildMessageFromInteraction(interaction, rawContent = '') {
     content: rawContent,
     reply: async (options) => {
       if (!interaction.replied && !interaction.deferred) {
-        await interaction.reply({ 
-          components: options.components, 
-          flags: options.flags, 
-          content: options.content, 
+        await interaction.reply({
+          components: options.components,
+          flags: options.flags,
+          content: options.content,
           embeds: options.embeds,
-          allowedMentions: options.allowedMentions, 
-          ephemeral: options.ephemeral || false 
+          allowedMentions: options.allowedMentions,
+          ephemeral: options.ephemeral || false
         }).catch(() => {});
       } else {
-        await interaction.editReply({ 
-          components: options.components, 
+        await interaction.editReply({
+          components: options.components,
           content: options.content,
           embeds: options.embeds
         }).catch(() => {});

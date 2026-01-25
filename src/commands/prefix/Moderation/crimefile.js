@@ -39,7 +39,7 @@ export default {
   category: 'Moderation',
 
   async execute(message, args, client) {
-    // Check if user can use crimefile command
+
     const { ModerationPermissions, getModerationPermissionErrors } = await import('../../../utils/ModerationPermissions.js');
     const canUse = await ModerationPermissions.canUseCommand(message.member, 'crimefile', client, message.guildId);
     if (!canUse.allowed) {
@@ -129,12 +129,10 @@ export default {
         });
       }
 
-      // Pagination: 3 actions per page
       const ACTIONS_PER_PAGE = 3;
       const sortedActions = userActions.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)).reverse();
       const totalPages = Math.ceil(sortedActions.length / ACTIONS_PER_PAGE);
-      
-      // Check if a page number was provided
+
       let requestedPage = 0;
       if (args[1]) {
         requestedPage = parseInt(args[1]) || 0;
@@ -164,7 +162,7 @@ export default {
             const caseNum = action.caseNumber || '?';
 
             const actionText = `${emoji} **#${caseNum} ${type}**\n**Moderator:** ${modName}\n**Date:** ${date}\n**Reason:** ${reason}`;
-            
+
             container.addTextDisplayComponents((textDisplay) =>
               textDisplay.setContent(actionText)
             );
@@ -180,20 +178,19 @@ export default {
         container.addSeparatorComponents((separator) =>
           separator.setSpacing(SeparatorSpacingSize.Small)
         );
-        
+
         container.addTextDisplayComponents((textDisplay) =>
           textDisplay.setContent(`**💀 Total Punishments: ${userActions.length}**`)
         );
-        
+
         container.addSeparatorComponents((separator) =>
           separator.setSpacing(SeparatorSpacingSize.Small)
         );
-        
+
         container.addTextDisplayComponents((textDisplay) =>
           textDisplay.setContent(`**Page: ${pageNum + 1}/${totalPages}**`)
         );
 
-        // Add pagination buttons (always visible)
         container.addActionRowComponents((row) => {
           const prevBtn = new ButtonBuilder()
             .setCustomId(`crimefile_prev_${message.author.id}_${target.user.id}_${pageNum - 1}`)

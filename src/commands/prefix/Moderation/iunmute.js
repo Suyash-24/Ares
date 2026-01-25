@@ -38,7 +38,6 @@ export default {
 			});
 		}
 
-		// Check if user can use iunmute command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'unmute', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -122,7 +121,6 @@ export default {
 
 			const guildData = await client.db.findOne({ guildId: message.guildId });
 
-			// Create guild data if it doesn't exist
 			let finalGuildData = guildData || {
 				guildId: message.guildId,
 				moderation: {
@@ -133,7 +131,6 @@ export default {
 				}
 			};
 
-			// Ensure moderation structure exists
 			if (!finalGuildData.moderation) {
 				finalGuildData.moderation = {
 					supportRoles: [],
@@ -147,11 +144,8 @@ export default {
 				finalGuildData.moderation.actions = [];
 			}
 
-			// Remove permission overwrites from all channels
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'iunmute', target.id, message.author);
 
-			// Send mod log
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_IUNMUTE, {
 				executor: message.author,
 				target: target.user,
@@ -165,7 +159,7 @@ export default {
 
 			for (const [channelId, channel] of channels) {
 				if (!channel) continue;
-				
+
 				try {
 					await channel.permissionOverwrites.edit(target.id, {
 						AttachFiles: null,
@@ -177,7 +171,6 @@ export default {
 				}
 			}
 
-			// Save to actions for modstats
 			const caseNumber = generateCaseNumber(finalGuildData);
 			finalGuildData.moderation.actions.push({
 				caseNumber,

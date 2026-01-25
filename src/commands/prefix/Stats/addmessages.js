@@ -17,7 +17,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -27,7 +26,6 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Parse arguments
 	const targetUser = message.mentions.users.first();
 	const amountArg = args.find(a => !a.startsWith('<@'));
 	const amount = parseInt(amountArg, 10);
@@ -52,27 +50,24 @@ async function execute(message, args, client) {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
 		const today = new Date().toISOString().split('T')[0];
 		const timestamp = Date.now();
-		
-		// Initialize user stats
+
 		if (!stats.users[targetUser.id]) {
 			stats.users[targetUser.id] = { messages: [], voice: [], joins: [] };
 		}
-		
-		// Add fake message entries
+
 		for (let i = 0; i < amount; i++) {
 			stats.users[targetUser.id].messages.push({ ts: timestamp, ch: 'bonus' });
 		}
-		
-		// Update daily stats
+
 		if (!stats.daily[today]) {
 			stats.daily[today] = { messages: 0, voice: 0, joins: 0, leaves: 0 };
 		}
 		stats.daily[today].messages += amount;
-		
+
 		await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-		
+
 		const newTotal = stats.users[targetUser.id].messages.length;
-		
+
 		container.addTextDisplayComponents(td => td.setContent(
 			`# ${EMOJIS.check || '✅'} Messages Added\n\n` +
 			`Added **${formatNumber(amount)}** messages to <@${targetUser.id}>.\n` +

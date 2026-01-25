@@ -40,7 +40,6 @@ async function execute(message, args, client) {
 	state.xp -= amount;
 	state.totalXp = Math.max(0, state.totalXp - amount);
 
-	// Handle delevel if XP goes negative
 	while (state.xp < 0 && state.level > 0) {
 		state.level -= 1;
 		const needed = xpToNextLevel(state.level, leveling);
@@ -49,13 +48,13 @@ async function execute(message, args, client) {
 	state.xp = Math.max(0, state.xp);
 
 	await client.db.updateOne({ guildId: message.guildId }, { $set: { leveling } });
-	
+
 	const c = new ContainerBuilder();
 	c.addTextDisplayComponents(td => td.setContent(`## ${EMOJIS.success || '✅'} XP Removed`));
 	c.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	const levelMsg = oldLevel !== state.level ? `\n${EMOJIS.trending || '📉'} Level: **${oldLevel}** → **${state.level}**` : '';
 	c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.star || '⭐'} Removed **${amount.toLocaleString()}** XP from **${member.user.username}**${levelMsg}`));
-	
+
 	await message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 }
 

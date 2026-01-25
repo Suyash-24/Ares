@@ -21,10 +21,9 @@ export default {
     const subcommand = args[0]?.toLowerCase();
     const allowAll = config.suggestAllowAllChannels === true;
 
-    // Check if suggestions are disabled (no channel configured)
     const isSuggestDisabled = !config.suggestChannelId;
     if (isSuggestDisabled && subcommand !== 'channel' && subcommand !== 'anychannel' && subcommand !== 'disable') {
-      return; // Silently ignore when disabled
+      return;
     }
 
     const requireAdmin = async () => {
@@ -176,7 +175,7 @@ export default {
     }
 
     if (!args.length) {
-      return; // Silently ignore when no args and suggestions disabled
+      return;
     }
 
     const fullText = args.join(' ');
@@ -368,7 +367,3 @@ ${reason}
   },
   components: []
 };
-
-
-
-

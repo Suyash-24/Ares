@@ -38,7 +38,6 @@ export default {
 			});
 		}
 
-		// Check if user can use warn command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -122,7 +121,6 @@ export default {
 
 			const guildData = await client.db.findOne({ guildId: message.guildId });
 
-			// Create guild data if it doesn't exist
 			let finalGuildData = guildData || {
 				guildId: message.guildId,
 				moderation: {
@@ -133,7 +131,6 @@ export default {
 				}
 			};
 
-			// Ensure moderation structure exists
 			if (!finalGuildData.moderation) {
 				finalGuildData.moderation = {
 					supportRoles: [],
@@ -147,7 +144,6 @@ export default {
 				finalGuildData.moderation.warnings = [];
 			}
 
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'warn', target.id, message.author);
 
 			finalGuildData.moderation.warnings.push({
@@ -157,7 +153,6 @@ export default {
 				timestamp: new Date()
 			});
 
-			// Also save to actions for modstats
 			if (!finalGuildData.moderation.actions) {
 				finalGuildData.moderation.actions = [];
 			}
@@ -198,7 +193,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Send log for warn
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_WARN, {
 				executor: message.author,
 				target: target.user,

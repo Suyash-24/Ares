@@ -128,12 +128,10 @@ export function extendSlowmode(client, guildId, channelId, ms) {
     if (!guildData.moderation) guildData.moderation = {};
     if (!guildData.moderation.slowmode) guildData.moderation.slowmode = {};
 
-    // If a stored record exists, increase its interval
     if (guildData.moderation.slowmode[channelId]) {
       const rec = guildData.moderation.slowmode[channelId];
       rec.interval = (rec.interval || 0) + extraSeconds;
 
-      // Try to update the channel's actual rate limit
       try {
         const guild = client.guilds.cache.get(guildId);
         if (guild) {
@@ -147,12 +145,11 @@ export function extendSlowmode(client, guildId, channelId, ms) {
       }
 
       await client.db.updateOne({ guildId }, { $set: guildData }, { upsert: true });
-      // If there is an expiresAt, re-schedule the clear
+
       if (rec.expiresAt) scheduleSlowmodeClear(client, { guildId, channelId, interval: rec.interval, expiresAt: rec.expiresAt });
       return rec;
     }
 
-    // No stored record — try to infer from the channel's current rateLimitPerUser and increase it
     try {
       const guild = client.guilds.cache.get(guildId);
       if (!guild) return null;
@@ -166,7 +163,6 @@ export function extendSlowmode(client, guildId, channelId, ms) {
         console.error('Error setting channel rateLimit when extending inferred slowmode:', err);
       }
 
-      // Persist a record without expiresAt (persistent until turned off)
       const rec = { interval: newInterval };
       guildData.moderation.slowmode[channelId] = rec;
       await client.db.updateOne({ guildId }, { $set: guildData }, { upsert: true });

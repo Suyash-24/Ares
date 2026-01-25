@@ -8,13 +8,13 @@ export default {
   usage: 'banflux <count> [reason] ',
   category: 'Moderation',
   async execute(message, args, client) {
-    // Check antinuke admin + Discord admin
+
     const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
     const isOwner = message.guild.ownerId === message.author.id;
     const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
     const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
     const hasDiscordAdmin = message.member?.permissions?.has(PermissionsBitField.Flags.Administrator);
-    
+
     if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
       const container = new ContainerBuilder();
       container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.error} Missing Permissions`));

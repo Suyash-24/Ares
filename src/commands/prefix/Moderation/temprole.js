@@ -30,7 +30,6 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Parse member
 		let targetMember;
 		try {
 			const memberId = args[0].replace(/[<@!>]/g, '');
@@ -47,7 +46,6 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Parse duration
 		const duration = parseTime(args[1]);
 		if (!duration) {
 			const container = buildNotice(
@@ -61,12 +59,11 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Parse role
 		let targetRole;
 		try {
 			const roleId = args[2].replace(/[<@&!>]/g, '');
 			targetRole = await message.guild.roles.fetch(roleId).catch(() => null);
-			
+
 			if (!targetRole) {
 				targetRole = message.guild.roles.cache.find(r => r.name.toLowerCase() === args.slice(2).join(' ').toLowerCase());
 			}
@@ -94,7 +91,6 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Check if role has dangerous permissions
 		if (targetRole.permissions.has('Administrator') || targetRole.permissions.has('ManageGuild')) {
 			const container = buildNotice(
 				`# ${EMOJIS.error || '❌'} Cannot Assign Role`,
@@ -107,7 +103,6 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Check if bot can manage the role
 		if (!message.guild.members.me.permissions.has('ManageRoles')) {
 			const container = buildNotice(
 				`# ${EMOJIS.error || '❌'} Missing Permissions`,
@@ -120,7 +115,6 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Check if bot's role is higher than target role
 		if (message.guild.members.me.roles.highest.position <= targetRole.position) {
 			const container = buildNotice(
 				`# ${EMOJIS.error || '❌'} Role Too High`,
@@ -133,7 +127,6 @@ const buildNotice = (title, description) => {
 			});
 		}
 
-		// Check if member already has the role
 		if (targetMember.roles.cache.has(targetRole.id)) {
 			const container = buildNotice(
 				`# ${EMOJIS.error || '❌'} Already Has Role`,
@@ -147,11 +140,10 @@ const buildNotice = (title, description) => {
 		}
 
 		try {
-			// Add role
+
 			markCommandInvoker(message.guild.id, 'temprole', targetMember.id, message.author);
 			await targetMember.roles.add(targetRole);
 
-			// Send mod log
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_TEMPROLE, {
 				executor: message.author,
 				target: targetMember.user,
@@ -162,7 +154,6 @@ const buildNotice = (title, description) => {
 				thumbnail: targetMember.user.displayAvatarURL()
 			});
 
-			// Store temporary role data in database
 			const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId };
 			if (!guildData.temporaryRoles) guildData.temporaryRoles = [];
 
@@ -183,7 +174,6 @@ const buildNotice = (title, description) => {
 				{ $set: guildData }
 			);
 
-			// Schedule automatic removal for this role
 			scheduleTemporaryRoleRemoval(client, tempRoleRecord);
 
 			const container = buildNotice(

@@ -62,27 +62,24 @@ const fetchUserOrMember = async (client, guild, raw) => {
     const id = cleanId(raw);
     if (!id) return null;
 
-    // Try guild member first for richer data (roles, username overrides)
     const member = await guild.members.fetch(id).catch(() => null);
     if (member) return { user: member.user, member };
 
-    // Fallback to global user fetch
     const user = await client.users.fetch(id).catch(() => null);
     if (user) return { user, member: guild.members.cache.get(user.id) || null };
 
     return null;
 };
 
-// Helper function to build the wizard container - used by both prefix command and button handler
 const buildWizardContainer = (guildData, viewMode = null, disabled = false) => {
     const container = new ContainerBuilder();
-    
+
     const status = guildData.antinuke?.enabled;
     const enabledModules = Object.entries(guildData.antinuke?.modules || {})
         .filter(([_, m]) => m.enabled).length;
     const totalModules = Object.keys(MODULES).length;
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`# ${EMOJIS.antinukeemoji || '🛡️'} Antinuke Setup Wizard${disabled ? ' (Expired)' : ''}\n` +
             `${disabled ? '⏰ **This wizard has expired. Run the command again to create a new one.**\n\n' : ''}` +
             `Configure your server's protection system with ease.\n\n` +
@@ -93,39 +90,36 @@ const buildWizardContainer = (guildData, viewMode = null, disabled = false) => {
     );
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`### Quick Setup Presets\nChoose a preset to quickly configure protection:`)
     );
 
     const getPresetKey = () => {
-        // Check explicit appliedPreset flag
-        // If it's set to 'custom', user made manual changes - don't auto-detect
+
         if (guildData.antinuke?.appliedPreset === 'custom') {
             console.log(`[BuildWizard] Custom config detected (manual changes made)`);
             return null;
         }
-        
-        // If explicit preset is set, use it
+
         if (guildData.antinuke?.appliedPreset && guildData.antinuke.appliedPreset !== 'custom') {
             return guildData.antinuke.appliedPreset;
         }
 
-        // Auto-detect based on enabled modules (only for fresh configs without any changes)
         const enabledModules = Object.keys(guildData.antinuke?.modules || {}).filter(m => guildData.antinuke.modules[m]?.enabled);
         const enabledKeys = new Set(enabledModules);
-        
+
         console.log(`[BuildWizard] Enabled modules:`, enabledModules);
         console.log(`[BuildWizard] Enabled keys:`, Array.from(enabledKeys));
-        
+
         const recommendedKeys = new Set(['ban', 'kick', 'role', 'channel', 'webhook', 'botadd']);
         const strictKeys = new Set(['ban', 'kick', 'role', 'channel', 'webhook', 'emoji', 'botadd', 'vanity', 'prune', 'permissions']);
         const lightKeys = new Set(['ban', 'kick', 'channel']);
-        
+
         console.log(`[BuildWizard] Recommended keys:`, Array.from(recommendedKeys));
         console.log(`[BuildWizard] Strict keys:`, Array.from(strictKeys));
         console.log(`[BuildWizard] Light keys:`, Array.from(lightKeys));
-        
+
         if (enabledKeys.size === recommendedKeys.size && [...enabledKeys].every(k => recommendedKeys.has(k))) {
             console.log(`[BuildWizard] Detected preset: recommended`);
             return 'recommended';
@@ -141,7 +135,7 @@ const buildWizardContainer = (guildData, viewMode = null, disabled = false) => {
         console.log(`[BuildWizard] No preset detected (custom config)`);
         return null;
     };
-    
+
     const currentPreset = getPresetKey();
 
     const presetRow = new ActionRowBuilder().addComponents(
@@ -168,8 +162,8 @@ const buildWizardContainer = (guildData, viewMode = null, disabled = false) => {
     container.addActionRowComponents(presetRow);
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`### Manual Configuration`)
     );
 
@@ -224,7 +218,7 @@ const buildWizardContainer = (guildData, viewMode = null, disabled = false) => {
     );
 
     container.addActionRowComponents(toggleRow);
-    
+
     return container;
 };
 
@@ -237,13 +231,12 @@ export default {
 
     async execute(message, args, client) {
         const guildData = await this.getGuildData(client, message.guildId);
-        
+
         const isOwner = message.guild.ownerId === message.author.id;
         const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
         const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
         const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
 
-        // Require BOTH Discord Administrator permission and bot-level admin/owner
         if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
             return this.sendError(
                 message,
@@ -344,7 +337,6 @@ export default {
             data.antinuke.strictBotVerification = true;
         }
 
-        // Normalize legacy quarantine -> protocol
         if (data.antinuke.defaultPunishment === 'quarantine') {
             data.antinuke.defaultPunishment = 'protocol';
         }
@@ -368,26 +360,24 @@ export default {
     async showSetupWizard(message, client, guildData) {
         const container = buildWizardContainer(guildData);
         const reply = await message.reply({ components: [container], flags: MessageFlags.IsComponentsV2 });
-        
-        // Store wizard metadata for expiry check
+
         if (!client.antinukeWizards) client.antinukeWizards = new Map();
         client.antinukeWizards.set(reply.id, {
             authorId: message.author.id,
             createdAt: Date.now(),
             guildId: message.guildId
         });
-        
-        // Auto-expire after 5 minutes
+
         setTimeout(async () => {
             try {
                 const disabledContainer = buildWizardContainer(guildData, null, true);
                 await reply.edit({ components: [disabledContainer] }).catch(() => {});
                 client.antinukeWizards.delete(reply.id);
             } catch (e) {
-                // Message might be deleted
+
             }
-        }, 5 * 60 * 1000); // 5 minutes
-        
+        }, 5 * 60 * 1000);
+
         return reply;
     },
 
@@ -406,7 +396,7 @@ export default {
             details: 'Antinuke protection system has been activated'
         });
 
-        return this.sendSuccess(message, 'Antinuke Enabled', 
+        return this.sendSuccess(message, 'Antinuke Enabled',
             'Server protection is now **active**.\n\n' +
             `Use \`.antinuke wizard\` to configure modules or \`.antinuke preset recommended\` for quick setup.`);
     },
@@ -426,13 +416,13 @@ export default {
             details: '⚠️ Antinuke protection system has been deactivated'
         });
 
-        return this.sendSuccess(message, 'Antinuke Disabled', 
+        return this.sendSuccess(message, 'Antinuke Disabled',
             'Server protection has been **disabled**.\n⚠️ Your server is now vulnerable to nuke attacks.');
     },
 
     async handlePreset(message, args, client, guildData) {
         const presetName = args[1]?.toLowerCase();
-        
+
         if (!presetName || !PRESETS[presetName]) {
             let content = '**Available Presets:**\n\n';
             for (const [key, preset] of Object.entries(PRESETS)) {
@@ -445,7 +435,7 @@ export default {
         }
 
         const preset = PRESETS[presetName];
-        
+
         guildData.antinuke.enabled = true;
         guildData.antinuke.defaultThreshold = preset.threshold;
         guildData.antinuke.defaultWindow = preset.window;
@@ -475,7 +465,7 @@ export default {
             }
         });
 
-        return this.sendSuccess(message, `${preset.name} Preset Applied`, 
+        return this.sendSuccess(message, `${preset.name} Preset Applied`,
             `Antinuke is now **enabled** with the ${preset.name} preset!\n\n` +
             `**Modules Enabled:** ${preset.modules.map(m => MODULES[m].name).join(', ')}\n` +
             `**Threshold:** ${preset.threshold} actions in ${preset.window}s\n` +
@@ -486,9 +476,9 @@ export default {
     async handleAdmin(message, args, client, guildData, isOwner) {
         const rawTarget = ['add', 'remove', 'toggle'].includes(args[1]?.toLowerCase()) ? args[2] : args[1];
         const target = (message.mentions.users.first() || (await fetchUserOrMember(client, message.guild, rawTarget))?.user);
-        
+
         if (!target) {
-            return this.sendError(message, 'Invalid Usage', 
+            return this.sendError(message, 'Invalid Usage',
                 'Usage: `.antinuke admin @user` or `.antinuke admin <userId>`\n' +
                 'Toggles antinuke admin status for the user.\n\n' +
                 '*Admins can configure antinuke settings but cannot manage other admins or extra owners.*');
@@ -528,32 +518,32 @@ export default {
             }
         });
 
-        return this.sendSuccess(message, 'Admin Updated', 
+        return this.sendSuccess(message, 'Admin Updated',
             `**${target.username}** has been ${action} antinuke admins.\n` +
             `They can now ${action === 'added to' ? 'configure' : 'no longer configure'} antinuke settings.`);
     },
 
     async handleAdminsList(message, guildData) {
         const admins = guildData.antinuke?.admins || [];
-        
+
         if (admins.length === 0) {
-            return this.sendInfo(message, 'Antinuke Admins', 
+            return this.sendInfo(message, 'Antinuke Admins',
                 'No antinuke admins configured.\n' +
                 'The server owner always has full access.\n\n' +
                 '*Add admins with `.antinuke admin @user`*');
         }
 
         const adminList = admins.map((id, i) => `\`${i + 1}\` <@${id}>`).join('\n');
-        return this.sendInfo(message, `Antinuke Admins (${admins.length})`, 
+        return this.sendInfo(message, `Antinuke Admins (${admins.length})`,
             `${adminList}\n\n*The server owner and extra owners always have full access.*`);
     },
 
     async handleExtraOwner(message, args, client, guildData) {
         const rawTarget = ['add', 'remove', 'toggle'].includes(args[1]?.toLowerCase()) ? args[2] : args[1];
         const target = (message.mentions.users.first() || (await fetchUserOrMember(client, message.guild, rawTarget))?.user);
-        
+
         if (!target) {
-            return this.sendError(message, 'Invalid Usage', 
+            return this.sendError(message, 'Invalid Usage',
                 'Usage: `.antinuke extraowner @user` or `.antinuke extraowner <userId>`\n' +
                 'Toggles extra owner status for the user.\n\n' +
                 '⚠️ **Warning:** Extra owners have FULL control over antinuke, equivalent to the server owner.');
@@ -589,16 +579,16 @@ export default {
             }
         });
 
-        return this.sendSuccess(message, 'Extra Owner Updated', 
+        return this.sendSuccess(message, 'Extra Owner Updated',
             `**${target.username}** has been ${action} extra owner.\n` +
             `They now have ${action === 'added as' ? 'full antinuke control' : 'standard permissions'}.`);
     },
 
     async handleExtraOwnersList(message, guildData) {
         const owners = guildData.antinuke?.extraOwners || [];
-        
+
         if (owners.length === 0) {
-            return this.sendInfo(message, 'Extra Owners', 
+            return this.sendInfo(message, 'Extra Owners',
                 'No extra owners configured.\n\n' +
                 '*Add extra owners with `.antinuke extraowner @user`*\n' +
                 '⚠️ Use this sparingly - extra owners have full control.');
@@ -616,14 +606,14 @@ export default {
         if (!action || action === 'list') {
             const whitelist = guildData.antinuke?.whitelist || [];
             if (whitelist.length === 0) {
-                return this.sendInfo(message, 'Antinuke Whitelist', 
+                return this.sendInfo(message, 'Antinuke Whitelist',
                     'No users are whitelisted.\n\n' +
                     '**Commands:**\n' +
                     '`.antinuke whitelist add @user` - Add to whitelist\n' +
                     '`.antinuke whitelist remove @user` - Remove from whitelist');
             }
             const wlList = whitelist.map((id, i) => `\`${i + 1}\` <@${id}>`).join('\n');
-            return this.sendInfo(message, `Antinuke Whitelist (${whitelist.length})`, 
+            return this.sendInfo(message, `Antinuke Whitelist (${whitelist.length})`,
                 `${wlList}\n\n*Whitelisted users are immune to antinuke checks.*`);
         }
 
@@ -655,7 +645,7 @@ export default {
                     'Status': action === 'add' ? 'Added to Whitelist' : 'Removed from Whitelist'
                 }
             });
-            return this.sendSuccess(message, 'Whitelist Updated', 
+            return this.sendSuccess(message, 'Whitelist Updated',
                 `**${target.username}** has been ${action === 'add' ? 'added to' : 'removed from'} the whitelist.`);
         }
 
@@ -674,11 +664,11 @@ export default {
             }
 
             await this.saveGuildData(client, message.guildId, guildData.antinuke);
-            return this.sendSuccess(message, 'Whitelist Updated', 
+            return this.sendSuccess(message, 'Whitelist Updated',
                 `**${target.username}** has been ${resultAction} the whitelist.`);
         }
 
-        return this.sendError(message, 'Invalid Usage', 
+        return this.sendError(message, 'Invalid Usage',
             '**Usage:**\n' +
             '`.antinuke whitelist` - View whitelist\n' +
             '`.antinuke whitelist @user` - Toggle whitelist\n' +
@@ -703,10 +693,10 @@ export default {
         let content = `**Status:** ${guildData.antinuke?.enabled ? `${EMOJIS.success || '✅'} Enabled` : `${EMOJIS.error || '❌'} Disabled`}\n`;
         content += `**Default Punishment:** ${guildData.antinuke?.defaultPunishment || 'ban'}\n`;
         content += `**Default Threshold:** ${guildData.antinuke?.defaultThreshold || 3}\n\n`;
-        
+
         content += `**Enabled Modules (${enabledModules.length})**\n`;
         content += enabledModules.length > 0 ? enabledModules.join('\n') : '*No modules enabled*';
-        
+
         content += `\n\n**Disabled Modules (${disabledModules.length})**\n`;
         content += disabledModules.length > 0 ? disabledModules.slice(0, 5).join('\n') : '*All modules enabled*';
         if (disabledModules.length > 5) content += `\n*...and ${disabledModules.length - 5} more*`;
@@ -723,7 +713,7 @@ export default {
         let content = `**System Status:** ${an.enabled ? `${EMOJIS.success || '✅'} Active` : `${EMOJIS.error || '❌'} Inactive`}\n`;
         content += `**Log Channel:** ${an.logChannel ? `<#${an.logChannel}>` : 'Not set'}\n`;
         content += `**Protocol Role (legacy):** ${an.quarantineRole ? `<@&${an.quarantineRole}>` : 'Not used'}\n\n`;
-        
+
         content += `**Defaults:**\n`;
         content += `• Punishment: \`${an.defaultPunishment || 'ban'}\`\n`;
         content += `• Threshold: \`${an.defaultThreshold || 3}\` actions\n`;
@@ -744,7 +734,7 @@ export default {
         content += `• Trusted Admins: ${(an.trustedAdmins || []).length}\n`;
         content += `• Admins: ${(an.admins || []).length}\n`;
         content += `• Whitelisted: ${(an.whitelist || []).length}\n\n`;
-        
+
         content += `**Bot Protection:**\n`;
         content += `• Strict Bot Verification: ${an.strictBotVerification !== false ? '✅ Enabled' : '❌ Disabled'}`;
 
@@ -753,9 +743,9 @@ export default {
 
     async handleProtocol(message, args, client, guildData) {
         const target = (message.mentions.members.first() || (await fetchUserOrMember(client, message.guild, args[1]))?.member);
-        
+
         if (!target) {
-            return this.sendError(message, 'Invalid Usage', 
+            return this.sendError(message, 'Invalid Usage',
                 'Usage: `.antinuke protocol @user [reason]`\n' +
                 'Manually apply protocol to a suspicious user.');
         }
@@ -769,7 +759,7 @@ export default {
         }
 
         const reason = args.slice(2).join(' ') || 'Manual protocol by antinuke admin';
-        const TIMEOUT_MS = 27 * 24 * 60 * 60 * 1000; // Slightly under Discord's 28-day limit to avoid boundary errors
+        const TIMEOUT_MS = 27 * 24 * 60 * 60 * 1000;
 
         if (!target.moderatable || !target.manageable) {
             return this.sendError(message, 'Cannot Protocol', 'I cannot modify this member due to role hierarchy or permissions.');
@@ -778,11 +768,9 @@ export default {
         try {
             const rolesToRemove = target.roles.cache.filter(r => r.id !== message.guild.id && r.editable);
             const removedRoles = rolesToRemove.map(r => r.id);
-            
-            // Strip roles
+
             await target.roles.remove(rolesToRemove, reason);
-            
-            // Apply timeout (best-effort; avoid surfacing API form errors to users)
+
             let timeoutApplied = false;
             let timeoutError = null;
             try {
@@ -793,7 +781,7 @@ export default {
             }
 
             if (!guildData.antinuke.protocol) guildData.antinuke.protocol = [];
-            
+
             const existing = guildData.antinuke.protocol.find(p => p.id === target.id);
             if (existing) {
                 existing.roles = [...new Set([...existing.roles, ...removedRoles])];
@@ -813,7 +801,7 @@ export default {
                 ? '• 27-day timeout applied'
                 : `• Timeout not applied (Discord rejected request${timeoutError ? `: ${timeoutError.message}` : ''})`;
 
-            return this.sendSuccess(message, 'User Protocol Applied', 
+            return this.sendSuccess(message, 'User Protocol Applied',
                 `**${target.user.username}** has been placed under protocol.\n` +
                 `• ${removedRoles.length} roles removed\n` +
                 `${timeoutLine}\n` +
@@ -826,19 +814,19 @@ export default {
 
     async handleUnprotocol(message, args, client, guildData) {
         const target = (message.mentions.members.first() || (await fetchUserOrMember(client, message.guild, args[1]))?.member);
-        
+
         if (!target) {
-            return this.sendError(message, 'Invalid Usage', 
+            return this.sendError(message, 'Invalid Usage',
                 'Usage: `.antinuke unprotocol @user`\n' +
                 'Restore a protocol user\'s roles.');
         }
 
         if (!guildData.antinuke.protocol) guildData.antinuke.protocol = [];
-        
+
         const protocolRecord = guildData.antinuke.protocol.find(p => p.id === target.id);
-        
+
         if (!protocolRecord) {
-            return this.sendError(message, 'Not Under Protocol', 
+            return this.sendError(message, 'Not Under Protocol',
                 `**${target.user.username}** is not under protocol.`);
         }
 
@@ -846,11 +834,9 @@ export default {
             const rolesToRestore = protocolRecord.roles
                 .map(id => message.guild.roles.cache.get(id))
                 .filter(r => r && r.editable);
-            
-            // Remove timeout
+
             await target.timeout(null, 'Protocol removed by antinuke admin');
-            
-            // Restore roles
+
             await target.roles.add(rolesToRestore, 'Protocol removed by antinuke admin');
 
             guildData.antinuke.protocol = guildData.antinuke.protocol.filter(p => p.id !== target.id);
@@ -867,7 +853,7 @@ export default {
                 }
             });
 
-            return this.sendSuccess(message, 'Protocol Removed', 
+            return this.sendSuccess(message, 'Protocol Removed',
                 `**${target.user.username}** has been removed from protocol.\n` +
                 `• ${rolesToRestore.length} roles restored\n` +
                 `• Timeout removed`);
@@ -878,7 +864,7 @@ export default {
 
     async handleProtocolList(message, client, guildData) {
         const protocol = guildData.antinuke?.protocol || [];
-        
+
         if (protocol.length === 0) {
             return this.sendInfo(message, 'Protocol Users', 'No users are currently under protocol.');
         }
@@ -888,22 +874,22 @@ export default {
             return `\`${i + 1}\` <@${p.id}> - <t:${time}:R>\n   └ ${p.roles.length} roles | By: <@${p.by}>`;
         }).join('\n');
 
-        return this.sendInfo(message, `Protocol Users (${protocol.length})`, 
+        return this.sendInfo(message, `Protocol Users (${protocol.length})`,
             `${list}${protocol.length > 10 ? `\n\n*...and ${protocol.length - 10} more*` : ''}`);
     },
 
     async handleLogChannel(message, args, client, guildData) {
-        const channel = message.mentions.channels.first() || 
+        const channel = message.mentions.channels.first() ||
             message.guild.channels.cache.get(args[1]);
-        
+
         if (!channel && args[1]?.toLowerCase() !== 'off' && args[1]?.toLowerCase() !== 'disable') {
             if (guildData.antinuke?.logChannel) {
-                return this.sendInfo(message, 'Log Channel', 
+                return this.sendInfo(message, 'Log Channel',
                     `Current log channel: <#${guildData.antinuke.logChannel}>\n\n` +
                     `*Change with \`.antinuke logs #channel\`*\n` +
                     `*Disable with \`.antinuke logs off\`*`);
             }
-            return this.sendError(message, 'Invalid Usage', 
+            return this.sendError(message, 'Invalid Usage',
                 'Usage: `.antinuke logs #channel`\n' +
                 'Set the channel for antinuke logs.');
         }
@@ -940,14 +926,14 @@ export default {
             }
         });
 
-        return this.sendSuccess(message, 'Log Channel Set', 
+        return this.sendSuccess(message, 'Log Channel Set',
             `Antinuke logs will now be sent to ${channel}.`);
     },
 
     async handlePunishment(message, args, client, guildData) {
         let punishment = args[1]?.toLowerCase();
         if (punishment === 'quarantine') punishment = 'protocol';
-        
+
         if (!punishment) {
             let content = `**Current Default:** ${guildData.antinuke?.defaultPunishment || 'ban'}\n\n`;
             content += '**Available Punishments:**\n';
@@ -959,7 +945,7 @@ export default {
         }
 
         if (!PUNISHMENTS[punishment]) {
-            return this.sendError(message, 'Invalid Punishment', 
+            return this.sendError(message, 'Invalid Punishment',
                 `Valid punishments: ${Object.keys(PUNISHMENTS).join(', ')}`);
         }
 
@@ -967,7 +953,6 @@ export default {
         const currentDefaultPunish = guildData.antinuke?.defaultPunishment || 'ban';
         const hasCustomModulePunish = Object.values(modules).some(cfg => cfg?.enabled && cfg.punishment && cfg.punishment !== currentDefaultPunish);
 
-        // Warn only if any enabled module has custom punishment different from current default
         if (hasCustomModulePunish) {
             const container = new ContainerBuilder();
             container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.warning || '⚠️'} Override Module Punishments?`));
@@ -1001,16 +986,16 @@ Confirm to proceed.`
             }
         });
 
-        return this.sendSuccess(message, 'Default Punishment Updated', 
+        return this.sendSuccess(message, 'Default Punishment Updated',
             `Default punishment is now **${punishment}**.\n` +
             `This applies to all newly configured modules.`);
     },
 
     async handleThreshold(message, args, client, guildData) {
         const threshold = parseInt(args[1]);
-        
+
         if (!threshold || threshold < 1 || threshold > 20) {
-            return this.sendError(message, 'Invalid Threshold', 
+            return this.sendError(message, 'Invalid Threshold',
                 `**Current Default:** ${guildData.antinuke?.defaultThreshold || 3}\n\n` +
                 'Usage: `.antinuke threshold <1-20>`\n' +
                 'Sets the default action limit before punishment.');
@@ -1020,7 +1005,6 @@ Confirm to proceed.`
         const currentDefaultThreshold = guildData.antinuke?.defaultThreshold || 3;
         const hasCustomModuleThreshold = Object.values(modules).some(cfg => cfg?.enabled && typeof cfg.threshold === 'number' && cfg.threshold !== currentDefaultThreshold);
 
-        // Warn only if any enabled module has custom threshold different from current default
         if (hasCustomModuleThreshold) {
             const container = new ContainerBuilder();
             container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.warning || '⚠️'} Override Module Thresholds?`));
@@ -1054,7 +1038,7 @@ Confirm to proceed.`
             }
         });
 
-        return this.sendSuccess(message, 'Default Threshold Updated', 
+        return this.sendSuccess(message, 'Default Threshold Updated',
             `Default threshold is now **${threshold}** actions.\n` +
             `Users will be punished after ${threshold} violations.`);
     },
@@ -1062,19 +1046,19 @@ Confirm to proceed.`
     async handleModule(message, args, client, guildData, moduleName) {
         const action = args[1]?.toLowerCase();
         const moduleInfo = MODULES[moduleName];
-        
+
         if (!action) {
             const config = guildData.antinuke?.modules?.[moduleName];
-            
+
             let content = `**Module:** ${moduleInfo.emoji} ${moduleInfo.name}\n`;
             content += `**Description:** ${moduleInfo.description}\n`;
             content += `**Status:** ${config?.enabled ? `${EMOJIS.success || '✅'} Enabled` : `${EMOJIS.error || '❌'} Disabled`}\n`;
-            
+
             if (config?.enabled) {
                 content += `**Threshold:** ${config.threshold} actions\n`;
                 content += `**Punishment:** ${config.punishment}\n`;
             }
-            
+
             content += `\n**Commands:**\n`;
             content += `\`.antinuke ${moduleName} on\` - Enable module\n`;
             content += `\`.antinuke ${moduleName} off\` - Disable module\n`;
@@ -1128,7 +1112,7 @@ Confirm to proceed.`
                 }
             });
 
-            return this.sendSuccess(message, 'Module Enabled', 
+            return this.sendSuccess(message, 'Module Enabled',
                 `${moduleInfo.emoji} **${moduleInfo.name}** is now **enabled**.\n\n` +
                 `• Threshold: ${threshold} actions\n` +
                 `• Punishment: ${punishment}\n` +
@@ -1154,7 +1138,7 @@ Confirm to proceed.`
                 details: `${moduleInfo.emoji} ${moduleInfo.name} protection deactivated`
             });
 
-            return this.sendSuccess(message, 'Module Disabled', 
+            return this.sendSuccess(message, 'Module Disabled',
                 `${moduleInfo.emoji} **${moduleInfo.name}** has been **disabled**.`);
         }
 
@@ -1213,16 +1197,16 @@ Confirm to proceed.`
             return this.sendSuccess(message, 'Module Threshold Updated', `${moduleInfo.emoji} **${moduleInfo.name}** threshold set to **${newThreshold}** actions.`);
         }
 
-        return this.sendError(message, 'Invalid Action', 
+        return this.sendError(message, 'Invalid Action',
             'Usage: `.antinuke <module> on/off [--threshold X] [--punishment type]`');
     },
 
     async handleStrictBot(message, args, client, guildData) {
         const action = args[1]?.toLowerCase();
-        
+
         if (!action || !['on', 'off', 'enable', 'disable', 'status'].includes(action)) {
             const currentStatus = guildData.antinuke?.strictBotVerification !== false;
-            return this.sendInfo(message, 'Strict Bot Verification', 
+            return this.sendInfo(message, 'Strict Bot Verification',
                 `**Current Status:** ${currentStatus ? '✅ Enabled' : '❌ Disabled'}\n\n` +
                 `When enabled, ALL unverified bots will be kicked automatically, even if added by whitelisted users, admins, or extra owners.\n\n` +
                 `**Discord Verified Bots:**\n` +
@@ -1237,18 +1221,18 @@ Confirm to proceed.`
 
         if (action === 'status') {
             const currentStatus = guildData.antinuke?.strictBotVerification !== false;
-            return this.sendInfo(message, 'Strict Bot Verification Status', 
+            return this.sendInfo(message, 'Strict Bot Verification Status',
                 `**Status:** ${currentStatus ? '✅ Enabled' : '❌ Disabled'}\n\n` +
-                `${currentStatus ? 
-                    '⚠️ Only Discord-verified bots can be added.\nEven admins and whitelisted users cannot add unverified bots.' : 
+                `${currentStatus ?
+                    '⚠️ Only Discord-verified bots can be added.\nEven admins and whitelisted users cannot add unverified bots.' :
                     'ℹ️ Unverified bots can be added by whitelisted users and admins.\nOnly non-whitelisted users are restricted by the Anti-Bot module.'}`);
         }
 
         const enable = action === 'on' || action === 'enable';
         const oldStatus = guildData.antinuke?.strictBotVerification !== false;
-        
+
         if (enable === oldStatus) {
-            return this.sendInfo(message, 'No Change', 
+            return this.sendInfo(message, 'No Change',
                 `Strict bot verification is already **${enable ? 'enabled' : 'disabled'}**.`);
         }
 
@@ -1259,7 +1243,7 @@ Confirm to proceed.`
             eventType: 'configChange',
             executor: { id: message.author.id, tag: message.author.tag },
             action: enable ? 'Strict Bot Verification Enabled' : 'Strict Bot Verification Disabled',
-            details: enable ? 
+            details: enable ?
                 '⚠️ Only Discord-verified bots can now be added\nThis applies to ALL users including whitelisted users and admins' :
                 'Whitelisted users and admins can now add unverified bots',
             changes: {
@@ -1267,8 +1251,8 @@ Confirm to proceed.`
             }
         });
 
-        return this.sendSuccess(message, `Strict Bot Verification ${enable ? 'Enabled' : 'Disabled'}`, 
-            enable ? 
+        return this.sendSuccess(message, `Strict Bot Verification ${enable ? 'Enabled' : 'Disabled'}`,
+            enable ?
                 `⚠️ **Strict mode is now active**\n\n` +
                 `• Only Discord-verified bots can be added\n` +
                 `• Unverified bots will be kicked automatically\n` +
@@ -1298,41 +1282,41 @@ Confirm to proceed.`
 
         await this.saveGuildData(client, message.guildId, guildData.antinuke);
 
-        return this.sendSuccess(message, 'Antinuke Reset', 
+        return this.sendSuccess(message, 'Antinuke Reset',
             'All antinuke settings have been reset to defaults.\n' +
             'Use `.antinuke wizard` to set up protection again.');
     },
 
     showHelp(message, guildData) {
         const status = guildData.antinuke?.enabled;
-        
+
         let content = `**Status:** ${status ? '🟢 Active' : '🔴 Inactive'}\n\n`;
-        
+
         content += `**Quick Start:**\n`;
         content += `\`.antinuke wizard\` - Interactive setup wizard\n`;
         content += `\`.antinuke preset recommended\` - Quick balanced setup\n\n`;
-        
+
         content += `**Core Commands:**\n`;
         content += `\`.antinuke on/off\` - Toggle protection\n`;
         content += `\`.antinuke list\` - View overview\n`;
         content += `\`.antinuke config\` - Full configuration\n\n`;
-        
+
         content += `**Permission Management:**\n`;
         content += `\`.antinuke admin @user\` - Toggle admin\n`;
         content += `\`.antinuke trustedadmin @user\` - Toggle trusted (immune)\n`;
         content += `\`.antinuke extraowner @user\` - Toggle extra owner\n`;
         content += `\`.antinuke whitelist @user\` - Toggle whitelist\n\n`;
-        
+
         content += `**Module Configuration:**\n`;
         content += `\`.antinuke <module> on/off\` - Toggle module\n`;
         content += `\`.antinuke punishment <type>\` - Default punishment\n`;
         content += `\`.antinuke threshold <1-20>\` - Default threshold\n\n`;
-        
+
         content += `**Protocol:**\n`;
         content += `\`.antinuke protocol @user\` - Apply protocol (strip roles + timeout)\n`;
         content += `\`.antinuke unprotocol @user\` - Restore user\n`;
         content += `\`.antinuke protocol-list\` - View protocol users\n\n`;
-        
+
         content += `**Available Modules:**\n`;
         content += Object.entries(MODULES).map(([k, v]) => `\`${k}\``).join(' • ');
 

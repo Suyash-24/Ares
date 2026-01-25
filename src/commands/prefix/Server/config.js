@@ -8,7 +8,7 @@ export default {
 	category: 'Server',
 
 	async execute(message, args, client) {
-		// Only server owner or admins can use this command
+
 		const isOwner = message.author.id === message.guild.ownerId;
 		const isAdmin = message.member.permissions.has('Administrator');
 
@@ -68,7 +68,7 @@ export default {
 			const headmodRoles = moderation.headmodRoles || [];
 			const detainRole = moderation.detainRole;
 			const detainChannel = moderation.detainChannel;
-			const detainMode = moderation.detainMode !== undefined ? moderation.detainMode : true; // Default to true (remove roles)
+			const detainMode = moderation.detainMode !== undefined ? moderation.detainMode : true;
 
 			const formatRoles = (roleIds) => {
 				if (!roleIds.length) return 'Not set';
@@ -81,7 +81,7 @@ export default {
 			let config = `**Support Roles:** ${formatRoles(supportRoles)}\n`;
 			config += `**Mod Roles:** ${formatRoles(modRoles)}\n`;
 			config += `**Head Mod Roles:** ${formatRoles(headmodRoles)}\n`;
-			
+
 			if (detainRole) {
 				const role = message.guild.roles.cache.get(detainRole);
 				config += `**Detain Role:** ${role ? role.name : `Unknown (${detainRole})`}\n`;
@@ -166,17 +166,15 @@ export default {
 				});
 			}
 
-			// Handle detainchannel separately
 		if (setting === 'detainchannel') {
 			let channel = null;
 
-			// Try to find channel by mention
 			if (message.mentions.channels.size > 0) {
 				channel = message.mentions.channels.first();
 			} else {
-				// Try to find by channel name or ID
+
 				const channelInput = args.slice(2).join(' ').replace(/[#<>]/g, '');
-				channel = message.guild.channels.cache.find(ch => 
+				channel = message.guild.channels.cache.find(ch =>
 					ch.id === channelInput || ch.name.toLowerCase() === channelInput.toLowerCase()
 				);
 			}
@@ -200,7 +198,6 @@ export default {
 				});
 			}
 
-			// Validate it's a text-based channel
 			if (!channel.isTextBased()) {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents((textDisplay) =>
@@ -284,7 +281,6 @@ export default {
 			}
 		}
 
-		// Handle detainmode separately
 		if (setting === 'detainmode') {
 			const modeValue = args[2]?.toLowerCase();
 
@@ -372,16 +368,14 @@ export default {
 			}
 		}
 
-		// Handle detainrole separately
 			if (setting === 'detainrole') {
 				let role = null;
 				const roleInput = args.slice(2).join(' ');
 
-				// Try to find by mention
 				if (message.mentions.roles.size > 0) {
 					role = message.mentions.roles.first();
 				} else {
-					// Try to find by name
+
 					role = message.guild.roles.cache.find(r => r.name.toLowerCase() === roleInput.toLowerCase());
 				}
 
@@ -468,15 +462,13 @@ export default {
 				}
 			}
 
-			// Find the role
 			let role = null;
 			const roleInput = args.slice(2).join(' ');
 
-			// Try to find by mention
 			if (message.mentions.roles.size > 0) {
 				role = message.mentions.roles.first();
 			} else {
-				// Try to find by name
+
 				role = message.guild.roles.cache.find(r => r.name.toLowerCase() === roleInput.toLowerCase());
 			}
 
@@ -532,7 +524,6 @@ export default {
 				const field = fieldMap[setting];
 				const roles = guildData.moderation[field] || [];
 
-				// Add or remove role (toggle)
 				if (roles.includes(role.id)) {
 					guildData.moderation[field] = roles.filter(id => id !== role.id);
 				} else {

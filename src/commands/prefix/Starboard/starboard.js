@@ -4,7 +4,7 @@ import EMOJIS from '../../../utils/emojis.js';
 export const DEFAULT_CONFIG = {
     enabled: false,
     channel: null,
-    emojis: [], // Array of {emoji: string, threshold: number}
+    emojis: [],
     selfStar: false,
     color: '#FFD700',
     timestamp: true,
@@ -18,18 +18,15 @@ export const DEFAULT_CONFIG = {
 
 const getStarboardTip = (guildData) => {
     const config = guildData.starboard || DEFAULT_CONFIG;
-    
-    // Priority 1: Channel not set
+
     if (config.enabled && !config.channel) {
         return `**TIP:** Set a starboard channel to start using the system! \`.starboard set #channel\``;
     }
 
-    // Priority 2: No emojis configured
     if (config.enabled && (!config.emojis || config.emojis.length === 0)) {
         return `**TIP:** Add star emojis with \`.starboard emoji add <emoji> [threshold]\``;
     }
 
-    // Random chance (50% to show, 50% to hide)
     if (Math.random() > 0.5) return null;
 
     const tips = [
@@ -64,20 +61,20 @@ const buildTipContainer = (tip) => {
 export const buildWizardContainer = (guildData, disabled = false) => {
     const config = guildData.starboard || DEFAULT_CONFIG;
     const container = new ContainerBuilder();
-    
+
     const emojiList = config.emojis && config.emojis.length > 0
         ? config.emojis.map(e => `${e.emoji} (${e.threshold}+)`).join(', ')
         : '*None set*';
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`# ${EMOJIS.star} Starboard Setup Wizard${disabled ? ' (Expired)' : ''}\n` +
             `${disabled ? '⏰ **This wizard has expired. Run the command again to create a new one.**\n\n' : ''}` +
             `Highlight interesting messages in a dedicated channel.`)
     );
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`**Status:** ${config.enabled ? `${EMOJIS.success || '✅'} Active` : `${EMOJIS.error || '❌'} Inactive`}\n` +
             `**Channel:** ${config.channel ? `<#${config.channel}>` : 'Not Set'}\n` +
             `**Emojis:** ${emojiList}\n` +
@@ -85,8 +82,8 @@ export const buildWizardContainer = (guildData, disabled = false) => {
     );
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`### Quick Setup\nGet started with one command:`)
     );
 
@@ -108,8 +105,8 @@ export const buildWizardContainer = (guildData, disabled = false) => {
     container.addActionRowComponents(quickSetupRow);
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`### Configuration`)
     );
 
@@ -194,13 +191,13 @@ export const buildWizardContainer = (guildData, disabled = false) => {
 export const buildEmojiManagementContainer = (guildData, disabled = false) => {
     const config = guildData.starboard || DEFAULT_CONFIG;
     const container = new ContainerBuilder();
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`# ${EMOJIS.star} Emoji Management`)
     );
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
+
     let emojiList = '**Current Emojis:**\n';
     if (config.emojis && config.emojis.length > 0) {
         config.emojis.forEach((e, idx) => {
@@ -209,12 +206,12 @@ export const buildEmojiManagementContainer = (guildData, disabled = false) => {
     } else {
         emojiList += '*No emojis configured*';
     }
-    
+
     container.addTextDisplayComponents(td => td.setContent(emojiList));
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`**Commands:**\n\`\`.starboard emoji add <emoji> [threshold]\`\` - Add emoji\n\`\`.starboard emoji remove <emoji>\`\` - Remove emoji\n\nDefault threshold is 3 if not specified.`)
     );
 
@@ -235,33 +232,32 @@ export const buildEmojiManagementContainer = (guildData, disabled = false) => {
 export const buildIgnoreListContainer = (guildData, disabled = false) => {
     const config = guildData.starboard || DEFAULT_CONFIG;
     const container = new ContainerBuilder();
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`# 🚫 Ignore List Management`)
     );
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
+
     let content = '**Ignored Channels:**\n';
-    content += config.ignoredChannels && config.ignoredChannels.length > 0 
+    content += config.ignoredChannels && config.ignoredChannels.length > 0
         ? config.ignoredChannels.map(id => `<#${id}>`).join(', ')
         : '*None*';
-    
+
     content += '\n\n**Ignored Roles:**\n';
-    content += config.ignoredRoles && config.ignoredRoles.length > 0 
+    content += config.ignoredRoles && config.ignoredRoles.length > 0
         ? config.ignoredRoles.map(id => `<@&${id}>`).join(', ')
         : '*None*';
-    
+
     content += '\n\n**Ignored Members:**\n';
-    content += config.ignoredMembers && config.ignoredMembers.length > 0 
+    content += config.ignoredMembers && config.ignoredMembers.length > 0
         ? config.ignoredMembers.map(id => `<@${id}>`).join(', ')
         : '*None*';
-    
+
     container.addTextDisplayComponents(td => td.setContent(content));
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-    // Dropdowns for live ignore management
     container.addActionRowComponents(new ActionRowBuilder().addComponents(
         new ChannelSelectMenuBuilder()
             .setCustomId('starboard_ignore_channel_select')
@@ -290,8 +286,8 @@ export const buildIgnoreListContainer = (guildData, disabled = false) => {
     ));
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    container.addTextDisplayComponents(td => 
+
+    container.addTextDisplayComponents(td =>
         td.setContent(`**Commands:**\n\`\`.starboard ignore <channel|role|member>\`\` - Add/Remove from ignore list\n\`\`.starboard ignore list\`\` - View ignore list`)
     );
 
@@ -322,7 +318,7 @@ export default {
             const tip = getStarboardTip(guildData);
             const components = [buildNotice(`# ${EMOJIS.error} Permission Denied`, 'You need **Manage Guild** permission to use starboard commands.')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -376,7 +372,7 @@ export default {
         if (!data.starboard) {
             data.starboard = { ...DEFAULT_CONFIG };
         }
-        // Ensure emojis array exists for backwards compatibility
+
         if (!data.starboard.emojis) {
             data.starboard.emojis = [];
         }
@@ -396,40 +392,40 @@ export default {
         const container = buildWizardContainer(guildData);
         const components = [container];
         if (tip) components.push(buildTipContainer(tip));
-        
-        const reply = await message.reply({ 
-            components, 
+
+        const reply = await message.reply({
+            components,
             flags: MessageFlags.IsComponentsV2,
             allowedMentions: { repliedUser: false }
         });
-        
+
         if (!client.starboardWizards) client.starboardWizards = new Map();
         client.starboardWizards.set(reply.id, {
             authorId: message.author.id,
             createdAt: Date.now(),
             guildId: message.guildId
         });
-        
+
         setTimeout(async () => {
             try {
                 const disabledContainer = buildWizardContainer(guildData, true);
                 await reply.edit({ components: [disabledContainer] }).catch(() => {});
                 client.starboardWizards.delete(reply.id);
             } catch (e) {
-                // Message might be deleted
+
             }
         }, 5 * 60 * 1000);
-        
+
         return reply;
     },
 
     async handleUnlock(message, client, guildData) {
         const tip = getStarboardTip(guildData);
-        
+
         if (!guildData.starboard.channel) {
             const components = [buildNotice(`# ${EMOJIS.error} No Channel Set`, 'Please set a starboard channel first using `.starboard set #channel`')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -440,7 +436,7 @@ export default {
         if (guildData.starboard.enabled) {
             const components = [buildNotice(`# ${EMOJIS.info} Already Unlocked`, 'Starboard is already active.')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -452,17 +448,17 @@ export default {
         await this.saveGuildData(client, message.guildId, guildData.starboard);
 
         let message_text = `Starboard is now active!\n\n**Channel:** <#${guildData.starboard.channel}>`;
-        
+
         if (guildData.starboard.emojis && guildData.starboard.emojis.length > 0) {
             const emojiList = guildData.starboard.emojis.map(e => `${e.emoji} (${e.threshold}+)`).join(', ');
             message_text += `\n**Emojis:** ${emojiList}`;
         } else {
             message_text += `\n\n⚠️ **No emojis configured!** Use \`.starboard emoji add <emoji> [threshold]\` to add star emojis.`;
         }
-        
+
         const components = [buildNotice(`# ${EMOJIS.success} Starboard Unlocked`, message_text)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -472,11 +468,11 @@ export default {
 
     async handleLock(message, client, guildData) {
         const tip = getStarboardTip(guildData);
-        
+
         if (!guildData.starboard.enabled) {
             const components = [buildNotice(`# ${EMOJIS.info} Already Locked`, 'Starboard is already inactive.')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -489,7 +485,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Starboard Locked`, 'Starboard has been disabled. Messages will no longer be added.')];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -499,13 +495,13 @@ export default {
 
     async handleSetChannel(message, args, client, guildData) {
         const tip = getStarboardTip(guildData);
-        const channel = message.mentions.channels.first() || 
+        const channel = message.mentions.channels.first() ||
             message.guild.channels.cache.get(args[1]);
 
         if (!channel) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'Usage: `.starboard set #channel`\n\nPlease mention a valid channel.')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -516,7 +512,7 @@ export default {
         if (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.GuildAnnouncement) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Channel Type`, 'Starboard channel must be a text or announcement channel.')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -529,15 +525,13 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Channel Set`, `Starboard channel set to ${channel}.\n\nUse \`.starboard unlock\` to activate the system.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
             allowedMentions: { repliedUser: false }
         });
     },
-
-
 
     async handleEmoji(message, args, client, guildData) {
         const tip = getStarboardTip(guildData);
@@ -547,15 +541,14 @@ export default {
 
         if (!guildData.starboard.emojis) guildData.starboard.emojis = [];
 
-        // List emojis
         if (!action || action === 'list') {
             const emojiList = guildData.starboard.emojis.length > 0
                 ? guildData.starboard.emojis.map(e => `${e.emoji} → **${e.threshold}+** reactions`).join('\n')
                 : '*No emojis configured*';
-            
+
             const components = [buildNotice(`# ⭐ Starboard Emojis`, `${emojiList}\n\n**Usage:**\n\`.starboard emoji add <emoji> [threshold]\`\n\`.starboard emoji remove <emoji>\``)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -563,12 +556,11 @@ export default {
             });
         }
 
-        // Add emoji
         if (action === 'add') {
             if (!emoji) {
                 const components = [buildNotice(`# ${EMOJIS.error} Missing Emoji`, 'Usage: \`.starboard emoji add <emoji> [threshold]\`\n\nExample: \`.starboard emoji add ⭐ 5\`')];
                 if (tip) components.push(buildTipContainer(tip));
-                
+
                 return message.reply({
                     components,
                     flags: MessageFlags.IsComponentsV2,
@@ -579,7 +571,7 @@ export default {
             if (threshold < 1 || threshold > 100) {
                 const components = [buildNotice(`# ${EMOJIS.error} Invalid Threshold`, 'Threshold must be between **1-100**.')];
                 if (tip) components.push(buildTipContainer(tip));
-                
+
                 return message.reply({
                     components,
                     flags: MessageFlags.IsComponentsV2,
@@ -591,10 +583,10 @@ export default {
             if (existing) {
                 existing.threshold = threshold;
                 await this.saveGuildData(client, message.guildId, guildData.starboard);
-                
+
                 const components = [buildNotice(`# ${EMOJIS.success} Emoji Updated`, `${emoji} threshold updated to **${threshold}+** reactions.`)];
                 if (tip) components.push(buildTipContainer(tip));
-                
+
                 return message.reply({
                     components,
                     flags: MessageFlags.IsComponentsV2,
@@ -607,7 +599,7 @@ export default {
 
             const components = [buildNotice(`# ${EMOJIS.success} Emoji Added`, `${emoji} added with **${threshold}+** reactions threshold.`)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -615,12 +607,11 @@ export default {
             });
         }
 
-        // Remove emoji
         if (action === 'remove') {
             if (!emoji) {
                 const components = [buildNotice(`# ${EMOJIS.error} Missing Emoji`, 'Usage: \`.starboard emoji remove <emoji>\`')];
                 if (tip) components.push(buildTipContainer(tip));
-                
+
                 return message.reply({
                     components,
                     flags: MessageFlags.IsComponentsV2,
@@ -632,7 +623,7 @@ export default {
             if (index === -1) {
                 const components = [buildNotice(`# ${EMOJIS.error} Not Found`, `${emoji} is not in the starboard emoji list.`)];
                 if (tip) components.push(buildTipContainer(tip));
-                
+
                 return message.reply({
                     components,
                     flags: MessageFlags.IsComponentsV2,
@@ -645,7 +636,7 @@ export default {
 
             const components = [buildNotice(`# ${EMOJIS.success} Emoji Removed`, `${emoji} has been removed from the starboard.`)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -655,7 +646,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.error} Invalid Action`, 'Usage:\n\`.starboard emoji list\`\n\`.starboard emoji add <emoji> [threshold]\`\n\`.starboard emoji remove <emoji>\`')];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -671,7 +662,7 @@ export default {
         if (!setting || !['true', 'false', 'yes', 'no', 'on', 'off', 'enable', 'disable'].includes(setting)) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Setting`, `**Current:** ${guildData.starboard.selfStar ? 'Enabled' : 'Disabled'}\n\nUsage: \`.starboard selfstar <true|false>\`\n\nAllow or prevent users from starring their own messages.`)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -684,7 +675,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Self-Star Updated`, `Self-starring is now **${newValue ? 'enabled' : 'disabled'}**.\n\nMembers ${newValue ? 'can' : 'cannot'} star their own messages.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -699,7 +690,7 @@ export default {
         if (!color) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Color`, `**Current:** ${guildData.starboard.color}\n\nUsage: \`.starboard color <hex>\`\n\nExamples:\n\`\`\`\n.starboard color #FFD700\n.starboard color FFD700\n\`\`\``)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -711,7 +702,7 @@ export default {
         if (!/^#[0-9A-F]{6}$/i.test(hex)) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Color`, 'Please provide a valid hex color code.\n\nExample: `#FFD700` or `FFD700`')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -724,7 +715,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Color Updated`, `Starboard embed color set to **${hex}**.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -740,7 +731,7 @@ export default {
         if (!setting || !['true', 'false', 'yes', 'no', 'on', 'off', 'enable', 'disable'].includes(setting)) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Setting`, `**Current:** ${guildData.starboard.timestamp ? 'Enabled' : 'Disabled'}\n\nUsage: \`.starboard timestamp <true|false>\`\n\nShow or hide message timestamps.`)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -753,7 +744,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Timestamp Updated`, `Timestamps are now **${newValue ? 'shown' : 'hidden'}** on starboard messages.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -769,7 +760,7 @@ export default {
         if (!setting || !['true', 'false', 'yes', 'no', 'on', 'off', 'enable', 'disable'].includes(setting)) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Setting`, `**Current:** ${guildData.starboard.jumpUrl ? 'Enabled' : 'Disabled'}\n\nUsage: \`.starboard jumpurl <true|false>\`\n\nInclude or exclude jump-to-message links.`)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -782,7 +773,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Jump URL Updated`, `Jump URLs are now **${newValue ? 'included' : 'excluded'}** in starboard messages.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -798,7 +789,7 @@ export default {
         if (!setting || !['true', 'false', 'yes', 'no', 'on', 'off', 'enable', 'disable'].includes(setting)) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Setting`, `**Current:** ${guildData.starboard.attachments ? 'Enabled' : 'Disabled'}\n\nUsage: \`.starboard attachments <true|false>\`\n\nShow or hide message attachments.`)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -811,7 +802,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Attachments Updated`, `Attachments are now **${newValue ? 'shown' : 'hidden'}** on starboard messages.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -826,17 +817,17 @@ export default {
         if (!action || action === 'list') {
             const config = guildData.starboard;
             let content = '**Ignored Channels:**\n';
-            content += config.ignoredChannels.length > 0 
+            content += config.ignoredChannels.length > 0
                 ? config.ignoredChannels.map(id => `<#${id}>`).join(', ')
                 : '*None*';
-            
+
             content += '\n\n**Ignored Roles:**\n';
-            content += config.ignoredRoles.length > 0 
+            content += config.ignoredRoles.length > 0
                 ? config.ignoredRoles.map(id => `<@&${id}>`).join(', ')
                 : '*None*';
-            
+
             content += '\n\n**Ignored Members:**\n';
-            content += config.ignoredMembers.length > 0 
+            content += config.ignoredMembers.length > 0
                 ? config.ignoredMembers.map(id => `<@${id}>`).join(', ')
                 : '*None*';
 
@@ -844,7 +835,7 @@ export default {
 
             const components = [buildNotice(`# 🚫 Ignore List`, content)];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -852,8 +843,8 @@ export default {
             });
         }
 
-        const target = message.mentions.channels.first() || 
-                      message.mentions.roles.first() || 
+        const target = message.mentions.channels.first() ||
+                      message.mentions.roles.first() ||
                       message.mentions.members.first() ||
                       message.guild.channels.cache.get(args[1]) ||
                       message.guild.roles.cache.get(args[1]) ||
@@ -862,7 +853,7 @@ export default {
         if (!target) {
             const components = [buildNotice(`# ${EMOJIS.error} Invalid Target`, 'Usage: `.starboard ignore <channel|role|member>`\n\nMention or provide an ID to ignore.')];
             if (tip) components.push(buildTipContainer(tip));
-            
+
             return message.reply({
                 components,
                 flags: MessageFlags.IsComponentsV2,
@@ -895,13 +886,13 @@ export default {
 
         await this.saveGuildData(client, message.guildId, guildData.starboard);
 
-        const targetName = type === 'channel' ? `<#${target.id}>` : 
-                          type === 'role' ? `<@&${target.id}>` : 
+        const targetName = type === 'channel' ? `<#${target.id}>` :
+                          type === 'role' ? `<@&${target.id}>` :
                           `<@${target.id}>`;
 
         const components = [buildNotice(`# ${EMOJIS.success} Ignore List Updated`, `${targetName} has been **${actionTaken}** the starboard ignore list.`)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -912,35 +903,35 @@ export default {
     showConfig(message, guildData) {
         const tip = getStarboardTip(guildData);
         const config = guildData.starboard;
-        
+
         let content = `**Status:** ${config.enabled ? '✅ Active' : '❌ Inactive'}\n`;
         content += `**Channel:** ${config.channel ? `<#${config.channel}>` : 'Not Set'}\n\n`;
-        
+
         const emojiList = config.emojis && config.emojis.length > 0
             ? config.emojis.map(e => `${e.emoji} (${e.threshold}+)`).join(', ')
             : 'None';
-        
+
         content += `**Settings:**\n`;
         content += `• Emojis: ${emojiList}\n`;
         content += `• Self-Star: ${config.selfStar ? 'Enabled' : 'Disabled'}\n`;
         content += `• Color: ${config.color}\n\n`;
-        
+
         content += `**Display:**\n`;
         content += `• Timestamp: ${config.timestamp ? 'Shown' : 'Hidden'}\n`;
         content += `• Jump URL: ${config.jumpUrl ? 'Included' : 'Excluded'}\n`;
         content += `• Attachments: ${config.attachments ? 'Shown' : 'Hidden'}\n\n`;
-        
+
         content += `**Ignored:**\n`;
         content += `• Channels: ${config.ignoredChannels.length}\n`;
         content += `• Roles: ${config.ignoredRoles.length}\n`;
         content += `• Members: ${config.ignoredMembers.length}\n\n`;
-        
+
         content += `**Stats:**\n`;
         content += `• Starred Messages: ${config.starredMessages.length}`;
 
         const components = [buildNotice(`# ⭐ Starboard Configuration`, content)];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,
@@ -955,7 +946,7 @@ export default {
 
         const components = [buildNotice(`# ${EMOJIS.success} Starboard Reset`, 'All starboard settings have been reset to defaults.\n\nUse `.starboard wizard` to set up again.')];
         if (tip) components.push(buildTipContainer(tip));
-        
+
         return message.reply({
             components,
             flags: MessageFlags.IsComponentsV2,

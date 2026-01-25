@@ -42,7 +42,7 @@ export default {
 		try {
 			await queue.skip();
 
-			const queueSize = queue.tracks.length - 1; 
+			const queueSize = queue.tracks.length - 1;
 			const container = buildSkipContainer({
 				skipped: currentTrack.info.title,
 				remaining: queueSize

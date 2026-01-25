@@ -41,10 +41,8 @@ export default {
         const subcommand = args[0]?.toLowerCase();
         const isView = (!subcommand && args.length === 0) || subcommand === 'view' || subcommand === 'list';
 
-        // --- PERMISSION CHECKS ---
         const isAdminOrManager = message.member.permissions.has(PermissionFlagsBits.ManageGuild) || message.member.permissions.has(PermissionFlagsBits.Administrator);
-        
-        // For VIEW: Allow ReqRole or ManageRoles
+
         if (isView) {
             let hasViewPerms = isAdminOrManager;
             if (!hasViewPerms) {
@@ -54,7 +52,7 @@ export default {
                      hasViewPerms = message.member.permissions.has(PermissionFlagsBits.ManageRoles);
                  }
             }
-            
+
             if (!hasViewPerms) {
                  const reqRoleName = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : 'Manage Roles';
                  return message.reply({
@@ -64,7 +62,7 @@ export default {
                 });
             }
         } else {
-            // For EDIT (Add/Remove/ReqRole): Strict Admin/ManageServer
+
             if (!isAdminOrManager) {
                 return message.reply({
                     components: [buildError('Permission Denied', 'You need **Manage Server** permission to manage custom roles.')],
@@ -74,47 +72,43 @@ export default {
             }
         }
 
-        // --- VIEW COMMAND ---
         if (isView) {
             const aliases = Object.entries(customRoles.aliases);
             const reqStatus = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : '`None` (Manage Roles)';
-            
+
             const container = new ContainerBuilder();
             container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.roles || '🎭'} **Custom Role Configuration**`));
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            
+
             container.addTextDisplayComponents(td => td.setContent(`**Required Role:** ${reqStatus}`));
-            
-            const logicDescription = customRoles.reqRole 
+
+            const logicDescription = customRoles.reqRole
                 ? '• Users need `Admin` OR `Manage Server` OR `ReqRole` to use aliases \nif you will remove `ReqRole` users with `Manage Roles` perms can use it.'
                 : '• Users need `Admin` OR `Manage Server` OR `Manage Roles` to use aliases \nif `ReqRole` is not set.';
             container.addTextDisplayComponents(td => td.setContent(logicDescription));
-            
+
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
-            
+
             if (aliases.length === 0) {
                  container.addTextDisplayComponents(td => td.setContent('*No custom role aliases configured.*'));
             } else {
                  const list = aliases.map(([alias, roleId]) => `\`${alias}\` → <@&${roleId}>`).join('\n');
                  container.addTextDisplayComponents(td => td.setContent(list));
             }
-            
+
             return message.reply({
                 components: [container],
                 flags: MessageFlags.IsComponentsV2,
                 allowedMentions: { repliedUser: false, parse: [] }
             });
         }
-        
-        // --- EDIT COMMANDS ---
 
-        // REQROLE
         if (subcommand === 'reqrole' || subcommand === 'requiredrole') {
             const input = args[1];
-            
+
             if (!input) {
                 const current = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : '`None`';
-                
+
                 const description = [
                     `**Current ReqRole:** ${current}`,
                     '',
@@ -160,7 +154,6 @@ export default {
             });
         }
 
-        // REMOVE
         if (subcommand === 'remove' || subcommand === 'del' || subcommand === 'delete') {
             const alias = args[1]?.toLowerCase();
             if (!alias) {
@@ -188,7 +181,6 @@ export default {
             });
         }
 
-        // ADD (Explicit)
         if (subcommand === 'add') {
              const alias = args[1]?.toLowerCase();
              const roleInput = args[2];
@@ -200,7 +192,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
              }
-             
+
              if (args.length > 3) {
                  return message.reply({
                     components: [buildError('Invalid Alias', 'Aliases cannot contain spaces. Usage: `.customrole add <alias> <role>`')],
@@ -216,8 +208,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
              }
-             
-             // Check if alias already exists
+
              if (customRoles.aliases[alias]) {
                   return message.reply({
                     components: [buildError('Alias Exists', `The alias \`${alias}\` is already in use.`)],
@@ -234,8 +225,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
              }
-             
-             // Check if Role Already has an alias
+
              const existingAlias = Object.keys(customRoles.aliases).find(key => customRoles.aliases[key] === role.id);
              if (existingAlias) {
                  return message.reply({
@@ -244,8 +234,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
              }
-             
-             // Check for Dangerous Permissions
+
              const dangerousPerms = [
                  PermissionFlagsBits.Administrator,
                  PermissionFlagsBits.ManageGuild,
@@ -265,8 +254,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
              }
-             
-             // Check hierarchy
+
              if (role.position >= message.guild.members.me.roles.highest.position) {
                  return message.reply({
                     components: [buildError('Hierarchy Error', 'I cannot manage that role because it is higher than or equal to my highest role.')],
@@ -284,8 +272,6 @@ export default {
             });
         }
 
-        // --- TOGGLE LOGIC (Main Command) ---
-        // Usage: .customrole <alias> <role>
         const alias = args[0]?.toLowerCase();
         const roleMatch = args[1];
 
@@ -296,7 +282,7 @@ export default {
                 allowedMentions: { repliedUser: false }
             });
         }
-        
+
         if (args.length > 2) {
              return message.reply({
                 components: [buildError('Invalid Alias', 'Aliases cannot contain spaces. Usage: `.customrole <alias> <role>`')],
@@ -304,7 +290,7 @@ export default {
                 allowedMentions: { repliedUser: false }
             });
         }
-        
+
         if (RESERVED_SUBCOMMANDS.includes(alias)) {
              return message.reply({
                 components: [buildError('Invalid Alias', `\`${alias}\` is a reserved subcommand name.`)],
@@ -321,11 +307,9 @@ export default {
                 allowedMentions: { repliedUser: false }
             });
         }
-        
-        // Toggle Logic
-        
+
         if (customRoles.aliases[alias]) {
-             // Exists - Remove it
+
              delete customRoles.aliases[alias];
              await updateGuildData(client, message.guildId, { $set: { custom_roles: customRoles } });
              return message.reply({
@@ -334,9 +318,7 @@ export default {
                 allowedMentions: { repliedUser: false }
              });
         } else {
-             // Does not exist - Add it
-             
-             // Check if Role Already has an alias (Unique Constraint)
+
              const existingAlias = Object.keys(customRoles.aliases).find(key => customRoles.aliases[key] === role.id);
              if (existingAlias) {
                  return message.reply({
@@ -346,7 +328,6 @@ export default {
                 });
              }
 
-             // Check for Dangerous Permissions
              const dangerousPerms = [
                  PermissionFlagsBits.Administrator,
                  PermissionFlagsBits.ManageGuild,
@@ -367,7 +348,6 @@ export default {
                 });
              }
 
-             // Check hierarchy
              if (role.position >= message.guild.members.me.roles.highest.position) {
                  return message.reply({
                     components: [buildError('Hierarchy Error', 'I cannot manage that role because it is higher than or equal to my highest role.')],

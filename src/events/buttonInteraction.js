@@ -11,7 +11,6 @@ export default function registerButtonInteraction(client) {
 		const guildId = interaction.guildId;
 		const discordClient = client;
 
-		// Handle forcenicklist pagination
 		if (interaction.customId.startsWith('forcenicklist_')) {
 			try {
 				const parts = interaction.customId.split('_');
@@ -76,11 +75,10 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// ============ STARBOARD WIZARD BUTTON HANDLERS ============
 		if (interaction.customId.startsWith('starboard_')) {
 			try {
 				const guildId = interaction.guildId;
-				// Check if user is authorized
+
 				const wizardData = discordClient.starboardWizards?.get(interaction.message.id);
 				if (wizardData && wizardData.authorId !== interaction.user.id) {
 					await interaction.reply({ content: '❌ You cannot use this button.', ephemeral: true });
@@ -89,15 +87,14 @@ export default function registerButtonInteraction(client) {
 
 				const customId = interaction.customId;
 
-				// Color button - send modal (must be handled BEFORE deferUpdate)
 				if (customId === 'starboard_color') {
 					const guildData = await discordClient.db.findOne({ guildId }) || { guildId };
 					const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: ModalRow } = await import('discord.js');
-					
+
 					const modal = new ModalBuilder()
 						.setCustomId('starboard_color_modal')
 						.setTitle('Set Starboard Color');
-					
+
 					const colorInput = new TextInputBuilder()
 						.setCustomId('color_value')
 						.setLabel('Hex Color Code')
@@ -107,16 +104,15 @@ export default function registerButtonInteraction(client) {
 						.setRequired(true)
 						.setMaxLength(7)
 						.setMinLength(6);
-					
+
 					modal.addComponents(new ModalRow().addComponents(colorInput));
-					
+
 					await interaction.showModal(modal).catch(err => {
 						console.error('[Starboard] Error showing color modal:', err);
 					});
 					return;
 				}
 
-				// Defer all non-modal interactions (skip select menus and immediate buttons)
 				const isSelect = customId === 'starboard_ignore_channel_select' || customId === 'starboard_ignore_role_select' || customId === 'starboard_ignore_member_select';
 				const isImmediateButton = customId === 'starboard_emoji';
 				if (!isSelect && !isImmediateButton) {
@@ -141,76 +137,69 @@ export default function registerButtonInteraction(client) {
 					};
 				}
 
-				// Toggle starboard on/off
 				if (customId === 'starboard_toggle_on' || customId === 'starboard_toggle_off') {
 					const newState = customId === 'starboard_toggle_on';
-					
+
 					if (newState && !guildData.starboard.channel) {
-						await interaction.followUp({ 
-							content: '❌ Please set a starboard channel first using `.starboard set #channel`', 
-							ephemeral: true 
+						await interaction.followUp({
+							content: '❌ Please set a starboard channel first using `.starboard set #channel`',
+							ephemeral: true
 						});
 						return;
 					}
-					
+
 					guildData.starboard.enabled = newState;
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
-					// Refresh wizard
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
 					return;
 				}
 
-				// Toggle selfstar
 				if (customId === 'starboard_selfstar') {
 					guildData.starboard.selfStar = !guildData.starboard.selfStar;
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
 					return;
 				}
 
-				// Toggle timestamp
 				if (customId === 'starboard_timestamp') {
 					guildData.starboard.timestamp = !guildData.starboard.timestamp;
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
 					return;
 				}
 
-				// Toggle jumpurl
 				if (customId === 'starboard_jumpurl') {
 					guildData.starboard.jumpUrl = !guildData.starboard.jumpUrl;
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
 					return;
 				}
 
-				// Toggle attachments
 				if (customId === 'starboard_attachments') {
 					guildData.starboard.attachments = !guildData.starboard.attachments;
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
 					return;
 				}
 
-				// View config button
 				if (customId === 'starboard_view_config') {
 					const config = guildData.starboard;
-					
+
 					let content = `**Status:** ${config.enabled ? '✅ Active' : '❌ Inactive'}\n`;
 					content += `**Channel:** ${config.channel ? `<#${config.channel}>` : 'Not Set'}\n\n`;
 					content += `**Settings:**\n`;
@@ -233,7 +222,7 @@ export default function registerButtonInteraction(client) {
 					configContainer.addTextDisplayComponents(td => td.setContent(`# ⭐ Starboard Configuration`));
 					configContainer.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 					configContainer.addTextDisplayComponents(td => td.setContent(content));
-					
+
 					const backRow = new ActionRowBuilder().addComponents(
 						new ButtonBuilder()
 							.setCustomId('starboard_back_to_wizard')
@@ -247,7 +236,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Back to wizard button
 				if (customId === 'starboard_back_to_wizard') {
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
@@ -255,7 +243,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Reset button
 				if (customId === 'starboard_reset') {
 					guildData.starboard = {
 						enabled: false,
@@ -273,65 +260,61 @@ export default function registerButtonInteraction(client) {
 						starredMessages: []
 					};
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
-					
+
 					await interaction.followUp({ content: '✅ Starboard settings have been reset.', ephemeral: true });
 					return;
 				}
 
-				// Quick setup button - enables starboard if channel is set
 				if (customId === 'starboard_quick_setup') {
 					if (!guildData.starboard.channel) {
-						await interaction.followUp({ 
-							content: '❌ Please set a starboard channel first using `.starboard set #channel`', 
-							ephemeral: true 
+						await interaction.followUp({
+							content: '❌ Please set a starboard channel first using `.starboard set #channel`',
+							ephemeral: true
 						});
 						return;
 					}
-					
+
 					guildData.starboard.enabled = true;
 					await discordClient.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
-					
+
 					const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const newContainer = buildWizardContainer(guildData);
 					await interaction.message.edit({ components: [newContainer] }).catch(() => {});
-					
-					await interaction.followUp({ 
-						content: `✅ Starboard activated! Messages with **${guildData.starboard.threshold}+** ${guildData.starboard.emoji} reactions will appear in <#${guildData.starboard.channel}>.`, 
-						ephemeral: true 
+
+					await interaction.followUp({
+						content: `✅ Starboard activated! Messages with **${guildData.starboard.threshold}+** ${guildData.starboard.emoji} reactions will appear in <#${guildData.starboard.channel}>.`,
+						ephemeral: true
 					});
 					return;
 				}
 
-				// Set channel button - prompts user to use command
 				if (customId === 'starboard_set_channel') {
-					await interaction.followUp({ 
-						content: '📝 Use `.starboard set #channel` to set the starboard channel.', 
-						ephemeral: true 
+					await interaction.followUp({
+						content: '📝 Use `.starboard set #channel` to set the starboard channel.',
+						ephemeral: true
 					});
 					return;
 				}
 
-				// Emoji button - opens emoji management page
 				if (customId === 'starboard_emoji') {
 					const { buildEmojiManagementContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const guildData = await interaction.client.db.findOne({ guildId }) || { guildId };
 					if (!guildData.starboard) guildData.starboard = {};
-					
+
 					const container = buildEmojiManagementContainer(guildData);
 					await interaction.editReply({ components: [container], flags: interaction.message.flags }).catch(() => {});
 					return;
 				}
 
-				// Ignore button - opens ignore list page
 				if (customId === 'starboard_ignore') {
 					const { buildIgnoreListContainer } = await import('../commands/prefix/Starboard/starboard.js');
 					const guildData = await interaction.client.db.findOne({ guildId }) || { guildId };
 					if (!guildData.starboard) guildData.starboard = {};
-					
+
 					const container = buildIgnoreListContainer(guildData);
 					if (!interaction.deferred && !interaction.replied) {
 						await interaction.deferUpdate().catch(() => {});
@@ -340,7 +323,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Ignore dropdowns - toggle selections in real time
 				if (customId === 'starboard_ignore_channel_select' || customId === 'starboard_ignore_role_select' || customId === 'starboard_ignore_member_select') {
 					const guildData = await interaction.client.db.findOne({ guildId }) || { guildId };
 					if (!guildData.starboard) guildData.starboard = { emojis: [], ignoredChannels: [], ignoredRoles: [], ignoredMembers: [] };
@@ -370,11 +352,9 @@ export default function registerButtonInteraction(client) {
 			}
 			return;
 		}
-		// ============ END STARBOARD HANDLERS ============
 
-		// Antinuke default punishment confirm/cancel
 		if (interaction.customId.startsWith('antinuke_default_punish_')) {
-			const parts = interaction.customId.split('_'); // antinuke default punish confirm user punishment
+			const parts = interaction.customId.split('_');
 			const action = parts[3];
 			const authorId = parts[4];
 			const value = parts[5];
@@ -420,9 +400,8 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Antinuke default threshold confirm/cancel
 		if (interaction.customId.startsWith('antinuke_default_threshold_')) {
-			const parts = interaction.customId.split('_'); // antinuke default threshold confirm user value
+			const parts = interaction.customId.split('_');
 			const action = parts[3];
 			const authorId = parts[4];
 			const valueRaw = parts[5];
@@ -473,7 +452,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle pins TXT export
 		if (interaction.customId.startsWith('pins_txt_')) {
 			const parts = interaction.customId.split('_');
 			const authorId = parts[2];
@@ -556,7 +534,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle pins JSON export
 		if (interaction.customId.startsWith('pins_json_')) {
 			const parts = interaction.customId.split('_');
 			const authorId = parts[2];
@@ -582,7 +559,7 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 				const out = [];
-				const MAX_INLINE_ATTACHMENT = 5 * 1024 * 1024; // 5 MB
+				const MAX_INLINE_ATTACHMENT = 5 * 1024 * 1024;
 				for (const msg of pins.values()) {
 					const attachments = [];
 					for (const a of msg.attachments.values()) {
@@ -625,7 +602,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle pins attachments download (zip attachments and send single archive)
 		if (interaction.customId.startsWith('pins_attachments_')) {
 			const parts = interaction.customId.split('_');
 			const authorId = parts[2];
@@ -651,7 +627,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Create zip archive in-memory
 				const archiverMod = await import('archiver');
 				const archiver = archiverMod.default || archiverMod;
 				const { PassThrough } = await import('stream');
@@ -679,7 +654,7 @@ export default function registerButtonInteraction(client) {
 				}
 
 				archive.finalize();
-				// Collect the zip data
+
 				const chunks = [];
 				for await (const chunk of passthrough) {
 					chunks.push(chunk);
@@ -706,7 +681,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle restrict reset confirm/cancel
 		if (interaction.customId.startsWith('restrictreset_')) {
 			const parts = interaction.customId.split('_');
 			const action = parts[1];
@@ -734,7 +708,6 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Confirm: clear all restrictedCommands for the guild
 			try {
 				const guild = interaction.guild;
 				const db = interaction.client.db;
@@ -747,7 +720,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// remove restricted commands while preserving other moderation fields
 				const guildData = await db.findOne({ guildId: guild.id }) || { guildId: guild.id, moderation: {} };
 				if (!guildData.moderation) guildData.moderation = {};
 				guildData.moderation.restrictedCommands = {};
@@ -776,9 +748,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle bindlist pagination
-
-		// Handle bind reset confirm/cancel
 		if (interaction.customId.startsWith('bindreset_')) {
 			const parts = interaction.customId.split('_');
 			const action = parts[1];
@@ -932,7 +901,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle nuke confirmation (instant) or scheduled nuke confirmation (nuke add)
 		if (
 			interaction.customId.startsWith('nuke_confirm_') ||
 			interaction.customId.startsWith('nuke_cancel_') ||
@@ -941,7 +909,7 @@ export default function registerButtonInteraction(client) {
 		) {
 			try {
 				const parts = interaction.customId.split('_');
-				const command = parts[0]; // 'nuke' or 'nukeadd'
+				const command = parts[0];
 				let authorId = parts[2];
 				let channelId = parts[3];
 				const isScheduledNuke = command === 'nukeadd';
@@ -949,8 +917,6 @@ export default function registerButtonInteraction(client) {
 				if (isScheduledNuke && parts.length > 4) {
 					intervalRaw = parts.slice(4).join('_');
 				}
-
-				// console.log('[nuke button] interaction.user.id:', interaction.user.id, 'authorId:', authorId, 'channelId:', channelId, 'customId:', interaction.customId);
 
 				if (interaction.user.id !== authorId) {
 					await interaction.reply({
@@ -960,16 +926,15 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-
 				await interaction.deferUpdate().catch(() => {});
 
 				const { ContainerBuilder, MessageFlags, SeparatorSpacingSize } = await import('discord.js');
 				const EMOJIS = (await import('../utils/emojis.js')).default;
 
 				if (isScheduledNuke) {
-					// Scheduled nuke add confirmation/cancel
+
 					if (interaction.customId.startsWith('nukeadd_cancel_')) {
-						// Cancelled
+
 						const cancelContainer = new ContainerBuilder();
 						cancelContainer.addTextDisplayComponents((textDisplay) =>
 							textDisplay.setContent(`# ${EMOJIS.error} Cancelled`)
@@ -984,7 +949,7 @@ export default function registerButtonInteraction(client) {
 							components: [cancelContainer],
 							flags: MessageFlags.IsComponentsV2
 						}).catch(() => {});
-						// Clean up
+
 						if (interaction.client.nukeAddConfirmations) {
 							interaction.client.nukeAddConfirmations.delete(interaction.customId);
 							interaction.client.nukeAddConfirmations.delete(`nukeadd_confirm_${authorId}_${channelId}_${intervalRaw}`);
@@ -992,11 +957,10 @@ export default function registerButtonInteraction(client) {
 						}
 						return;
 					}
-					// Confirmed: schedule the nuke
-					// Always get the correct nukeData by searching for the right key
+
 					let nukeData = interaction.client.nukeAddConfirmations?.get(interaction.customId);
 					if (!nukeData) {
-						// Try fallback key (in case of key mismatch)
+
 						nukeData = interaction.client.nukeAddConfirmations?.get(`nukeadd_confirm_${authorId}_${channelId}_${intervalRaw}`);
 					}
 					if (!nukeData) {
@@ -1015,7 +979,7 @@ export default function registerButtonInteraction(client) {
 						});
 						return;
 					}
-					// Schedule the nuke for the correct channel and interval
+
 					if (!globalThis._scheduledNukes) globalThis._scheduledNukes = new Map();
 					const scheduledNukes = globalThis._scheduledNukes;
 					if (scheduledNukes.has(channelId)) {
@@ -1025,7 +989,7 @@ export default function registerButtonInteraction(client) {
 						});
 						return;
 					}
-					// Immediately send the nuke message as a component in the target channel
+
 					const nukeMsgContainer = new ContainerBuilder();
 					nukeMsgContainer.addTextDisplayComponents((textDisplay) =>
 						textDisplay.setContent(`# ${EMOJIS.success} Nuke Message`)
@@ -1040,7 +1004,7 @@ export default function registerButtonInteraction(client) {
 						components: [nukeMsgContainer],
 						flags: MessageFlags.IsComponentsV2
 					});
-					// Now schedule the nuke (clone/delete) after the interval
+
 					const timeout = setTimeout(async () => {
 						try {
 							const cloned = await channel.clone({
@@ -1051,7 +1015,7 @@ export default function registerButtonInteraction(client) {
 								rateLimitPerUser: channel.rateLimitPerUser
 							});
 							await channel.delete();
-							// Wait for Discord to update the cache, then send the success message in the new channel
+
 							setTimeout(async () => {
 								const newChannel = channel.guild.channels.cache.get(cloned.id);
 								if (newChannel) {
@@ -1067,7 +1031,7 @@ export default function registerButtonInteraction(client) {
 									});
 								}
 								scheduledNukes.delete(channelId);
-							}, 2000); // Wait 2 seconds for cache update
+							}, 2000);
 						} catch (e) {
 							scheduledNukes.delete(channelId);
 						}
@@ -1079,7 +1043,7 @@ export default function registerButtonInteraction(client) {
 						nukeMsg: nukeData.nukeMsg,
 						scheduledAt: Date.now()
 					});
-					// Edit the confirmation message to show success and correct info
+
 					const successContainer = new ContainerBuilder();
 					successContainer.addTextDisplayComponents((textDisplay) =>
 						textDisplay.setContent(`# ${EMOJIS.success} Nuke Scheduled`)
@@ -1094,7 +1058,7 @@ export default function registerButtonInteraction(client) {
 						components: [successContainer],
 						flags: MessageFlags.IsComponentsV2
 					}).catch(() => {});
-					// Clean up
+
 					if (interaction.client.nukeAddConfirmations) {
 						interaction.client.nukeAddConfirmations.delete(interaction.customId);
 						interaction.client.nukeAddConfirmations.delete(`nukeadd_confirm_${authorId}_${channelId}_${intervalRaw}`);
@@ -1103,11 +1067,9 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				
-				// Instant nuke confirmation
 				const nukeData = interaction.client.nukeConfirmations?.get(interaction.customId);
 				if (!nukeData) {
-					// Fallback for cancel
+
 					const cancelData = interaction.client.nukeConfirmations?.get(interaction.customId.replace('cancel', 'confirm'));
 					if (cancelData) {
 						authorId = cancelData.authorId;
@@ -1139,7 +1101,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Nuke confirmed
 				const guild = interaction.guild;
 				const channel = guild.channels.cache.get(channelId);
 				if (!channel) {
@@ -1157,7 +1118,6 @@ export default function registerButtonInteraction(client) {
 					});
 					await channel.delete();
 
-					// Send mod log for nuke
 					await sendLog(interaction.client, guild.id, LOG_EVENTS.MOD_NUKE, {
 						executor: interaction.user,
 						channel: cloned,
@@ -1186,7 +1146,7 @@ export default function registerButtonInteraction(client) {
 						interaction.client.nukeConfirmations.delete(`nuke_cancel_${authorId}_${channelId}`);
 					}
 				}
-			
+
 			} catch (error) {
 				console.error('Error handling nuke confirmation:', error);
 				await interaction.followUp({
@@ -1197,22 +1157,20 @@ export default function registerButtonInteraction(client) {
 		}
 		if (interaction.customId === 'refresh_profile') {
 			await interaction.deferUpdate();
-			await interaction.followUp({ 
+			await interaction.followUp({
 				content: '✅ Profile refreshed!',
 				flags: 64
 			});
 		}
 
-		// Handle warnings pagination
 		if (interaction.customId.startsWith('warnings_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
-				const commandAuthorId = parts[2]; // Who ran the warnings command
-				const warnedUserId = parts[3]; // Who the warnings are for
+				const action = parts[1];
+				const commandAuthorId = parts[2];
+				const warnedUserId = parts[3];
 				const pageNum = parseInt(parts[4]);
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== commandAuthorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1224,7 +1182,7 @@ export default function registerButtonInteraction(client) {
 				await interaction.deferUpdate().catch(() => {});
 
 				const guildData = await interaction.client.db.findOne({ guildId: interaction.guildId });
-				
+
 				if (!guildData || !guildData.moderation || !guildData.moderation.warnings) {
 					await interaction.followUp({
 						content: '❌ No warnings found.',
@@ -1234,7 +1192,7 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const userWarnings = guildData.moderation.warnings.filter(w => w.userId === warnedUserId);
-				
+
 				if (userWarnings.length === 0) {
 					await interaction.followUp({
 						content: '❌ No warnings found.',
@@ -1243,7 +1201,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Calculate new page
 				const WARNINGS_PER_PAGE = 3;
 				const totalPages = Math.ceil(userWarnings.length / WARNINGS_PER_PAGE);
 				let newPage = pageNum;
@@ -1254,7 +1211,6 @@ export default function registerButtonInteraction(client) {
 					newPage = Math.min(pageNum + 1, totalPages - 1);
 				}
 
-				// Create a message wrapper to call the warnings command
 				const messageWrapper = {
 					guildId: interaction.guildId,
 					author: interaction.user,
@@ -1268,10 +1224,9 @@ export default function registerButtonInteraction(client) {
 					}
 				};
 
-				// Get the warnings command and execute it with specific user and page
 				const warningsCommand = interaction.client.prefixCommands?.get('warnings');
 				if (warningsCommand) {
-					// Pass the warned user ID and page number as arguments
+
 					await warningsCommand.execute(messageWrapper, [warnedUserId, newPage.toString()], interaction.client);
 				}
 
@@ -1284,11 +1239,10 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle newmembers pagination
 		if (interaction.customId.startsWith('newmembers_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
+				const action = parts[1];
 				const commandAuthorId = parts[2];
 				const pageNum = parseInt(parts[3]) || 0;
 
@@ -1302,8 +1256,7 @@ export default function registerButtonInteraction(client) {
 
 				await interaction.deferUpdate().catch(() => {});
 
-				// Rebuild members list (limit 50) and paginate
-				try { await interaction.guild.members.fetch(); } catch (e) { /* ignore */ }
+				try { await interaction.guild.members.fetch(); } catch (e) {  }
 				const allMembers = Array.from(interaction.guild.members.cache.values())
 					.filter(m => !m.user.bot && m.joinedTimestamp)
 					.sort((a, b) => b.joinedTimestamp - a.joinedTimestamp)
@@ -1366,16 +1319,14 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle notes pagination
 		if (interaction.customId.startsWith('notes_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
-				const commandAuthorId = parts[2]; // Who ran the notes command
-				const notedUserId = parts[3]; // Who the notes are for
+				const action = parts[1];
+				const commandAuthorId = parts[2];
+				const notedUserId = parts[3];
 				const pageNum = parseInt(parts[4]);
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== commandAuthorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1387,7 +1338,7 @@ export default function registerButtonInteraction(client) {
 				await interaction.deferUpdate().catch(() => {});
 
 				const guildData = await interaction.client.db.findOne({ guildId: interaction.guildId });
-				
+
 				if (!guildData || !guildData.moderation || !guildData.moderation.notes || !guildData.moderation.notes[notedUserId]) {
 					await interaction.followUp({
 						content: '❌ No notes found.',
@@ -1397,7 +1348,7 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const userNotes = guildData.moderation.notes[notedUserId];
-				
+
 				if (userNotes.length === 0) {
 					await interaction.followUp({
 						content: '❌ No notes found.',
@@ -1406,7 +1357,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Calculate new page
 				const NOTES_PER_PAGE = 3;
 				const totalPages = Math.ceil(userNotes.length / NOTES_PER_PAGE);
 				let newPage = pageNum;
@@ -1417,7 +1367,6 @@ export default function registerButtonInteraction(client) {
 					newPage = Math.min(pageNum + 1, totalPages - 1);
 				}
 
-				// Create a message wrapper to call the notes command
 				const messageWrapper = {
 					guildId: interaction.guildId,
 					author: interaction.user,
@@ -1431,10 +1380,9 @@ export default function registerButtonInteraction(client) {
 					}
 				};
 
-				// Get the notes command and execute it with specific user and page
 				const notesCommand = interaction.client.prefixCommands?.get('notes');
 				if (notesCommand) {
-					// Pass the noted user ID and page number as arguments
+
 					await notesCommand.execute(messageWrapper, [notedUserId, newPage.toString()], interaction.client);
 				}
 
@@ -1447,7 +1395,6 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle restrictlist pagination
 		if (interaction.customId.startsWith('restrictlist_')) {
 			try {
 				const parts = interaction.customId.split('_');
@@ -1518,15 +1465,13 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle detainlist pagination
 		if (interaction.customId.startsWith('detainlist_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
-				const commandAuthorId = parts[2]; // Who ran the detainlist command
+				const action = parts[1];
+				const commandAuthorId = parts[2];
 				const pageNum = parseInt(parts[3]);
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== commandAuthorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1538,7 +1483,7 @@ export default function registerButtonInteraction(client) {
 				await interaction.deferUpdate().catch(() => {});
 
 				const guildData = await interaction.client.db.findOne({ guildId: interaction.guildId });
-				
+
 				if (!guildData || !guildData.moderation || !guildData.moderation.detains) {
 					await interaction.followUp({
 						content: '❌ No detained members found.',
@@ -1548,7 +1493,7 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const detainedUsers = guildData.moderation.detains;
-				
+
 				if (detainedUsers.length === 0) {
 					await interaction.followUp({
 						content: '❌ No detained members found.',
@@ -1557,7 +1502,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Calculate new page
 				const MEMBERS_PER_PAGE = 3;
 				const totalPages = Math.ceil(detainedUsers.length / MEMBERS_PER_PAGE);
 				let newPage = pageNum;
@@ -1568,7 +1512,6 @@ export default function registerButtonInteraction(client) {
 					newPage = Math.min(pageNum + 1, totalPages - 1);
 				}
 
-				// Create a message wrapper to call the detainlist command
 				const messageWrapper = {
 					guildId: interaction.guildId,
 					author: interaction.user,
@@ -1582,10 +1525,9 @@ export default function registerButtonInteraction(client) {
 					}
 				};
 
-				// Get the detainlist command and execute it with page number
 				const detainlistCommand = interaction.client.prefixCommands?.get('detainlist');
 				if (detainlistCommand) {
-					// Pass the page number as argument
+
 					await detainlistCommand.execute(messageWrapper, [newPage.toString()], interaction.client);
 				}
 
@@ -1598,14 +1540,13 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-
 		if (interaction.customId.startsWith('queue-')) {
 			try {
 				const customIdParts = interaction.customId.split('-');
 				const action = customIdParts[1];
 				const guildId = customIdParts[2];
 				const currentPage = parseInt(customIdParts[3]) || 0;
-				
+
 				if (guildId !== interaction.guildId.toString()) return;
 
 				await interaction.deferUpdate().catch(() => {});
@@ -1613,9 +1554,9 @@ export default function registerButtonInteraction(client) {
 				const queue = interaction.client.queue.get(guildId);
 
 				if (!queue || queue.stopped || !queue.tracks.peekAt(0)) {
-					await interaction.followUp({ 
+					await interaction.followUp({
 						content: '❌ Queue no longer available or music stopped.',
-						flags: 64 
+						flags: 64
 					}).catch(() => {});
 					return;
 				}
@@ -1650,23 +1591,21 @@ export default function registerButtonInteraction(client) {
 				}
 			} catch (error) {
 				console.error('Error handling queue pagination:', error);
-				await interaction.followUp({ 
+				await interaction.followUp({
 					content: '❌ An error occurred while navigating the queue.',
-					flags: 64 
+					flags: 64
 				}).catch(() => {});
 			}
 		}
 
-		// Handle modstats pagination
 		if (interaction.customId.startsWith('modstats_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
-				const commandAuthorId = parts[2]; // Who ran the modstats command
-				const modId = parts[3]; // Which moderator the stats are for
+				const action = parts[1];
+				const commandAuthorId = parts[2];
+				const modId = parts[3];
 				const pageNum = parseInt(parts[4]);
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== commandAuthorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1678,7 +1617,7 @@ export default function registerButtonInteraction(client) {
 				await interaction.deferUpdate().catch(() => {});
 
 				const guildData = await interaction.client.db.findOne({ guildId: interaction.guildId });
-				
+
 				if (!guildData || !guildData.moderation || !guildData.moderation.actions) {
 					await interaction.followUp({
 						content: '❌ No moderation actions found.',
@@ -1702,7 +1641,7 @@ export default function registerButtonInteraction(client) {
 
 				const modstatsCommand = interaction.client.prefixCommands?.get('modstats');
 				if (modstatsCommand) {
-					// Pass the moderator ID and page number as arguments
+
 					await modstatsCommand.execute(messageWrapper, [`<@${modId}>`, pageNum.toString()], interaction.client);
 				}
 
@@ -1715,16 +1654,14 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle crimefile pagination
 		if (interaction.customId.startsWith('crimefile_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
-				const commandAuthorId = parts[2]; // Who ran the crimefile command
-				const userId = parts[3]; // Which user the crimefile is for
+				const action = parts[1];
+				const commandAuthorId = parts[2];
+				const userId = parts[3];
 				const pageNum = parseInt(parts[4]);
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== commandAuthorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1736,7 +1673,7 @@ export default function registerButtonInteraction(client) {
 				await interaction.deferUpdate().catch(() => {});
 
 				const guildData = await interaction.client.db.findOne({ guildId: interaction.guildId });
-				
+
 				if (!guildData || !guildData.moderation || !guildData.moderation.actions) {
 					await interaction.followUp({
 						content: '❌ No moderation actions found.',
@@ -1760,7 +1697,7 @@ export default function registerButtonInteraction(client) {
 
 				const crimefileCommand = interaction.client.prefixCommands?.get('crimefile');
 				if (crimefileCommand) {
-					// Pass the user ID and page number as arguments
+
 					await crimefileCommand.execute(messageWrapper, [`<@${userId}>`, pageNum.toString()], interaction.client);
 				}
 
@@ -1773,16 +1710,14 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle modhistory pagination
 		if (interaction.customId.startsWith('modhistory_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'next' or 'prev'
-				const commandAuthorId = parts[2]; // Who ran the modhistory command
-				const moderatorId = parts[3]; // Which moderator the history is for
+				const action = parts[1];
+				const commandAuthorId = parts[2];
+				const moderatorId = parts[3];
 				const pageNum = parseInt(parts[4]);
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== commandAuthorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1794,7 +1729,7 @@ export default function registerButtonInteraction(client) {
 				await interaction.deferUpdate().catch(() => {});
 
 				const guildData = await interaction.client.db.findOne({ guildId: interaction.guildId });
-				
+
 				if (!guildData || !guildData.moderation || !guildData.moderation.actions) {
 					await interaction.followUp({
 						content: '❌ No moderation actions found.',
@@ -1818,7 +1753,7 @@ export default function registerButtonInteraction(client) {
 
 				const modhistoryCommand = interaction.client.prefixCommands?.get('modhistory');
 				if (modhistoryCommand) {
-					// Pass the moderator ID and page number as arguments
+
 					await modhistoryCommand.execute(messageWrapper, [`<@${moderatorId}>`, pageNum.toString()], interaction.client);
 				}
 
@@ -1897,15 +1832,13 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle clear command confirmation
 		if (interaction.customId.startsWith('clear_confirm_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const clearType = parts[2]; // warnings, crimefiles, modhistory
+				const clearType = parts[2];
 				const targetId = parts[3];
 				const authorId = parts[4];
 
-				// Check if the button is being clicked by the person who ran the command
 				if (interaction.user.id !== authorId) {
 					await interaction.reply({
 						content: '❌ You cannot use this button.',
@@ -1928,7 +1861,6 @@ export default function registerButtonInteraction(client) {
 
 			let clearedCount = 0;
 
-			// Clear based on type with separate delete flags
 			if (clearType === 'warnings') {
 				if (guildData.moderation?.warnings) {
 					guildData.moderation.warnings = guildData.moderation.warnings.map(w => {
@@ -1959,17 +1891,15 @@ export default function registerButtonInteraction(client) {
 						return a;
 					});
 				}
-			}				// Update database
+			}
 				await interaction.client.db.updateOne(
 					{ guildId: interaction.guildId },
 					{ $set: guildData },
 					{ upsert: true }
 				);
 
-				// Get the stored info
 				const clearData = interaction.client.clearCommands?.get(interaction.customId);
 
-				// Send mod log for clear action
 				const targetUser = await interaction.client.users.fetch(targetId).catch(() => null);
 				await sendLog(interaction.client, interaction.guildId, LOG_EVENTS.MOD_CLEAR, {
 					executor: interaction.user,
@@ -1979,7 +1909,6 @@ export default function registerButtonInteraction(client) {
 					details: `Cleared ${clearedCount} ${clearType} record(s)`
 				});
 
-				// Edit the message to show success
 				const { ContainerBuilder, MessageFlags, SeparatorSpacingSize } = await import('discord.js');
 				const successContainer = new ContainerBuilder();
 				successContainer.addTextDisplayComponents((textDisplay) =>
@@ -2001,7 +1930,6 @@ export default function registerButtonInteraction(client) {
 					flags: MessageFlags.IsComponentsV2
 				}).catch(() => {});
 
-				// Clean up
 				if (interaction.client.clearCommands) {
 					interaction.client.clearCommands.delete(interaction.customId);
 				}
@@ -2015,7 +1943,6 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle clear command cancellation
 		if (interaction.customId.startsWith('clear_cancel_')) {
 			try {
 				const authorId = interaction.customId.split('_')[2];
@@ -2052,11 +1979,10 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle banflux confirmation/cancellation
 		if (interaction.customId.startsWith('banflux_confirm_') || interaction.customId.startsWith('banflux_cancel_')) {
 			try {
 				const parts = interaction.customId.split('_');
-				const action = parts[1]; // 'confirm' or 'cancel'
+				const action = parts[1];
 				const authorId = parts[2];
 				const nonce = parts[3];
 
@@ -2089,7 +2015,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Confirm path
 				const data = map.get(confirmKey);
 				if (!data) {
 					await interaction.followUp({ content: '❌ Confirmation expired or not found.', flags: 64 }).catch(() => {});
@@ -2140,8 +2065,6 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle snapshot pagination using cached data
-		// Handle slowmode buttons: disable, refresh, extend
 		if (interaction.customId.startsWith('slowmode_')) {
 			try {
 				const parts = interaction.customId.split('_');
@@ -2190,11 +2113,11 @@ export default function registerButtonInteraction(client) {
 							channel: channel,
 							reply: async (options) => {
 								if (action === 'view') {
-									// Send a new follow-up message instead of editing the original
+
 									try {
 										await interaction.followUp(options).catch(() => {});
 									} catch (e) {
-										// fallback to editing if followUp fails
+
 										await interaction.message.edit(options).catch(() => {});
 									}
 								} else {
@@ -2229,7 +2152,7 @@ export default function registerButtonInteraction(client) {
 						await interaction.message.edit({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
 						return;
 					}
-					// rec now contains the updated interval; it may or may not include expiresAt
+
 					const { formatDuration } = await import('../utils/timeParser.js');
 					const intervalMs = (rec.interval || 0) * 1000;
 					let body;
@@ -2279,7 +2202,6 @@ export default function registerButtonInteraction(client) {
 
 				await interaction.deferUpdate().catch(() => {});
 
-				// Use the same cache key logic as in snapshot.js
 				const cacheKey = `${interaction.guildId}_${roleId}_${commandAuthorId}_${format}`;
 				const cache = interaction.client._snapshotCache?.get(cacheKey);
 				if (!cache) {
@@ -2292,7 +2214,7 @@ export default function registerButtonInteraction(client) {
 
 				const memberIds = cache.memberIds;
 				const roleName = cache.roleName;
-				// Defensive: check role still exists
+
 				const role = interaction.guild.roles.cache.get(roleId);
 				if (!role) {
 					await interaction.followUp({
@@ -2302,7 +2224,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Get members for the current page
 				const ITEMS_PER_PAGE_JSON = 3;
 				const ITEMS_PER_PAGE_OTHER = 10;
 				const isJson = format === 'json';
@@ -2327,7 +2248,6 @@ export default function registerButtonInteraction(client) {
 				pageIds = memberIds.slice(startIdx, endIdx);
 				pageMembers = pageIds.map(id => interaction.guild.members.cache.get(id)).filter(Boolean);
 
-				// Formatters (same as in snapshot.js)
 				const formatters = {
 					text: (members) => members.map(m => `${m.user.username}#${m.user.discriminator}`).join('\n'),
 					ids: (members) => members.map(m => m.user.id).join('\n'),
@@ -2342,7 +2262,7 @@ export default function registerButtonInteraction(client) {
 				};
 
 				if (action === 'export') {
-					// Export all members, not just current page
+
 					const allMembers = memberIds.map(id => interaction.guild.members.cache.get(id)).filter(Boolean);
 					const output = formatters[format](allMembers);
 					const fileExtension = format === 'csv' ? 'csv' : format === 'json' ? 'json' : 'txt';
@@ -2357,7 +2277,6 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 
-				// Render page: 3 member objects per page for JSON, 10 lines per page for others
 				let pageContent;
 				if (isJson) {
 					pageContent = JSON.stringify(pageMembers.map(m => ({
@@ -2383,7 +2302,7 @@ export default function registerButtonInteraction(client) {
 						default:
 							pageContent = '(No data)';
 					}
-					// Failsafe: only 10 lines in the code block for non-JSON
+
 					if (pageContent) {
 						const lines = pageContent.split('\n');
 						if (format === 'csv' && lines.length > 11) {
@@ -2463,10 +2382,9 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle welcome list pagination: welcomelist_prev/next_<authorId>_<currentPage>
 		if (interaction.customId.startsWith('welcomelist_')) {
 			const parts = interaction.customId.split('_');
-			const action = parts[1]; // prev or next
+			const action = parts[1];
 			const authorId = parts[2];
 			const currentPage = parseInt(parts[3]);
 
@@ -2481,7 +2399,7 @@ export default function registerButtonInteraction(client) {
 
 			const db = interaction.client.db;
 			let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-			
+
 			if (!guildData.welcome || !guildData.welcome.channels || guildData.welcome.channels.length === 0) {
 				await interaction.reply({ content: '❌ No welcome channels configured.', flags: 64 }).catch(() => {});
 				return;
@@ -2490,18 +2408,18 @@ export default function registerButtonInteraction(client) {
 			const config = guildData.welcome;
 			const PER_PAGE = 3;
 			const totalPages = Math.ceil(config.channels.length / PER_PAGE);
-			
+
 			let newPage = currentPage;
 			if (action === 'prev') newPage = Math.max(0, currentPage - 1);
 			else if (action === 'next') newPage = Math.min(currentPage + 1, totalPages - 1);
 
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Welcome Channels (${config.channels.length})`));
-			
+
 			const start = newPage * PER_PAGE;
 			const end = Math.min(start + PER_PAGE, config.channels.length);
 			const pageChannels = config.channels.slice(start, end);
-			
+
 			for (const ch of pageChannels) {
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(
@@ -2513,7 +2431,7 @@ export default function registerButtonInteraction(client) {
 					`**Fields:** ${ch.fields ? parseFields(ch.fields).length : 0} | **Buttons:** ${ch.buttons ? parseButtons(ch.buttons).length : 0}`
 				));
 			}
-			
+
 			if (totalPages > 1) {
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`**Page ${newPage + 1}/${totalPages}**`));
@@ -2535,10 +2453,9 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle goodbye list pagination: goodbyelist_prev/next_<authorId>_<currentPage>
 		if (interaction.customId.startsWith('goodbyelist_')) {
 			const parts = interaction.customId.split('_');
-			const action = parts[1]; // prev or next
+			const action = parts[1];
 			const authorId = parts[2];
 			const currentPage = parseInt(parts[3]);
 
@@ -2553,7 +2470,7 @@ export default function registerButtonInteraction(client) {
 
 			const db = interaction.client.db;
 			let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-			
+
 			if (!guildData.goodbye || !guildData.goodbye.channels || guildData.goodbye.channels.length === 0) {
 				await interaction.reply({ content: '❌ No goodbye channels configured.', flags: 64 }).catch(() => {});
 				return;
@@ -2562,7 +2479,7 @@ export default function registerButtonInteraction(client) {
 			const config = guildData.goodbye;
 			const PER_PAGE = 3;
 			const totalPages = Math.ceil(config.channels.length / PER_PAGE);
-			
+
 			let newPage = currentPage;
 			if (action === 'prev') newPage = Math.max(0, currentPage - 1);
 			else if (action === 'next') newPage = Math.min(currentPage + 1, totalPages - 1);
@@ -2571,11 +2488,11 @@ export default function registerButtonInteraction(client) {
 			container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Goodbye Channels (${config.channels.length})`));
 			container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 			container.addTextDisplayComponents(td => td.setContent(`**System Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}`));
-			
+
 			const start = newPage * PER_PAGE;
 			const end = Math.min(start + PER_PAGE, config.channels.length);
 			const pageChannels = config.channels.slice(start, end);
-			
+
 			for (const ch of pageChannels) {
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(
@@ -2587,7 +2504,7 @@ export default function registerButtonInteraction(client) {
 					`**Fields:** ${ch.fields ? parseFields(ch.fields).length : 0} | **Buttons:** ${ch.buttons ? parseButtons(ch.buttons).length : 0}`
 				));
 			}
-			
+
 			if (totalPages > 1) {
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`**Page ${newPage + 1}/${totalPages}**`));
@@ -2609,11 +2526,10 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Handle welcome configuration buttons
 		if (interaction.customId.startsWith('welcome_')) {
 			const parts = interaction.customId.split('_');
 			const action = parts[1];
-			const authorId = parts.slice(-1)[0]; // Last part is always author ID
+			const authorId = parts.slice(-1)[0];
 
 			if (interaction.user.id !== authorId) {
 				await interaction.reply({ content: '❌ You cannot use this button.', flags: 64 }).catch(() => {});
@@ -2631,14 +2547,12 @@ export default function registerButtonInteraction(client) {
 
 			const db = interaction.client.db;
 			let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-			
-			// Ensure new multi-channel format
+
 			if (!guildData.welcome || !guildData.welcome.channels) {
 				guildData.welcome = { enabled: false, channels: [] };
 			}
 			const config = guildData.welcome;
 
-			// Helper to rebuild welcome config container (matches .welcome show)
 			const rebuildContainer = () => {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Welcome Configuration`));
@@ -2647,8 +2561,7 @@ export default function registerButtonInteraction(client) {
 					`**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
 					`**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
 				));
-				
-				// Show channel previews (up to 3)
+
 				if (config.channels.length > 0) {
 					for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
 						const ch = config.channels[i];
@@ -2665,7 +2578,7 @@ export default function registerButtonInteraction(client) {
 						container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
 					}
 				}
-				
+
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(
 					`**Placeholders:**\n` +
@@ -2675,7 +2588,7 @@ export default function registerButtonInteraction(client) {
 					`\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
 					`\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
 				));
-				
+
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addActionRowComponents(row => row.addComponents(
 					new ButtonBuilder()
@@ -2684,7 +2597,7 @@ export default function registerButtonInteraction(client) {
 						.setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
 						.setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
 				));
-				
+
 				container.addActionRowComponents(row => row.addComponents(
 					new ButtonBuilder()
 						.setCustomId(`welcome_addchannel_${authorId}`)
@@ -2700,11 +2613,10 @@ export default function registerButtonInteraction(client) {
 						.setStyle(ButtonStyle.Secondary)
 						.setEmoji(EMOJIS.test)
 				));
-				
+
 				return container;
 			};
 
-			// Handle toggle
 			if (action === 'toggle') {
 				config.enabled = !config.enabled;
 				if (config.enabled && config.channels.length === 0) {
@@ -2716,13 +2628,12 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Handle Add Channel button - show modal
 			if (action === 'addchannel') {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
 				const modal = new ModalBuilder()
 					.setCustomId(`welcome_addch_modal_${authorId}`)
 					.setTitle('Add Welcome Channel');
-				
+
 				const input = new TextInputBuilder()
 					.setCustomId('channel')
 					.setLabel('Channel name or ID')
@@ -2730,25 +2641,23 @@ export default function registerButtonInteraction(client) {
 					.setPlaceholder('general or 123456789012345678')
 					.setRequired(true)
 					.setMaxLength(50);
-				
+
 				modal.addComponents(new ActionRowBuilder().addComponents(input));
 				await interaction.showModal(modal).catch(() => {});
 				return;
 			}
 
-			// Handle Remove Channel button - show modal
 			if (action === 'removechannel') {
 				if (config.channels.length === 0) {
 					await interaction.reply({ content: '❌ No channels configured to remove.', flags: 64 }).catch(() => {});
 					return;
 				}
-				
+
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
 				const modal = new ModalBuilder()
 					.setCustomId(`welcome_rmch_modal_${authorId}`)
 					.setTitle('Remove Welcome Channel');
-				
-				// Show channel names in label
+
 				const channelNames = config.channels.map(c => {
 					const ch = interaction.guild.channels.cache.get(c.channelId);
 					return ch ? ch.name : c.channelId;
@@ -2760,13 +2669,12 @@ export default function registerButtonInteraction(client) {
 					.setPlaceholder('general or channel ID')
 					.setRequired(true)
 					.setMaxLength(50);
-				
+
 				modal.addComponents(new ActionRowBuilder().addComponents(input));
 				await interaction.showModal(modal).catch(() => {});
 				return;
 			}
 
-			// Handle test for specific channel: welcome_test_ch_<channelId>_<authorId>
 			if (action === 'test' && parts[2] === 'ch') {
 				const channelId = parts[3];
 				const channelConfig = config.channels.find(c => c.channelId === channelId);
@@ -2784,23 +2692,23 @@ export default function registerButtonInteraction(client) {
 					const embed = buildWelcomeEmbed(channelConfig, interaction.member);
 					const content = channelConfig.content ? replacePlaceholders(channelConfig.content, interaction.member) : null;
 					const buttonRow = buildWelcomeButtons(channelConfig, interaction.member);
-					
+
 					if (!content && !embed) {
 						await interaction.reply({ content: '❌ No content or embed configured. Add some content first.', flags: 64 }).catch(() => {});
 						return;
 					}
-					
+
 					const messagePayload = { allowedMentions: { parse: ['users'] } };
 					if (content) messagePayload.content = content;
 					if (embed) messagePayload.embeds = [embed];
 					if (buttonRow) messagePayload.components = [buttonRow];
-					
+
 					const sent = await channel.send(messagePayload);
-					
+
 					if (channelConfig.selfDestruct) {
 						setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 					}
-					
+
 					await interaction.reply({ content: `✅ Test welcome message sent to <#${channel.id}>`, flags: 64 }).catch(() => {});
 				} catch (err) {
 					await interaction.reply({ content: '❌ Failed to send test message. Check bot permissions.', flags: 64 }).catch(() => {});
@@ -2808,50 +2716,49 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Legacy test handler (if no channels configured, show message)
 			if (action === 'test') {
 				if (config.channels.length === 0) {
 					await interaction.reply({ content: '❌ Add a welcome channel first with `.welcome add #channel`', flags: 64 }).catch(() => {});
 					return;
 				}
-				
+
 				let successCount = 0;
 				let failCount = 0;
-				
+
 				for (const channelConfig of config.channels) {
 					const channel = interaction.guild.channels.cache.get(channelConfig.channelId);
 					if (!channel) {
 						failCount++;
 						continue;
 					}
-					
+
 					try {
 						const embed = buildWelcomeEmbed(channelConfig, interaction.member);
 						const content = channelConfig.content ? replacePlaceholders(channelConfig.content, interaction.member) : null;
 						const buttonRow = buildWelcomeButtons(channelConfig, interaction.member);
-						
+
 						if (!content && !embed) {
 							failCount++;
 							continue;
 						}
-						
+
 						const messagePayload = { allowedMentions: { parse: ['users'] } };
 						if (content) messagePayload.content = content;
 						if (embed) messagePayload.embeds = [embed];
 						if (buttonRow) messagePayload.components = [buttonRow];
-						
+
 						const sent = await channel.send(messagePayload);
-						
+
 						if (channelConfig.selfDestruct) {
 							setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 						}
-						
+
 						successCount++;
 					} catch (err) {
 						failCount++;
 					}
 				}
-				
+
 				if (successCount === 0) {
 					await interaction.reply({ content: '❌ Failed to send test messages. Check bot permissions.', flags: 64 }).catch(() => {});
 				} else {
@@ -2862,22 +2769,21 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Handle channel-specific config buttons: welcome_cfg_<option>_<channelId>_<authorId>
 			if (action === 'cfg') {
 				const option = parts[2];
 				const channelId = parts[3];
 				const channelConfig = config.channels.find(c => c.channelId === channelId);
-				
+
 				if (!channelConfig) {
 					await interaction.reply({ content: '❌ That channel is no longer configured.', flags: 64 }).catch(() => {});
 					return;
 				}
-				
+
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
 				const modal = new ModalBuilder()
 					.setCustomId(`welcome_modal_${option}_${channelId}_${authorId}`)
 					.setTitle(`Edit ${option.charAt(0).toUpperCase() + option.slice(1)}`);
-				
+
 				let input;
 				switch (option) {
 					case 'content':
@@ -2994,13 +2900,12 @@ export default function registerButtonInteraction(client) {
 						await interaction.reply({ content: '❌ Unknown option.', flags: 64 }).catch(() => {});
 						return;
 				}
-				
+
 				modal.addComponents(new ActionRowBuilder().addComponents(input));
 				await interaction.showModal(modal).catch(() => {});
 				return;
 			}
-			
-			// Handle test for specific channel from config: welcome_testch_<channelId>_<authorId>
+
 			if (action === 'testch') {
 				const channelId = parts[2];
 				const channelConfig = config.channels.find(c => c.channelId === channelId);
@@ -3018,23 +2923,23 @@ export default function registerButtonInteraction(client) {
 					const embed = buildWelcomeEmbed(channelConfig, interaction.member);
 					const content = channelConfig.content ? replacePlaceholders(channelConfig.content, interaction.member) : null;
 					const buttonRow = buildWelcomeButtons(channelConfig, interaction.member);
-					
+
 					if (!content && !embed) {
 						await interaction.reply({ content: '❌ No content or embed configured. Add some content first.', flags: 64 }).catch(() => {});
 						return;
 					}
-					
+
 					const messagePayload = { allowedMentions: { parse: ['users'] } };
 					if (content) messagePayload.content = content;
 					if (embed) messagePayload.embeds = [embed];
 					if (buttonRow) messagePayload.components = [buttonRow];
-					
+
 					const sent = await channel.send(messagePayload);
-					
+
 					if (channelConfig.selfDestruct) {
 						setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 					}
-					
+
 					await interaction.reply({ content: `✅ Test welcome message sent to <#${channel.id}>`, flags: 64 }).catch(() => {});
 				} catch (err) {
 					await interaction.reply({ content: '❌ Failed to send test message. Check bot permissions.', flags: 64 }).catch(() => {});
@@ -3042,19 +2947,17 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// For old button-based config from main view (content, author, etc.), redirect to command usage
-			await interaction.reply({ 
-				content: `ℹ️ Use \`welcome config #channel\` to configure a specific channel with buttons.\n\nOr use \`welcome list\` to see all configured channels.`, 
-				flags: 64 
+			await interaction.reply({
+				content: `ℹ️ Use \`welcome config #channel\` to configure a specific channel with buttons.\n\nOr use \`welcome list\` to see all configured channels.`,
+				flags: 64
 			}).catch(() => {});
 			return;
 		}
 
-		// Handle goodbye configuration buttons
 		if (interaction.customId.startsWith('goodbye_')) {
 			const parts = interaction.customId.split('_');
 			const action = parts[1];
-			const authorId = parts.slice(-1)[0]; // Last part is always author ID
+			const authorId = parts.slice(-1)[0];
 
 			if (interaction.user.id !== authorId) {
 				await interaction.reply({ content: '❌ You cannot use this button.', flags: 64 }).catch(() => {});
@@ -3072,14 +2975,12 @@ export default function registerButtonInteraction(client) {
 
 			const db = interaction.client.db;
 			let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-			
-			// Ensure new multi-channel format
+
 			if (!guildData.goodbye || !guildData.goodbye.channels) {
 				guildData.goodbye = { enabled: false, channels: [] };
 			}
 			const config = guildData.goodbye;
 
-			// Helper to rebuild goodbye config container (matches .goodbye show)
 			const rebuildContainer = () => {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Goodbye Configuration`));
@@ -3088,8 +2989,7 @@ export default function registerButtonInteraction(client) {
 					`**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
 					`**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
 				));
-				
-				// Show channel previews (up to 3)
+
 				if (config.channels.length > 0) {
 					for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
 						const ch = config.channels[i];
@@ -3106,7 +3006,7 @@ export default function registerButtonInteraction(client) {
 						container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
 					}
 				}
-				
+
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(
 					`**Placeholders:**\n` +
@@ -3116,7 +3016,7 @@ export default function registerButtonInteraction(client) {
 					`\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
 					`\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
 				));
-				
+
 				container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 				container.addActionRowComponents(row => row.addComponents(
 					new ButtonBuilder()
@@ -3125,7 +3025,7 @@ export default function registerButtonInteraction(client) {
 						.setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
 						.setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
 				));
-				
+
 				container.addActionRowComponents(row => row.addComponents(
 					new ButtonBuilder()
 						.setCustomId(`goodbye_addchannel_${authorId}`)
@@ -3141,11 +3041,10 @@ export default function registerButtonInteraction(client) {
 						.setStyle(ButtonStyle.Secondary)
 						.setEmoji(EMOJIS.test)
 				));
-				
+
 				return container;
 			};
 
-			// Handle toggle
 			if (action === 'toggle') {
 				config.enabled = !config.enabled;
 				if (config.enabled && config.channels.length === 0) {
@@ -3157,13 +3056,12 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Handle add channel button
 			if (action === 'addchannel') {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
 				const modal = new ModalBuilder()
 					.setCustomId(`goodbye_addch_modal_${authorId}`)
 					.setTitle('Add Goodbye Channel');
-				
+
 				const input = new TextInputBuilder()
 					.setCustomId('channel')
 					.setLabel('Channel name or ID')
@@ -3171,25 +3069,23 @@ export default function registerButtonInteraction(client) {
 					.setPlaceholder('goodbye or 123456789012345678')
 					.setRequired(true)
 					.setMaxLength(50);
-				
+
 				modal.addComponents(new ActionRowBuilder().addComponents(input));
 				await interaction.showModal(modal).catch(() => {});
 				return;
 			}
 
-			// Handle remove channel button
 			if (action === 'removechannel') {
 				if (config.channels.length === 0) {
 					await interaction.reply({ content: '❌ No channels configured to remove.', flags: 64 }).catch(() => {});
 					return;
 				}
-				
+
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
 				const modal = new ModalBuilder()
 					.setCustomId(`goodbye_rmch_modal_${authorId}`)
 					.setTitle('Remove Goodbye Channel');
-				
-				// Show channel names in label
+
 				const channelNames = config.channels.map(c => {
 					const ch = interaction.guild.channels.cache.get(c.channelId);
 					return ch ? ch.name : c.channelId;
@@ -3201,13 +3097,12 @@ export default function registerButtonInteraction(client) {
 					.setPlaceholder('general or channel ID')
 					.setRequired(true)
 					.setMaxLength(50);
-				
+
 				modal.addComponents(new ActionRowBuilder().addComponents(input));
 				await interaction.showModal(modal).catch(() => {});
 				return;
 			}
 
-			// Handle test for specific channel: goodbye_test_ch_<channelId>_<authorId>
 			if (action === 'test' && parts[2] === 'ch') {
 				const channelId = parts[3];
 				const channelConfig = config.channels.find(c => c.channelId === channelId);
@@ -3225,23 +3120,23 @@ export default function registerButtonInteraction(client) {
 					const embed = buildGoodbyeEmbed(channelConfig, interaction.member);
 					const content = channelConfig.content ? replacePlaceholders(channelConfig.content, interaction.member) : null;
 					const buttonRow = buildGoodbyeButtons(channelConfig, interaction.member);
-					
+
 					if (!content && !embed) {
 						await interaction.reply({ content: '❌ No content or embed configured. Add some content first.', flags: 64 }).catch(() => {});
 						return;
 					}
-					
+
 					const messagePayload = { allowedMentions: { parse: ['users'] } };
 					if (content) messagePayload.content = content;
 					if (embed) messagePayload.embeds = [embed];
 					if (buttonRow) messagePayload.components = [buttonRow];
-					
+
 					const sent = await channel.send(messagePayload);
-					
+
 					if (channelConfig.selfDestruct) {
 						setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 					}
-					
+
 					await interaction.reply({ content: `✅ Test goodbye message sent to <#${channel.id}>`, flags: 64 }).catch(() => {});
 				} catch (err) {
 					await interaction.reply({ content: '❌ Failed to send test message. Check bot permissions.', flags: 64 }).catch(() => {});
@@ -3249,50 +3144,49 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Legacy test handler (if no channels configured, show message)
 			if (action === 'test') {
 				if (config.channels.length === 0) {
 					await interaction.reply({ content: '❌ Add a goodbye channel first with `.goodbye add #channel`', flags: 64 }).catch(() => {});
 					return;
 				}
-				
+
 				let successCount = 0;
 				let failCount = 0;
-				
+
 				for (const channelConfig of config.channels) {
 					const channel = interaction.guild.channels.cache.get(channelConfig.channelId);
 					if (!channel) {
 						failCount++;
 						continue;
 					}
-					
+
 					try {
 						const embed = buildGoodbyeEmbed(channelConfig, interaction.member);
 						const content = channelConfig.content ? replacePlaceholders(channelConfig.content, interaction.member) : null;
 						const buttonRow = buildGoodbyeButtons(channelConfig, interaction.member);
-						
+
 						if (!content && !embed) {
 							failCount++;
 							continue;
 						}
-						
+
 						const messagePayload = { allowedMentions: { parse: ['users'] } };
 						if (content) messagePayload.content = content;
 						if (embed) messagePayload.embeds = [embed];
 						if (buttonRow) messagePayload.components = [buttonRow];
-						
+
 						const sent = await channel.send(messagePayload);
-						
+
 						if (channelConfig.selfDestruct) {
 							setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 						}
-						
+
 						successCount++;
 					} catch (err) {
 						failCount++;
 					}
 				}
-				
+
 				if (successCount === 0) {
 					await interaction.reply({ content: '❌ Failed to send test messages. Check bot permissions.', flags: 64 }).catch(() => {});
 				} else {
@@ -3303,22 +3197,21 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// Handle channel-specific config buttons: goodbye_cfg_<option>_<channelId>_<authorId>
 			if (action === 'cfg') {
 				const option = parts[2];
 				const channelId = parts[3];
 				const channelConfig = config.channels.find(c => c.channelId === channelId);
-				
+
 				if (!channelConfig) {
 					await interaction.reply({ content: '❌ That channel is no longer configured.', flags: 64 }).catch(() => {});
 					return;
 				}
-				
+
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder } = await import('discord.js');
 				const modal = new ModalBuilder()
 					.setCustomId(`goodbye_modal_${option}_${channelId}_${authorId}`)
 					.setTitle(`Edit ${option.charAt(0).toUpperCase() + option.slice(1)}`);
-				
+
 				let input;
 				switch (option) {
 					case 'content':
@@ -3435,13 +3328,12 @@ export default function registerButtonInteraction(client) {
 						await interaction.reply({ content: '❌ Unknown option.', flags: 64 }).catch(() => {});
 						return;
 				}
-				
+
 				modal.addComponents(new ActionRowBuilder().addComponents(input));
 				await interaction.showModal(modal).catch(() => {});
 				return;
 			}
-			
-			// Handle test for specific channel from config: goodbye_testch_<channelId>_<authorId>
+
 			if (action === 'testch') {
 				const channelId = parts[2];
 				const channelConfig = config.channels.find(c => c.channelId === channelId);
@@ -3459,23 +3351,23 @@ export default function registerButtonInteraction(client) {
 					const embed = buildGoodbyeEmbed(channelConfig, interaction.member);
 					const content = channelConfig.content ? replacePlaceholders(channelConfig.content, interaction.member) : null;
 					const buttonRow = buildGoodbyeButtons(channelConfig, interaction.member);
-					
+
 					if (!content && !embed) {
 						await interaction.reply({ content: '❌ No content or embed configured. Add some content first.', flags: 64 }).catch(() => {});
 						return;
 					}
-					
+
 					const messagePayload = { allowedMentions: { parse: ['users'] } };
 					if (content) messagePayload.content = content;
 					if (embed) messagePayload.embeds = [embed];
 					if (buttonRow) messagePayload.components = [buttonRow];
-					
+
 					const sent = await channel.send(messagePayload);
-					
+
 					if (channelConfig.selfDestruct) {
 						setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 					}
-					
+
 					await interaction.reply({ content: `✅ Test goodbye message sent to <#${channel.id}>`, flags: 64 }).catch(() => {});
 				} catch (err) {
 					await interaction.reply({ content: '❌ Failed to send test message. Check bot permissions.', flags: 64 }).catch(() => {});
@@ -3483,57 +3375,52 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 
-			// For old button-based config from main view, redirect to command usage
-			await interaction.reply({ 
-				content: `ℹ️ Use \`goodbye config #channel\` to configure a specific channel with buttons.\n\nOr use \`goodbye list\` to see all configured channels.`, 
-				flags: 64 
+			await interaction.reply({
+				content: `ℹ️ Use \`goodbye config #channel\` to configure a specific channel with buttons.\n\nOr use \`goodbye list\` to see all configured channels.`,
+				flags: 64
 			}).catch(() => {});
 			return;
 		}
 
-		// Route antinuke interactions
 		if (interaction.customId.startsWith('antinuke_')) {
 			try {
 				const { ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, EmbedBuilder } = await import('discord.js');
-				
+
 				const customId = interaction.customId;
 				const guildId = interaction.guildId;
-				
-				// Check wizard expiry and author
+
 				const wizardData = discordClient.antinukeWizards?.get(interaction.message.id);
 				if (wizardData) {
 					const elapsed = Date.now() - wizardData.createdAt;
 					if (elapsed > 5 * 60 * 1000) {
-						await interaction.reply({ 
-							content: '⏰ This wizard has expired. Please run the command again to create a new one.', 
-							ephemeral: true 
+						await interaction.reply({
+							content: '⏰ This wizard has expired. Please run the command again to create a new one.',
+							ephemeral: true
 						}).catch(() => {});
 						return;
 					}
-					
-					// Check if user is the original command author
+
 					if (wizardData.authorId !== interaction.user.id) {
-						await interaction.reply({ 
-							content: '❌ Only the user who opened this wizard can use these buttons.', 
-							ephemeral: true 
+						await interaction.reply({
+							content: '❌ Only the user who opened this wizard can use these buttons.',
+							ephemeral: true
 						}).catch(() => {});
 						return;
 					}
 				}
-				
+
 				const guildData = await discordClient.db.findOne({ guildId }) || {};
 				const antinuke = guildData.antinuke || { enabled: false, modules: {}, admins: [], whitelist: [] };
-				
+
 				const isGuildOwner = interaction.guild.ownerId === interaction.user.id;
 				const isAntinukeAdmin = antinuke.admins?.includes(interaction.user.id);
 				const isExtraOwner = antinuke.extraOwners?.includes(interaction.user.id);
-				
-				// Only antinuke admin, server owner, or extra owner can access antinuke setup
+
 				if (!isGuildOwner && !isAntinukeAdmin && !isExtraOwner) {
 					await interaction.reply({ content: '❌ Only antinuke admins, extra owners, or the server owner can access this.', ephemeral: true }).catch(() => {});
 					return;
 				}
-				
+
 		const PRESETS = {
 			recommended: {
 				ban: { enabled: true, threshold: 3, punishment: 'ban' },
@@ -3569,28 +3456,26 @@ export default function registerButtonInteraction(client) {
 
 		if (customId.startsWith('antinuke_preset_')) {
 			const preset = customId.replace('antinuke_preset_', '');
-			
+
 			if (!PRESETS[preset]) {
 				await interaction.reply({ content: '❌ Invalid preset.', ephemeral: true }).catch(() => {});
 				return;
 			}
-			
-			// Defer first to allow message update
+
 			await interaction.deferUpdate().catch(() => {});
-			
-			// Determine modules from preset: prefer explicit modules array; fall back to enabled flags on object
+
 			const presetModulesFromArray = PRESETS[preset]?.modules;
 			const presetModulesFromEnabled = Object.entries(PRESETS[preset])
 				.filter(([key, val]) => val && typeof val === 'object' && 'enabled' in val && val.enabled)
 				.map(([key]) => key);
 			const presetModulesArray = Array.isArray(presetModulesFromArray) ? presetModulesFromArray : presetModulesFromEnabled;
-			
+
 			const presetThreshold = PRESETS[preset]?.threshold ?? 3;
 			const presetPunishment = PRESETS[preset]?.punishment ?? 'ban';
-			
+
 			const existingData = await discordClient.db.findOne({ guildId }) || { guildId, antinuke: {} };
 			const baseAntinuke = existingData.antinuke || {};
-			
+
 			const moduleData = {};
 			for (const moduleName of Object.keys(MODULES)) {
 				moduleData[moduleName] = {
@@ -3599,7 +3484,7 @@ export default function registerButtonInteraction(client) {
 					punishment: presetPunishment
 				};
 			}
-			
+
 			const updatedAntinuke = {
 				...baseAntinuke,
 				enabled: true,
@@ -3609,14 +3494,13 @@ export default function registerButtonInteraction(client) {
 				defaultWindow: PRESETS[preset]?.window || baseAntinuke.defaultWindow || 60,
 				appliedPreset: preset
 			};
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { antinuke: updatedAntinuke } },
 				{ upsert: true }
 			);
-			
-			// Send log for preset application
+
 			const freshGuildData = { ...existingData, antinuke: updatedAntinuke };
 			await sendAntinukeLog(discordClient, freshGuildData, interaction.guild, {
 				eventType: 'configChange',
@@ -3629,30 +3513,28 @@ export default function registerButtonInteraction(client) {
 					'Modules': `${presetModulesArray.length} enabled`
 				}
 			});
-			
-			// Use the updated data directly for the wizard, switch to global punishment view
+
 			const updatedContainer = buildWizardContainer(freshGuildData, 'global');
-			
+
 			await interaction.editReply({ components: [updatedContainer] }).catch(err => {
 				console.error('[Antinuke Button] Error updating wizard:', err);
 			});
-			
-			// Ephemeral confirmation
+
 			const { ContainerBuilder, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
 			const confirmContainer = new ContainerBuilder();
 			confirmContainer.addTextDisplayComponents(td => td.setContent(`# ✅ Antinuke Configured`));
 			confirmContainer.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-			
+
 			const enabledCount = presetModulesArray.length;
 			const moduleList = presetModulesArray.map(name => `• **${name}**`).join('\n');
 			confirmContainer.addTextDisplayComponents(td => td.setContent(`**${preset.charAt(0).toUpperCase() + preset.slice(1)}** preset applied!\n\n**Active Modules:** ${enabledCount}/10\n${moduleList}`));
-			
+
 			await interaction.followUp({ components: [confirmContainer], ephemeral: true, flags: MessageFlags.IsComponentsV2 }).catch(err => {
 				console.error('[Antinuke Button] Error sending preset confirmation:', err);
 			});
 			return;
 		}
-		
+
 		if (customId === 'antinuke_modules') {
 			await interaction.deferUpdate().catch(() => {});
 			const moduleOptions = [
@@ -3667,9 +3549,9 @@ export default function registerButtonInteraction(client) {
 				{ label: 'Permission Protection', value: 'permissions', emoji: '🔐', description: 'Monitor dangerous perms' },
 				{ label: 'Prune Protection', value: 'prune', emoji: '🧹', description: 'Prevent mass prunes' }
 			];
-			
+
 			const currentModules = Object.keys(antinuke.modules || {}).filter(m => antinuke.modules[m]?.enabled);
-			
+
 			const select = new StringSelectMenuBuilder()
 				.setCustomId('antinuke_module_select')
 				.setPlaceholder('Select modules to enable...')
@@ -3679,8 +3561,7 @@ export default function registerButtonInteraction(client) {
 					...opt,
 					default: currentModules.includes(opt.value)
 				})));
-			
-			// Edit the main wizard message with the select menu (no extra messages)
+
 			const { ContainerBuilder } = await import('discord.js');
 			const moduleContainer = new ContainerBuilder();
 			moduleContainer.addTextDisplayComponents(td => td.setContent(`# 🛡️ Module Selection\nSelect which protection modules you want to enable.\n\nCurrently enabled: ${currentModules.length > 0 ? currentModules.join(', ') : 'None'}`));
@@ -3695,17 +3576,15 @@ export default function registerButtonInteraction(client) {
 			});
 			return;
 		}
-		
+
 		if (customId === 'antinuke_module_select' && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const selected = interaction.values;
 			const modules = { ...antinuke.modules };
-			
-			// Track changes for logging
+
 			const enabledModules = [];
 			const disabledModules = [];
-			
-			// Disable all first, then enable selected
+
 			for (const key of Object.keys(modules)) {
 				const wasEnabled = modules[key].enabled;
 				modules[key].enabled = false;
@@ -3721,14 +3600,13 @@ export default function registerButtonInteraction(client) {
 					enabledModules.push(mod);
 				}
 			}
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.enabled': selected.length > 0, 'antinuke.modules': modules, 'antinuke.appliedPreset': 'custom' } },
 				{ upsert: true }
 			);
-			
-			// Send log for module changes
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
 			if (enabledModules.length > 0 || disabledModules.length > 0) {
 				await sendAntinukeLog(discordClient, freshGuildData, interaction.guild, {
@@ -3742,7 +3620,7 @@ export default function registerButtonInteraction(client) {
 					}
 				});
 			}
-			
+
 			const updatedContainer = buildWizardContainer(freshGuildData);
 			await interaction.editReply({ components: [updatedContainer] }).catch(err => {
 				console.error('[Antinuke Button] Error updating modules:', err);
@@ -3750,15 +3628,13 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Punishment configuration panel - edit original message with select menu
 		if (customId === 'antinuke_punishment_menu') {
 			await interaction.deferUpdate().catch(() => {});
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
-			
-			// Fetch fresh data from DB
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || {};
 			const freshAntinuke = freshGuildData.antinuke || antinuke;
-			
+
 			const punishmentOptions = [
 				{ label: 'Ban', value: 'ban', emoji: '🔨', description: 'Permanently ban the user' },
 				{ label: 'Kick', value: 'kick', emoji: '👢', description: 'Kick the user from server' },
@@ -3766,18 +3642,16 @@ export default function registerButtonInteraction(client) {
 				{ label: 'Protocol', value: 'protocol', emoji: '🔒', description: 'Strip roles and apply timeout' },
 				{ label: 'Timeout', value: 'timeout', emoji: '⏰', description: 'Timeout for 28 days' }
 			];
-			
+
 			let currentPunishment = freshAntinuke.defaultPunishment || 'ban';
 			if (currentPunishment === 'quarantine') currentPunishment = 'protocol';
-			const punitiveMode = freshAntinuke.punitiveMode || 'global'; // 'global' or 'per-module'
-			
-			// Check if per-module punishments are configured (have any custom values)
+			const punitiveMode = freshAntinuke.punitiveMode || 'global';
+
 			const enabledModules = Object.entries(freshAntinuke.modules || {}).filter(([, m]) => m?.enabled);
 			const hasPerModulePunishments = enabledModules.some(([, m]) => m?.punishment && m.punishment !== currentPunishment);
-			
-			// If per-module mode is active, lock global
+
 			const isGlobalLocked = punitiveMode === 'per-module';
-			
+
 			const select = new StringSelectMenuBuilder()
 				.setCustomId('antinuke_punishment_select')
 				.setPlaceholder('Select default punishment...')
@@ -3786,24 +3660,24 @@ export default function registerButtonInteraction(client) {
 					...opt,
 					default: opt.value === currentPunishment
 				})));
-			
+
 			let statusText = `Select the default punishment for antinuke violations.\n\n**Current Default:** ${currentPunishment}`;
 			if (isGlobalLocked) {
 				statusText = `🔒 **Per-Module Mode Active** - Global punishment is locked.\n\n**Current Default:** ${currentPunishment}\n_Click "Switch to Global Mode" to use global punishment instead._`;
 			} else if (hasPerModulePunishments) {
 				statusText += `\n⚠️ _Some modules have custom punishments configured_`;
 			}
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# ⚡ Punishment Settings`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(statusText));
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(select));
-			
+
 			const buttonsRow = new ActionRowBuilder();
-			
+
 			if (isGlobalLocked) {
-				// When in per-module mode, show both per-module config and switch option
+
 				buttonsRow.addComponents(
 					new ButtonBuilder()
 						.setCustomId('antinuke_punishment_per_module')
@@ -3832,13 +3706,12 @@ export default function registerButtonInteraction(client) {
 						.setStyle(ButtonStyle.Secondary)
 				);
 			}
-			
+
 			view.addActionRowComponents(buttonsRow);
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error showing punishment menu:', err));
 			return;
 		}
 
-		// Thresholds configuration panel
 		if (customId === 'antinuke_thresholds') {
 			await interaction.deferUpdate().catch(() => {});
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
@@ -3875,7 +3748,6 @@ export default function registerButtonInteraction(client) {
 					.addOptions(moduleOptions.slice(0, 25));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(moduleSelect));
 
-				// Summary list
 				const summaryLines = moduleOptions.map(opt => `• ${opt.label}: ${opt.description.split(': ')[1]}`);
 				view.addTextDisplayComponents(td => td.setContent(`**Module Thresholds**\n${summaryLines.join('\n')}`));
 
@@ -3891,7 +3763,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Update default threshold
 		if (customId === 'antinuke_threshold_default_select' && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const newThreshold = parseInt(interaction.values[0]);
@@ -3904,8 +3775,7 @@ export default function registerButtonInteraction(client) {
 				{ $set: { 'antinuke.defaultThreshold': freshAntinuke.defaultThreshold } },
 				{ upsert: true }
 			);
-			
-			// Send log for threshold change
+
 			await sendAntinukeLog(discordClient, { ...freshGuildData, antinuke: freshAntinuke }, interaction.guild, {
 				eventType: 'configChange',
 				executor: { id: interaction.user.id, tag: interaction.user.tag },
@@ -3917,7 +3787,6 @@ export default function registerButtonInteraction(client) {
 				}
 			});
 
-			// Re-render thresholds view
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
 			const rebuild = () => {
 				const defaultThreshold = freshAntinuke.defaultThreshold || 3;
@@ -3962,7 +3831,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Pick module to set threshold
 		if (customId === 'antinuke_threshold_module_select' && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const moduleName = interaction.values[0];
@@ -3993,7 +3861,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Apply module threshold value
 		if (customId.startsWith('antinuke_threshold_module_value_') && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const moduleName = customId.replace('antinuke_threshold_module_value_', '');
@@ -4010,8 +3877,7 @@ export default function registerButtonInteraction(client) {
 				{ $set: { [`antinuke.modules.${moduleName}.threshold`]: newThreshold } },
 				{ upsert: true }
 			);
-			
-			// Send log for module threshold change
+
 			await sendAntinukeLog(discordClient, { ...freshGuildData, antinuke: freshAntinuke }, interaction.guild, {
 				eventType: 'configChange',
 				executor: { id: interaction.user.id, tag: interaction.user.tag },
@@ -4024,7 +3890,6 @@ export default function registerButtonInteraction(client) {
 				}
 			});
 
-			// Return to thresholds main view
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
 			const defaultThreshold = freshAntinuke.defaultThreshold || 3;
 			const moduleOptions = Object.entries(MODULES).map(([key, meta]) => {
@@ -4063,16 +3928,14 @@ export default function registerButtonInteraction(client) {
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Thresholds] Apply module error:', err));
 			return;
 		}
-		
-		// Per-module punishment configuration
+
 		if (customId === 'antinuke_punishment_per_module') {
 			await interaction.deferUpdate().catch(() => {});
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
-			
-			// Fetch fresh data
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || {};
 			const freshAntinuke = freshGuildData.antinuke || antinuke;
-			
+
 			const MODULES = {
 				ban: { name: 'Anti Ban', description: 'Prevents mass banning', emoji: '🔨' },
 				kick: { name: 'Anti Kick', description: 'Prevents mass kicking', emoji: '👢' },
@@ -4085,9 +3948,9 @@ export default function registerButtonInteraction(client) {
 				prune: { name: 'Anti Prune', description: 'Prevents member pruning', emoji: '✂️' },
 				permissions: { name: 'Anti Permissions', description: 'Monitors permissions', emoji: '⚠️' }
 			};
-			
+
 			const enabledModules = Object.entries(freshAntinuke.modules || {}).filter(([, m]) => m?.enabled).map(([name]) => name);
-			
+
 			if (enabledModules.length === 0) {
 				const view = new ContainerBuilder();
 				view.addTextDisplayComponents(td => td.setContent(`# ⚡ Per-Module Punishment`));
@@ -4099,19 +3962,19 @@ export default function registerButtonInteraction(client) {
 				await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error showing per-module:', err));
 				return;
 			}
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# ⚡ Per-Module Punishment`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Set punishment for each enabled module:`));
-			
+
 			for (const moduleName of enabledModules) {
 				const moduleInfo = MODULES[moduleName];
 				let currentPunishment = freshAntinuke.modules[moduleName]?.punishment || 'ban';
 				if (currentPunishment === 'quarantine') currentPunishment = 'protocol';
-				
+
 				view.addTextDisplayComponents(td => td.setContent(`${moduleInfo.emoji} **${moduleInfo.name}**\n_${moduleInfo.description}_`));
-				
+
 				const select = new StringSelectMenuBuilder()
 					.setCustomId(`antinuke_module_punishment_${moduleName}`)
 					.setPlaceholder(`Select punishment...`)
@@ -4122,43 +3985,41 @@ export default function registerButtonInteraction(client) {
 						{ label: 'Protocol', value: 'protocol', emoji: '🔒', description: 'Strip roles and apply timeout' },
 						{ label: 'Timeout', value: 'timeout', emoji: '⏰', description: 'Timeout for 28 days' }
 					].map(opt => ({ ...opt, default: opt.value === currentPunishment })));
-				
+
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(select));
 				view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_punishment_menu').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error showing per-module:', err));
 			return;
 		}
-		
-		// Handle per-module punishment selection
+
 		if (customId.startsWith('antinuke_module_punishment_') && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const moduleName = customId.replace('antinuke_module_punishment_', '');
 			const selectedPunishment = interaction.values[0];
-			
+
 			const modules = { ...antinuke.modules };
 			const oldPunishment = modules[moduleName]?.punishment || antinuke.defaultPunishment || 'ban';
 			if (modules[moduleName]) {
 				modules[moduleName].punishment = selectedPunishment;
 			}
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
-				{ 
-					$set: { 
+				{
+					$set: {
 						'antinuke.modules': modules,
 						'antinuke.appliedPreset': 'custom',
 						'antinuke.punitiveMode': 'per-module'
-					} 
+					}
 				},
 				{ upsert: true }
 			);
-			
-			// Send log for per-module punishment change
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
 			await sendAntinukeLog(discordClient, freshGuildData, interaction.guild, {
 				eventType: 'configChange',
@@ -4172,11 +4033,10 @@ export default function registerButtonInteraction(client) {
 					'Mode': 'Per-Module'
 				}
 			});
-			
-			// Refresh per-module panel
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
-			
+
 			const MODULES = {
 				ban: { name: 'Anti Ban', description: 'Prevents mass banning', emoji: '🔨' },
 				kick: { name: 'Anti Kick', description: 'Prevents mass kicking', emoji: '👢' },
@@ -4189,21 +4049,21 @@ export default function registerButtonInteraction(client) {
 				prune: { name: 'Anti Prune', description: 'Prevents member pruning', emoji: '✂️' },
 				permissions: { name: 'Anti Permissions', description: 'Monitors permissions', emoji: '⚠️' }
 			};
-			
+
 			const enabledModules = Object.entries(freshAntinuke.modules || {}).filter(([, m]) => m?.enabled).map(([name]) => name);
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# ⚡ Per-Module Punishment`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Set punishment for each enabled module:`));
-			
+
 			for (const mod of enabledModules) {
 				const moduleInfo = MODULES[mod];
 				let currentPunishment = freshAntinuke.modules[mod]?.punishment || 'ban';
 				if (currentPunishment === 'quarantine') currentPunishment = 'protocol';
-				
+
 				view.addTextDisplayComponents(td => td.setContent(`${moduleInfo.emoji} **${moduleInfo.name}**\n_${moduleInfo.description}_`));
-				
+
 				const select = new StringSelectMenuBuilder()
 					.setCustomId(`antinuke_module_punishment_${mod}`)
 					.setPlaceholder(`Select punishment...`)
@@ -4214,40 +4074,37 @@ export default function registerButtonInteraction(client) {
 						{ label: 'Protocol', value: 'protocol', emoji: '🔒', description: 'Strip roles and apply timeout' },
 						{ label: 'Timeout', value: 'timeout', emoji: '⏰', description: 'Timeout for 28 days' }
 					].map(opt => ({ ...opt, default: opt.value === currentPunishment })));
-				
+
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(select));
 				view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_punishment_menu').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error updating per-module:', err));
 			return;
 		}
-		
-		// Handle default punishment selection
+
 		if (customId === 'antinuke_punishment_select' && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const selected = interaction.values[0];
-			
-			// Get old punishment for logging
+
 			const beforeData = await discordClient.db.findOne({ guildId }) || {};
 			const oldPunishment = beforeData.antinuke?.defaultPunishment || 'ban';
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
-				{ 
-					$set: { 
+				{
+					$set: {
 						'antinuke.defaultPunishment': selected,
 						'antinuke.appliedPreset': 'custom',
 						'antinuke.punitiveMode': 'global'
-					} 
+					}
 				},
 				{ upsert: true }
 			);
-			
-			// Send log for punishment change
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
 			await sendAntinukeLog(discordClient, freshGuildData, interaction.guild, {
 				eventType: 'configChange',
@@ -4260,28 +4117,27 @@ export default function registerButtonInteraction(client) {
 					'Mode': 'Global'
 				}
 			});
-			
+
 			const updatedContainer = buildWizardContainer(freshGuildData);
 			await interaction.editReply({ components: [updatedContainer] }).catch(err => {
 				console.error('[Antinuke Button] Error updating punishment:', err);
 			});
 			return;
 		}
-		
-		// Switch from per-module mode to global mode
+
 		if (customId === 'antinuke_punishment_switch_to_global') {
 			await interaction.deferUpdate().catch(() => {});
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.punitiveMode': 'global' } },
 				{ upsert: true }
 			);
-			
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
 			const freshAntinuke = freshGuildData.antinuke || {};
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
-			
+
 			const punishmentOptions = [
 				{ label: 'Ban', value: 'ban', emoji: '🔨', description: 'Permanently ban the user' },
 				{ label: 'Kick', value: 'kick', emoji: '👢', description: 'Kick the user from server' },
@@ -4289,9 +4145,9 @@ export default function registerButtonInteraction(client) {
 				{ label: 'Protocol', value: 'protocol', emoji: '🔒', description: 'Strip roles and apply timeout' },
 				{ label: 'Timeout', value: 'timeout', emoji: '⏰', description: 'Timeout for 28 days' }
 			];
-			
+
 			const currentPunishment = freshAntinuke.defaultPunishment || 'ban';
-			
+
 			const select = new StringSelectMenuBuilder()
 				.setCustomId('antinuke_punishment_select')
 				.setPlaceholder('Select default punishment...')
@@ -4299,7 +4155,7 @@ export default function registerButtonInteraction(client) {
 					...opt,
 					default: opt.value === currentPunishment
 				})));
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# ⚡ Punishment Settings`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -4318,22 +4174,20 @@ export default function registerButtonInteraction(client) {
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error switching to global:', err));
 			return;
 		}
-		
-		// Switch from global mode to per-module mode
+
 		if (customId === 'antinuke_punishment_switch_to_per_module') {
 			await interaction.deferUpdate().catch(() => {});
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.punitiveMode': 'per-module' } },
 				{ upsert: true }
 			);
-			
-			// Redirect to per-module punishment view
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || {};
 			const freshAntinuke = freshGuildData.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
-			
+
 			const MODULES = {
 				ban: { name: 'Anti Ban', description: 'Prevents mass banning', emoji: '🔨' },
 				kick: { name: 'Anti Kick', description: 'Prevents mass kicking', emoji: '👢' },
@@ -4346,9 +4200,9 @@ export default function registerButtonInteraction(client) {
 				prune: { name: 'Anti Prune', description: 'Prevents member pruning', emoji: '✂️' },
 				permissions: { name: 'Anti Permissions', description: 'Monitors permissions', emoji: '⚠️' }
 			};
-			
+
 			const enabledModules = Object.entries(freshAntinuke.modules || {}).filter(([, m]) => m?.enabled).map(([name]) => name);
-			
+
 			if (enabledModules.length === 0) {
 				const view = new ContainerBuilder();
 				view.addTextDisplayComponents(td => td.setContent(`# ⚡ Per-Module Punishment`));
@@ -4360,18 +4214,18 @@ export default function registerButtonInteraction(client) {
 				await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error showing per-module:', err));
 				return;
 			}
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# ⚡ Per-Module Punishment`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`🔓 Switched to **Per-Module Mode**\n\nSet punishment for each enabled module:`));
-			
+
 			for (const moduleName of enabledModules) {
 				const moduleInfo = MODULES[moduleName];
 				const currentPunishment = freshAntinuke.modules[moduleName]?.punishment || 'ban';
-				
+
 				view.addTextDisplayComponents(td => td.setContent(`${moduleInfo.emoji} **${moduleInfo.name}**\n_${moduleInfo.description}_`));
-				
+
 				const select = new StringSelectMenuBuilder()
 					.setCustomId(`antinuke_module_punishment_${moduleName}`)
 					.setPlaceholder(`Select punishment...`)
@@ -4382,39 +4236,36 @@ export default function registerButtonInteraction(client) {
 						{ label: 'Protocol', value: 'protocol', emoji: '🔒', description: 'Strip roles and apply timeout' },
 						{ label: 'Timeout', value: 'timeout', emoji: '⏰', description: 'Timeout for 28 days' }
 					].map(opt => ({ ...opt, default: opt.value === currentPunishment })));
-				
+
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(select));
 				view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_punishment_menu').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error switching to per-module:', err));
 			return;
 		}
-		
-		// Whitelist configuration panel - unified V2 components
+
 		if (customId === 'antinuke_whitelist_view') {
 			await interaction.deferUpdate().catch(() => {});
 			const { ContainerBuilder, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
 			const whitelist = Array.isArray(antinuke.whitelist) ? antinuke.whitelist : [];
-			
+
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents(td => td.setContent(`# 📜 Whitelist`));
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			container.addTextDisplayComponents(td => td.setContent(`**${whitelist.length}** users whitelisted`));
 			container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-			
-			// Add user select
+
 			const userSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_whitelist_add')
 				.setPlaceholder('Add users to whitelist...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			container.addActionRowComponents(row => row.addComponents(userSelect));
-			
-			// Removal select if any whitelisted users
+
 			if (whitelist.length > 0) {
 				const removeSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_whitelist_remove')
@@ -4445,57 +4296,53 @@ export default function registerButtonInteraction(client) {
 				}
 				container.addActionRowComponents(row => row.addComponents(removeSelect));
 			}
-			
-			// Clear/back buttons
+
 			container.addActionRowComponents(row => row.addComponents(
 				new ButtonBuilder().setCustomId('antinuke_whitelist_clear').setLabel('Clear All').setStyle(ButtonStyle.Danger),
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(err => console.error('[Antinuke Button] Error showing whitelist:', err));
 			return;
 		}
-		
-		// Handle whitelist user addition
+
 		if (customId === 'antinuke_whitelist_add' && interaction.isUserSelectMenu()) {
 			try {
 				await interaction.deferUpdate();
 				const selectedUsers = interaction.values;
 				const currentWhitelist = Array.isArray(antinuke.whitelist) ? antinuke.whitelist : [];
 				const newWhitelist = [...new Set([...currentWhitelist, ...selectedUsers])];
-				
+
 				await discordClient.db.updateOne(
 					{ guildId },
 					{ $set: { 'antinuke.whitelist': newWhitelist } },
 					{ upsert: true }
 				);
-				
-				// Refresh whitelist panel with fresh components
+
 				const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 				const freshWhitelist = Array.isArray(freshAntinuke.whitelist) ? freshAntinuke.whitelist : [];
-				
+
 				const { ContainerBuilder, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# 📜 Whitelist`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				container.addTextDisplayComponents(td => td.setContent(`**${freshWhitelist.length}** users whitelisted`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-				
-				// Fresh add user select (no cached selections)
+
 				const userSelect = new UserSelectMenuBuilder()
 					.setCustomId('antinuke_whitelist_add')
 					.setPlaceholder('Add users to whitelist...')
 					.setMinValues(0)
 					.setMaxValues(10);
 				container.addActionRowComponents(row => row.addComponents(userSelect));
-				
+
 				if (freshWhitelist.length > 0) {
 					const removeSelect = new StringSelectMenuBuilder()
 						.setCustomId('antinuke_whitelist_remove')
 						.setPlaceholder('Select users to remove...')
 						.setMinValues(0)
 						.setMaxValues(Math.min(25, freshWhitelist.length));
-					
+
 					const guild = discordClient.guilds.cache.get(guildId);
 					if (guild) {
 						const options = [];
@@ -4520,134 +4367,128 @@ export default function registerButtonInteraction(client) {
 					}
 					container.addActionRowComponents(row => row.addComponents(removeSelect));
 				}
-				
+
 				container.addActionRowComponents(row => row.addComponents(
 					new ButtonBuilder().setCustomId('antinuke_whitelist_clear').setLabel('Clear All').setStyle(ButtonStyle.Danger),
 					new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 				));
-				
-				// Delete old message and send fresh one to clear any cached selections
+
 				await interaction.message.delete().catch(() => {});
 				const sentMessage = await interaction.channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
-				// Update interaction to reference the new message
-				await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
-			} catch (err) {
-				console.error('[Antinuke Button] Error updating whitelist:', err);
-			}
-			return;
-		}		// Handle whitelist user removal via select menu
-		// Handle whitelist user removal via select menu
-		if (customId === 'antinuke_whitelist_remove' && interaction.isStringSelectMenu()) {
-			try {
-				await interaction.deferUpdate();
-				const usersToRemove = interaction.values;
-				const currentWhitelist = Array.isArray(antinuke.whitelist) ? antinuke.whitelist : [];
-				const newWhitelist = currentWhitelist.filter(id => !usersToRemove.includes(id));
-				
-				await discordClient.db.updateOne(
-					{ guildId },
-					{ $set: { 'antinuke.whitelist': newWhitelist } },
-					{ upsert: true }
-				);
-				
-				// Refresh whitelist panel with fresh components
-				const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
-				const freshWhitelist = Array.isArray(freshAntinuke.whitelist) ? freshAntinuke.whitelist : [];
-				
-				const { ContainerBuilder, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
-				const container = new ContainerBuilder();
-				container.addTextDisplayComponents(td => td.setContent(`# 📜 Whitelist`));
-				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-				container.addTextDisplayComponents(td => td.setContent(`**${freshWhitelist.length}** users whitelisted`));
-				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-				
-				// Fresh add user select
-				const userSelect = new UserSelectMenuBuilder()
-					.setCustomId('antinuke_whitelist_add')
-					.setPlaceholder('Add users to whitelist...')
-					.setMinValues(0)
-					.setMaxValues(10);
-				container.addActionRowComponents(row => row.addComponents(userSelect));
-				
-				if (freshWhitelist.length > 0) {
-					const removeSelect = new StringSelectMenuBuilder()
-						.setCustomId('antinuke_whitelist_remove')
-						.setPlaceholder('Select users to remove...')
-						.setMinValues(0)
-						.setMaxValues(Math.min(25, freshWhitelist.length));
-					
-					const guild = discordClient.guilds.cache.get(guildId);
-					if (guild) {
-						const options = [];
-						for (const userId of freshWhitelist) {
-							try {
-								const member = await guild.members.fetch(userId).catch(() => null);
-								const username = member?.user?.username || `User (${userId})`;
-								options.push({
-									label: username,
-									value: userId,
-									description: `${username} • ID: ${userId.slice(-6)}`
-								});
-							} catch (err) {
-								options.push({
-									label: `Unknown User`,
-									value: userId,
-									description: `ID: ${userId}`
-								});
-							}
-						}
-						removeSelect.addOptions(options);
-					}
-					container.addActionRowComponents(row => row.addComponents(removeSelect));
-				}
-				
-				container.addActionRowComponents(row => row.addComponents(
-					new ButtonBuilder().setCustomId('antinuke_whitelist_clear').setLabel('Clear All').setStyle(ButtonStyle.Danger),
-					new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
-				));
-				
-				// Delete old message and send fresh one to clear any cached selections
-				await interaction.message.delete().catch(() => {});
-				const sentMessage = await interaction.channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
-				// Update interaction to reference the new message
+
 				await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
 			} catch (err) {
 				console.error('[Antinuke Button] Error updating whitelist:', err);
 			}
 			return;
 		}
-		
-		// Handle old button-based whitelist removal (fallback for existing data)
+
+		if (customId === 'antinuke_whitelist_remove' && interaction.isStringSelectMenu()) {
+			try {
+				await interaction.deferUpdate();
+				const usersToRemove = interaction.values;
+				const currentWhitelist = Array.isArray(antinuke.whitelist) ? antinuke.whitelist : [];
+				const newWhitelist = currentWhitelist.filter(id => !usersToRemove.includes(id));
+
+				await discordClient.db.updateOne(
+					{ guildId },
+					{ $set: { 'antinuke.whitelist': newWhitelist } },
+					{ upsert: true }
+				);
+
+				const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
+				const freshWhitelist = Array.isArray(freshAntinuke.whitelist) ? freshAntinuke.whitelist : [];
+
+				const { ContainerBuilder, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
+				const container = new ContainerBuilder();
+				container.addTextDisplayComponents(td => td.setContent(`# 📜 Whitelist`));
+				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+				container.addTextDisplayComponents(td => td.setContent(`**${freshWhitelist.length}** users whitelisted`));
+				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+
+				const userSelect = new UserSelectMenuBuilder()
+					.setCustomId('antinuke_whitelist_add')
+					.setPlaceholder('Add users to whitelist...')
+					.setMinValues(0)
+					.setMaxValues(10);
+				container.addActionRowComponents(row => row.addComponents(userSelect));
+
+				if (freshWhitelist.length > 0) {
+					const removeSelect = new StringSelectMenuBuilder()
+						.setCustomId('antinuke_whitelist_remove')
+						.setPlaceholder('Select users to remove...')
+						.setMinValues(0)
+						.setMaxValues(Math.min(25, freshWhitelist.length));
+
+					const guild = discordClient.guilds.cache.get(guildId);
+					if (guild) {
+						const options = [];
+						for (const userId of freshWhitelist) {
+							try {
+								const member = await guild.members.fetch(userId).catch(() => null);
+								const username = member?.user?.username || `User (${userId})`;
+								options.push({
+									label: username,
+									value: userId,
+									description: `${username} • ID: ${userId.slice(-6)}`
+								});
+							} catch (err) {
+								options.push({
+									label: `Unknown User`,
+									value: userId,
+									description: `ID: ${userId}`
+								});
+							}
+						}
+						removeSelect.addOptions(options);
+					}
+					container.addActionRowComponents(row => row.addComponents(removeSelect));
+				}
+
+				container.addActionRowComponents(row => row.addComponents(
+					new ButtonBuilder().setCustomId('antinuke_whitelist_clear').setLabel('Clear All').setStyle(ButtonStyle.Danger),
+					new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
+				));
+
+				await interaction.message.delete().catch(() => {});
+				const sentMessage = await interaction.channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
+
+				await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
+			} catch (err) {
+				console.error('[Antinuke Button] Error updating whitelist:', err);
+			}
+			return;
+		}
+
 		if (customId.startsWith('antinuke_whitelist_remove_')) {
 			await interaction.deferUpdate().catch(() => {});
 			const userToRemove = customId.replace('antinuke_whitelist_remove_', '');
 			const currentWhitelist = Array.isArray(antinuke.whitelist) ? antinuke.whitelist : [];
 			const newWhitelist = currentWhitelist.filter(id => id !== userToRemove);
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.whitelist': newWhitelist } },
 				{ upsert: true }
 			);
-			
-			// Refresh whitelist panel
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder } = await import('discord.js');
 			const freshWhitelist = Array.isArray(freshAntinuke.whitelist) ? freshAntinuke.whitelist : [];
-			
+
 			const userSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_whitelist_add')
 				.setPlaceholder('Add users to whitelist...')
 				.setMinValues(0)
 				.setMaxValues(10);
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 📜 Whitelist Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Whitelisted users are **immune to antinuke actions**.\n\n**Total:** ${freshWhitelist.length} users`));
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(userSelect));
-			
+
 			if (freshWhitelist.length > 0) {
 				view.addTextDisplayComponents(td => td.setContent(`\n**Current Whitelist:**`));
 				const buttonRows = [];
@@ -4668,17 +4509,16 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_whitelist_clear').setLabel('Clear All').setStyle(ButtonStyle.Danger),
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error updating whitelist:', err));
 			return;
 		}
-		
-		// Handle whitelist clear all
+
 		if (customId === 'antinuke_whitelist_clear') {
 			await interaction.deferUpdate().catch(() => {});
 			await discordClient.db.updateOne(
@@ -4686,7 +4526,7 @@ export default function registerButtonInteraction(client) {
 				{ $set: { 'antinuke.whitelist': [] } },
 				{ upsert: true }
 			);
-			
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
 			const updatedContainer = buildWizardContainer(freshGuildData);
 			await interaction.editReply({ components: [updatedContainer] }).catch(err => {
@@ -4694,49 +4534,45 @@ export default function registerButtonInteraction(client) {
 			});
 			return;
 		}
-		
-		// Admins configuration panel - comprehensive multi-tier view
+
 		if (customId === 'antinuke_admins_view') {
 			await interaction.deferUpdate().catch(() => {});
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder, StringSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(antinuke.admins) ? antinuke.admins : [];
 			const extraOwners = Array.isArray(antinuke.extraOwners) ? antinuke.extraOwners : [];
-			
-			// Fetch usernames for admins
+
 			const adminUsers = await Promise.all(admins.map(async (id) => {
 				try {
 					const user = await discordClient.users.fetch(id);
 					return { id, username: user.username, displayName: user.displayName || user.username };
 				} catch { return { id, username: `Unknown (${id.slice(-4)})`, displayName: `Unknown` }; }
 			}));
-			
-			// Fetch usernames for extra owners
+
 			const ownerUsers = await Promise.all(extraOwners.map(async (id) => {
 				try {
 					const user = await discordClient.users.fetch(id);
 					return { id, username: user.username, displayName: user.displayName || user.username };
 				} catch { return { id, username: `Unknown (${id.slice(-4)})`, displayName: `Unknown` }; }
 			}));
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
-			// Admins section - show list with mentions
-			const adminList = adminUsers.length > 0 
+
+			const adminList = adminUsers.length > 0
 				? adminUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No admins configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users\n${adminList}`));
-			
+
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
 				.setPlaceholder('➕ Add admins...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_admin_remove_select')
@@ -4750,20 +4586,19 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(adminRemoveSelect));
 			}
-			
-			// Extra Owners section - show list with mentions
-			const ownerList = ownerUsers.length > 0 
+
+			const ownerList = ownerUsers.length > 0
 				? ownerUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No extra owners configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Full Bypass) - ${extraOwners.length} users\n${ownerList}`));
-			
+
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
 				.setPlaceholder('➕ Add extra owners...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_owner_remove_select')
@@ -4777,38 +4612,35 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerRemoveSelect));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error showing admins:', err));
 			return;
 		}
-		
-		// Handle adding regular admins
+
 		if (customId === 'antinuke_admin_add' && interaction.isUserSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const selectedUsers = interaction.values;
 			if (selectedUsers.length === 0) return;
-			
+
 			const currentAdmins = Array.isArray(antinuke.admins) ? antinuke.admins : [];
 			const newAdmins = [...new Set([...currentAdmins, ...selectedUsers])];
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.admins': newAdmins } },
 				{ upsert: true }
 			);
-			
-			// Delete old message and send fresh one to clear the selection
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || {};
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder, StringSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
-			
-			// Fetch usernames
+
 			const adminUsers = await Promise.all(admins.map(async (id) => {
 				try {
 					const user = await discordClient.users.fetch(id);
@@ -4821,25 +4653,24 @@ export default function registerButtonInteraction(client) {
 					return { id, username: user.username, displayName: user.displayName || user.username };
 				} catch { return { id, username: `Unknown (${id.slice(-4)})`, displayName: `Unknown` }; }
 			}));
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
-			// Admins section
-			const adminList = adminUsers.length > 0 
+
+			const adminList = adminUsers.length > 0
 				? adminUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No admins configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users\n${adminList}`));
-			
+
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
 				.setPlaceholder('➕ Add admins...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_admin_remove_select')
@@ -4853,20 +4684,19 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(adminRemoveSelect));
 			}
-			
-			// Extra Owners section
-			const ownerList = ownerUsers.length > 0 
+
+			const ownerList = ownerUsers.length > 0
 				? ownerUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No extra owners configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Full Bypass) - ${extraOwners.length} users\n${ownerList}`));
-			
+
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
 				.setPlaceholder('➕ Add extra owners...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_owner_remove_select')
@@ -4880,47 +4710,43 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerRemoveSelect));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.message.delete().catch(() => {});
 			const { MessageFlags } = await import('discord.js');
 			await interaction.channel.send({ components: [view], flags: MessageFlags.IsComponentsV2 }).catch(err => console.error('[Antinuke Button] Error refreshing admins:', err));
 			return;
 		}
-		
-		// Handle removing admins via select menu
+
 		if (customId === 'antinuke_admin_remove_select' && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
-			
-			// Protocol Hold verification: Check if trying to remove admins from protocol users
+
 			const guildData = await discordClient.db.findOne({ guildId });
 			const protocolUsers = guildData?.antinuke?.protocol || [];
 			const usersToRemove = interaction.values;
-			
-			// Check if any users being removed are in protocol and executor is not immune
+
 			const executor = interaction.user;
 			const guild = interaction.guild;
-			
+
 			let isImmune = false;
 			if (guild.ownerId === executor.id) isImmune = true;
 			else if (executor.id === discordClient.user.id) isImmune = true;
 			else if (discordClient.config?.owners?.includes(executor.id)) isImmune = true;
 			else if (guildData?.antinuke?.extraOwners?.includes(executor.id)) isImmune = true;
-			else if (guildData?.antinuke?.admins?.some(admin => 
+			else if (guildData?.antinuke?.admins?.some(admin =>
 				(typeof admin === 'string' ? false : admin.id === executor.id && admin.immune === true)
 			)) isImmune = true;
-			
+
 			if (!isImmune) {
 				const protocolViolators = usersToRemove.filter(userId => protocolUsers.some(p => p.id === userId));
 				if (protocolViolators.length > 0) {
 					try {
 						const reason = `[Antinuke Protocol Hold] Attempted to modify protocol users via button`;
 						const defaultPunishment = guildData?.antinuke?.defaultPunishment || 'kick';
-						
-						// Punish the executor
+
 						const member = await guild.members.fetch(executor.id).catch(() => null);
 						if (member && defaultPunishment === 'ban') {
 							await guild.members.ban(executor.id, { reason, deleteMessageSeconds: 0 });
@@ -4929,8 +4755,7 @@ export default function registerButtonInteraction(client) {
 						} else if (member && defaultPunishment === 'timeout') {
 							await member.timeout(28 * 24 * 60 * 60 * 1000, reason);
 						}
-						
-						// Log the violation
+
 						const logChannelId = guildData?.antinuke?.logChannel;
 						if (logChannelId) {
 							const logChannel = guild.channels.cache.get(logChannelId);
@@ -4954,24 +4779,22 @@ export default function registerButtonInteraction(client) {
 					return;
 				}
 			}
-			
+
 			const currentAdmins = Array.isArray(antinuke.admins) ? antinuke.admins : [];
 			const newAdmins = currentAdmins.filter(id => !usersToRemove.includes(id));
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.admins': newAdmins } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel with new view
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || {};
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder, StringSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
-			
-			// Fetch usernames
+
 			const adminUsers = await Promise.all(admins.map(async (id) => {
 				try {
 					const user = await discordClient.users.fetch(id);
@@ -4984,24 +4807,24 @@ export default function registerButtonInteraction(client) {
 					return { id, username: user.username, displayName: user.displayName || user.username };
 				} catch { return { id, username: `Unknown (${id.slice(-4)})`, displayName: `Unknown` }; }
 			}));
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
-			const adminList = adminUsers.length > 0 
+
+			const adminList = adminUsers.length > 0
 				? adminUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No admins configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users\n${adminList}`));
-			
+
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
 				.setPlaceholder('➕ Add admins...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_admin_remove_select')
@@ -5015,19 +4838,19 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(adminRemoveSelect));
 			}
-			
-			const ownerList = ownerUsers.length > 0 
+
+			const ownerList = ownerUsers.length > 0
 				? ownerUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No extra owners configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Full Bypass) - ${extraOwners.length} users\n${ownerList}`));
-			
+
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
 				.setPlaceholder('➕ Add extra owners...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_owner_remove_select')
@@ -5041,38 +4864,35 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerRemoveSelect));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.message.delete().catch(() => {});
 			const { MessageFlags: MF1 } = await import('discord.js');
 			await interaction.channel.send({ components: [view], flags: MF1.IsComponentsV2 }).catch(err => console.error('[Antinuke Button] Error refreshing after admin remove:', err));
 			return;
 		}
-		
-		// Handle removing extra owners via select menu
+
 		if (customId === 'antinuke_owner_remove_select' && interaction.isStringSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const usersToRemove = interaction.values;
 			const currentOwners = Array.isArray(antinuke.extraOwners) ? antinuke.extraOwners : [];
 			const newOwners = currentOwners.filter(id => !usersToRemove.includes(id));
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.extraOwners': newOwners } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel with new view
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || {};
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder, StringSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
-			
-			// Fetch usernames
+
 			const adminUsers = await Promise.all(admins.map(async (id) => {
 				try {
 					const user = await discordClient.users.fetch(id);
@@ -5085,24 +4905,24 @@ export default function registerButtonInteraction(client) {
 					return { id, username: user.username, displayName: user.displayName || user.username };
 				} catch { return { id, username: `Unknown (${id.slice(-4)})`, displayName: `Unknown` }; }
 			}));
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
-			const adminList = adminUsers.length > 0 
+
+			const adminList = adminUsers.length > 0
 				? adminUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No admins configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users\n${adminList}`));
-			
+
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
 				.setPlaceholder('➕ Add admins...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_admin_remove_select')
@@ -5116,19 +4936,19 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(adminRemoveSelect));
 			}
-			
-			const ownerList = ownerUsers.length > 0 
+
+			const ownerList = ownerUsers.length > 0
 				? ownerUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No extra owners configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Full Bypass) - ${extraOwners.length} users\n${ownerList}`));
-			
+
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
 				.setPlaceholder('➕ Add extra owners...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_owner_remove_select')
@@ -5142,43 +4962,40 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerRemoveSelect));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.message.delete().catch(() => {});
 			const { MessageFlags: MF2 } = await import('discord.js');
 			await interaction.channel.send({ components: [view], flags: MF2.IsComponentsV2 }).catch(err => console.error('[Antinuke Button] Error refreshing after owner remove:', err));
 			return;
 		}
-		
-		// Handle removing regular admins (legacy button support)
+
 		if (customId.startsWith('antinuke_admin_remove_') && !customId.includes('select')) {
 			await interaction.deferUpdate().catch(() => {});
 			const userToRemove = customId.replace('antinuke_admin_remove_', '');
 			const currentAdmins = Array.isArray(antinuke.admins) ? antinuke.admins : [];
 			const newAdmins = currentAdmins.filter(id => id !== userToRemove);
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.admins': newAdmins } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel (same code as admin_add refresh)
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
 
-			
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users`));
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
@@ -5186,7 +5003,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminButtonRows = [];
 				for (let i = 0; i < admins.length; i += 5) {
@@ -5206,7 +5023,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Server Owner Only) - ${extraOwners.length} users`));
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
@@ -5214,7 +5031,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerButtonRows = [];
 				for (let i = 0; i < extraOwners.length; i += 5) {
@@ -5234,7 +5051,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Trusted Admins** (Immune to Antinuke) - ${trustedAdmins.length} users`));
 			const trustedSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_trusted_add')
@@ -5242,7 +5059,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(trustedSelect));
-			
+
 			if (trustedAdmins.length > 0) {
 				const trustedButtonRows = [];
 				for (let i = 0; i < trustedAdmins.length; i += 5) {
@@ -5262,38 +5079,35 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error updating admins:', err));
 			return;
 		}
-		
-		// Handle adding extra owners
+
 		if (customId === 'antinuke_owner_add' && interaction.isUserSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const selectedUsers = interaction.values;
 			if (selectedUsers.length === 0) return;
-			
+
 			const currentOwners = Array.isArray(antinuke.extraOwners) ? antinuke.extraOwners : [];
 			const newOwners = [...new Set([...currentOwners, ...selectedUsers])];
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.extraOwners': newOwners } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel with new format
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || {};
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder, StringSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
-			
-			// Fetch usernames
+
 			const adminUsers = await Promise.all(admins.map(async (id) => {
 				try {
 					const user = await discordClient.users.fetch(id);
@@ -5306,25 +5120,24 @@ export default function registerButtonInteraction(client) {
 					return { id, username: user.username, displayName: user.displayName || user.username };
 				} catch { return { id, username: `Unknown (${id.slice(-4)})`, displayName: `Unknown` }; }
 			}));
-			
+
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
-			// Admins section
-			const adminList = adminUsers.length > 0 
+
+			const adminList = adminUsers.length > 0
 				? adminUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No admins configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users\n${adminList}`));
-			
+
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
 				.setPlaceholder('➕ Add admins...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_admin_remove_select')
@@ -5338,20 +5151,19 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(adminRemoveSelect));
 			}
-			
-			// Extra Owners section
-			const ownerList = ownerUsers.length > 0 
+
+			const ownerList = ownerUsers.length > 0
 				? ownerUsers.map((u, i) => `\`${i + 1}.\` ${u.displayName} (${u.id})`).join('\n')
 				: '*No extra owners configured*';
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Full Bypass) - ${extraOwners.length} users\n${ownerList}`));
-			
+
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
 				.setPlaceholder('➕ Add extra owners...')
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerRemoveSelect = new StringSelectMenuBuilder()
 					.setCustomId('antinuke_owner_remove_select')
@@ -5365,43 +5177,40 @@ export default function registerButtonInteraction(client) {
 					})));
 				view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerRemoveSelect));
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.message.delete().catch(() => {});
 			const { MessageFlags: MF3 } = await import('discord.js');
 			await interaction.channel.send({ components: [view], flags: MF3.IsComponentsV2 }).catch(err => console.error('[Antinuke Button] Error refreshing owners:', err));
 			return;
 		}
-		
-		// Handle removing extra owners (legacy button support)
+
 		if (customId.startsWith('antinuke_owner_remove_') && !customId.includes('select')) {
 			await interaction.deferUpdate().catch(() => {});
 			const userToRemove = customId.replace('antinuke_owner_remove_', '');
 			const currentOwners = Array.isArray(antinuke.extraOwners) ? antinuke.extraOwners : [];
 			const newOwners = currentOwners.filter(id => id !== userToRemove);
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.extraOwners': newOwners } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel (same structure)
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
 
-			
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users`));
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
@@ -5409,7 +5218,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminButtonRows = [];
 				for (let i = 0; i < admins.length; i += 5) {
@@ -5429,7 +5238,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Server Owner Only) - ${extraOwners.length} users`));
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
@@ -5437,7 +5246,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerButtonRows = [];
 				for (let i = 0; i < extraOwners.length; i += 5) {
@@ -5457,7 +5266,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Trusted Admins** (Immune to Antinuke) - ${trustedAdmins.length} users`));
 			const trustedSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_trusted_add')
@@ -5465,7 +5274,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(trustedSelect));
-			
+
 			if (trustedAdmins.length > 0) {
 				const trustedButtonRows = [];
 				for (let i = 0; i < trustedAdmins.length; i += 5) {
@@ -5485,41 +5294,38 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error updating owners:', err));
 			return;
 		}
-		
-		// Handle adding trusted admins
+
 		if (customId === 'antinuke_trusted_add' && interaction.isUserSelectMenu()) {
 			await interaction.deferUpdate().catch(() => {});
 			const selectedUsers = interaction.values;
 			const currentTrusted = Array.isArray(antinuke.trustedAdmins) ? antinuke.trustedAdmins : [];
 			const newTrusted = [...new Set([...currentTrusted, ...selectedUsers])];
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.trustedAdmins': newTrusted } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
 
-			
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users`));
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
@@ -5527,7 +5333,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminButtonRows = [];
 				for (let i = 0; i < admins.length; i += 5) {
@@ -5547,7 +5353,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Server Owner Only) - ${extraOwners.length} users`));
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
@@ -5555,7 +5361,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerButtonRows = [];
 				for (let i = 0; i < extraOwners.length; i += 5) {
@@ -5575,7 +5381,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Trusted Admins** (Immune to Antinuke) - ${trustedAdmins.length} users`));
 			const trustedSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_trusted_add')
@@ -5583,7 +5389,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(trustedSelect));
-			
+
 			if (trustedAdmins.length > 0) {
 				const trustedButtonRows = [];
 				for (let i = 0; i < trustedAdmins.length; i += 5) {
@@ -5603,41 +5409,38 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error updating trusted:', err));
 			return;
 		}
-		
-		// Handle removing trusted admins
+
 		if (customId.startsWith('antinuke_trusted_remove_')) {
 			await interaction.deferUpdate().catch(() => {});
 			const userToRemove = customId.replace('antinuke_trusted_remove_', '');
 			const currentTrusted = Array.isArray(antinuke.trustedAdmins) ? antinuke.trustedAdmins : [];
 			const newTrusted = currentTrusted.filter(id => id !== userToRemove);
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.trustedAdmins': newTrusted } },
 				{ upsert: true }
 			);
-			
-			// Refresh panel (same structure)
+
 			const freshAntinuke = (await discordClient.db.findOne({ guildId }))?.antinuke || antinuke;
 			const { ContainerBuilder, SeparatorSpacingSize, UserSelectMenuBuilder } = await import('discord.js');
-			
+
 			const admins = Array.isArray(freshAntinuke.admins) ? freshAntinuke.admins : [];
 			const extraOwners = Array.isArray(freshAntinuke.extraOwners) ? freshAntinuke.extraOwners : [];
 
-			
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 👑 Permission Management`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			view.addTextDisplayComponents(td => td.setContent(`Configure antinuke permissions for different user roles.`));
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Admins** (Configure Antinuke) - ${admins.length} users`));
 			const adminSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_admin_add')
@@ -5645,7 +5448,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(adminSelect));
-			
+
 			if (admins.length > 0) {
 				const adminButtonRows = [];
 				for (let i = 0; i < admins.length; i += 5) {
@@ -5665,7 +5468,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Extra Owners** (Server Owner Only) - ${extraOwners.length} users`));
 			const ownerSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_owner_add')
@@ -5673,7 +5476,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(ownerSelect));
-			
+
 			if (extraOwners.length > 0) {
 				const ownerButtonRows = [];
 				for (let i = 0; i < extraOwners.length; i += 5) {
@@ -5693,7 +5496,7 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addTextDisplayComponents(td => td.setContent(`\n**Trusted Admins** (Immune to Antinuke) - ${trustedAdmins.length} users`));
 			const trustedSelect = new UserSelectMenuBuilder()
 				.setCustomId('antinuke_trusted_add')
@@ -5701,7 +5504,7 @@ export default function registerButtonInteraction(client) {
 				.setMinValues(0)
 				.setMaxValues(10);
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(trustedSelect));
-			
+
 			if (trustedAdmins.length > 0) {
 				const trustedButtonRows = [];
 				for (let i = 0; i < trustedAdmins.length; i += 5) {
@@ -5721,16 +5524,15 @@ export default function registerButtonInteraction(client) {
 					view.addActionRowComponents(row);
 				}
 			}
-			
+
 			view.addActionRowComponents(new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId('antinuke_setup_back').setLabel('Back').setStyle(ButtonStyle.Secondary)
 			));
-			
+
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error updating trusted:', err));
 			return;
 		}
-		
-		// View full config - read-only overview with back button
+
 		if (customId === 'antinuke_view_config') {
 			await interaction.deferUpdate().catch(() => {});
 			const { ContainerBuilder, SeparatorSpacingSize } = await import('discord.js');
@@ -5739,7 +5541,6 @@ export default function registerButtonInteraction(client) {
 			const admins = Array.isArray(antinuke.admins) ? antinuke.admins : [];
 			const extraOwners = Array.isArray(antinuke.extraOwners) ? antinuke.extraOwners : [];
 
-			
 			const view = new ContainerBuilder();
 			view.addTextDisplayComponents(td => td.setContent(`# 📊 Full Configuration`));
 			view.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -5750,16 +5551,16 @@ export default function registerButtonInteraction(client) {
 			await interaction.editReply({ components: [view] }).catch(err => console.error('[Antinuke Button] Error showing config:', err));
 			return;
 		}
-		
+
 		if (customId === 'antinuke_toggle_on' || customId === 'antinuke_toggle_off') {
 			const enable = customId === 'antinuke_toggle_on';
-			
+
 			await discordClient.db.updateOne(
 				{ guildId },
 				{ $set: { 'antinuke.enabled': enable } },
 				{ upsert: true }
 			);
-			
+
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
 			const updatedContainer = buildWizardContainer(freshGuildData);
 			await interaction.deferUpdate().catch(() => {});
@@ -5768,7 +5569,7 @@ export default function registerButtonInteraction(client) {
 			});
 			return;
 		}
-		
+
 		if (customId === 'antinuke_setup_back') {
 			await interaction.deferUpdate().catch(() => {});
 			const freshGuildData = await discordClient.db.findOne({ guildId }) || { guildId };
@@ -5778,48 +5579,48 @@ export default function registerButtonInteraction(client) {
 			});
 			return;
 		}
-		
+
 		if (customId === 'antinuke_configure_thresholds') {
 			await interaction.deferUpdate().catch(() => {});
 			const modal = new ModalBuilder()
 				.setCustomId('antinuke_threshold_modal')
 				.setTitle('Configure Thresholds');
-			
+
 			const banInput = new TextInputBuilder()
 				.setCustomId('ban_threshold')
 				.setLabel('Ban Threshold (1-10)')
 				.setStyle(TextInputStyle.Short)
 				.setValue(String(antinuke.modules?.ban?.threshold || 3))
 				.setRequired(false);
-			
+
 			const kickInput = new TextInputBuilder()
 				.setCustomId('kick_threshold')
 				.setLabel('Kick Threshold (1-10)')
 				.setStyle(TextInputStyle.Short)
 				.setValue(String(antinuke.modules?.kick?.threshold || 5))
 				.setRequired(false);
-			
+
 			const roleInput = new TextInputBuilder()
 				.setCustomId('role_threshold')
 				.setLabel('Role Threshold (1-10)')
 				.setStyle(TextInputStyle.Short)
 				.setValue(String(antinuke.modules?.role?.threshold || 3))
 				.setRequired(false);
-			
+
 			const channelInput = new TextInputBuilder()
 				.setCustomId('channel_threshold')
 				.setLabel('Channel Threshold (1-10)')
 				.setStyle(TextInputStyle.Short)
 				.setValue(String(antinuke.modules?.channel?.threshold || 3))
 				.setRequired(false);
-			
+
 			modal.addComponents(
 				new ActionRowBuilder().addComponents(banInput),
 				new ActionRowBuilder().addComponents(kickInput),
 				new ActionRowBuilder().addComponents(roleInput),
 				new ActionRowBuilder().addComponents(channelInput)
 			);
-			
+
 			await interaction.showModal(modal).catch(err => {
 				console.error('[Antinuke Button] Error showing modal:', err);
 			});
@@ -5835,23 +5636,22 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Route automod interactions
 		if (interaction.customId.startsWith('automod_')) {
 			try {
 				const { ContainerBuilder, SeparatorSpacingSize, MessageFlags, ButtonBuilder, ButtonStyle, ActionRowBuilder, StringSelectMenuBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ChannelSelectMenuBuilder, RoleSelectMenuBuilder, UserSelectMenuBuilder, ChannelType } = await import('discord.js');
 				const { MODULES, PUNISHMENTS, PRESETS, getDefaultConfig, buildWizardContainer, buildModulesPage, buildPunishmentsPage, buildIgnorePage, buildModuleIgnorePage, buildWordsPage, buildStrikesPage } = await import('../commands/prefix/Automod/automod.js');
-				
+
 				const customId = interaction.customId;
 				const guildId = interaction.guildId;
-				
+
 				if (!interaction.member.permissions.has(0x20n)) {
 					await interaction.reply({ content: '❌ You need **Manage Server** permission.', ephemeral: true }).catch(() => {});
 					return;
 				}
-				
+
 				const guildData = await discordClient.db.findOne({ guildId }) || {};
 				let config = guildData.automod || getDefaultConfig();
-				
+
 				const saveConfig = async () => {
 					await discordClient.db.updateOne({ guildId }, { $set: { automod: config } }, { upsert: true });
 				};
@@ -5869,7 +5669,7 @@ export default function registerButtonInteraction(client) {
 					const presetName = customId.replace('automod_preset_', '');
 					const preset = PRESETS[presetName];
 					if (!preset) return;
-					
+
 					for (const modKey of Object.keys(MODULES)) {
 						if (!config.modules[modKey]) {
 							config.modules[modKey] = { enabled: false, punishments: [MODULES[modKey].defaultPunishment], strikes: MODULES[modKey].strikes || 0, threshold: 1, ignore: { channels: [], roles: [] } };
@@ -5972,7 +5772,7 @@ export default function registerButtonInteraction(client) {
 
 				if (customId === 'automod_ignore_type' && interaction.isStringSelectMenu()) {
 					const action = interaction.values[0];
-					
+
 					if (action === 'add_channel') {
 						const container = new ContainerBuilder();
 						container.addTextDisplayComponents(td => td.setContent(`📝 **ADD IGNORED CHANNEL**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSelect a channel to ignore globally`));
@@ -5987,7 +5787,7 @@ export default function registerButtonInteraction(client) {
 						await interaction.update({ components: [container] }).catch(() => {});
 						return;
 					}
-					
+
 					if (action === 'add_role') {
 						const container = new ContainerBuilder();
 						container.addTextDisplayComponents(td => td.setContent(`🎭 **ADD IGNORED ROLE**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSelect a role to ignore globally`));
@@ -6001,7 +5801,7 @@ export default function registerButtonInteraction(client) {
 						await interaction.update({ components: [container] }).catch(() => {});
 						return;
 					}
-					
+
 					if (action === 'add_user') {
 						const container = new ContainerBuilder();
 						container.addTextDisplayComponents(td => td.setContent(`👤 **ADD IGNORED USER**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSelect a user to ignore globally`));
@@ -6015,7 +5815,7 @@ export default function registerButtonInteraction(client) {
 						await interaction.update({ components: [container] }).catch(() => {});
 						return;
 					}
-					
+
 					if (action === 'per_module') {
 						const container = new ContainerBuilder();
 						container.addTextDisplayComponents(td => td.setContent(`📦 **PER-MODULE IGNORE**\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSelect a module to configure its ignore rules`));
@@ -6030,7 +5830,7 @@ export default function registerButtonInteraction(client) {
 						await interaction.update({ components: [container] }).catch(() => {});
 						return;
 					}
-					
+
 					if (action === 'clear_all') {
 						await interaction.deferUpdate().catch(() => {});
 						config.ignore = { channels: [], roles: [], users: [] };
@@ -6075,30 +5875,24 @@ export default function registerButtonInteraction(client) {
 						container.addActionRowComponents(new ActionRowBuilder().addComponents(channelSelect));
 						container.addActionRowComponents(new ActionRowBuilder().addComponents(
 							new ButtonBuilder().setCustomId('automod_ignore_per_module_select').setLabel('Back').setEmoji('◀️').setStyle(ButtonStyle.Secondary)
-							// The back button here is tricky because we need to go back to the module ignore page, but 'automod_ignore_per_module_select' expects a selection.
-							// So we should probably just re-render the module page. But wait, we can't easily simulate a selection event.
-							// Actually, let's just make a dedicated back button ID or just go back to the main ignore page.
-							// Better yet, let's store the module name in the back button customId.
+
 						));
-						// Actually, let's just make the back button go to the module ignore page directly.
-						// We need a custom ID that triggers buildModuleIgnorePage(config, moduleName)
-						// So we can use `automod_view_module_ignore_${moduleName}`
-						
+
 						const backButton = new ButtonBuilder()
 							.setCustomId(`automod_view_module_ignore_${moduleName}`)
 							.setLabel('Back')
 							.setEmoji('◀️')
 							.setStyle(ButtonStyle.Secondary);
-							
-						container = new ContainerBuilder(); // Rebuild cleanly
+
+						container = new ContainerBuilder();
 						container.addTextDisplayComponents(td => td.setContent(`📝 **ADD IGNORED CHANNEL** (${MODULES[moduleName].name})\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nSelect a channel to ignore for this module`));
 						container.addActionRowComponents(new ActionRowBuilder().addComponents(channelSelect));
 						container.addActionRowComponents(new ActionRowBuilder().addComponents(backButton));
-						
+
 						await interaction.update({ components: [container] }).catch(() => {});
 						return;
 					}
-					
+
 					if (action === 'add_role') {
 						const backButton = new ButtonBuilder()
 							.setCustomId(`automod_view_module_ignore_${moduleName}`)
@@ -6192,9 +5986,9 @@ export default function registerButtonInteraction(client) {
 						config.modules[moduleName] = { enabled: false, punishments: [], strikes: 0, threshold: 1, ignore: { channels: [], roles: [] } };
 					}
 					if (!config.modules[moduleName].ignore) config.modules[moduleName].ignore = { channels: [], roles: [] };
-					// Initialize users array if it doesn't exist (legacy config support)
+
 					if (!config.modules[moduleName].ignore.users) config.modules[moduleName].ignore.users = [];
-					
+
 					if (!config.modules[moduleName].ignore.users.includes(userId)) {
 						config.modules[moduleName].ignore.users.push(userId);
 						await saveConfig();
@@ -6260,7 +6054,7 @@ export default function registerButtonInteraction(client) {
 					await interaction.showModal(modal).catch(() => {});
 					return;
 				}
-				
+
 				if (customId === 'automod_words_bulk_remove') {
 					const modal = new ModalBuilder()
 						.setCustomId('automod_words_bulk_remove_modal')
@@ -6412,7 +6206,7 @@ export default function registerButtonInteraction(client) {
 					await interaction.editReply({ components: [buildWizardContainer(config)] }).catch(() => {});
 					return;
 				}
-				
+
 			} catch (error) {
 				console.error('[Automod Button Handler] Error:', error);
 				try {
@@ -6420,7 +6214,7 @@ export default function registerButtonInteraction(client) {
 				} catch (e) {}
 			}
 		}
-		// Handle server avatar button
+
 		if (interaction.customId.startsWith('avatar_server_')) {
 			try {
 				const userId = interaction.customId.replace('avatar_server_', '');
@@ -6432,21 +6226,20 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const serverAvatarUrl = member.displayAvatarURL({ size: 4096, extension: 'png' });
-				
+
 				const { ContainerBuilder, SeparatorSpacingSize, MediaGalleryBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = await import('discord.js');
 
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# **${member.user.tag ?? member.user.username}'s Server Avatar**`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				const gallery = new MediaGalleryBuilder().addItems(item => 
+				const gallery = new MediaGalleryBuilder().addItems(item =>
 					item.setURL(serverAvatarUrl).setDescription('Server avatar')
 				);
 				container.addMediaGalleryComponents(() => gallery);
 
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				// Download buttons row
 				container.addActionRowComponents(row => {
 					row.setComponents(
 						new ButtonBuilder()
@@ -6465,7 +6258,6 @@ export default function registerButtonInteraction(client) {
 					return row;
 				});
 
-				// Toggle button row
 				container.addActionRowComponents(row => {
 					row.setComponents(
 						new ButtonBuilder()
@@ -6489,7 +6281,6 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle global avatar button (from server avatar view)
 		if (interaction.customId.startsWith('avatar_global_')) {
 			try {
 				const userId = interaction.customId.replace('avatar_global_', '');
@@ -6503,21 +6294,20 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const avatarUrl = user.displayAvatarURL({ size: 4096, extension: 'png' });
-				
+
 				const { ContainerBuilder, SeparatorSpacingSize, MediaGalleryBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = await import('discord.js');
 
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# **${user.tag ?? user.username}'s Avatar**`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				const gallery = new MediaGalleryBuilder().addItems(item => 
+				const gallery = new MediaGalleryBuilder().addItems(item =>
 					item.setURL(avatarUrl).setDescription('Global avatar')
 				);
 				container.addMediaGalleryComponents(() => gallery);
 
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				// Download buttons row
 				container.addActionRowComponents(row => {
 					row.setComponents(
 						new ButtonBuilder()
@@ -6536,7 +6326,6 @@ export default function registerButtonInteraction(client) {
 					return row;
 				});
 
-				// Server avatar toggle button (only if user has one)
 				if (hasServerAvatar) {
 					container.addActionRowComponents(row => {
 						row.setComponents(
@@ -6561,7 +6350,7 @@ export default function registerButtonInteraction(client) {
 				return;
 			}
 		}
-		// Handle server banner button
+
 		if (interaction.customId.startsWith('banner_server_')) {
 			try {
 				const userId = interaction.customId.replace('banner_server_', '');
@@ -6573,21 +6362,20 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const serverBannerUrl = member.bannerURL({ size: 4096, extension: 'png' });
-				
+
 				const { ContainerBuilder, SeparatorSpacingSize, MediaGalleryBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = await import('discord.js');
 
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# **${member.user.tag ?? member.user.username}'s Server Banner**`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				const gallery = new MediaGalleryBuilder().addItems(item => 
+				const gallery = new MediaGalleryBuilder().addItems(item =>
 					item.setURL(serverBannerUrl).setDescription('Server banner')
 				);
 				container.addMediaGalleryComponents(() => gallery);
 
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				// Download buttons row
 				container.addActionRowComponents(row => {
 					row.setComponents(
 						new ButtonBuilder()
@@ -6606,7 +6394,6 @@ export default function registerButtonInteraction(client) {
 					return row;
 				});
 
-				// Toggle button row
 				container.addActionRowComponents(row => {
 					row.setComponents(
 						new ButtonBuilder()
@@ -6630,7 +6417,6 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// Handle global banner button (from server banner view)
 		if (interaction.customId.startsWith('banner_global_')) {
 			try {
 				const userId = interaction.customId.replace('banner_global_', '');
@@ -6644,21 +6430,20 @@ export default function registerButtonInteraction(client) {
 				}
 
 				const bannerUrl = user.bannerURL({ size: 4096, extension: 'png' });
-				
+
 				const { ContainerBuilder, SeparatorSpacingSize, MediaGalleryBuilder, ButtonBuilder, ButtonStyle, MessageFlags } = await import('discord.js');
 
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# **${user.tag ?? user.username}'s Banner**`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				const gallery = new MediaGalleryBuilder().addItems(item => 
+				const gallery = new MediaGalleryBuilder().addItems(item =>
 					item.setURL(bannerUrl).setDescription('Global banner')
 				);
 				container.addMediaGalleryComponents(() => gallery);
 
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-				// Download buttons row
 				container.addActionRowComponents(row => {
 					row.setComponents(
 						new ButtonBuilder()
@@ -6677,7 +6462,6 @@ export default function registerButtonInteraction(client) {
 					return row;
 				});
 
-				// Server banner toggle button (only if user has one)
 				if (hasServerBanner) {
 					container.addActionRowComponents(row => {
 						row.setComponents(
@@ -6703,8 +6487,6 @@ export default function registerButtonInteraction(client) {
 			}
 		}
 
-		// ================ BIRTHDAY SYSTEM HANDLERS ================
-		
 		const rebuildBirthdayWizard = (config) => {
 			const statusEmoji = config.enabled ? (EMOJIS.success || '✅') : (EMOJIS.error || '❌');
 			const statusText = config.enabled ? 'Enabled' : 'Disabled';
@@ -6743,13 +6525,12 @@ export default function registerButtonInteraction(client) {
 			return container;
 		};
 
-		// Toggle Birthday System
 		if (interaction.customId === 'birthday_toggle') {
 			try {
 				await interaction.deferUpdate();
 				const guildData = await client.db.findOne({ guildId }) || {};
 				const config = guildData.birthday_config || { enabled: false, commandChannel: null, wishChannel: null, timezone: 'GMT', wishMessage: { content: 'Happy Birthday {user}! ❤️' } };
-				
+
 				config.enabled = !config.enabled;
 				await client.db.updateOne({ guildId }, { $set: { birthday_config: config } }, { upsert: true });
 
@@ -6761,7 +6542,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Command Channel Select
 		if (interaction.customId === 'birthday_cmd_channel') {
 			try {
 				const { ChannelSelectMenuBuilder } = await import('discord.js');
@@ -6782,8 +6562,7 @@ export default function registerButtonInteraction(client) {
 				const channelId = interaction.values[0];
 				await client.db.updateOne({ guildId }, { $set: { 'birthday_config.commandChannel': channelId } }, { upsert: true });
 				await interaction.update({ content: `✅ Command channel set to <#${channelId}>`, components: [] });
-				
-				// Update main wizard
+
 				const guildData = await client.db.findOne({ guildId }) || {};
 				const config = guildData.birthday_config || {};
 				const container = rebuildBirthdayWizard(config);
@@ -6794,7 +6573,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Wish Channel Select
 		if (interaction.customId === 'birthday_wish_channel') {
 			try {
 				const { ChannelSelectMenuBuilder } = await import('discord.js');
@@ -6815,8 +6593,7 @@ export default function registerButtonInteraction(client) {
 				const channelId = interaction.values[0];
 				await client.db.updateOne({ guildId }, { $set: { 'birthday_config.wishChannel': channelId } }, { upsert: true });
 				await interaction.update({ content: `✅ Wish channel set to <#${channelId}>`, components: [] });
-				
-				// Update main wizard
+
 				const guildData = await client.db.findOne({ guildId }) || {};
 				const config = guildData.birthday_config || {};
 				const container = rebuildBirthdayWizard(config);
@@ -6827,7 +6604,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Timezone Select
 		if (interaction.customId === 'birthday_timezone') {
 			try {
 				const TIMEZONES = [
@@ -6859,8 +6635,7 @@ export default function registerButtonInteraction(client) {
 				const tz = interaction.values[0];
 				await client.db.updateOne({ guildId }, { $set: { 'birthday_config.timezone': tz } }, { upsert: true });
 				await interaction.update({ content: `✅ Timezone set to \`${tz}\``, components: [] });
-				
-				// Update main wizard
+
 				const guildData = await client.db.findOne({ guildId }) || {};
 				const config = guildData.birthday_config || {};
 				const container = rebuildBirthdayWizard(config);
@@ -6871,7 +6646,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Birthday Role Select
 		if (interaction.customId === 'birthday_role') {
 			try {
 				const { RoleSelectMenuBuilder } = await import('discord.js');
@@ -6891,8 +6665,7 @@ export default function registerButtonInteraction(client) {
 				const roleId = interaction.values[0];
 				await client.db.updateOne({ guildId }, { $set: { 'birthday_config.birthdayRole': roleId } }, { upsert: true });
 				await interaction.update({ content: `✅ Birthday role set to <@&${roleId}>. It will be given for 24 hours.`, components: [] });
-				
-				// Update main wizard
+
 				const guildData = await client.db.findOne({ guildId }) || {};
 				const config = guildData.birthday_config || {};
 				const container = rebuildBirthdayWizard(config);
@@ -6903,7 +6676,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Customize Message (Shows Select Menu)
 		if (interaction.customId === 'birthday_customize') {
 			try {
 				const menu = new StringSelectMenuBuilder()
@@ -6921,7 +6693,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Customize Menu Selection
 		if (interaction.customId === 'birthday_customize_menu') {
 			try {
 				const choice = interaction.values[0];
@@ -7016,7 +6787,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Advanced Settings (Image & Accent Color)
 		if (interaction.customId === 'birthday_advanced') {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle } = await import('discord.js');
@@ -7056,7 +6826,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Preview Wish
 		if (interaction.customId === 'birthday_preview') {
 		try {
 				const guildData = await client.db.findOne({ guildId }) || {};
@@ -7083,43 +6852,36 @@ export default function registerButtonInteraction(client) {
 				};
 
 				const { TextDisplayBuilder, MediaGalleryBuilder } = await import('discord.js');
-				
+
 				const components = [];
-				
-				// Content as top-level text (outside container)
+
 				const contentText = replaceVars(msg.content);
 				if (contentText) {
 					components.push(new TextDisplayBuilder().setContent(contentText));
 				}
-				
-				// Container with improved layout
+
 				const container = new ContainerBuilder();
-				
-				// Set accent color if configured
+
 				if (msg.accentColor && msg.accentColor !== 'none') {
 					const colorInt = parseInt(msg.accentColor.replace('#', ''), 16);
 					if (!isNaN(colorInt)) {
 						container.setAccentColor(colorInt);
 					}
 				}
-				
-				// Resolve thumbnail URL
+
 				let thumbUrl = null;
 				if (msg.thumbnail) {
 					thumbUrl = msg.thumbnail === 'avatar' ? context.avatar : replaceVars(msg.thumbnail);
 				}
-				
-				// Section 1: Title
+
 				if (msg.title) {
 					container.addTextDisplayComponents(td => td.setContent(`**${replaceVars(msg.title)}**`));
 				}
-				
-				// Separator after title
+
 				if (msg.title && (msg.description || thumbUrl)) {
 					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				}
-				
-				// Section 2: Description with thumbnail accessory
+
 				if (msg.description || thumbUrl) {
 					container.addSectionComponents(section => {
 						const descText = msg.description ? replaceVars(msg.description) : '\u200b';
@@ -7130,26 +6892,23 @@ export default function registerButtonInteraction(client) {
 						return section;
 					});
 				}
-				
-				// Separator before image
+
 				if (msg.image && (msg.description || thumbUrl)) {
 					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				}
-				
-				// Section 3: Large Image
+
 				if (msg.image) {
-					const gallery = new MediaGalleryBuilder().addItems(item => 
+					const gallery = new MediaGalleryBuilder().addItems(item =>
 						item.setURL(replaceVars(msg.image))
 					);
 					container.addMediaGalleryComponents(gallery);
 				}
-				
-				// Footer
+
 				if (msg.footer) {
 					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 					container.addTextDisplayComponents(td => td.setContent(`-# ${replaceVars(msg.footer)}`));
 				}
-				
+
 				components.push(container);
 
 				await interaction.reply({
@@ -7164,7 +6923,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// Upcoming Birthdays Pagination
 		if (interaction.customId.startsWith('birthday_upcoming_')) {
 			try {
 				const page = parseInt(interaction.customId.split('_')[2], 10);
@@ -7224,7 +6982,6 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// AFK Mentions Pagination
 		if (interaction.customId.startsWith('afk_mentions_') && interaction.customId !== 'afk_mentions_page') {
 			try {
 				const page = parseInt(interaction.customId.split('_')[2], 10);
@@ -7234,11 +6991,10 @@ export default function registerButtonInteraction(client) {
 				const userId = interaction.user.id;
 				const guildData = await client.db.findOne({ guildId }) || {};
 				const afkUsers = guildData.afkUsers || {};
-				
-				// Get mentions from current AFK or history
+
 				const myAfk = afkUsers[userId];
 				const currentMentions = myAfk?.mentions || [];
-				
+
 				const storedData = guildData.afkMentionsHistory?.[userId];
 				let storedMentions = [];
 				if (storedData) {
@@ -7247,17 +7003,16 @@ export default function registerButtonInteraction(client) {
 						storedMentions = storedData.mentions || [];
 					}
 				}
-				
+
 				const allMentions = [...currentMentions, ...storedMentions].sort((a, b) => b.timestamp - a.timestamp);
-				
-				// Rebuild container with new page
+
 				const { ButtonBuilder: BB, ButtonStyle: BS } = await import('discord.js');
 				const perPage = 5;
 				const totalPages = Math.ceil(allMentions.length / perPage) || 1;
 				const safePage = Math.max(1, Math.min(page, totalPages));
 				const start = (safePage - 1) * perPage;
 				const pageItems = allMentions.slice(start, start + perPage);
-				
+
 				const formatDuration = (ms) => {
 					const seconds = Math.floor(ms / 1000);
 					const minutes = Math.floor(seconds / 60);
@@ -7268,11 +7023,11 @@ export default function registerButtonInteraction(client) {
 					if (minutes > 0) return `${minutes}m ${seconds % 60}s`;
 					return `${seconds}s`;
 				};
-				
+
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.afk || '💤'} AFK Mentions`));
 				container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-				
+
 				pageItems.forEach((m, i) => {
 					const time = formatDuration(Date.now() - m.timestamp);
 					let content = `${start + i + 1}. <@${m.userId}> in <#${m.channelId}> (${time} ago)`;
@@ -7284,7 +7039,7 @@ export default function registerButtonInteraction(client) {
 						container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(false));
 					}
 				});
-				
+
 				if (totalPages > 1) {
 					container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 					const prevBtn = new BB().setCustomId(`afk_mentions_${safePage - 1}`).setLabel('◀ Prev').setStyle(BS.Secondary).setDisabled(safePage <= 1);
@@ -7292,7 +7047,7 @@ export default function registerButtonInteraction(client) {
 					const nextBtn = new BB().setCustomId(`afk_mentions_${safePage + 1}`).setLabel('Next ▶').setStyle(BS.Secondary).setDisabled(safePage >= totalPages);
 					container.addActionRowComponents(row => row.addComponents(prevBtn, pageBtn, nextBtn));
 				}
-				
+
 				await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: [] } });
 			} catch (err) {
 				console.error('[AFK Mentions Pagination]', err);
@@ -7300,16 +7055,13 @@ export default function registerButtonInteraction(client) {
 			return;
 		}
 
-		// ==================== EMBED BUILDER HANDLERS ====================
-		
-		// Embed Title Button
 		if (interaction.customId.startsWith('embed_title_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_title_modal').setTitle('Set Embed Title');
 				modal.addComponents(
@@ -7319,15 +7071,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Title]', err); }
 			return;
 		}
-		
-		// Embed Description Button
+
 		if (interaction.customId.startsWith('embed_desc_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_desc_modal').setTitle('Set Embed Description');
 				modal.addComponents(
@@ -7337,15 +7088,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Desc]', err); }
 			return;
 		}
-		
-		// Embed Color Button
+
 		if (interaction.customId.startsWith('embed_color_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_color_modal').setTitle('Set Embed Color');
 				modal.addComponents(
@@ -7355,15 +7105,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Color]', err); }
 			return;
 		}
-		
-		// Embed URL Button
+
 		if (interaction.customId.startsWith('embed_url_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_url_modal').setTitle('Set Embed URL');
 				modal.addComponents(
@@ -7373,15 +7122,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed URL]', err); }
 			return;
 		}
-		
-		// Embed Author Button
+
 		if (interaction.customId.startsWith('embed_author_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_author_modal').setTitle('Set Embed Author');
 				modal.addComponents(
@@ -7393,15 +7141,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Author]', err); }
 			return;
 		}
-		
-		// Embed Footer Button
+
 		if (interaction.customId.startsWith('embed_footer_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_footer_modal').setTitle('Set Embed Footer');
 				modal.addComponents(
@@ -7412,15 +7159,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Footer]', err); }
 			return;
 		}
-		
-		// Embed Thumbnail Button
+
 		if (interaction.customId.startsWith('embed_thumb_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_thumb_modal').setTitle('Set Thumbnail');
 				modal.addComponents(
@@ -7430,15 +7176,14 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Thumb]', err); }
 			return;
 		}
-		
-		// Embed Image Button
+
 		if (interaction.customId.startsWith('embed_image_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const { embedSessions } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				const modal = new ModalBuilder().setCustomId('embed_image_modal').setTitle('Set Image');
 				modal.addComponents(
@@ -7448,14 +7193,13 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Image]', err); }
 			return;
 		}
-		
-		// Embed Field Button
+
 		if (interaction.customId.startsWith('embed_field_')) {
 			try {
 				const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR } = await import('discord.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const modal = new ModalBuilder().setCustomId('embed_field_modal').setTitle('Add Field');
 				modal.addComponents(
 					new AR().addComponents(new TextInputBuilder().setCustomId('name').setLabel('Field Name').setStyle(TextInputStyle.Short).setRequired(true).setMaxLength(256)),
@@ -7466,37 +7210,34 @@ export default function registerButtonInteraction(client) {
 			} catch (err) { console.error('[Embed Field]', err); }
 			return;
 		}
-		
-		// Embed Timestamp Toggle
+
 		if (interaction.customId.startsWith('embed_timestamp_')) {
 			try {
 				const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId) || {};
 				session.timestamp = !session.timestamp;
 				embedSessions.set(userId, session);
-				
+
 				const container = buildEmbedBuilderUI(userId, session);
 				await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
 			} catch (err) { console.error('[Embed Timestamp]', err); }
 			return;
 		}
-		
-		// Embed Preview Button
+
 		if (interaction.customId.startsWith('embed_preview_')) {
 			try {
 				const { embedSessions, buildEmbed, replaceVariables } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId);
 				if (!session || (!session.title && !session.description && !session.image && !session.thumbnail)) {
 					return interaction.reply({ content: '❌ Your embed needs at least a title, description, or image.', flags: 64 });
 				}
-				
-				// Replace variables
+
 				const context = { user: interaction.user, guild: interaction.guild, channel: interaction.channel };
 				const processedSession = { ...session };
 				if (processedSession.title) processedSession.title = replaceVariables(processedSession.title, context);
@@ -7507,75 +7248,70 @@ export default function registerButtonInteraction(client) {
 				if (processedSession.author?.iconURL) processedSession.author.iconURL = replaceVariables(processedSession.author.iconURL, context);
 				if (processedSession.footer?.text) processedSession.footer.text = replaceVariables(processedSession.footer.text, context);
 				if (processedSession.footer?.iconURL) processedSession.footer.iconURL = replaceVariables(processedSession.footer.iconURL, context);
-				
+
 				const embed = buildEmbed(processedSession);
 				await interaction.reply({ content: '**Preview:**', embeds: [embed], flags: 64 });
-			} catch (err) { 
+			} catch (err) {
 				console.error('[Embed Preview]', err);
 				await interaction.reply({ content: '❌ Error: ' + err.message, flags: 64 }).catch(() => {});
 			}
 			return;
 		}
-		
-		// Embed Get Code Button
+
 		if (interaction.customId.startsWith('embed_code_')) {
 			try {
 				const { embedSessions, generateEmbedCode } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId);
 				if (!session || (!session.title && !session.description && !session.image)) {
 					return interaction.reply({ content: '❌ Your embed is empty.', flags: 64 });
 				}
-				
+
 				const code = generateEmbedCode(session);
 				await interaction.reply({ content: `**Your embed code:**\n\`\`\`\n${code}\n\`\`\`\n\n**Usage:** \`.embed #channel ${code}\``, flags: 64 });
 			} catch (err) { console.error('[Embed Code]', err); }
 			return;
 		}
-		
-		// Embed Send Button - Show channel select
+
 		if (interaction.customId.startsWith('embed_send_')) {
 			try {
 				const { ChannelSelectMenuBuilder } = await import('discord.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents(td => td.setContent('**Select a channel to send your embed:**'));
-				
-				// Can't add channel select to container, use regular reply
+
 				const { ActionRowBuilder } = await import('discord.js');
 				const row = new ActionRowBuilder().addComponents(
 					new ChannelSelectMenuBuilder()
 						.setCustomId(`embed_sendto_${userId}`)
 						.setPlaceholder('Select a channel')
-						.setChannelTypes([0]) // Text channels only
+						.setChannelTypes([0])
 				);
-				
+
 				await interaction.reply({ content: '**Select a channel:**', components: [row], flags: 64 });
 			} catch (err) { console.error('[Embed Send]', err); }
 			return;
 		}
-		
-		// Embed Send To Channel (Channel Select)
+
 		if (interaction.customId.startsWith('embed_sendto_')) {
 			try {
 				const { embedSessions, buildEmbed, replaceVariables } = await import('../commands/prefix/miscellaneous/embed.js');
 				const userId = interaction.customId.split('_')[2];
 				if (interaction.user.id !== userId) return interaction.reply({ content: '❌ Not your session.', flags: 64 });
-				
+
 				const channelId = interaction.values[0];
 				const channel = interaction.guild.channels.cache.get(channelId);
 				if (!channel) return interaction.reply({ content: '❌ Channel not found.', flags: 64 });
-				
+
 				const session = embedSessions.get(userId);
 				if (!session || (!session.title && !session.description && !session.image)) {
 					return interaction.reply({ content: '❌ Your embed is empty.', flags: 64 });
 				}
-				
-				// Replace variables
+
 				const context = { user: interaction.user, guild: interaction.guild, channel };
 				const processedSession = { ...session };
 				if (processedSession.title) processedSession.title = replaceVariables(processedSession.title, context);
@@ -7586,32 +7322,31 @@ export default function registerButtonInteraction(client) {
 				if (processedSession.author?.iconURL) processedSession.author.iconURL = replaceVariables(processedSession.author.iconURL, context);
 				if (processedSession.footer?.text) processedSession.footer.text = replaceVariables(processedSession.footer.text, context);
 				if (processedSession.footer?.iconURL) processedSession.footer.iconURL = replaceVariables(processedSession.footer.iconURL, context);
-				
+
 				const embed = buildEmbed(processedSession);
 				await channel.send({ embeds: [embed] });
 				await interaction.update({ content: `✅ Embed sent to ${channel}!`, components: [] });
-			} catch (err) { 
+			} catch (err) {
 				console.error('[Embed SendTo]', err);
 				await interaction.reply({ content: '❌ Failed to send: ' + err.message, flags: 64 }).catch(() => {});
 			}
 			return;
 		}
 	});
-    
-    // ==================== COMPONENT BUILDER HANDLERS ====================
+
         client.on(Events.InteractionCreate, async (interaction) => {
             if (!interaction.isButton()) return;
-            
+
             if (interaction.customId.startsWith('comp_')) {
                 try {
 				    const { ModalBuilder, TextInputBuilder, TextInputStyle, ActionRowBuilder: AR, ContainerBuilder } = await import('discord.js');
                     const { componentSessions, buildComponentBuilderUI } = await import('../commands/prefix/miscellaneous/component.js');
-                    
+
                     const userId = interaction.user.id;
-                    // Check ownership if ID ends with userId
+
                     const parts = interaction.customId.split('_');
                     const ownerId = parts[parts.length - 1];
-                    
+
                     if (ownerId && ownerId.match(/^\d+$/) && ownerId !== userId) {
                         return interaction.reply({ content: '❌ You cannot control this builder.', flags: MessageFlags.Ephemeral });
                     }
@@ -7622,7 +7357,6 @@ export default function registerButtonInteraction(client) {
                     const session = componentSessions.get(userId);
                     let updateUI = false;
 
-                    // --- ROW MANAGEMENT ---
                     if (interaction.customId.startsWith('comp_add_row_')) {
                         if (session.rows.length < 5) {
                             session.rows.push(new AR());
@@ -7651,8 +7385,7 @@ export default function registerButtonInteraction(client) {
                             updateUI = true;
                         }
                     }
-                    
-                    // --- ADD BUTTON ---
+
                     else if (interaction.customId.startsWith('comp_add_btn_')) {
                         const modal = new ModalBuilder()
                             .setCustomId(`comp_modal_btn_${userId}`)
@@ -7667,68 +7400,63 @@ export default function registerButtonInteraction(client) {
 
                         return interaction.showModal(modal);
                     }
-                    
-                    // --- ADD SELECT MENU ---
+
                     else if (interaction.customId.startsWith('comp_add_select_')) {
                         const modal = new ModalBuilder()
                             .setCustomId(`comp_modal_select_${userId}`)
                             .setTitle('Add Select Menu');
-                            
+
                         modal.addComponents(
                             new AR().addComponents(new TextInputBuilder().setCustomId('id').setLabel('Custom ID').setStyle(TextInputStyle.Short).setRequired(true)),
                             new AR().addComponents(new TextInputBuilder().setCustomId('placeholder').setLabel('Placeholder (Optional)').setStyle(TextInputStyle.Short).setRequired(false)),
                             new AR().addComponents(new TextInputBuilder().setCustomId('range').setLabel('Min-Max (e.g. 1-1)').setHeader('Min-Max').setStyle(TextInputStyle.Short).setValue('1-1').setRequired(true)),
                             new AR().addComponents(new TextInputBuilder().setCustomId('options').setLabel('Options (Label|Value|Desc|Emoji)').setStyle(TextInputStyle.Paragraph).setPlaceholder('Option 1|val1\nOption 2|val2|Description').setRequired(true))
                         );
-                        
+
                         return interaction.showModal(modal);
                     }
-                    
-                    // --- PREVIEW ---
+
                     else if (interaction.customId.startsWith('comp_preview_')) {
                         const rows = session.rows || [];
                         if (rows.length === 0) {
                             return interaction.reply({ content: '❌ No components to preview.', flags: MessageFlags.Ephemeral });
                         }
-                        // We need to clone rows because they are mutable objects
-                        // Actually just passing them is fine for preview if we don't modify them
+
                         return interaction.reply({ content: 'Preview:', components: rows, flags: MessageFlags.Ephemeral });
                     }
 
-                    // --- HELP ---
                     else if (interaction.customId.startsWith('comp_help_')) {
-                        const helpText = `**Component Builder Help**\n` + 
+                        const helpText = `**Component Builder Help**\n` +
                         `- You can add up to 5 rows.\n` +
-                        `- Each row can have up to 5 buttons OR 1 Select Menu.\n` + 
-                        `- Use **Get Code** to get the shorthand code.\n` + 
+                        `- Each row can have up to 5 buttons OR 1 Select Menu.\n` +
+                        `- Use **Get Code** to get the shorthand code.\n` +
                         `- Use \`.component <#channel> {code}\` to send!`;
                         const container = new ContainerBuilder();
                         container.addTextDisplayComponents(td => td.setContent(helpText));
                         return interaction.reply({ components: [container], flags: MessageFlags.Ephemeral });
                     }
-                    
-                    // --- GET CODE ---
+
                     else if (interaction.customId.startsWith('comp_get_code_')) {
-                        // Generate code from session
+
                         let code = '';
                         session.rows.forEach((row, i) => {
                             if (i > 0) code += '$r';
                             row.components.forEach((comp, j) => {
-                                if (j > 0 && comp.data.type === 2) code += '$v'; // Button split
-                                
-                                if (comp.data.type === 2) { // Button
-                                    // {button: Label && style && id && emoji}
+                                if (j > 0 && comp.data.type === 2) code += '$v';
+
+                                if (comp.data.type === 2) {
+
                                     let style = 'secondary';
                                     if (comp.data.style === 1) style = 'primary';
                                     if (comp.data.style === 3) style = 'success';
                                     if (comp.data.style === 4) style = 'danger';
                                     if (comp.data.style === 5) style = 'link';
-                                    
+
                                     const id = style === 'link' ? comp.data.url : comp.data.custom_id;
                                     code += `{button: ${comp.data.label || 'Button'} && ${style} && ${id}${comp.data.emoji ? ` && ${comp.data.emoji.name || comp.data.emoji}` : ''}}`;
-                                } 
-                                else if (comp.data.type === 3) { // Select
-                                    // {select: id && ph && min && max}$o{...}
+                                }
+                                else if (comp.data.type === 3) {
+
                                     code += `{select: ${comp.data.custom_id} && ${comp.data.placeholder || ''} && ${comp.data.min_values} && ${comp.data.max_values}}`;
                                     if (comp.options) {
                                         comp.options.forEach(opt => {
@@ -7738,7 +7466,7 @@ export default function registerButtonInteraction(client) {
                                 }
                             });
                         });
-                        
+
                         const container = new ContainerBuilder();
                         container.addTextDisplayComponents(td => td.setContent(`**Component Code:**\n\`\`\`\n${code}\n\`\`\``));
                         return interaction.reply({ components: [container], flags: MessageFlags.Ephemeral });
@@ -7748,7 +7476,7 @@ export default function registerButtonInteraction(client) {
                         const container = buildComponentBuilderUI(userId, session);
                         await interaction.update({ components: [container] });
                     }
-                    
+
                 } catch (error) {
                     console.error('Component Builder Error:', error);
                     try {

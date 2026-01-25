@@ -17,7 +17,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -27,28 +26,26 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Target user or server-wide
 	let targetUser = message.mentions.users.first();
-	
-	// If no mention, try to parse first arg as user ID
+
 	if (!targetUser && args[0]) {
 		const userId = args[0].replace(/[<@!>]/g, '');
 		try {
 			targetUser = await client.users.fetch(userId);
 		} catch {
-			// Not a valid user ID, will clear all
+
 		}
 	}
-	
+
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
-		
+
 		if (targetUser) {
-			// Clear for specific user
+
 			if (stats.invites?.[targetUser.id]) {
 				delete stats.invites[targetUser.id];
 				await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-				
+
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.check || '✅'} Invites Cleared\n\n` +
 					`Successfully cleared all invite data for <@${targetUser.id}>.`
@@ -59,10 +56,10 @@ async function execute(message, args, client) {
 				));
 			}
 		} else {
-			// Clear all invites for server
+
 			stats.invites = {};
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-			
+
 			container.addTextDisplayComponents(td => td.setContent(
 				`# ${EMOJIS.check || '✅'} All Invites Cleared\n\n` +
 				`Successfully cleared all invite data for **${message.guild.name}**.`

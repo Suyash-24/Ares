@@ -23,14 +23,12 @@ export default {
 			});
 		}
 
-
 		if (message.member.voice.channelId !== queue.voiceChannel.id) {
 			return message.reply({
 				content: '❌ You must be in the same voice channel as me.',
 				allowedMentions: { repliedUser: false }
 			});
 		}
-
 
 		if (queue.tracks.toArray().length <= 1) {
 			const container = new ContainerBuilder();
@@ -52,7 +50,7 @@ export default {
 		}
 
 		try {
-			
+
 			const tracks = queue.tracks.toArray();
 			const currentTrack = tracks[0];
 			const queueTracks = tracks.slice(1);

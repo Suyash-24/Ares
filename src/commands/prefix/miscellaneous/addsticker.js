@@ -1,31 +1,27 @@
 import { PermissionFlagsBits, ContainerBuilder, SeparatorSpacingSize, MessageFlags } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
 
-// Helper function to extract actual media URL from Tenor
 async function getTenorMediaUrl(tenorUrl) {
     try {
         const response = await fetch(tenorUrl);
         const html = await response.text();
-        
-        // Look for the direct GIF/media URL in the page
-        // Tenor embeds the actual media URL in the page meta tags or content
+
         const gifMatch = html.match(/https:\/\/media[^"'\s]+\.gif/i);
         if (gifMatch) {
             return gifMatch[0];
         }
-        
+
         // Try looking for contentUrl in JSON-LD
         const jsonLdMatch = html.match(/"contentUrl"\s*:\s*"([^"]+)"/);
         if (jsonLdMatch) {
             return jsonLdMatch[1];
         }
-        
-        // Fallback to looking for og:image meta tag
+
         const ogImageMatch = html.match(/<meta[^>]*property="og:image"[^>]*content="([^"]+)"/);
         if (ogImageMatch) {
             return ogImageMatch[1];
         }
-        
+
         return null;
     } catch (error) {
         console.error('Error fetching Tenor page:', error);
@@ -39,13 +35,13 @@ async function fetchImageAsBuffer(url) {
     if (!response.ok) {
         throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
     }
-    
+
     const contentType = response.headers.get('content-type');
     // Check if it's an actual image
     if (contentType && !contentType.startsWith('image/') && !contentType.includes('application/octet-stream')) {
         throw new Error(`URL does not point to an image (content-type: ${contentType})`);
     }
-    
+
     const arrayBuffer = await response.arrayBuffer();
     return Buffer.from(arrayBuffer);
 }
@@ -95,9 +91,9 @@ export default {
             // Show loading message
             const loadingC = new ContainerBuilder().addTextDisplayComponents(t => t.setContent(`${EMOJIS.loading || '⏳'} Processing sticker...`));
             const loadingMsg = await message.reply({ components: [loadingC], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
-            
+
             let finalUrl = url;
-            
+
             // Handle Tenor links
             if (url.includes('tenor.com') || url.includes('tenor.co')) {
                 const tenorMediaUrl = await getTenorMediaUrl(url);
@@ -107,7 +103,7 @@ export default {
                 }
                 finalUrl = tenorMediaUrl;
             }
-            
+
             // Fetch the image as buffer
             let imageBuffer;
             try {
@@ -116,14 +112,14 @@ export default {
                 const c = new ContainerBuilder().addTextDisplayComponents(t => t.setContent(`${EMOJIS.error} Failed to fetch image: ${fetchError.message}`));
                 return loadingMsg.edit({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
             }
-            
+
             // Check file size (Discord stickers must be under 512KB)
             if (imageBuffer.length > 512 * 1024) {
                 const sizeKB = Math.round(imageBuffer.length / 1024);
                 const c = new ContainerBuilder().addTextDisplayComponents(t => t.setContent(`${EMOJIS.error} Image too large (${sizeKB}KB). Discord stickers must be under 512KB.`));
                 return loadingMsg.edit({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
             }
-            
+
             const sticker = await message.guild.stickers.create({ file: imageBuffer, name: name, tags: tags });
             const c = new ContainerBuilder()
                 .addTextDisplayComponents(t => t.setContent(`${EMOJIS.success} Added sticker **${sticker.name}**!`))

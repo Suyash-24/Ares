@@ -45,9 +45,9 @@ export default {
     if (!message.guild) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Guild Only`, 'This command can only be used in a server.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
     const sub = args[0]?.toLowerCase?.() || null;
-    // list subcommand
+
     if (sub === 'list') {
-      // permission check
+
       const hasManage = message.member.permissions.has(PermissionFlagsBits.ManageGuild) || message.member.permissions.has(PermissionFlagsBits.ManageNicknames);
       const hasHeadmod = await ModerationPermissions.hasCustomRole(message.member, client, message.guildId, 'headmod');
       const hasMod = await ModerationPermissions.hasCustomRole(message.member, client, message.guildId, 'mod');
@@ -108,9 +108,6 @@ export default {
     const target = await resolveMember(message.guild, targetArg);
     if (!target) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} User Not Found`, 'Could not find that member.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    
-
-    
     const hasManage = message.member.permissions.has(PermissionFlagsBits.ManageGuild) || message.member.permissions.has(PermissionFlagsBits.ManageNicknames);
     const hasHeadmod = await ModerationPermissions.hasCustomRole(message.member, client, message.guildId, 'headmod');
     const hasMod = await ModerationPermissions.hasCustomRole(message.member, client, message.guildId, 'mod');
@@ -120,7 +117,7 @@ export default {
 
     const botMember = message.guild.members.me || message.guild.members.cache.get(client.user.id);
     if (!botMember.permissions.has(PermissionFlagsBits.ManageNicknames)) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Missing Bot Permission`, 'I need the **Manage Nicknames** permission to apply forced nicknames.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
-    
+
     if (target.id === message.guild.ownerId) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Cannot Modify Owner`, 'Cannot modify the guild owner.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
     const executorHighest = message.member.roles.highest;
@@ -143,7 +140,6 @@ export default {
     if (!guildData.moderation) guildData.moderation = {};
     if (!guildData.moderation.forcedNicknames) guildData.moderation.forcedNicknames = {};
 
-    
     if (!nicknameArg || nicknameArg.toLowerCase() === 'remove') {
       if (!guildData.moderation.forcedNicknames[target.id]) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.info} Not Configured`, 'No forced nickname is configured for that user.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
@@ -151,12 +147,11 @@ export default {
 
       const oldNickname = guildData.moderation.forcedNicknames[target.id]?.nickname || 'Unknown';
       delete guildData.moderation.forcedNicknames[target.id];
-      
+
       if (Object.keys(guildData.moderation.forcedNicknames).length === 0) delete guildData.moderation.forcedNicknames;
 
       await client.db.updateOne({ guildId: message.guildId }, { $set: { moderation: guildData.moderation } }, { upsert: true });
 
-      // Send mod log for forcenick removal
       await sendLog(client, message.guildId, LOG_EVENTS.MOD_FORCENICK, {
         executor: message.author,
         target: target.user,
@@ -167,13 +162,11 @@ export default {
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Enforcement Removed`, `Forced nickname enforcement removed for <@${target.id}>.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    
     const nickname = nicknameArg;
     if (!nickname || nickname.length === 0) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Nickname`, 'Nickname cannot be empty.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     if (nickname.length > 32) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Too Long`, 'Nickname cannot exceed 32 characters.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     if (isEmojiOnly(nickname)) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Nickname`, 'Emoji-only nicknames are not allowed.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
-    // Persist and apply (store metadata: nickname, by, timestamp)
     guildData.moderation.forcedNicknames[target.id] = { nickname, by: message.author.id, ts: Date.now() };
     await client.db.updateOne({ guildId: message.guildId }, { $set: { moderation: guildData.moderation } }, { upsert: true });
 
@@ -185,7 +178,6 @@ export default {
       return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Action Failed`, 'Failed to set nickname. Ensure I have permission and role hierarchy allows it.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Send mod log for forcenick set
     await sendLog(client, message.guildId, LOG_EVENTS.MOD_FORCENICK, {
       executor: message.author,
       target: target.user,

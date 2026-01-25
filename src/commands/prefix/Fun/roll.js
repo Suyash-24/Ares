@@ -19,7 +19,7 @@ async function execute(message, args, client) {
 
 	const result = Math.floor(Math.random() * limit) + 1;
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`**🎲 Dice Roll**\n\nYou rolled a **${result}** (1-${limit})`)
 	);
 

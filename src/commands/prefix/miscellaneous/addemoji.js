@@ -21,19 +21,18 @@ export default {
         let url;
         let name;
 
-        // Check for attachments first
         if (message.attachments.size > 0) {
             url = message.attachments.first().url;
             name = args[0] || 'uploaded_emoji';
         } else if (args[0]) {
-            // Check if it's a custom emoji
+
             const customEmoji = parseEmoji(args[0]);
             if (customEmoji && customEmoji.id) {
                 const extension = customEmoji.animated ? 'gif' : 'png';
                 url = `https://cdn.discordapp.com/emojis/${customEmoji.id}.${extension}`;
                 name = args[1] || customEmoji.name;
             } else {
-                // Assume it's a URL
+
                 url = args[0];
                 name = args[1] || 'custom_emoji';
             }

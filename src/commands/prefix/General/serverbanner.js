@@ -9,12 +9,11 @@ export default {
   async execute(message, args) {
     let guild = message.guild;
 
-    // Fetch guild to ensure we have the latest banner info if not cached
     if (!guild.banner) {
         try {
             guild = await message.guild.fetch();
         } catch (e) {
-            // ignore fetch error, stick to cached
+
         }
     }
 
@@ -22,11 +21,11 @@ export default {
 
     if (!bannerUrl) {
       const container = new ContainerBuilder();
-      container.addTextDisplayComponents(td => 
+      container.addTextDisplayComponents(td =>
         td.setContent(`# ${EMOJIS.error || '❌'} **No Banner**`)
       );
       container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-      container.addTextDisplayComponents(td => 
+      container.addTextDisplayComponents(td =>
         td.setContent(`**${guild.name}** doesn't have a banner.`)
       );
       await message.reply({
@@ -72,8 +71,7 @@ export default {
           .setStyle(ButtonStyle.Link)
           .setURL(guild.bannerURL({ size: 4096, extension: 'webp' }))
       ];
-      
-       // Add GIF button if animated
+
       if (guild.banner && guild.banner.startsWith('a_')) {
           buttons.push(
                new ButtonBuilder()

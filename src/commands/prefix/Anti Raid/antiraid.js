@@ -7,7 +7,7 @@ const getDefaultConfig = () => ({
     logChannel: null,
     massjoin: {
         enabled: false,
-        threshold: 5, // Joins per 10 seconds
+        threshold: 5,
         action: 'kick',
         lockChannels: false
     },
@@ -17,10 +17,10 @@ const getDefaultConfig = () => ({
     },
     newaccounts: {
         enabled: false,
-        threshold: 7, // Account age in days
+        threshold: 7,
         action: 'kick'
     },
-    whitelist: [] // User IDs (one-time use)
+    whitelist: []
 });
 
 const parseFlags = (args) => {
@@ -38,7 +38,7 @@ const parseFlags = (args) => {
 
 const buildConfigContainer = (config) => {
     const container = new ContainerBuilder();
-    
+
     container.addTextDisplayComponents(td =>
         td.setContent(
             `${EMOJIS.antiraidemoji || '🛡️'} **ANTI-RAID CONFIGURATION**\n` +
@@ -49,7 +49,7 @@ const buildConfigContainer = (config) => {
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
     const raidStatus = config.raidState ? `${EMOJIS.error || '🚨'} **RAID MODE ACTIVE**` : `${EMOJIS.success || '✅'} Normal`;
-    
+
     container.addTextDisplayComponents(td =>
         td.setContent(
             `**System Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
@@ -60,7 +60,6 @@ const buildConfigContainer = (config) => {
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(true));
 
-    // Mass Join
     container.addTextDisplayComponents(td =>
         td.setContent(
             `🚨 **Mass Join Detection**\n` +
@@ -73,7 +72,6 @@ const buildConfigContainer = (config) => {
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-    // Avatar
     container.addTextDisplayComponents(td =>
         td.setContent(
             `🖼️ **Avatar Check**\n` +
@@ -84,7 +82,6 @@ const buildConfigContainer = (config) => {
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-    // New Accounts
     container.addTextDisplayComponents(td =>
         td.setContent(
             `📅 **New Account Filter**\n` +
@@ -96,7 +93,6 @@ const buildConfigContainer = (config) => {
 
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-    // Whitelist
     const whitelistCount = config.whitelist?.length || 0;
     container.addTextDisplayComponents(td =>
         td.setContent(`📋 **Whitelist:** ${whitelistCount} user${whitelistCount !== 1 ? 's' : ''}`)
@@ -152,7 +148,6 @@ export default {
 
         const subcommand = args[0]?.toLowerCase();
 
-        // No subcommand - show config
         if (!subcommand || subcommand === 'config') {
             return message.reply({
                 components: [buildConfigContainer(config)],
@@ -161,7 +156,6 @@ export default {
             });
         }
 
-        // Enable/Disable
         if (subcommand === 'enable' || subcommand === 'on') {
             config.enabled = true;
             await saveConfig();
@@ -182,7 +176,6 @@ export default {
             });
         }
 
-        // Mass Join
         if (subcommand === 'massjoin') {
             const setting = args[1]?.toLowerCase();
             const flags = parseFlags(args.slice(2));
@@ -208,7 +201,7 @@ export default {
 
             await saveConfig();
             return message.reply({
-                components: [buildSuccessContainer('Mass Join Updated', 
+                components: [buildSuccessContainer('Mass Join Updated',
                     `**Status:** ${config.massjoin.enabled ? 'Enabled' : 'Disabled'}\n` +
                     `**Threshold:** ${config.massjoin.threshold} joins/10s\n` +
                     `**Action:** ${config.massjoin.action}\n` +
@@ -219,7 +212,6 @@ export default {
             });
         }
 
-        // Avatar
         if (subcommand === 'avatar') {
             const setting = args[1]?.toLowerCase();
             const flags = parseFlags(args.slice(2));
@@ -247,7 +239,6 @@ export default {
             });
         }
 
-        // New Accounts
         if (subcommand === 'newaccounts' || subcommand === 'age') {
             const setting = args[1]?.toLowerCase();
             const flags = parseFlags(args.slice(2));
@@ -280,7 +271,6 @@ export default {
             });
         }
 
-        // Raid State
         if (subcommand === 'state') {
             config.raidState = !config.raidState;
             await saveConfig();
@@ -304,7 +294,6 @@ export default {
             }
         }
 
-        // Whitelist
         if (subcommand === 'whitelist') {
             const action = args[1]?.toLowerCase();
 
@@ -331,7 +320,6 @@ export default {
                 });
             }
 
-            // Add user to whitelist
             const userMatch = args[1]?.match(/<@!?(\d+)>/) || args[1]?.match(/^(\d{17,19})$/);
             if (!userMatch) {
                 return message.reply({
@@ -365,10 +353,9 @@ export default {
             });
         }
 
-        // Log Channel
         if (subcommand === 'log' || subcommand === 'logs') {
             const channelMatch = args[1]?.match(/<#(\d+)>/) || args[1]?.match(/^(\d{17,19})$/);
-            
+
             if (args[1]?.toLowerCase() === 'off' || args[1]?.toLowerCase() === 'none') {
                 config.logChannel = null;
                 await saveConfig();
@@ -397,7 +384,6 @@ export default {
             });
         }
 
-        // Help
         const helpContainer = new ContainerBuilder();
         helpContainer.addTextDisplayComponents(td =>
             td.setContent(

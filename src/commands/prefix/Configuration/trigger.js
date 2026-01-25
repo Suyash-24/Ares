@@ -26,14 +26,14 @@ export default {
         'trigger toggle hello'
     ],
     userPermissions: [PermissionFlagsBits.ManageGuild],
-    
+
     async execute(message, args, client) {
         if (!message.guild) {
             return message.reply('This command can only be used in a server.');
         }
 
         const subcommand = args[0]?.toLowerCase();
-        
+
         if (!subcommand) {
             return this.showHelp(message);
         }
@@ -42,35 +42,35 @@ export default {
             case 'add':
             case 'create':
                 return this.addTrigger(message, args.slice(1), client);
-            
+
             case 'remove':
             case 'delete':
             case 'del':
                 return this.removeTrigger(message, args.slice(1), client);
-            
+
             case 'list':
             case 'ls':
                 return this.listTriggers(message, client);
-            
+
             case 'edit':
             case 'editreply':
                 return this.editTrigger(message, args.slice(1), client);
-            
+
             case 'matchmode':
             case 'mode':
                 return this.setMatchMode(message, args.slice(1), client);
-            
+
             case 'toggle':
                 return this.toggleTrigger(message, args.slice(1), client);
-            
+
             case 'info':
             case 'view':
                 return this.showTriggerInfo(message, args.slice(1), client);
-            
+
             case 'plaintext':
             case 'plain':
                 return this.togglePlainText(message, args.slice(1), client);
-            
+
             default:
                 return this.showHelp(message);
         }
@@ -78,11 +78,11 @@ export default {
 
     async showHelp(message) {
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ${EMOJIS.settings || '⚙️'} Trigger System`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Subcommands:**\n` +
                 `> \`.trigger add <trigger> | <response>\` - Add a trigger\n` +
@@ -110,26 +110,23 @@ export default {
 
     async addTrigger(message, args, client) {
         const fullArgs = args.join(' ');
-        
-        // Split by | to separate trigger and response
+
         const parts = fullArgs.split('|').map(p => p.trim());
-        
+
         if (parts.length < 2 || !parts[0] || !parts[1]) {
             return this.sendError(message, 'Invalid format! Use: `.trigger add <trigger> | <response>`');
         }
 
         const triggerText = parts[0];
-        const response = parts.slice(1).join('|').trim(); // In case response contains |
+        const response = parts.slice(1).join('|').trim();
 
-        // Check if trigger already exists
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         if (triggers.some(t => t.trigger.toLowerCase() === triggerText.toLowerCase())) {
             return this.sendError(message, `A trigger with the text \`${triggerText}\` already exists!`);
         }
 
-        // Create new trigger
         const newTrigger = {
             trigger: triggerText,
             response: response,
@@ -149,11 +146,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Trigger Added`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Trigger:** \`${triggerText}\`\n` +
                 `**Response:** ${response.length > 100 ? response.substring(0, 100) + '...' : response}\n` +
@@ -171,16 +168,16 @@ export default {
 
     async removeTrigger(message, args, client) {
         const triggerText = args.join(' ').trim();
-        
+
         if (!triggerText) {
             return this.sendError(message, 'Please specify the trigger to remove.');
         }
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         const index = triggers.findIndex(t => t.trigger.toLowerCase() === triggerText.toLowerCase());
-        
+
         if (index === -1) {
             return this.sendError(message, `No trigger found with text \`${triggerText}\`.`);
         }
@@ -193,11 +190,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Trigger Removed`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`Successfully removed trigger \`${removed.trigger}\`.`)
         );
 
@@ -214,11 +211,11 @@ export default {
 
         if (triggers.length === 0) {
             const container = new ContainerBuilder();
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`# ${EMOJIS.info || 'ℹ️'} No Triggers`)
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`This server has no triggers. Use \`.trigger add\` to create one!`)
             );
 
@@ -229,10 +226,9 @@ export default {
             });
         }
 
-        // Paginate - 5 triggers per page
         const pageSize = 5;
         const pages = [];
-        
+
         for (let i = 0; i < triggers.length; i += pageSize) {
             const pageTriggers = triggers.slice(i, i + pageSize);
             const pageContent = pageTriggers.map((t, idx) => {
@@ -240,26 +236,26 @@ export default {
                 const mode = MATCH_MODE_NAMES[t.matchMode] || 'Exact';
                 return `${status} **${i + idx + 1}.** \`${t.trigger}\` • ${mode}`;
             }).join('\n');
-            
+
             pages.push(pageContent);
         }
 
         let currentPage = 0;
-        
+
         const buildPage = (page) => {
             const container = new ContainerBuilder();
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`# ${EMOJIS.list || '📋'} Server Triggers`)
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(pages[page])
             );
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            container.addTextDisplayComponents(td => 
+            container.addTextDisplayComponents(td =>
                 td.setContent(`Page ${page + 1}/${pages.length} • Total: ${triggers.length} trigger(s)`)
             );
-            
+
             return [container];
         };
 
@@ -271,7 +267,6 @@ export default {
             });
         }
 
-        // Multi-page with buttons
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('trigger_list_prev')
@@ -285,15 +280,15 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ${EMOJIS.list || '📋'} Server Triggers`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(pages[0])
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`Page 1/${pages.length} • Total: ${triggers.length} trigger(s)`)
         );
         container.addActionRowComponents(() => row);
@@ -334,15 +329,15 @@ export default {
             );
 
             const newContainer = new ContainerBuilder();
-            newContainer.addTextDisplayComponents(td => 
+            newContainer.addTextDisplayComponents(td =>
                 td.setContent(`# ${EMOJIS.list || '📋'} Server Triggers`)
             );
             newContainer.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            newContainer.addTextDisplayComponents(td => 
+            newContainer.addTextDisplayComponents(td =>
                 td.setContent(pages[currentPage])
             );
             newContainer.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-            newContainer.addTextDisplayComponents(td => 
+            newContainer.addTextDisplayComponents(td =>
                 td.setContent(`Page ${currentPage + 1}/${pages.length} • Total: ${triggers.length} trigger(s)`)
             );
             newContainer.addActionRowComponents(() => newRow);
@@ -357,7 +352,7 @@ export default {
     async editTrigger(message, args, client) {
         const fullArgs = args.join(' ');
         const parts = fullArgs.split('|').map(p => p.trim());
-        
+
         if (parts.length < 2 || !parts[0] || !parts[1]) {
             return this.sendError(message, 'Invalid format! Use: `.trigger edit <trigger> | <new response>`');
         }
@@ -367,9 +362,9 @@ export default {
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         const index = triggers.findIndex(t => t.trigger.toLowerCase() === triggerText.toLowerCase());
-        
+
         if (index === -1) {
             return this.sendError(message, `No trigger found with text \`${triggerText}\`.`);
         }
@@ -384,11 +379,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Trigger Updated`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Trigger:** \`${triggers[index].trigger}\`\n` +
                 `**New Response:** ${newResponse.length > 100 ? newResponse.substring(0, 100) + '...' : newResponse}`
@@ -405,7 +400,7 @@ export default {
     async setMatchMode(message, args, client) {
         const triggerText = args.slice(0, -1).join(' ').trim();
         const mode = args[args.length - 1]?.toLowerCase();
-        
+
         if (!triggerText || !mode) {
             return this.sendError(message, 'Usage: `.trigger matchmode <trigger> <mode>`\nModes: `exact`, `startswith`, `endswith`, `includes`, `regex`');
         }
@@ -417,9 +412,9 @@ export default {
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         const index = triggers.findIndex(t => t.trigger.toLowerCase() === triggerText.toLowerCase());
-        
+
         if (index === -1) {
             return this.sendError(message, `No trigger found with text \`${triggerText}\`.`);
         }
@@ -432,11 +427,11 @@ export default {
         );
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Match Mode Updated`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Trigger:** \`${triggers[index].trigger}\`\n` +
                 `**New Match Mode:** ${MATCH_MODE_NAMES[mode]}`
@@ -452,16 +447,16 @@ export default {
 
     async toggleTrigger(message, args, client) {
         const triggerText = args.join(' ').trim();
-        
+
         if (!triggerText) {
             return this.sendError(message, 'Please specify the trigger to toggle.');
         }
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         const index = triggers.findIndex(t => t.trigger.toLowerCase() === triggerText.toLowerCase());
-        
+
         if (index === -1) {
             return this.sendError(message, `No trigger found with text \`${triggerText}\`.`);
         }
@@ -477,11 +472,11 @@ export default {
         const emoji = triggers[index].enabled ? '✅' : '❌';
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ${emoji} Trigger ${status}`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`Trigger \`${triggers[index].trigger}\` has been ${status.toLowerCase()}.`)
         );
 
@@ -494,26 +489,26 @@ export default {
 
     async showTriggerInfo(message, args, client) {
         const triggerText = args.join(' ').trim();
-        
+
         if (!triggerText) {
             return this.sendError(message, 'Please specify the trigger to view.');
         }
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         const trigger = triggers.find(t => t.trigger.toLowerCase() === triggerText.toLowerCase());
-        
+
         if (!trigger) {
             return this.sendError(message, `No trigger found with text \`${triggerText}\`.`);
         }
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ${EMOJIS.info || 'ℹ️'} Trigger Info`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Trigger:** \`${trigger.trigger}\`\n` +
                 `**Status:** ${trigger.enabled ? '🟢 Enabled' : '🔴 Disabled'}\n` +
@@ -534,16 +529,16 @@ export default {
 
     async togglePlainText(message, args, client) {
         const triggerText = args.join(' ').trim();
-        
+
         if (!triggerText) {
             return this.sendError(message, 'Please specify the trigger.');
         }
 
         const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
         const triggers = guildData.triggers || [];
-        
+
         const index = triggers.findIndex(t => t.trigger.toLowerCase() === triggerText.toLowerCase());
-        
+
         if (index === -1) {
             return this.sendError(message, `No trigger found with text \`${triggerText}\`.`);
         }
@@ -558,11 +553,11 @@ export default {
         const mode = triggers[index].plainText ? 'Plain Text' : 'Components V2';
 
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ✅ Response Mode Updated`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`Trigger \`${triggers[index].trigger}\` will now respond with **${mode}**.`)
         );
 
@@ -575,11 +570,11 @@ export default {
 
     async sendError(message, errorText) {
         const container = new ContainerBuilder();
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(`# ❌ Error`)
         );
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        container.addTextDisplayComponents(td => 
+        container.addTextDisplayComponents(td =>
             td.setContent(errorText)
         );
 

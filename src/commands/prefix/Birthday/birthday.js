@@ -1,10 +1,10 @@
-import { 
-    MessageFlags, 
-    ContainerBuilder, 
-    SeparatorSpacingSize, 
-    ButtonBuilder, 
-    ButtonStyle, 
-    ActionRowBuilder, 
+import {
+    MessageFlags,
+    ContainerBuilder,
+    SeparatorSpacingSize,
+    ButtonBuilder,
+    ButtonStyle,
+    ActionRowBuilder,
     PermissionFlagsBits,
     ChannelSelectMenuBuilder,
     ChannelType,
@@ -12,7 +12,6 @@ import {
 } from 'discord.js';
 import EMOJIS from '../../../utils/emojis.js';
 
-// Common Timezones
 const TIMEZONES = [
     { label: 'UTC', value: 'UTC' },
     { label: 'India (IST)', value: 'Asia/Kolkata' },
@@ -59,21 +58,20 @@ const buildSuccess = (title, description) => {
     return container;
 };
 
-// Build Setup Wizard Container with buttons inside
 const buildWizardContainer = (config) => {
     const container = new ContainerBuilder();
-    
+
     const statusEmoji = config.enabled ? (EMOJIS.success || '✅') : (EMOJIS.error || '❌');
     const statusText = config.enabled ? 'Enabled' : 'Disabled';
-    
+
     container.addTextDisplayComponents(td => td.setContent(`# 🎂 Birthday System Setup`));
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
+
     const cmdChannel = config.commandChannel ? `<#${config.commandChannel}>` : '`Not Set`';
     const wishChannel = config.wishChannel ? `<#${config.wishChannel}>` : '`Not Set`';
     const tz = config.timezone || 'GMT';
     const bdayRole = config.birthdayRole ? `<@&${config.birthdayRole}>` : '`Not Set`';
-    
+
     container.addTextDisplayComponents(td => td.setContent(
         `**Status:** ${statusEmoji} ${statusText}\n` +
         `**Command Channel:** ${cmdChannel}\n` +
@@ -81,50 +79,48 @@ const buildWizardContainer = (config) => {
         `**Birthday Role:** ${bdayRole} (24h)\n` +
         `**Timezone:** \`${tz}\``
     ));
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-    
-    // Buttons Row 1
+
     const toggleBtn = new ButtonBuilder()
         .setCustomId('birthday_toggle')
         .setLabel(config.enabled ? 'Disable' : 'Enable')
         .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success);
-    
+
     const cmdChBtn = new ButtonBuilder()
         .setCustomId('birthday_cmd_channel')
         .setLabel('Command Channel')
         .setStyle(ButtonStyle.Secondary);
-    
+
     const wishChBtn = new ButtonBuilder()
         .setCustomId('birthday_wish_channel')
         .setLabel('Wish Channel')
         .setStyle(ButtonStyle.Secondary);
-    
+
     container.addActionRowComponents(row => row.addComponents(toggleBtn, cmdChBtn, wishChBtn));
-    
-    // Buttons Row 2
+
     const tzBtn = new ButtonBuilder()
         .setCustomId('birthday_timezone')
         .setLabel('Timezone')
         .setStyle(ButtonStyle.Secondary);
-    
+
     const roleBtn = new ButtonBuilder()
         .setCustomId('birthday_role')
         .setLabel('Birthday Role')
         .setStyle(ButtonStyle.Secondary);
-    
+
     const customizeBtn = new ButtonBuilder()
         .setCustomId('birthday_customize')
         .setLabel('Customize')
         .setStyle(ButtonStyle.Primary);
-    
+
     const previewBtn = new ButtonBuilder()
         .setCustomId('birthday_preview')
         .setLabel('Preview')
         .setStyle(ButtonStyle.Success);
-    
+
     container.addActionRowComponents(row => row.addComponents(tzBtn, roleBtn, customizeBtn, previewBtn));
-    
+
     return container;
 };
 
@@ -139,11 +135,10 @@ export default {
         const guildData = await getGuildData(client, message.guildId);
         const config = guildData.birthday_config || { enabled: false, commandChannel: null, wishChannel: null, timezone: 'GMT', wishMessage: DEFAULT_WISH };
         const birthdays = guildData.birthdays || {};
-        
+
         const subcommand = args[0]?.toLowerCase();
         const isAdmin = message.member.permissions.has(PermissionFlagsBits.ManageGuild) || message.member.permissions.has(PermissionFlagsBits.Administrator);
 
-        // --- SETUP WIZARD (Admin Only) ---
         if (subcommand === 'setup') {
             if (!isAdmin) {
                 return message.reply({
@@ -162,7 +157,6 @@ export default {
             });
         }
 
-        // --- MANUAL CHECK (Admin Only) ---
         if (subcommand === 'check') {
             if (!isAdmin) {
                 return message.reply({
@@ -171,7 +165,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
             }
-            
+
             if (!config.enabled || !config.wishChannel) {
                 return message.reply({
                     components: [buildError('Not Configured', 'Birthday system is not enabled or wish channel not set. Use `.birthday setup` first.')],
@@ -179,14 +173,13 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
             }
-            
-            // Import birthday handler functions
+
             const { getTodayInTimezone, replaceVariables, buildWishContainer } = await import('../../../events/birthdayHandler.js');
             const { TextDisplayBuilder } = await import('discord.js');
-            
+
             const timezone = config.timezone || 'GMT';
             const { day, month } = getTodayInTimezone(timezone);
-            
+
             const wishChannel = message.guild.channels.cache.get(config.wishChannel);
             if (!wishChannel) {
                 return message.reply({
@@ -195,18 +188,18 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
             }
-            
+
             let wished = 0;
             let debugInfo = `Today: ${day}/${month} | Birthdays found: ${Object.keys(birthdays).length}`;
-            
+
             for (const [userId, bday] of Object.entries(birthdays)) {
                 const bdayDay = parseInt(bday.day, 10);
                 const bdayMonth = parseInt(bday.month, 10);
-                
+
                 debugInfo += `\n- User ${userId}: ${bdayDay}/${bdayMonth}`;
-                
+
                 if (bdayDay !== day || bdayMonth !== month) continue;
-                
+
                 try {
                     debugInfo += ' -> Match found';
                     const member = await message.guild.members.fetch(userId).catch(() => null);
@@ -214,7 +207,7 @@ export default {
                         debugInfo += ' -> Member not found';
                         continue;
                     }
-                    
+
                     const context = {
                         userMention: `<@${userId}>`,
                         username: member.user.username,
@@ -222,17 +215,17 @@ export default {
                         serverName: message.guild.name,
                         serverAvatar: message.guild.iconURL({ size: 512 }) || ''
                     };
-                    
+
                     const wishMsg = config.wishMessage || DEFAULT_WISH;
                     const content = replaceVariables(wishMsg.content, context);
                     const container = buildWishContainer(config, context);
-                    
+
                     const components = [];
                     if (content) {
                         components.push(new TextDisplayBuilder().setContent(content));
                     }
                     components.push(container);
-                    
+
                     try {
                         await wishChannel.send({
                             components,
@@ -245,8 +238,7 @@ export default {
                         console.error(err);
                         continue;
                     }
-                    
-                    // Assign birthday role
+
                     if (config.birthdayRole) {
                         const role = message.guild.roles.cache.get(config.birthdayRole);
                         if (role) {
@@ -256,29 +248,28 @@ export default {
                             setTimeout(() => member.roles.remove(role).catch(() => {}), 24 * 60 * 60 * 1000);
                         }
                     }
-                    
+
                     wished++;
                 } catch (e) {
                     debugInfo += ` -> Critical Error: ${e.message}`;
                     console.error('[Birthday Check]', e);
                 }
             }
-            
+
             const container = new ContainerBuilder();
             container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.success || '✅'} Birthday Check Complete`));
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
             container.addTextDisplayComponents(td => td.setContent(
-                wished > 0 
-                    ? `Wished **${wished}** member(s) happy birthday!` 
+                wished > 0
+                    ? `Wished **${wished}** member(s) happy birthday!`
                     : `No birthdays today.`
             ));
-            
-            // Only show debug if something went wrong or explicitly requested
+
             if (wished === 0 || args.includes('--debug')) {
                  container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small).setDivider(false));
                  container.addTextDisplayComponents(td => td.setContent(`-# Debug: ${debugInfo}`));
             }
-            
+
             return message.reply({
                 components: [container],
                 flags: MessageFlags.IsComponentsV2,
@@ -286,7 +277,6 @@ export default {
             });
         }
 
-        // --- CONFIG VIEW (Admin Only) ---
         if (subcommand === 'config') {
             if (!isAdmin) {
                 return message.reply({
@@ -295,7 +285,7 @@ export default {
                     allowedMentions: { repliedUser: false }
                 });
             }
-            
+
             const wizardContainer = buildWizardContainer(config);
             return message.reply({
                 components: [wizardContainer],
@@ -304,7 +294,6 @@ export default {
             });
         }
 
-        // --- Check Command Channel Restriction ---
         if (config.commandChannel && message.channelId !== config.commandChannel) {
             return message.reply({
                 components: [buildError('Wrong Channel', `Birthday commands can only be used in <#${config.commandChannel}>.`)],
@@ -313,7 +302,6 @@ export default {
             });
         }
 
-        // --- SET BIRTHDAY ---
         if (subcommand === 'set') {
             const dateInput = args[1];
             if (!dateInput) {
@@ -344,7 +332,6 @@ export default {
                 });
             }
 
-            // Validate days in month
             const daysInMonth = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
             if (day > daysInMonth[month - 1]) {
                 return message.reply({
@@ -365,13 +352,12 @@ export default {
             });
         }
 
-        // --- VIEW BIRTHDAY ---
         if (subcommand === 'view' || !subcommand) {
             const targetUser = message.mentions.users.first() || message.author;
             const birthday = birthdays[targetUser.id];
 
             if (!birthday) {
-                const notSetMsg = targetUser.id === message.author.id 
+                const notSetMsg = targetUser.id === message.author.id
                     ? 'You haven\'t set your birthday yet. Use `.birthday set DD/MM`'
                     : `${targetUser.username} hasn't set their birthday.`;
                 return message.reply({
@@ -394,7 +380,6 @@ export default {
             });
         }
 
-        // --- UPCOMING BIRTHDAYS ---
         if (subcommand === 'upcoming') {
             const page = parseInt(args[1], 10) || 1;
             const perPage = 10;
@@ -403,19 +388,18 @@ export default {
             const currentDay = now.getDate();
             const currentMonth = now.getMonth() + 1;
 
-            // Calculate days until birthday
             const upcoming = [];
             for (const [userId, bday] of Object.entries(birthdays)) {
                 let daysUntil;
                 const thisYear = now.getFullYear();
                 const bdayDate = new Date(thisYear, bday.month - 1, bday.day);
-                
+
                 if (bdayDate < now) {
                     bdayDate.setFullYear(thisYear + 1);
                 }
-                
+
                 daysUntil = Math.ceil((bdayDate - now) / (1000 * 60 * 60 * 24));
-                
+
                 if (daysUntil <= 30) {
                     upcoming.push({ userId, day: bday.day, month: bday.month, daysUntil });
                 }
@@ -448,22 +432,21 @@ export default {
             container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
             container.addTextDisplayComponents(td => td.setContent(list));
 
-            // Pagination buttons
             if (totalPages > 1) {
                 const prevBtn = new ButtonBuilder()
                     .setCustomId(`birthday_upcoming_${safePage - 1}`)
                     .setLabel('◀ Prev')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(safePage <= 1);
-                
+
                 const nextBtn = new ButtonBuilder()
                     .setCustomId(`birthday_upcoming_${safePage + 1}`)
                     .setLabel('Next ▶')
                     .setStyle(ButtonStyle.Secondary)
                     .setDisabled(safePage >= totalPages);
-                
+
                 const row = new ActionRowBuilder().addComponents(prevBtn, nextBtn);
-                
+
                 return message.reply({
                     components: [container, row],
                     flags: MessageFlags.IsComponentsV2,
@@ -478,7 +461,6 @@ export default {
             });
         }
 
-        // --- REMOVE BIRTHDAY ---
         if (subcommand === 'remove') {
             if (!birthdays[message.author.id]) {
                 return message.reply({
@@ -498,7 +480,6 @@ export default {
             });
         }
 
-        // --- HELP ---
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => td.setContent(`🎂 **Birthday Commands**`));
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));

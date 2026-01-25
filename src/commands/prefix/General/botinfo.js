@@ -11,13 +11,11 @@ export default {
     const bot = message.client.user;
     const guild = message.guild;
 
-
     const guildCount = message.client.guilds.cache.size;
     const totalCommands = message.client.commands.size + message.client.prefixCommands.size;
     const uptime = message.client.uptime;
     const developerId = '1343508844453826673';
 
-   
     const formatUptime = (ms) => {
       const seconds = Math.floor((ms / 1000) % 60);
       const minutes = Math.floor((ms / (1000 * 60)) % 60);
@@ -38,7 +36,6 @@ export default {
 
     const container = new ContainerBuilder();
 
-    
     container.addTextDisplayComponents((textDisplay) =>
       textDisplay.setContent(`# **${bot.username}'s Info**`)
     );
@@ -47,7 +44,6 @@ export default {
       separator.setSpacing(SeparatorSpacingSize.Small)
     );
 
-    
     const botInfoText = `${EMOJIS?.bot || '🤖'} **Bot Name:** ${bot.username}\n` +
       `${EMOJIS?.id || '🆔'} **Bot ID:** ${bot.id}\n` +
       `${EMOJIS?.date || '📅'} **Created:**\n<t:${Math.floor(bot.createdTimestamp / 1000)}:F>\n<t:${Math.floor(bot.createdTimestamp / 1000)}:R>\n\n` +
@@ -73,7 +69,6 @@ export default {
     container.addSeparatorComponents((separator) =>
       separator.setSpacing(SeparatorSpacingSize.Small)
     );
-
 
     container.addActionRowComponents((actionRow) => {
       const buttons = [

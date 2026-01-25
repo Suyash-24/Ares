@@ -25,7 +25,7 @@ const formatRole = (role) => `<@&${role.id}>`;
 const parseEmojiOrUrl = (input) => {
 	const emojiRegex = /<a?:\w+:(\d+)>/;
 	const match = input.match(emojiRegex);
-	
+
 	if (match) {
 		const emojiId = match[1];
 		return {

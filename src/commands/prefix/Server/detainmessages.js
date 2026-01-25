@@ -8,7 +8,7 @@ export default {
 	category: 'Server',
 
 	async execute(message, args, client) {
-		// Check permission - ManageGuild
+
 		if (!message.member.permissions.has('ManageGuild')) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>

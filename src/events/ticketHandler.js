@@ -22,12 +22,8 @@ import {
 import EMOJIS from '../utils/emojis.js';
 import { generateTranscript } from '../utils/ticketTranscript.js';
 
-// Cache for wizard state: Map<userId, { step, data }>
 const wizardCache = new Map();
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helper Functions
-// ─────────────────────────────────────────────────────────────────────────────
 function parseEmoji(emojiStr) {
 	if (!emojiStr) return null;
 	const match = emojiStr.match(/<(a)?:(\w+):(\d+)>/);
@@ -37,7 +33,6 @@ function parseEmoji(emojiStr) {
 	return emojiStr;
 }
 
-// Replace variables in text
 function replaceVariables(text, vars) {
 	return text
 		.replace(/{user}/g, vars.user || '')
@@ -48,10 +43,9 @@ function replaceVariables(text, vars) {
 		.replace(/{reason}/g, vars.reason || 'No reason provided');
 }
 
-// Log ticket action
 async function logTicketAction(client, guild, config, action, details) {
 	if (!config?.loggingChannel) return;
-	
+
 	const logChannel = await guild.channels.fetch(config.loggingChannel).catch(() => null);
 	if (!logChannel) return;
 
@@ -74,17 +68,15 @@ async function logTicketAction(client, guild, config, action, details) {
 			`${details}`
 		))
 		.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-	
+
 	await logChannel.send({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: [] } }).catch(() => {});
 }
 
-// Get panel config for a ticket
 async function getPanelConfig(client, guildId, panelMessageId) {
 	const guildData = await client.db.findOne({ guildId });
 	return guildData?.ticketPanels?.find(p => p.messageId === panelMessageId)?.config;
 }
 
-// Check if user is staff (has ManageGuild permission or has support role)
 async function isStaff(member, config) {
 	if (!member) return false;
 	if (member.permissions.has(PermissionFlagsBits.ManageGuild)) return true;
@@ -92,7 +84,6 @@ async function isStaff(member, config) {
 	return false;
 }
 
-// Build response container helper
 function buildContainer(content) {
 	return new ContainerBuilder().addTextDisplayComponents(td => td.setContent(content));
 }
@@ -100,9 +91,6 @@ function buildContainer(content) {
 export default async (client, interaction) => {
 	const { customId, guild, user, channel } = interaction;
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// WIZARD: Start
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isButton() && customId === 'ticket_wizard_start') {
 		wizardCache.set(user.id, { step: 1, data: {} });
 
@@ -125,9 +113,6 @@ export default async (client, interaction) => {
 		});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// WIZARD: Channel Selected -> Ask Category
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isChannelSelectMenu() && customId === 'ticket_wizard_channel') {
 		const state = wizardCache.get(user.id);
 		if (!state) return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Session expired. Please start over.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
@@ -154,9 +139,6 @@ export default async (client, interaction) => {
 		});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// WIZARD: Category Selected -> Ask Support Role
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isChannelSelectMenu() && customId === 'ticket_wizard_category') {
 		const state = wizardCache.get(user.id);
 		if (!state) return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Session expired. Please start over.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
@@ -182,9 +164,6 @@ export default async (client, interaction) => {
 		});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// WIZARD: Role Selected -> Ask Log Channel
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isRoleSelectMenu() && customId === 'ticket_wizard_role') {
 		const state = wizardCache.get(user.id);
 		if (!state) return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Session expired. Please start over.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
@@ -221,12 +200,9 @@ export default async (client, interaction) => {
 		});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// WIZARD: Log Channel Selected (or Skipped) -> Ask Details (Modal)
-	// ─────────────────────────────────────────────────────────────────────────────
-	if ((interaction.isChannelSelectMenu() && customId === 'ticket_wizard_logs') || 
+	if ((interaction.isChannelSelectMenu() && customId === 'ticket_wizard_logs') ||
 		(interaction.isButton() && customId === 'ticket_wizard_skip_logs')) {
-		
+
 		const state = wizardCache.get(user.id);
 		if (!state) return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Session expired. Please start over.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
 
@@ -291,9 +267,6 @@ export default async (client, interaction) => {
 		return interaction.showModal(modal);
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// WIZARD: Modal Submit -> Finish
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isModalSubmit() && customId === 'ticket_wizard_modal') {
 		const state = wizardCache.get(user.id);
 		if (!state) return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Session expired. Please start over.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
@@ -315,23 +288,22 @@ export default async (client, interaction) => {
 			category: state.data.category,
 			supportRole: state.data.supportRole,
 			loggingChannel: state.data.loggingChannel,
-			// Default settings
+
 			maxTicketsPerUser: 1,
 			dmOnClose: false,
 			dmOnCreate: false,
 			autoCloseOnLeave: false,
-			inactivityClose: 0, // 0 = disabled, otherwise hours
+			inactivityClose: 0,
 			transcriptOnClose: true
 		};
 
-		// Build Panel
 		const container = new ContainerBuilder();
-		
-		container.addTextDisplayComponents(td => 
+
+		container.addTextDisplayComponents(td =>
 			td.setContent(`# ${config.title}`)
 		);
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(config.description)
 		);
 
@@ -346,13 +318,11 @@ export default async (client, interaction) => {
 		);
 		container.addActionRowComponents(row);
 
-		// Send to target channel
 		const targetChannel = await guild.channels.fetch(state.data.panelChannel).catch(() => null);
 		if (!targetChannel) {
 			return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Could not find the target channel.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
 		}
 
-		// Check if panel already exists in this server (limit: 1 panel per server)
 		const guildData = await client.db.findOne({ guildId: guild.id }) || { guildId: guild.id };
 		guildData.ticketPanels = guildData.ticketPanels || [];
 		if (guildData.ticketPanels.length > 0) {
@@ -361,14 +331,13 @@ export default async (client, interaction) => {
 			return interaction.reply({ components: [buildContainer(`${EMOJIS.error} This server already has a ticket panel in ${existingChannel || 'a channel'}. Remove it first using \`.ticket removepanel\`.`)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
 		}
 
-		// Try to send panel, fallback to default emoji if invalid
 		let sentMsg;
 		let usedFallback = false;
 		try {
 			sentMsg = await targetChannel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 		} catch (err) {
 			if (err.code === 50035 && err.message.includes('Invalid emoji')) {
-				// Invalid emoji, rebuild with default
+
 				config.buttonEmoji = '🎫';
 				const fallbackContainer = new ContainerBuilder();
 				fallbackContainer.addTextDisplayComponents(td => td.setContent(`# ${config.title}`));
@@ -390,7 +359,6 @@ export default async (client, interaction) => {
 			}
 		}
 
-		// Save to DB
 		guildData.ticketPanels.push({
 			messageId: sentMsg.id,
 			channelId: sentMsg.channel.id,
@@ -399,90 +367,82 @@ export default async (client, interaction) => {
 		await client.db.updateOne({ guildId: guild.id }, { $set: { ticketPanels: guildData.ticketPanels } }, { upsert: true });
 
 		wizardCache.delete(user.id);
-		const successMsg = usedFallback 
+		const successMsg = usedFallback
 			? `${EMOJIS.success} Ticket panel created in ${targetChannel}!\n⚠️ Invalid emoji detected, used default 🎫 instead.`
 			: `${EMOJIS.success} Ticket panel created in ${targetChannel}!`;
 		return interaction.reply({ components: [buildContainer(successMsg)], flags: MessageFlags.IsComponentsV2, ephemeral: true });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Rename Modal Submit
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isModalSubmit() && customId === 'ticket_rename_modal') {
-		// Check permissions
+
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticket = guildData?.tickets?.find(t => t.channelId === channel.id);
 		const config = ticket ? await getPanelConfig(client, guild.id, ticket.panelMessageId) : null;
-		
+
 		const hasPermission = await isStaff(interaction.member, config);
 		if (!hasPermission) {
-			return interaction.reply({ 
-				components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to rename tickets.`)], 
-				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+			return interaction.reply({
+				components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to rename tickets.`)],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 			});
 		}
 
 		const newName = interaction.fields.getTextInputValue('new_name');
-		
-		// Clean the name
+
 		const cleanName = newName.toLowerCase()
 			.replace(/[^a-z0-9-_]/g, '')
 			.replace(/-+/g, '-')
 			.slice(0, 100);
 
 		if (!cleanName || cleanName.length < 2) {
-			return interaction.reply({ 
-				components: [buildContainer(`${EMOJIS.error} Invalid channel name. Use only letters, numbers, hyphens and underscores (min 2 characters).`)], 
-				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+			return interaction.reply({
+				components: [buildContainer(`${EMOJIS.error} Invalid channel name. Use only letters, numbers, hyphens and underscores (min 2 characters).`)],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 			});
 		}
 
 		try {
 			await channel.setName(cleanName);
-			return interaction.reply({ 
-				components: [buildContainer(`${EMOJIS.success} Ticket renamed to \`${cleanName}\`.`)], 
-				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+			return interaction.reply({
+				components: [buildContainer(`${EMOJIS.success} Ticket renamed to \`${cleanName}\`.`)],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 			});
 		} catch (err) {
-			return interaction.reply({ 
-				components: [buildContainer(`${EMOJIS.error} Failed to rename ticket. Try a different name.`)], 
-				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+			return interaction.reply({
+				components: [buildContainer(`${EMOJIS.error} Failed to rename ticket. Try a different name.`)],
+				flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 			});
 		}
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Add User Select Menu
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isUserSelectMenu() && customId === 'ticket_adduser_select') {
-		// Check permissions
+
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticket = guildData?.tickets?.find(t => t.channelId === channel.id);
 		const config = ticket ? await getPanelConfig(client, guild.id, ticket.panelMessageId) : null;
-		
+
 		const hasPermission = await isStaff(interaction.member, config);
 		if (!hasPermission) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to add users.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to add users.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
 		const targetUser = interaction.users.first();
-		
+
 		if (!targetUser) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} Could not find that user.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} Could not find that user.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
-		// Check if already in ticket
 		const existingPerms = channel.permissionOverwrites.cache.get(targetUser.id);
 		if (existingPerms?.allow.has(PermissionFlagsBits.ViewChannel)) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} <@${targetUser.id}> is already in this ticket.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} <@${targetUser.id}> is already in this ticket.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
@@ -497,52 +457,47 @@ export default async (client, interaction) => {
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
 		await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
-		return interaction.update({ 
-			components: [buildContainer(`${EMOJIS.success} User added successfully.`)], 
-			flags: MessageFlags.IsComponentsV2 
+		return interaction.update({
+			components: [buildContainer(`${EMOJIS.success} User added successfully.`)],
+			flags: MessageFlags.IsComponentsV2
 		});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Remove User Select Menu
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (interaction.isUserSelectMenu() && customId === 'ticket_removeuser_select') {
-		// Check permissions
+
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticket = guildData?.tickets?.find(t => t.channelId === channel.id);
 		const config = ticket ? await getPanelConfig(client, guild.id, ticket.panelMessageId) : null;
-		
+
 		const hasPermission = await isStaff(interaction.member, config);
 		if (!hasPermission) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to remove users.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to remove users.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
 		const targetUser = interaction.users.first();
-		
+
 		if (!targetUser) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} Could not find that user.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} Could not find that user.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
-		// Check if user is ticket owner (reuse existing ticket variable)
 		if (ticket && ticket.userId === targetUser.id) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} You cannot remove the ticket owner.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} You cannot remove the ticket owner.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
-		// Check if user has permission
 		const existingPerms = channel.permissionOverwrites.cache.get(targetUser.id);
 		if (!existingPerms || !existingPerms.allow.has(PermissionFlagsBits.ViewChannel)) {
-			return interaction.update({ 
-				components: [buildContainer(`${EMOJIS.error} <@${targetUser.id}> is not in this ticket.`)], 
-				flags: MessageFlags.IsComponentsV2 
+			return interaction.update({
+				components: [buildContainer(`${EMOJIS.error} <@${targetUser.id}> is not in this ticket.`)],
+				flags: MessageFlags.IsComponentsV2
 			});
 		}
 
@@ -553,29 +508,24 @@ export default async (client, interaction) => {
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
 		await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
-		return interaction.update({ 
-			components: [buildContainer(`${EMOJIS.success} User removed successfully.`)], 
-				flags: MessageFlags.IsComponentsV2 
+		return interaction.update({
+			components: [buildContainer(`${EMOJIS.success} User removed successfully.`)],
+				flags: MessageFlags.IsComponentsV2
 		});
 	}
 
 	if (!interaction.isButton()) return;
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Ticket Creation
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_create') {
 		await interaction.deferReply({ ephemeral: true });
 
-		// Fetch panel config
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const panel = guildData?.ticketPanels?.find(p => p.messageId === interaction.message.id);
-		
+
 		if (!panel) {
 			return interaction.editReply({ components: [buildContainer(`${EMOJIS.error} This ticket panel is no longer valid.`)], flags: MessageFlags.IsComponentsV2 });
 		}
 
-		// Check blacklist
 		const blacklist = guildData?.ticketBlacklist || [];
 		const member = await guild.members.fetch(user.id).catch(() => null);
 		const isBlacklisted = blacklist.some(b => {
@@ -585,7 +535,7 @@ export default async (client, interaction) => {
 		});
 
 		if (isBlacklisted) {
-			return interaction.editReply({ 
+			return interaction.editReply({
 				components: [buildContainer(`${EMOJIS.error} You are not allowed to create tickets.`)],
 				flags: MessageFlags.IsComponentsV2
 			});
@@ -594,25 +544,22 @@ export default async (client, interaction) => {
 		const config = panel.config;
 		const maxTickets = config.maxTicketsPerUser || 1;
 
-		// Check open limit (configurable per user per panel)
 		const userOpenTickets = (guildData.tickets || []).filter(
 			t => t.userId === user.id && !t.closed && t.panelMessageId === interaction.message.id
 		);
-		
+
 		if (userOpenTickets.length >= maxTickets) {
 			const ticketChannel = await guild.channels.fetch(userOpenTickets[0].channelId).catch(() => null);
 			if (ticketChannel) {
-				return interaction.editReply({ 
+				return interaction.editReply({
 					components: [buildContainer(`${EMOJIS.error} You already have ${maxTickets} open ticket(s). Max allowed: ${maxTickets}\nExisting: ${ticketChannel}`)],
 					flags: MessageFlags.IsComponentsV2
 				});
 			}
 		}
 
-		// Create Ticket Channel
 		const ticketCount = (guildData.ticketCount || 0) + 1;
-		
-		// Variable replacement for channel name
+
 		const vars = {
 			user: user.username,
 			userTag: user.tag,
@@ -620,13 +567,12 @@ export default async (client, interaction) => {
 			count: ticketCount.toString().padStart(4, '0'),
 			server: guild.name
 		};
-		
-		// Clean username: lowercase, remove spaces and special chars, max 20 chars
+
 		const cleanUsername = user.username.toLowerCase()
 			.replace(/[^a-z0-9]/g, '')
 			.slice(0, 20) || 'user';
 		const channelName = `${cleanUsername}-${vars.count}`;
-		
+
 		const parentCategory = config.category ? await guild.channels.fetch(config.category).catch(() => null) : null;
 
 		const permissionOverwrites = [
@@ -659,7 +605,6 @@ export default async (client, interaction) => {
 			topic: `Ticket #${ticketCount} | User: ${user.tag} (${user.id}) | Created: ${new Date().toLocaleDateString()}`
 		});
 
-		// Save ticket to DB
 		guildData.tickets = guildData.tickets || [];
 		const newTicket = {
 			channelId: ticketChannel.id,
@@ -672,21 +617,19 @@ export default async (client, interaction) => {
 			claimedBy: null
 		};
 		guildData.tickets.push(newTicket);
-		await client.db.updateOne({ guildId: guild.id }, { 
-			$set: { tickets: guildData.tickets, ticketCount: ticketCount } 
+		await client.db.updateOne({ guildId: guild.id }, {
+			$set: { tickets: guildData.tickets, ticketCount: ticketCount }
 		});
 
-		// Send mention to user
 		let mentionContent = `<@${user.id}>`;
-		
-		// Only add support role/staff mentions if pingOnCall is explicitly true
+
 		if (config.pingOnCall === true) {
 			if (config.supportRole) mentionContent += ` <@&${config.supportRole}>`;
 			if (guildData.ticketOnCall?.length > 0) {
 				mentionContent += ' ' + guildData.ticketOnCall.map(id => `<@${id}>`).join(' ');
 			}
 		}
-		
+
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent(`# Ticket #${ticketCount}`))
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
@@ -721,17 +664,15 @@ export default async (client, interaction) => {
 		);
 		container.addActionRowComponents(row);
 
-		await ticketChannel.send({ 
-			components: [container], 
+		await ticketChannel.send({
+			components: [container],
 			flags: MessageFlags.IsComponentsV2
 		});
 
-		// Log creation
-		await logTicketAction(client, guild, config, 'created', 
+		await logTicketAction(client, guild, config, 'created',
 			`User: <@${user.id}>\nChannel: ${ticketChannel}\nTicket ID: #${ticketCount}`
 		);
 
-		// DM user on create (if enabled)
 		if (config.dmOnCreate) {
 			try {
 				await user.send({
@@ -743,15 +684,12 @@ export default async (client, interaction) => {
 		return interaction.editReply({ components: [buildContainer(`${EMOJIS.success} Ticket created: ${ticketChannel}`)], flags: MessageFlags.IsComponentsV2 });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Close Ask (First step close)
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_close_ask') {
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent('# Close Ticket'))
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
 			.addTextDisplayComponents(td => td.setContent('Are you sure you want to close this ticket?'))
-		
+
 		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
 				.setCustomId('ticket_confirm_close')
@@ -768,28 +706,21 @@ export default async (client, interaction) => {
 		return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2, ephemeral: true });
 	}
 
-	// ───────────────────────────────────────────────────────────────────────────── 
-	// Handle Cancel Close
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_cancel_close') {
 		const container = buildContainer('Close cancelled.');
 		return interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Confirm Close (supports both formats: ticket_confirm_close and ticket_confirm_close_channelId)
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_confirm_close' || customId.startsWith('ticket_confirm_close_')) {
 		await interaction.deferUpdate();
 
-		// Extract channel ID from custom ID if provided, otherwise use current channel
-		const targetChannelId = customId.startsWith('ticket_confirm_close_') 
-			? customId.replace('ticket_confirm_close_', '') 
+		const targetChannelId = customId.startsWith('ticket_confirm_close_')
+			? customId.replace('ticket_confirm_close_', '')
 			: channel.id;
 
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticketIdx = guildData?.tickets?.findIndex(t => t.channelId === targetChannelId && !t.closed);
-		
+
 		if (ticketIdx === -1 || ticketIdx === undefined) {
 			const container = buildContainer(`${EMOJIS.error} Ticket not found or already closed.`);
 			return interaction.followUp({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
@@ -798,38 +729,31 @@ export default async (client, interaction) => {
 		const ticket = guildData.tickets[ticketIdx];
 		const config = await getPanelConfig(client, guild.id, ticket.panelMessageId);
 
-		// Get the actual ticket channel
 		const ticketChannel = await guild.channels.fetch(targetChannelId).catch(() => null);
 		if (!ticketChannel) {
 			const container = buildContainer(`${EMOJIS.error} Ticket channel no longer exists.`);
 			return interaction.followUp({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
 		}
 
-		// Mark as closed in DB
 		guildData.tickets[ticketIdx].closed = true;
 		guildData.tickets[ticketIdx].closedAt = Date.now();
 		guildData.tickets[ticketIdx].closedBy = user.id;
 		await client.db.updateOne({ guildId: guild.id }, { $set: { tickets: guildData.tickets } });
 
-		// Rename channel to closed-username-xxxx
 		const ticketUserId = ticket.userId;
 		const ticketUser = await client.users.fetch(ticketUserId).catch(() => null);
-		const cleanUsername = ticketUser ? 
+		const cleanUsername = ticketUser ?
 			ticketUser.username.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20) || 'user' : 'user';
-		
-		// Check if channel still exists before renaming
+
 		if (ticketChannel) {
 			await ticketChannel.setName(`closed-${cleanUsername}-${ticket.ticketId.toString().padStart(4, '0')}`).catch(() => {});
 		}
 
-		// Remove user permissions (lock)
 		await ticketChannel.permissionOverwrites.edit(ticketUserId, { ViewChannel: false }).catch(() => {});
-		
-		// Deny everyone permission to send messages
+
 		const everyoneRoleId = guild.roles.everyone.id;
 		await ticketChannel.permissionOverwrites.edit(everyoneRoleId, { SendMessages: false }).catch(() => {});
 
-		// Auto-save transcript if enabled
 		let transcriptFile = null;
 		if (config?.transcriptOnClose) {
 			try {
@@ -839,12 +763,10 @@ export default async (client, interaction) => {
 			}
 		}
 
-		// Log close action
 		await logTicketAction(client, guild, config, 'closed',
 			`Ticket: #${ticket.ticketId}\nClosed by: <@${user.id}>\nOriginal User: <@${ticketUserId}>`
 		);
 
-		// DM user on close (if enabled)
 		if (config?.dmOnClose) {
 			try {
 				const ticketOwner = ticketUser || await client.users.fetch(ticketUserId);
@@ -856,13 +778,11 @@ export default async (client, interaction) => {
 			}
 		}
 
-		// Send feedback prompt if enabled
 		if (config?.feedbackEnabled) {
 			const feedbackContainer = new ContainerBuilder()
 				.addTextDisplayComponents(td => td.setContent('# ⭐ Rate Your Experience\nHow would you rate the support you received?'))
 				.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-			// Include guild ID in button custom ID so it works in DMs
 			const ratingRow = new ActionRowBuilder().addComponents(
 				new ButtonBuilder().setCustomId(`ticket_rate_1_${guild.id}_${ticket.channelId}`).setLabel('1').setStyle(ButtonStyle.Secondary).setEmoji('⭐'),
 				new ButtonBuilder().setCustomId(`ticket_rate_2_${guild.id}_${ticket.channelId}`).setLabel('2').setStyle(ButtonStyle.Secondary).setEmoji('⭐'),
@@ -880,7 +800,6 @@ export default async (client, interaction) => {
 			}
 		}
 
-		// Send Moderator Panel
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent(`# 🔒 Ticket Closed`))
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
@@ -906,125 +825,102 @@ export default async (client, interaction) => {
 		container.addActionRowComponents(row);
 
 		await ticketChannel.send({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: [] } });
-		
-		// Update the original close prompt instead of sending a new confirmation message
+
 		const successContainer = buildContainer(`${EMOJIS.success} Ticket has been closed successfully.`);
 		await interaction.editReply({ components: [successContainer], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral }).catch(async () => {
-			// Fallback to follow-up if editReply fails (e.g., no original reply)
+
 			await interaction.followUp({ components: [successContainer], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral }).catch(() => {});
 		});
-		
-		// If command was run from different channel, send confirmation there too (public)
+
 		if (channel.id !== ticketChannel.id) {
 			const confirmContainer = buildContainer(`${EMOJIS.success} Ticket \`#${ticket.ticketId}\` has been closed.`);
 			await interaction.followUp({ components: [confirmContainer], flags: MessageFlags.IsComponentsV2 });
 		}
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Reopen
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_reopen') {
 		await interaction.deferUpdate();
 
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticketIdx = guildData?.tickets?.findIndex(t => t.channelId === channel.id);
-		
+
 		if (ticketIdx === -1) return;
 
 		const ticket = guildData.tickets[ticketIdx];
 		const config = await getPanelConfig(client, guild.id, ticket.panelMessageId);
 
-		// Mark as open in DB
 		guildData.tickets[ticketIdx].closed = false;
 		await client.db.updateOne({ guildId: guild.id }, { $set: { tickets: guildData.tickets } });
 
-		// Rename back with username format
 		const ticketUser = await client.users.fetch(ticket.userId).catch(() => null);
-		const cleanUsername = ticketUser ? 
+		const cleanUsername = ticketUser ?
 			ticketUser.username.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20) || 'user' : 'user';
 		await channel.setName(`${cleanUsername}-${ticket.ticketId.toString().padStart(4, '0')}`);
 
-		// Restore permissions
 		await channel.permissionOverwrites.edit(ticket.userId, { ViewChannel: true });
-		
-		// Allow everyone permission to send messages
+
 		const everyoneRoleId = guild.roles.everyone.id;
 		await channel.permissionOverwrites.edit(everyoneRoleId, { SendMessages: null }).catch(() => {});
 
-		// Log reopen
 		await logTicketAction(client, guild, config, 'reopened',
 			`Ticket: #${ticket.ticketId}\nReopened by: <@${user.id}>`
 		);
 
-		// Send Reopen Message
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent(`# 🔓 Ticket Reopened\nReopened by <@${user.id}>`))
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-		
+
 		await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: [] } });
-		
-		// Delete the close message with buttons
+
 		await interaction.message.delete().catch(() => {});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Transcript Button
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_transcript') {
 		await interaction.deferReply({ ephemeral: true });
 
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticket = guildData?.tickets?.find(t => t.channelId === channel.id);
-		
+
 		if (!ticket) {
 			return interaction.editReply({ components: [buildContainer(`${EMOJIS.error} Could not find ticket data.`)], flags: MessageFlags.IsComponentsV2 });
 		}
 
 		const config = await getPanelConfig(client, guild.id, ticket.panelMessageId);
 
-		// Generate transcript
 		const transcriptFile = await generateTranscript(channel, ticket, guild);
 
-		// Send the file first (Components V2 doesn't support files with components)
-		await channel.send({ 
+		await channel.send({
 			files: [transcriptFile],
 			allowedMentions: { parse: [] }
 		});
 
-		// Then send the component message
 		const transcriptContainer = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent(`# 📝 Transcript Saved\n**Ticket:** #${ticket.ticketId}\n**Saved by:** <@${user.id}>`))
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-		
-		await channel.send({ 
-			components: [transcriptContainer], 
+
+		await channel.send({
+			components: [transcriptContainer],
 			flags: MessageFlags.IsComponentsV2,
 			allowedMentions: { parse: [] }
 		});
 
-		// Confirm to the user who clicked
-		await interaction.editReply({ 
+		await interaction.editReply({
 			components: [buildContainer(`${EMOJIS.success} Transcript saved to this channel!`)],
 			flags: MessageFlags.IsComponentsV2
 		});
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Delete (button and command confirmation)
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_delete' || customId === 'ticket_confirm_delete' || customId.startsWith('ticket_confirm_delete_')) {
-		// Defer immediately to prevent Unknown Interaction errors
+
 		await interaction.deferReply({ ephemeral: false }).catch(() => {});
-		
-		// Extract channel ID from custom ID if provided, otherwise use current channel
-		const targetChannelId = customId.startsWith('ticket_confirm_delete_') 
-			? customId.replace('ticket_confirm_delete_', '') 
+
+		const targetChannelId = customId.startsWith('ticket_confirm_delete_')
+			? customId.replace('ticket_confirm_delete_', '')
 			: channel.id;
 
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticket = guildData?.tickets?.find(t => t.channelId === targetChannelId);
-		
+
 		if (!ticket) {
 			const container = buildContainer(`${EMOJIS.error} Ticket not found.`);
 			return interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
@@ -1032,32 +928,28 @@ export default async (client, interaction) => {
 
 		const config = ticket ? await getPanelConfig(client, guild.id, ticket.panelMessageId) : null;
 
-		// Get the actual ticket channel
 		const ticketChannel = await guild.channels.fetch(targetChannelId).catch(() => null);
 		if (!ticketChannel) {
 			const container = buildContainer(`${EMOJIS.error} Ticket channel no longer exists.`);
 			return interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
 		}
 
-		// Auto-save transcript if enabled before deletion
 		if (config?.transcriptOnClose && config?.loggingChannel) {
 			const logChannel = await guild.channels.fetch(config.loggingChannel).catch(() => null);
 			if (logChannel) {
 				try {
 					const transcriptFile = await generateTranscript(ticketChannel, ticket, guild);
-					
-					// Send file first
-					await logChannel.send({ 
+
+					await logChannel.send({
 						files: [transcriptFile],
 						allowedMentions: { parse: [] }
 					});
-					
-					// Then send component
+
 					const logContainer = new ContainerBuilder()
 						.addTextDisplayComponents(td => td.setContent(`# 📝 Transcript (Before Delete)\n**Ticket:** #${ticket.ticketId}\n**Deleted by:** <@${user.id}>`))
 						.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-					await logChannel.send({ 
-						components: [logContainer], 
+					await logChannel.send({
+						components: [logContainer],
 						flags: MessageFlags.IsComponentsV2,
 						allowedMentions: { parse: [] }
 					});
@@ -1067,7 +959,6 @@ export default async (client, interaction) => {
 			}
 		}
 
-		// Log deletion before channel is gone
 		await logTicketAction(client, guild, config, 'deleted',
 			`Ticket: #${ticket?.ticketId || 'Unknown'}\nDeleted by: <@${user.id}>\nOriginal User: <@${ticket?.userId || 'Unknown'}>`
 		);
@@ -1075,89 +966,78 @@ export default async (client, interaction) => {
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent(`# 🗑️ Deleting Ticket\nTicket \`#${ticket.ticketId}\` will be deleted in 5 seconds...`))
 			.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-		
+
 		await interaction.editReply({ components: [container], flags: MessageFlags.IsComponentsV2 });
-		
-		// If we're not in the ticket channel, send a message there too
+
 		if (channel.id !== ticketChannel.id) {
 			const ticketContainer = new ContainerBuilder()
 				.addTextDisplayComponents(td => td.setContent(`# 🗑️ Ticket Scheduled for Deletion\nThis ticket will be deleted in 5 seconds by <@${user.id}>.`))
 				.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			await ticketChannel.send({ components: [ticketContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: [] } }).catch(() => {});
 		}
-		
+
 		setTimeout(() => {
 			ticketChannel.delete().catch(() => {});
 		}, 5000);
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Claim/Unclaim
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_claim' || customId === 'ticket_unclaim') {
 		await interaction.deferUpdate();
 
 		const guildData = await client.db.findOne({ guildId: guild.id });
 		const ticketIdx = guildData?.tickets?.findIndex(t => t.channelId === channel.id);
-		
+
 		if (ticketIdx !== -1) {
 			const ticket = guildData.tickets[ticketIdx];
 			const config = await getPanelConfig(client, guild.id, ticket.panelMessageId);
 
 			if (customId === 'ticket_claim') {
-				// Check permissions
+
 				const hasPermission = await isStaff(interaction.member, config);
 				if (!hasPermission) {
-					return interaction.followUp({ 
-						components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to claim tickets.`)], 
-						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+					return interaction.followUp({
+						components: [buildContainer(`${EMOJIS.error} You need Manage Guild permission or be a support staff to claim tickets.`)],
+						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 					});
 				}
 
-				// Check if already claimed
 				if (ticket.claimedBy) {
-					return interaction.followUp({ 
-						components: [buildContainer(`${EMOJIS.error} This ticket is already claimed by <@${ticket.claimedBy}>.`)], 
-						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+					return interaction.followUp({
+						components: [buildContainer(`${EMOJIS.error} This ticket is already claimed by <@${ticket.claimedBy}>.`)],
+						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 					});
 				}
 
-				// Claim ticket
 				guildData.tickets[ticketIdx].claimedBy = user.id;
 				guildData.tickets[ticketIdx].claimedAt = Date.now();
 				await client.db.updateOne({ guildId: guild.id }, { $set: { tickets: guildData.tickets } });
 
-				// Send message
 				const claimContainer = new ContainerBuilder()
 					.addTextDisplayComponents(td => td.setContent(`# 🙋 Ticket Claimed\n<@${user.id}> is now handling this ticket.`))
 					.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 				await channel.send({ components: [claimContainer], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: [] } });
 
-				// Log
 				await logTicketAction(client, guild, config, 'claimed', `Ticket: #${ticket.ticketId}\nClaimed by: <@${user.id}>`);
 			} else {
-				// Unclaim
+
 				if (!ticket.claimedBy) {
-					return interaction.followUp({ 
-						components: [buildContainer(`${EMOJIS.error} This ticket is not claimed.`)], 
-						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+					return interaction.followUp({
+						components: [buildContainer(`${EMOJIS.error} This ticket is not claimed.`)],
+						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 					});
 				}
 
-				// Check if user is the one who claimed it
 				if (ticket.claimedBy !== user.id && !interaction.member.permissions.has(PermissionFlagsBits.ManageChannels)) {
-					return interaction.followUp({ 
-						components: [buildContainer(`${EMOJIS.error} Only the claimer or staff with Manage Channels can unclaim.`)], 
-						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral 
+					return interaction.followUp({
+						components: [buildContainer(`${EMOJIS.error} Only the claimer or staff with Manage Channels can unclaim.`)],
+						flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral
 					});
 				}
 
-				// Unclaim ticket
 				guildData.tickets[ticketIdx].claimedBy = null;
 				guildData.tickets[ticketIdx].claimedAt = null;
 				await client.db.updateOne({ guildId: guild.id }, { $set: { tickets: guildData.tickets } });
 
-				// Send message
 				const unclaimContainer = new ContainerBuilder()
 					.addTextDisplayComponents(td => td.setContent(`# 🔓 Ticket Unclaimed\n<@${user.id}> has released this ticket.`))
 					.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -1166,9 +1046,6 @@ export default async (client, interaction) => {
 		}
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Close Request (Approve/Deny)
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId.startsWith('ticket_closerequest_approve_') || customId.startsWith('ticket_closerequest_deny_')) {
 		const targetChannelId = customId.split('_').pop();
 		const isApprove = customId.includes('_approve_');
@@ -1180,7 +1057,6 @@ export default async (client, interaction) => {
 			return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Ticket not found.`)], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
 		}
 
-		// Only ticket owner can respond
 		if (user.id !== ticket.userId) {
 			return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Only the ticket owner can respond to this.`)], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
 		}
@@ -1188,10 +1064,10 @@ export default async (client, interaction) => {
 		await interaction.deferUpdate();
 
 		if (isApprove) {
-			// Close the ticket
+
 			const ticketIdx = guildData.tickets.findIndex(t => t.channelId === targetChannelId);
 			const config = await getPanelConfig(client, guild.id, ticket.panelMessageId);
-			
+
 			guildData.tickets[ticketIdx].closed = true;
 			guildData.tickets[ticketIdx].closedAt = Date.now();
 			guildData.tickets[ticketIdx].closedBy = user.id;
@@ -1199,14 +1075,13 @@ export default async (client, interaction) => {
 
 			const ticketChannel = await guild.channels.fetch(targetChannelId).catch(() => null);
 			if (ticketChannel) {
-				// Rename with username format
+
 				const ticketUser = await client.users.fetch(ticket.userId).catch(() => null);
-				const cleanUsername = ticketUser ? 
+				const cleanUsername = ticketUser ?
 					ticketUser.username.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20) || 'user' : 'user';
 				await ticketChannel.setName(`closed-${cleanUsername}-${ticket.ticketId.toString().padStart(4, '0')}`);
 				await ticketChannel.permissionOverwrites.edit(ticket.userId, { ViewChannel: false });
 
-				// Auto-save transcript if enabled
 				if (config?.transcriptOnClose) {
 					const transcriptFile = await generateTranscript(ticketChannel, ticket, guild);
 					if (transcriptFile && config.loggingChannel) {
@@ -1217,13 +1092,11 @@ export default async (client, interaction) => {
 					}
 				}
 
-				// Show feedback prompt if enabled
 				if (config?.feedbackEnabled) {
 					const feedbackContainer = new ContainerBuilder()
 						.addTextDisplayComponents(td => td.setContent('# ⭐ Rate Your Experience\nHow would you rate the support you received?'))
 						.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-					// Include guild ID in button custom ID so it works in DMs
 					const ratingRow = new ActionRowBuilder().addComponents(
 						new ButtonBuilder().setCustomId(`ticket_rate_1_${guild.id}_${ticket.channelId}`).setLabel('1').setStyle(ButtonStyle.Secondary).setEmoji('⭐'),
 						new ButtonBuilder().setCustomId(`ticket_rate_2_${guild.id}_${ticket.channelId}`).setLabel('2').setStyle(ButtonStyle.Secondary).setEmoji('⭐'),
@@ -1253,22 +1126,18 @@ export default async (client, interaction) => {
 				await ticketChannel.send({ components: [closedContainer], flags: MessageFlags.IsComponentsV2 });
 			}
 		} else {
-			// Deny - keep ticket open
+
 			const container = new ContainerBuilder()
 				.addTextDisplayComponents(td => td.setContent(`# Close Request Denied\n<@${user.id}> has chosen to keep this ticket open.`))
 				.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 			await channel.send({ components: [container], flags: MessageFlags.IsComponentsV2 });
 		}
 
-		// Update the original message to remove buttons
 		const resultContainer = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent(isApprove ? `${EMOJIS.success} Close request approved.` : `${EMOJIS.error} Close request denied.`));
 		await interaction.editReply({ components: [resultContainer] });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Rename Button
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_rename') {
 		const modal = new ModalBuilder()
 			.setCustomId('ticket_rename_modal')
@@ -1288,9 +1157,6 @@ export default async (client, interaction) => {
 		return interaction.showModal(modal);
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Add User Button
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_adduser') {
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent('# ➕ Add User to Ticket\nSelect a user to add to this ticket.'))
@@ -1308,9 +1174,6 @@ export default async (client, interaction) => {
 		return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Remove User Button
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId === 'ticket_removeuser') {
 		const container = new ContainerBuilder()
 			.addTextDisplayComponents(td => td.setContent('# ➖ Remove User from Ticket\nSelect a user to remove from this ticket.'))
@@ -1328,9 +1191,6 @@ export default async (client, interaction) => {
 		return interaction.reply({ components: [container], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
 	}
 
-	// ─────────────────────────────────────────────────────────────────────────────
-	// Handle Rating/Feedback
-	// ─────────────────────────────────────────────────────────────────────────────
 	if (customId.startsWith('ticket_rate_')) {
 		const parts = customId.split('_');
 		const rating = parseInt(parts[2]);
@@ -1344,7 +1204,6 @@ export default async (client, interaction) => {
 			return interaction.reply({ components: [buildContainer(`${EMOJIS.error} Ticket not found.`)], flags: MessageFlags.IsComponentsV2 | MessageFlags.Ephemeral });
 		}
 
-		// Save rating
 		guildData.tickets[ticketIdx].rating = rating;
 		guildData.tickets[ticketIdx].ratedAt = Date.now();
 		await client.db.updateOne({ guildId: ratingGuildId }, { $set: { tickets: guildData.tickets } });
@@ -1356,7 +1215,6 @@ export default async (client, interaction) => {
 
 		await interaction.update({ components: [container] });
 
-		// Log the rating (fetch guild since this may be in DMs)
 		const ticket = guildData.tickets[ticketIdx];
 		const ratingGuild = await client.guilds.fetch(ratingGuildId).catch(() => null);
 		if (ratingGuild) {

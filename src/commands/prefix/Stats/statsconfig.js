@@ -19,7 +19,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -33,20 +32,19 @@ async function execute(message, args, client) {
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
 
-		// Initialize settings if not exist
 		if (!stats.settings) {
 			stats.settings = {
 				trackMessages: true,
 				trackVoice: true,
 				trackInvites: true,
-				publicStats: true, // Allow non-admins to view stats
+				publicStats: true,
 				ignoredChannels: [],
 				ignoredRoles: []
 			};
 		}
 
 		if (subCommand === 'messages') {
-			// Toggle message tracking
+
 			stats.settings.trackMessages = !stats.settings.trackMessages;
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
 
@@ -56,7 +54,7 @@ async function execute(message, args, client) {
 			));
 
 		} else if (subCommand === 'voice') {
-			// Toggle voice tracking
+
 			stats.settings.trackVoice = !stats.settings.trackVoice;
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
 
@@ -66,7 +64,7 @@ async function execute(message, args, client) {
 			));
 
 		} else if (subCommand === 'invites') {
-			// Toggle invite tracking
+
 			stats.settings.trackInvites = !stats.settings.trackInvites;
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
 
@@ -76,7 +74,7 @@ async function execute(message, args, client) {
 			));
 
 		} else if (subCommand === 'public') {
-			// Toggle public stats viewing
+
 			stats.settings.publicStats = !stats.settings.publicStats;
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
 
@@ -86,29 +84,29 @@ async function execute(message, args, client) {
 			));
 
 		} else if (subCommand === 'ignore' || subCommand === 'ignorechannel') {
-			// Ignore a channel
+
 			const channel = message.mentions.channels.first() || message.guild.channels.cache.get(args[1]);
-			
+
 			if (!channel) {
 				container.addTextDisplayComponents(td => td.setContent(
 					`${EMOJIS.error || '❌'} Please mention a channel or provide a channel ID.`
 				));
 			} else {
 				if (!stats.settings.ignoredChannels) stats.settings.ignoredChannels = [];
-				
+
 				if (stats.settings.ignoredChannels.includes(channel.id)) {
-					// Remove from ignored
+
 					stats.settings.ignoredChannels = stats.settings.ignoredChannels.filter(id => id !== channel.id);
 					await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-					
+
 					container.addTextDisplayComponents(td => td.setContent(
 						`${EMOJIS.check || '✅'} <#${channel.id}> is no longer ignored for stats.`
 					));
 				} else {
-					// Add to ignored
+
 					stats.settings.ignoredChannels.push(channel.id);
 					await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-					
+
 					container.addTextDisplayComponents(td => td.setContent(
 						`${EMOJIS.check || '✅'} <#${channel.id}> will now be ignored for stats.`
 					));
@@ -116,29 +114,29 @@ async function execute(message, args, client) {
 			}
 
 		} else if (subCommand === 'ignorerole') {
-			// Ignore a role
+
 			const role = message.mentions.roles.first() || message.guild.roles.cache.get(args[1]);
-			
+
 			if (!role) {
 				container.addTextDisplayComponents(td => td.setContent(
 					`${EMOJIS.error || '❌'} Please mention a role or provide a role ID.`
 				));
 			} else {
 				if (!stats.settings.ignoredRoles) stats.settings.ignoredRoles = [];
-				
+
 				if (stats.settings.ignoredRoles.includes(role.id)) {
-					// Remove from ignored
+
 					stats.settings.ignoredRoles = stats.settings.ignoredRoles.filter(id => id !== role.id);
 					await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-					
+
 					container.addTextDisplayComponents(td => td.setContent(
 						`${EMOJIS.check || '✅'} Members with **${role.name}** will now be tracked.`
 					));
 				} else {
-					// Add to ignored
+
 					stats.settings.ignoredRoles.push(role.id);
 					await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-					
+
 					container.addTextDisplayComponents(td => td.setContent(
 						`${EMOJIS.check || '✅'} Members with **${role.name}** will be ignored for stats.`
 					));
@@ -146,9 +144,9 @@ async function execute(message, args, client) {
 			}
 
 		} else if (subCommand === 'lookback') {
-			// Set lookback period
+
 			const days = parseInt(args[1]);
-			
+
 			if (!days || isNaN(days) || days < 1 || days > 365) {
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.settings || '⚙️'} Stats Lookback Period\n\n` +
@@ -160,7 +158,7 @@ async function execute(message, args, client) {
 			} else {
 				stats.lookback = days;
 				await client.db.updateOne({ guildId: message.guildId }, { $set: { 'stats.lookback': days } });
-				
+
 				container.addTextDisplayComponents(td => td.setContent(
 					`# ${EMOJIS.settings || '⚙️'} Stats Lookback Period\n\n` +
 					`${EMOJIS.check || '✅'} Lookback period set to **${days} days**\n\n` +
@@ -169,7 +167,7 @@ async function execute(message, args, client) {
 			}
 
 		} else {
-			// Show current settings
+
 			container.addTextDisplayComponents(td => td.setContent(
 				`# ${EMOJIS.settings || '⚙️'} Stats Settings\n\n` +
 				`## ${message.guild.name}`

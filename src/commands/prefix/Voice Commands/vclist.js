@@ -5,20 +5,19 @@ const name = 'vclist';
 const aliases = ['voicelist', 'vlist'];
 const description = 'Lists members in the voice channel with pagination.';
 const usage = 'vclist';
-const permissions = [PermissionFlagsBits.MuteMembers]; // Defaulting to MuteMembers for mod access
+const permissions = [PermissionFlagsBits.MuteMembers];
 
-// Helper to check permissions
 function hasPerms(member, perm) {
 	return member.id === member.guild.ownerId ||
-		   member.permissions.has(perm) || 
-		   member.permissions.has(PermissionFlagsBits.Administrator) || 
+		   member.permissions.has(perm) ||
+		   member.permissions.has(PermissionFlagsBits.Administrator) ||
 		   member.permissions.has(PermissionFlagsBits.ManageGuild);
 }
 
 async function execute(message, args, client) {
 	if (!hasPerms(message.member, PermissionFlagsBits.MuteMembers)) {
 		const container = new ContainerBuilder();
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need **Mute Members** permission to use this command.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -27,7 +26,7 @@ async function execute(message, args, client) {
 	const channel = message.member.voice.channel;
 	if (!channel) {
 		const container = new ContainerBuilder();
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need to be in a voice channel.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -35,16 +34,15 @@ async function execute(message, args, client) {
 
 	const members = Array.from(channel.members.values()).filter(m => !m.user.bot);
 	const totalMembers = members.length;
-	
+
 	if (totalMembers === 0) {
 		const container = new ContainerBuilder();
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.info || 'ℹ️'} No human members in **${channel.name}**.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Generate first page
 	const payload = generatePage(members, channel.name, 1, totalMembers);
 	await message.reply({ ...payload, allowedMentions: { repliedUser: false, parse: [] } });
 }
@@ -57,7 +55,7 @@ function generatePage(allMembers, channelName, page, total) {
 	const currentMembers = allMembers.slice(start, end);
 
 	const container = new ContainerBuilder();
-	
+
 	const list = currentMembers.map((m, i) => {
 		const flags = [];
 		if (m.voice.serverMute) flags.push('🚫 🎤');
@@ -65,15 +63,14 @@ function generatePage(allMembers, channelName, page, total) {
 		if (m.voice.selfMute) flags.push('🎤');
 		if (m.voice.selfDeaf) flags.push('🎧');
 		if (m.voice.streaming) flags.push('📺');
-		
+
 		return `\`${start + i + 1}.\` **${m.user.username}** ${flags.join(' ')}`;
 	}).join('\n');
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`### 🔊 ${channelName} (${total})\n${list}`)
 	);
 
-	// Add buttons if needed
 	if (totalPages > 1) {
 		container.addActionRowComponents(row => {
 			const prev = new ButtonBuilder()
@@ -81,13 +78,13 @@ function generatePage(allMembers, channelName, page, total) {
 				.setEmoji('⬅️')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(page === 1);
-				
+
 			const next = new ButtonBuilder()
 				.setCustomId(`vclist_next:${page}:${totalPages}`)
 				.setEmoji('➡️')
 				.setStyle(ButtonStyle.Secondary)
 				.setDisabled(page === totalPages);
-				
+
 			row.addComponents(prev, next);
 		});
 	}
@@ -100,24 +97,19 @@ async function components(interaction, client) {
 
 	const [action, currentPageStr, totalPagesStr] = interaction.customId.split(':');
 	const currentPage = parseInt(currentPageStr);
-	// We need to re-fetch members to be accurate, but strict stateless pagination is hard without storing state.
-	// For simplicity, we'll fetch the channel members again based on the interaction.member?
-	// The problem is if the user moved channels, the list changes. 
-	// Ideally we encode the channel ID or rely on the user being in a channel?
-	// Let's rely on interaction.member.voice.channel for now.
-	
+
 	const channel = interaction.member.voice.channel;
 	if (!channel) {
 		return interaction.reply({ content: 'You are no longer in a voice channel.', ephemeral: true });
 	}
-	
+
 	const members = Array.from(channel.members.values()).filter(m => !m.user.bot);
 	const totalMembers = members.length;
-	
+
 	let newPage = currentPage;
 	if (action === 'vclist_prev') newPage = Math.max(1, currentPage - 1);
 	if (action === 'vclist_next') newPage = Math.min(Math.ceil(totalMembers / 10), currentPage + 1);
-	
+
 	const payload = generatePage(members, channel.name, newPage, totalMembers);
 	await interaction.update(payload);
 }

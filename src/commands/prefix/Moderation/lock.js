@@ -10,7 +10,7 @@ export default {
 	category: 'Moderation',
 
 	async execute(message, args, client) {
-		// Check if "all" subcommand is used - requires antinuke admin
+
 		const allMode = args[0]?.toLowerCase() === 'all';
 		if (allMode) {
 			const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
@@ -18,7 +18,7 @@ export default {
 			const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
 			const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
 			const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-			
+
 			if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents((textDisplay) =>
@@ -38,11 +38,9 @@ export default {
 			}
 		}
 
-		// Get guild data for headmod check
 		const guildData = await client.db.findOne({ guildId: message.guild.id });
 		const headmodRoleId = guildData?.moderation?.headmodRole;
 
-		// Check permission - ManageChannels or Headmod
 		const isHeadmod = headmodRoleId && message.member.roles.has(headmodRoleId);
 		const hasPermission = message.member.permissions.has('ManageChannels') || isHeadmod;
 
@@ -65,12 +63,10 @@ export default {
 			});
 		}
 
-		// Check if "all" subcommand is used
 		if (args[0]?.toLowerCase() === 'all') {
 			return lockAllChannels(message, args.slice(1), client);
 		}
 
-		// Check if "ignore" subcommand is used
 		if (args[0]?.toLowerCase() === 'ignore') {
 			return manageLockIgnore(message, args.slice(1), client);
 		}
@@ -80,34 +76,30 @@ export default {
 			let reason = 'No reason provided';
 			let startArgIndex = 0;
 
-			// Check if first argument is a channel mention or ID
 			if (args.length > 0) {
 				const channelInput = args[0];
-				
-				// Try to find by mention
+
 				if (message.mentions.channels.size > 0) {
 					targetChannel = message.mentions.channels.first();
 					startArgIndex = 1;
 				} else {
-					// Try to find by ID
+
 					const foundChannel = message.guild.channels.cache.get(channelInput);
 					if (foundChannel) {
 						targetChannel = foundChannel;
 						startArgIndex = 1;
 					} else {
-						// Treat as reason for current channel
+
 						reason = args.join(' ');
 						startArgIndex = args.length;
 					}
 				}
 			}
 
-			// Get reason if there are remaining arguments
 			if (startArgIndex < args.length) {
 				reason = args.slice(startArgIndex).join(' ');
 			}
 
-			// Verify bot has permission to manage the target channel
 			if (!message.guild.members.me.permissions.has('ManageChannels')) {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents((textDisplay) =>
@@ -127,10 +119,9 @@ export default {
 				});
 			}
 
-			// Check if channel is already locked
 			const everyoneRole = message.guild.roles.everyone;
 			const currentPermissions = targetChannel.permissionOverwrites.cache.get(everyoneRole.id);
-			
+
 			if (currentPermissions && currentPermissions.deny.has(PermissionFlagsBits.SendMessages)) {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents((textDisplay) =>
@@ -150,10 +141,8 @@ export default {
 				});
 			}
 
-			// Lock the channel by denying SendMessages permission for @everyone
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'lock', targetChannel.id, message.author);
-			
+
 			await targetChannel.permissionOverwrites.edit(everyoneRole, {
 				SendMessages: false,
 				AddReactions: false,
@@ -161,7 +150,6 @@ export default {
 				CreatePrivateThreads: false
 			});
 
-			// Send mod log
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_LOCK, {
 				executor: message.author,
 				channel: targetChannel,
@@ -169,7 +157,6 @@ export default {
 				channelId: targetChannel.id
 			});
 
-			// Send lock notification in the locked channel
 			const channelNotification = new ContainerBuilder();
 			channelNotification.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.locked} Channel Locked`)
@@ -188,7 +175,6 @@ export default {
 				flags: MessageFlags.IsComponentsV2
 			});
 
-			// Send confirmation to moderator
 			const confirmContainer = new ContainerBuilder();
 			confirmContainer.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.locked} Channel Locked`)
@@ -234,7 +220,7 @@ export default {
 
 async function lockAllChannels(message, args, client) {
 	try {
-		// Verify bot has permission to manage channels
+
 		if (!message.guild.members.me.permissions.has('ManageChannels')) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -259,19 +245,16 @@ async function lockAllChannels(message, args, client) {
 		let lockedCount = 0;
 		let failedCount = 0;
 
-		// Get ignored channels from database (fresh fetch)
 		const freshGuildData = await client.db.findOne({ guildId: message.guild.id });
 		const ignoredChannels = (freshGuildData?.moderation?.lockIgnoreChannels || []).map(id => String(id));
 
-		// Get all text and voice channels in the server (excluding ignored ones)
 		const allChannels = message.guild.channels.cache.filter(ch => {
 			const isIgnored = ignoredChannels.includes(String(ch.id));
-			if (isIgnored) return false; // Skip ignored channels
-			if (ch.isDMBased()) return false; // Skip DM channels
-			return ch.isTextBased() || ch.isVoiceBased(); // Include text and voice channels
+			if (isIgnored) return false;
+			if (ch.isDMBased()) return false;
+			return ch.isTextBased() || ch.isVoiceBased();
 		});
 
-		// Show processing message
 		const processingContainer = new ContainerBuilder();
 		processingContainer.addTextDisplayComponents((textDisplay) =>
 			textDisplay.setContent(`# 🔄 Locking all channels...`)
@@ -289,20 +272,17 @@ async function lockAllChannels(message, args, client) {
 			allowedMentions: { repliedUser: false }
 		});
 
-		// Lock each channel
 		for (const channel of allChannels.values()) {
 			try {
 				const currentPermissions = channel.permissionOverwrites.cache.get(everyoneRole.id);
-				
-				// Check if already locked (based on channel type)
+
 				const isVoiceChannel = channel.isVoiceBased();
 				const lockPermission = isVoiceChannel ? PermissionFlagsBits.Connect : PermissionFlagsBits.SendMessages;
-				
+
 				if (currentPermissions && currentPermissions.deny.has(lockPermission)) {
 					continue;
 				}
 
-				// Lock the channel with appropriate permissions for channel type
 				const permissionsToSet = {
 					SendMessages: false,
 					AddReactions: false,
@@ -310,7 +290,6 @@ async function lockAllChannels(message, args, client) {
 					CreatePrivateThreads: false
 				};
 
-				// For voice channels, deny Connect instead of SendMessages
 				if (isVoiceChannel) {
 					permissionsToSet.Connect = false;
 					delete permissionsToSet.SendMessages;
@@ -322,7 +301,6 @@ async function lockAllChannels(message, args, client) {
 				await channel.permissionOverwrites.edit(everyoneRole, permissionsToSet);
 				lockedCount++;
 
-				// Send notification in text channels only
 				if (!isVoiceChannel) {
 					const channelNotification = new ContainerBuilder();
 					channelNotification.addTextDisplayComponents((textDisplay) =>
@@ -349,7 +327,6 @@ async function lockAllChannels(message, args, client) {
 			}
 		}
 
-		// Send completion message
 		const completionContainer = new ContainerBuilder();
 		completionContainer.addTextDisplayComponents((textDisplay) =>
 			textDisplay.setContent(`# ${EMOJIS.locked} Server Lockdown Complete`)
@@ -424,7 +401,7 @@ async function manageLockIgnore(message, args, client) {
 		let ignoredChannels = guildData?.moderation?.lockIgnoreChannels || [];
 
 		if (action === 'list') {
-			let listContent = ignoredChannels.length > 0 
+			let listContent = ignoredChannels.length > 0
 				? ignoredChannels.map(id => `<#${id}>`).join('\n')
 				: 'No channels are currently ignored.';
 
@@ -446,7 +423,6 @@ async function manageLockIgnore(message, args, client) {
 			});
 		}
 
-		// Get target channel
 		let targetChannel = null;
 		if (message.mentions.channels.size > 0) {
 			targetChannel = message.mentions.channels.first();
@@ -494,16 +470,16 @@ async function manageLockIgnore(message, args, client) {
 			}
 
 			ignoredChannels.push(targetChannel.id);
-			
+
 			const result = await client.db.updateOne(
 				{ guildId: message.guild.id },
-				{ 
-					$set: { 
+				{
+					$set: {
 						moderation: {
 							...guildData?.moderation,
 							lockIgnoreChannels: ignoredChannels
 						}
-					} 
+					}
 				},
 				{ upsert: true }
 			);
@@ -549,13 +525,13 @@ async function manageLockIgnore(message, args, client) {
 			ignoredChannels = ignoredChannels.filter(id => id !== targetChannel.id);
 			await client.db.updateOne(
 				{ guildId: message.guild.id },
-				{ 
-					$set: { 
+				{
+					$set: {
 						moderation: {
 							...guildData?.moderation,
 							lockIgnoreChannels: ignoredChannels
 						}
-					} 
+					}
 				},
 				{ upsert: true }
 			);

@@ -28,7 +28,6 @@ export default {
       return;
     }
 
-
     if (!args.length) {
       const container = new ContainerBuilder();
 
@@ -52,7 +51,6 @@ export default {
       return;
     }
 
- 
     if (args[0] === '--reply') {
       if (args.length < 3) {
         const container = new ContainerBuilder();
@@ -82,19 +80,18 @@ export default {
 
       try {
         let targetMessage = null;
-        
-       
+
         try {
           targetMessage = await message.channel.messages.fetch(messageId);
         } catch (err) {
-         
+
           const channels = message.guild.channels.cache.filter(ch => ch.isTextBased());
           for (const [, channel] of channels) {
             try {
               targetMessage = await channel.messages.fetch(messageId);
               if (targetMessage) break;
             } catch (e) {
-           
+
             }
           }
         }
@@ -129,7 +126,6 @@ export default {
       return;
     }
 
-
     if (args[0] === '--edit') {
       if (args.length < 3) {
         const container = new ContainerBuilder();
@@ -159,8 +155,7 @@ export default {
 
       try {
         let targetMessage = null;
-        
-        
+
         try {
           targetMessage = await message.channel.messages.fetch(messageId);
         } catch (err) {
@@ -208,11 +203,10 @@ export default {
     let targetChannel = message.channel;
     let textToSay = args.join(' ');
 
-  
     if (args[0] && args[0].startsWith('<#') && args[0].endsWith('>')) {
       const channelId = args[0].slice(2, -1);
       const mentionedChannel = message.guild.channels.cache.get(channelId);
-      
+
       if (mentionedChannel) {
         targetChannel = mentionedChannel;
         textToSay = args.slice(1).join(' ');
@@ -242,7 +236,6 @@ export default {
       }
     }
 
-    
     const botPermissions = targetChannel.permissionsFor(message.guild.members.me);
     if (!botPermissions.has(PermissionFlagsBits.SendMessages)) {
       const container = new ContainerBuilder();
@@ -267,9 +260,7 @@ export default {
       return;
     }
 
-
     await targetChannel.send(textToSay);
-
 
     await message.react(EMOJIS.success).catch(() => {});
   },

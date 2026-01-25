@@ -44,7 +44,7 @@ export default {
 			if (current) {
 				queue.addTrack(current);
 			}
-			
+
 			const container = buildClearContainer({
 				cleared: queueLength
 			});

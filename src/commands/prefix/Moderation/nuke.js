@@ -22,7 +22,6 @@ export default {
 	async execute(message, args, client) {
 		const sub = args[0]?.toLowerCase();
 
-		// nuke archive
 		if (sub === 'archive') {
 			if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 				const hasCustomAdmin = await ModerationPermissions.hasCustomRole(message.member, client, message.guildId, 'antinukeadmin');
@@ -41,7 +40,7 @@ export default {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'Please specify a valid text-based channel.'));
 			}
 			let value;
-			// Keep the command clean: accept only a single explicit option for enable and disable
+
 			if (settingRaw === 'on') value = true;
 			else if (settingRaw === 'off') value = false;
 			else {
@@ -57,7 +56,7 @@ export default {
 			await db.updateOne({ guildId }, { $set: { moderation: guildData.moderation } });
 			return message.reply(buildNotice(`# ${EMOJIS.success} Nuke Archive Updated`, `Channel: <#${channelId}>\nArchive before nuke: **${value ? 'Enabled' : 'Disabled'}**`));
 		}
-		// nuke view
+
 		if (sub === 'view') {
 			if (!message.member.permissions.has('Administrator')) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'Administrator permission required.'));
@@ -65,7 +64,7 @@ export default {
 			if (scheduledNukes.size === 0) {
 				return message.reply(buildNotice(`# ${EMOJIS.info} No Scheduled Nukes`, 'There are currently no scheduled nukes.'));
 			}
-			// Build a ContainerBuilder component for the nukes list
+
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.info || ':information_source:'} Scheduled Nukes`)
@@ -92,7 +91,7 @@ export default {
 			}
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 		}
-		// nuke add
+
 		if (sub === 'add') {
 			if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'Administrator permission required.'));
@@ -108,7 +107,7 @@ export default {
 			if (!channel || channel.type !== ChannelType.GuildText) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'Please specify a valid text channel.'));
 			}
-			// Parse interval (e.g., 10s, 5m, 2h, 1d)
+
 			const match = intervalRaw.match(/^(\d+)(s|m|h|d)?$/i);
 			if (!match) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Invalid Interval`, 'Interval must be a positive number optionally followed by s (seconds), m (minutes), h (hours), or d (days). Example: 10m'));
@@ -120,14 +119,14 @@ export default {
 			else if (unit === 'm') intervalMs = value * 60 * 1000;
 			else if (unit === 'h') intervalMs = value * 60 * 60 * 1000;
 			else if (unit === 'd') intervalMs = value * 24 * 60 * 60 * 1000;
-			else intervalMs = value * 60 * 1000; // default to minutes
+			else intervalMs = value * 60 * 1000;
 			if (isNaN(intervalMs) || intervalMs < 1000) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Invalid Interval`, 'Interval must be at least 1 second.'));
 			}
 			if (scheduledNukes.has(channelId)) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Already Scheduled`, 'A nuke is already scheduled for this channel.'));
 			}
-			// Show scheduled nuke confirmation component
+
 			const confirmContainer = new ContainerBuilder();
 			confirmContainer.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.loading} Confirm Scheduled Nuke`)
@@ -143,11 +142,10 @@ export default {
 				)
 			);
 
-			// visual separator between channel info and action buttons
 			confirmContainer.addSeparatorComponents((separator) =>
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
-			// Robust user ID extraction for all command types
+
 			let userId = null;
 			if (message.author && message.author.id) userId = message.author.id;
 			else if (message.user && message.user.id) userId = message.user.id;
@@ -157,9 +155,7 @@ export default {
 				console.error('[nuke add] Could not determine userId', {author: message.author, user: message.user, member: message.member});
 				return message.reply(buildNotice(`# ${EMOJIS.error} Internal Error`, 'Could not determine your user ID. Please try again.'));
 			}
-			// console.log('[nuke add] Using userId for button:', userId);
 
-			// Check archive setting
 			let archiveEnabled = false;
 			let guildData = await client.db.findOne({ guildId: message.guildId });
 			if (guildData && guildData.moderation && guildData.moderation.nukeArchive && guildData.moderation.nukeArchive[channelId]) {
@@ -192,7 +188,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Store info for button handler (in-memory, per bot instance)
 			if (!client.nukeAddConfirmations) client.nukeAddConfirmations = new Map();
 			client.nukeAddConfirmations.set(`nukeadd_confirm_${userId}_${channelId}_${intervalRaw}`, {
 				authorId: userId,
@@ -209,7 +204,7 @@ export default {
 			});
 			return;
 		}
-		// nuke remove
+
 		if (sub === 'remove') {
 			if (!message.member.permissions.has('Administrator')) {
 				return message.reply(buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'Administrator permission required.'));
@@ -228,7 +223,6 @@ export default {
 			return message.reply(buildNotice(`# ${EMOJIS.success} Nuke Removed`, `Scheduled nuke for <#${channelId}> has been cancelled.`));
 		}
 
-		// Default: nuke confirmation for current channel
 		const hasAdmin = message.member.permissions.has(PermissionsBitField.Flags.Administrator);
 		const hasAntinukeAdmin = await ModerationPermissions.hasCustomRole(message.member, client, message.guildId, 'antinukeadmin');
 
@@ -247,7 +241,6 @@ export default {
 			));
 		}
 
-		// Send confirmation component
 		const confirmContainer = new ContainerBuilder();
 		confirmContainer.addTextDisplayComponents((textDisplay) =>
 			textDisplay.setContent(`# ${EMOJIS.loading} Confirm Channel Nuke`)
@@ -263,21 +256,20 @@ export default {
 			)
 		);
 
-		// Check archive setting for this channel
 		let archiveEnabled = false;
 		let guildData = await client.db.findOne({ guildId: message.guildId });
-		// Fallback: ensure moderation and nukeArchive always exist
+
 		if (!guildData) guildData = { guildId: message.guildId, moderation: {} };
 		if (!guildData.moderation) guildData.moderation = {};
 		if (!guildData.moderation.nukeArchive) {
 			guildData.moderation.nukeArchive = {};
-			// Persist the new nukeArchive object immediately
+
 			await client.db.updateOne({ guildId: message.guildId }, { $set: { moderation: guildData.moderation } });
 		}
 		if (guildData.moderation.nukeArchive[channel.id]) {
 			archiveEnabled = true;
 		}
-		// visual separator between channel info and action buttons
+
 		confirmContainer.addSeparatorComponents((separator) =>
 			separator.setSpacing(SeparatorSpacingSize.Small)
 		);
@@ -308,7 +300,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-		// Store info for button handler (in-memory, per bot instance)
 		if (!client.nukeConfirmations) client.nukeConfirmations = new Map();
 		client.nukeConfirmations.set(`nuke_confirm_${message.author.id}_${channel.id}`, {
 			authorId: message.author.id,

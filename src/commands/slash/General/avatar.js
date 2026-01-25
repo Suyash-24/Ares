@@ -53,8 +53,6 @@ export default {
       return actionRow;
     });
 
-
-
     await interaction.reply({
       components: [container],
       flags: MessageFlags.IsComponentsV2

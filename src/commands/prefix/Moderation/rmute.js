@@ -39,7 +39,6 @@ export default {
 			});
 		}
 
-		// Check if user can use rmute command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'mute', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -99,12 +98,10 @@ export default {
 			});
 		}
 
-		// Parse time and reason
 		let duration = null;
 		let reason = '';
 		let reasonStartIdx = 1;
 
-		// Check if second argument is a time string
 		if (args[1] && parseTime(args[1])) {
 			duration = parseTime(args[1]);
 			reasonStartIdx = 2;
@@ -134,7 +131,6 @@ export default {
 
 			const guildData = await client.db.findOne({ guildId: message.guildId });
 
-			// Create guild data if it doesn't exist
 			let finalGuildData = guildData || {
 				guildId: message.guildId,
 				moderation: {
@@ -145,7 +141,6 @@ export default {
 				}
 			};
 
-			// Ensure moderation structure exists
 			if (!finalGuildData.moderation) {
 				finalGuildData.moderation = {
 					supportRoles: [],
@@ -159,8 +154,6 @@ export default {
 				finalGuildData.moderation.actions = [];
 			}
 
-			// Apply permission overwrites to all channels
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'rmute', target.id, message.author);
 
 			const channels = await message.guild.channels.fetch();
@@ -168,7 +161,7 @@ export default {
 
 			for (const [channelId, channel] of channels) {
 				if (!channel) continue;
-				
+
 				try {
 					await channel.permissionOverwrites.edit(target.id, {
 						AddReactions: false,
@@ -180,7 +173,6 @@ export default {
 				}
 			}
 
-			// Save to actions for modstats
 			const caseNumber = generateCaseNumber(finalGuildData);
 			finalGuildData.moderation.actions.push({
 				caseNumber,
@@ -198,7 +190,6 @@ export default {
 				{ $set: finalGuildData }
 			);
 
-			// Send log for reaction mute
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_RMUTE, {
 				executor: message.author,
 				target: target.user,

@@ -12,11 +12,11 @@ export default {
 
     if (!iconUrl) {
       const container = new ContainerBuilder();
-      container.addTextDisplayComponents(td => 
+      container.addTextDisplayComponents(td =>
         td.setContent(`# ${EMOJIS.error || '❌'} **No Icon**`)
       );
       container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-      container.addTextDisplayComponents(td => 
+      container.addTextDisplayComponents(td =>
         td.setContent(`**${guild.name}** doesn't have an icon.`)
       );
       await message.reply({
@@ -63,7 +63,6 @@ export default {
           .setURL(guild.iconURL({ size: 4096, extension: 'webp' }))
       ];
 
-      // Add GIF button if animated
       if (guild.icon && guild.icon.startsWith('a_')) {
           buttons.push(
                new ButtonBuilder()

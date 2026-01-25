@@ -1,8 +1,5 @@
-/**
- * Parse time strings like "5m", "1h", "2d" into milliseconds
- * @param {string} timeStr - Time string (e.g., "5m", "1h", "2d")
- * @returns {number} - Duration in milliseconds, or null if invalid
- */
+
+
 export function parseTime(timeStr) {
 	if (!timeStr) return null;
 
@@ -22,11 +19,6 @@ export function parseTime(timeStr) {
 	return amount * (multipliers[unit] || 0);
 }
 
-/**
- * Format milliseconds into a human-readable time string
- * @param {number} ms - Duration in milliseconds
- * @returns {string} - Formatted time string
- */
 export function formatDuration(ms) {
 	if (!ms) return 'permanent';
 

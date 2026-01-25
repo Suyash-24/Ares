@@ -86,30 +86,30 @@ export default {
     async showConfig(message, client, guildData) {
         const config = guildData.bumpReminder || DEFAULT_CONFIG;
         const container = new ContainerBuilder();
-        
-        container.addTextDisplayComponents(td => 
+
+        container.addTextDisplayComponents(td =>
             td.setContent(`# 📣 Bump Reminder Configuration`)
         );
 
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        
+
         let statusText = `**Status:** ${config.enabled ? '✅ Enabled' : '❌ Disabled'}\n`;
         statusText += `**Channel:** ${config.channel ? `<#${config.channel}>` : 'Not Set'}\n`;
         statusText += `**Auto-Lock:** ${config.autoLock ? 'Enabled' : 'Disabled'}\n`;
         statusText += `**Auto-Clean:** ${config.autoClean ? 'Enabled' : 'Disabled'}`;
-        
+
         if (config.lastBump) {
             statusText += `\n**Last Bump:** <t:${Math.floor(config.lastBump / 1000)}:R>`;
         }
         if (config.nextBump) {
             statusText += `\n**Next Bump:** <t:${Math.floor(config.nextBump / 1000)}:R>`;
         }
-        
+
         container.addTextDisplayComponents(td => td.setContent(statusText));
 
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        
-        container.addTextDisplayComponents(td => 
+
+        container.addTextDisplayComponents(td =>
             td.setContent(
                 `**Available Commands:**\n` +
                 `.bumpreminder channel <#channel> - Set bump channel\n` +
@@ -138,16 +138,14 @@ export default {
             });
         }
 
-        // Parse channel from mention or ID
         let channel = message.mentions.channels.first();
-        
-        // If no mention found, try to parse channel ID from args
+
         if (!channel) {
-            // Extract ID from <#123456> format or raw ID
+
             const channelId = args[1].replace(/[<#>]/g, '');
             channel = message.guild.channels.cache.get(channelId);
         }
-        
+
         if (!channel) {
             return message.reply({
                 components: [buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'Please mention a valid channel.')],
@@ -164,7 +162,6 @@ export default {
             });
         }
 
-        // Check if already using this channel
         if (guildData.bumpReminder.channel === channel.id) {
             return message.reply({
                 components: [buildNotice(`# ℹ️ Already Set`, `Bump reminder is already using ${channel}.`)],
@@ -221,7 +218,7 @@ export default {
         }
 
         guildData.bumpReminder.enabled = false;
-        // Clear the next bump timer so no pending reminders are sent
+
         guildData.bumpReminder.nextBump = null;
         await this.saveGuildData(client, message.guildId, guildData.bumpReminder);
 
@@ -233,7 +230,7 @@ export default {
     },
 
     async handleThankyou(message, args, client, guildData) {
-        // View current message
+
         if (args.length === 1 || args[1]?.toLowerCase() === 'view') {
             const currentMessage = guildData.bumpReminder.thankyouMessage || DEFAULT_CONFIG.thankyouMessage;
             return message.reply({
@@ -246,9 +243,8 @@ export default {
             });
         }
 
-        // Set new message
         const newMessage = args.slice(1).join(' ');
-        
+
         if (!newMessage || newMessage.length < 5) {
             return message.reply({
                 components: [buildNotice(`# ${EMOJIS.error} Invalid Message`, 'Please provide a thank you message (minimum 5 characters).')],
@@ -276,7 +272,7 @@ export default {
     },
 
     async handleMessage(message, args, client, guildData) {
-        // View current message
+
         if (args.length === 1 || args[1]?.toLowerCase() === 'view') {
             const currentMessage = guildData.bumpReminder.reminderMessage || DEFAULT_CONFIG.reminderMessage;
             return message.reply({
@@ -289,9 +285,8 @@ export default {
             });
         }
 
-        // Set new message
         const newMessage = args.slice(1).join(' ');
-        
+
         if (!newMessage || newMessage.length < 5) {
             return message.reply({
                 components: [buildNotice(`# ${EMOJIS.error} Invalid Message`, 'Please provide a reminder message (minimum 5 characters).')],
@@ -332,7 +327,7 @@ export default {
         }
 
         const choice = args[1].toLowerCase();
-        
+
         if (!['on', 'off', 'enable', 'disable', 'true', 'false'].includes(choice)) {
             return message.reply({
                 components: [buildNotice(`# ${EMOJIS.error} Invalid Choice`, 'Usage: `bumpreminder autolock <on|off>`')],
@@ -348,7 +343,7 @@ export default {
         return message.reply({
             components: [buildNotice(
                 `# ${EMOJIS.success} Auto-Lock ${enabled ? 'Enabled' : 'Disabled'}`,
-                enabled 
+                enabled
                     ? 'The bump channel will be locked after a bump until the next bump is ready.'
                     : 'The bump channel will no longer be automatically locked.'
             )],
@@ -371,7 +366,7 @@ export default {
         }
 
         const choice = args[1].toLowerCase();
-        
+
         if (!['on', 'off', 'enable', 'disable', 'true', 'false'].includes(choice)) {
             return message.reply({
                 components: [buildNotice(`# ${EMOJIS.error} Invalid Choice`, 'Usage: `bumpreminder autoclean <on|off>`')],
@@ -387,7 +382,7 @@ export default {
         return message.reply({
             components: [buildNotice(
                 `# ${EMOJIS.success} Auto-Clean ${enabled ? 'Enabled' : 'Disabled'}`,
-                enabled 
+                enabled
                     ? 'Messages that aren\'t /bump will be automatically deleted.'
                     : 'Messages will no longer be automatically deleted.'
             )],

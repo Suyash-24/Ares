@@ -41,9 +41,9 @@ export default {
 
 			let query = searchQuery;
 			try {
-				new URL(query); 
+				new URL(query);
 			} catch {
-				query = `ytsearch:${query}`; 
+				query = `ytsearch:${query}`;
 			}
 
 			const result = await node.rest.resolve(query);
@@ -82,7 +82,7 @@ export default {
 				queue.addTrack(userTracks);
 
 				const container = new ContainerBuilder();
-				const playlistInfo = 
+				const playlistInfo =
 					`${EMOJIS?.success || '✅'} **${result.playlist?.name || 'Unknown Playlist'}**\n\n` +
 					`Added **${result.data.length}** songs\n` +
 					`Queued by: ${interaction.user.toString()}`;
@@ -94,7 +94,7 @@ export default {
 				await interaction.editReply({ content: null, components: [container], flags: MessageFlags.IsComponentsV2 });
 			} else {
 				const track = result.data[0];
-				
+
 				if (!track || !track.info) {
 					return interaction.editReply({
 						content: '❌ Could not extract track information. The URL or search result may be invalid.',
@@ -108,7 +108,7 @@ export default {
 				queue.addTrack(userTrack);
 
 				const container = new ContainerBuilder();
-				
+
 				container.addTextDisplayComponents((textDisplay) =>
 					textDisplay.setContent(`# ${EMOJIS?.success || '✅'} | Track Added`)
 				);
@@ -118,13 +118,13 @@ export default {
 				);
 
 				const displayTitle = (() => {
-					let title = track.info.title.includes('|') 
+					let title = track.info.title.includes('|')
 						? track.info.title.split('|')[0].trim()
 						: track.info.title;
-					
+
 					const parenIndex = title.indexOf('(');
 					const bracketIndex = title.indexOf('[');
-					
+
 					let trimIndex = -1;
 					if (parenIndex !== -1 && bracketIndex !== -1) {
 						trimIndex = Math.min(parenIndex, bracketIndex);
@@ -133,19 +133,19 @@ export default {
 					} else if (bracketIndex !== -1) {
 						trimIndex = bracketIndex;
 					}
-					
-					return trimIndex !== -1 
+
+					return trimIndex !== -1
 						? title.substring(0, trimIndex).trim()
 						: title;
 				})();
 
-				const thumbnailUrl = track.info.artworkUrl || 
+				const thumbnailUrl = track.info.artworkUrl ||
 					(track.info.uri?.includes('youtube.com') || track.info.uri?.includes('youtu.be')
 						? `https://img.youtube.com/vi/${extractYouTubeId(track.info.uri)}/mqdefault.jpg`
 						: null);
 
 				container.addSectionComponents((section) => {
-					const trackInfo = 
+					const trackInfo =
 						`**${EMOJIS?.ytmusic || '✅'} [${displayTitle}](${track.info.uri || 'https://unknown'})**\n` +
 						`**via ➜ ${track.info.author}**\n\n` +
 						`Duration: \`${formatTime(track.info.length)}\`\n` +

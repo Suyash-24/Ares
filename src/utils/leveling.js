@@ -1,7 +1,6 @@
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize, ChannelType, MediaGalleryBuilder, TextDisplayBuilder } from 'discord.js';
 import EMOJIS from './emojis.js';
 
-// Default configuration for leveling; cloned per guild when missing.
 export const DEFAULT_LEVELING = {
 	enabled: false,
 	ignores: {
@@ -10,7 +9,7 @@ export const DEFAULT_LEVELING = {
 		users: []
 	},
 	announce: {
-		mode: 'context', // context | channel | dm | none
+		mode: 'context',
 		channelId: null,
 		template: '{user.mention} just reached level {level}! 🎉',
 		includeMention: true
@@ -33,14 +32,14 @@ export const DEFAULT_LEVELING = {
 	rewards: {
 		stackRoles: true,
 		sync: true,
-		roles: [] // { level, roleId }
+		roles: []
 	},
 	leaderboardTitle: 'Leaderboard',
 	autoCleanup: {
 		leave: false,
 		kick: false,
 		ban: false
-	}, // Remove XP data when members leave/kicked/banned
+	},
 	members: {}
 };
 
@@ -70,7 +69,7 @@ const renderTemplate = (template, ctx) => {
 	return output.replace(/\\n/g, '\n');
 };
 
-const voiceSessions = new Map(); // key: `${guildId}:${userId}` -> { startedAt, channelId }
+const voiceSessions = new Map();
 
 export const applyRewards = async (client, guildId, leveling, memberState, member) => {
 	try {
@@ -147,7 +146,7 @@ export const getRankPosition = (leveling, userId) => {
 };
 
 export const xpToNextLevel = (level, config) => {
-	// Quadratic scaling
+
 	const base = 5 * level * level + 50 * level + 100;
 	return Math.floor(base);
 };
@@ -189,8 +188,7 @@ const shouldIgnoreMessage = (message, config) => {
 const computeMessageXp = (message, config) => {
 	const textXp = config.xp.text || { enabled: true, minXp: 15, maxXp: 25 };
 	if (textXp.enabled === false) return 0;
-	
-	// Random XP between min and max (like Atom)
+
 	const randomXp = Math.floor(Math.random() * (textXp.maxXp - textXp.minXp + 1)) + textXp.minXp;
 	return randomXp;
 };
@@ -198,8 +196,7 @@ const computeMessageXp = (message, config) => {
 const computeVoiceXp = (minutes, config) => {
 	const voiceXp = config.xp.voice || { enabled: true, minXp: 10, maxXp: 20 };
 	if (voiceXp.enabled === false) return 0;
-	
-	// Random XP per minute between min and max (like Atom)
+
 	const randomXpPerMin = Math.floor(Math.random() * (voiceXp.maxXp - voiceXp.minXp + 1)) + voiceXp.minXp;
 	return minutes * randomXpPerMin;
 };
@@ -212,12 +209,10 @@ const buildAnnouncementContainer = (text) => {
 	return container;
 };
 
-// Build rich message payload from custom message config using Components V2
 const buildRichAnnouncement = (leveling, ctx) => {
 	const msg = leveling.announce?.message || {};
 	const hasCustom = msg.content || msg.title || msg.body || msg.thumbnail || msg.footer;
-	
-	// Variable replacement helper (allows pings for content)
+
 	const replaceVars = (str) => {
 		if (!str) return str;
 		return str
@@ -231,8 +226,7 @@ const buildRichAnnouncement = (leveling, ctx) => {
 			.replace(/{server\.members}/g, String(ctx.serverMembers || 0))
 			.replace(/{timestamp}/g, new Date().toLocaleString());
 	};
-	
-	// Variable replacement for components (uses actual mentions)
+
 	const replaceVarsNoPing = (str) => {
 		if (!str) return str;
 		return str
@@ -246,22 +240,19 @@ const buildRichAnnouncement = (leveling, ctx) => {
 			.replace(/{server\.members}/g, String(ctx.serverMembers || 0))
 			.replace(/{timestamp}/g, new Date().toLocaleString());
 	};
-	
-	// If no custom message, use default template
+
 	if (!hasCustom) {
 		const text = renderTemplate(leveling.announce?.template, ctx);
 		return { components: [buildAnnouncementContainer(text)], flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: ['users'] } };
 	}
-	
-	// Build custom component container
+
 	const container = new ContainerBuilder();
-	
+
 	if (msg.title) {
 		container.addTextDisplayComponents(td => td.setContent(`**${replaceVarsNoPing(msg.title)}**`));
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	}
-	
-	// Body with thumbnail accessory in section
+
 	if (msg.body || msg.thumbnail) {
 		const thumbUrl = msg.thumbnail ? (replaceVars(msg.thumbnail) || '').trim() : null;
 		container.addSectionComponents(section => {
@@ -275,8 +266,7 @@ const buildRichAnnouncement = (leveling, ctx) => {
 	} else if (msg.body) {
 		container.addTextDisplayComponents(td => td.setContent(replaceVarsNoPing(msg.body)));
 	}
-	
-	// Add image as MediaGallery if provided
+
 	if (msg.image) {
 		const imgUrl = (replaceVars(msg.image) || '').trim();
 		if (imgUrl && imgUrl.startsWith('http')) {
@@ -284,23 +274,22 @@ const buildRichAnnouncement = (leveling, ctx) => {
 			container.addMediaGalleryComponents(gallery);
 		}
 	}
-	
+
 	if (msg.footer) {
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		container.addTextDisplayComponents(td => td.setContent(`-# ${replaceVarsNoPing(msg.footer)}`));
 	}
-	
+
 	const payload = { flags: MessageFlags.IsComponentsV2, allowedMentions: { parse: ['users'] } };
 	const components = [];
-	
-	// Add plain text content as separate component if set
+
 	if (msg.content) {
 		components.push(new TextDisplayBuilder().setContent(replaceVars(msg.content)));
 	}
-	
+
 	components.push(container);
 	payload.components = components;
-	
+
 	return payload;
 };
 
@@ -315,7 +304,7 @@ export const ensureLevelingConfig = async (db, guildId) => {
 		guildData.leveling = cloneDefault();
 		await db.updateOne({ guildId }, { $set: { leveling: guildData.leveling } });
 	}
-	// Migrate legacy autoCleanup boolean to granular flags
+
 	if (typeof guildData.leveling.autoCleanup === 'boolean') {
 		const legacy = guildData.leveling.autoCleanup;
 		guildData.leveling.autoCleanup = { leave: legacy, kick: legacy, ban: legacy };
@@ -352,7 +341,6 @@ export const handleMessageXp = async (client, message) => {
 
 	await applyRewards(client, guildId, leveling, memberState, message.member);
 
-	// Check if user muted announcements
 	if (memberState.muteAnnouncements) return;
 
 	const nextNeeded = xpToNextLevel(memberState.level, leveling);
@@ -426,7 +414,6 @@ const endVoiceSession = async (client, guildId, userId, now, channelId, member) 
 
 	await applyRewards(client, guildId, leveling, memberState, member);
 
-	// Check if user muted announcements
 	if (memberState.muteAnnouncements) return;
 
 	const nextNeeded = xpToNextLevel(memberState.level, leveling);
@@ -486,7 +473,6 @@ export const handleVoiceStateUpdate = async (client, oldState, newState) => {
 	const newChannelId = newState?.channelId;
 	const now = Date.now();
 
-	// Ignore stage/community channel types that are not voice
 	const channelType = newState?.channel?.type ?? oldState?.channel?.type;
 	if (channelType && ![ChannelType.GuildVoice, ChannelType.GuildStageVoice].includes(channelType)) return;
 

@@ -68,7 +68,6 @@ export default {
 
 			const guildData = await client.db.findOne({ guildId: message.guildId });
 
-			// Create guild data if it doesn't exist
 			let finalGuildData = guildData || {
 				guildId: message.guildId,
 				moderation: {
@@ -131,7 +130,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Send log for clearwarnings
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_CLEARWARNINGS, {
 				executor: message.author,
 				target: target.user,

@@ -2,20 +2,12 @@
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
 
-
 const recommendationCache = new Map();
 const expiredRecommendations = new Set();
 
-/**
-
- * @param {import('discord.js').Client} client 
- * @param {Object} config 
- * @returns {Shoukaku} 
- */
 export function initializeShoukaku(client, config) {
 
 	const nodes = resolveNodes(config);
-
 
 	const shoukaku = new Shoukaku(
 		new Connectors.DiscordJS(client),
@@ -32,16 +24,11 @@ export function initializeShoukaku(client, config) {
 		}
 	);
 
-
 	registerNodeEvents(shoukaku);
 
 	return shoukaku;
 }
 
-/**
- * @param {Object} config 
- * @returns {Array} 
- */
 function resolveNodes(config) {
 	const configured = Array.isArray(config?.lavalink?.nodes) ? config.lavalink.nodes : [];
 	const normalizedConfig = normalizeNodes(configured);
@@ -119,9 +106,6 @@ function normalizeNode(node, index) {
 	return null;
 }
 
-/**
- * @param {Shoukaku} shoukaku 
- */
 function registerNodeEvents(shoukaku) {
 	shoukaku.on('ready', (name, lavalinkResume, libraryResume) => {
 		const resumed = lavalinkResume || libraryResume;
@@ -214,25 +198,6 @@ function onTrackStart(player, queue, event) {
 
 	console.log(`🎵 Now playing: ${track.info.title} [${formatDuration(track.info.length)}]`);
 
-	// 
-	/*
-	// Check if autoplay needs to reset for new track
-	if (queue.autoplay) {
-		const { language: currentLanguage, genres: currentGenres } = detectLanguageAndGenre(track.info.title, track.info.author);
-		const currentPrimaryGenre = currentGenres[0] ?? 'pop';
-
-		// If this is a user-added track (different from autoplay state), reset autoplay playlist
-		if (queue.lastAutoplayLanguage !== currentLanguage || queue.lastAutoplayGenre !== currentPrimaryGenre) {
-			console.log(`🔄 Track changed: Detected Language=${currentLanguage}, Genre=${currentPrimaryGenre}`);
-			console.log(`🔄 Previous autoplay was: Language=${queue.lastAutoplayLanguage}, Genre=${queue.lastAutoplayGenre}`);
-			queue.autoplayPlaylist = [];
-			queue.autoplayPlaylistIndex = 0;
-			queue.lastAutoplayLanguage = currentLanguage;
-			queue.lastAutoplayGenre = currentPrimaryGenre;
-		}
-	}
-	*/
-
 	if (!queue.messageChannel) {
 		return;
 	}
@@ -307,11 +272,6 @@ function onTrackStart(player, queue, event) {
 	});
 }
 
-/**
- * @param {import('shoukaku').Player} player 
- * @param {Object} queue -
- * @param {Object} event 
- */
 function onTrackEnd(player, queue, event) {
 	if (queue.stopped) return;
 
@@ -331,7 +291,6 @@ function onTrackEnd(player, queue, event) {
 
 	playNext(player, queue);
 }
-
 
 function buildNowPlayingContainer({ track, displayTitle, thumbnailUrl, queue, stats, loadingRecommendations }) {
 	const container = new ContainerBuilder();
@@ -400,14 +359,9 @@ function buildNowPlayingContainer({ track, displayTitle, thumbnailUrl, queue, st
 	return container;
 }
 
-/**
- * @param {import('shoukaku').Player} player 
- * @param {Object} queue -
- * @param {Object} event 
- */
 function onTrackStuck(player, queue, event) {
 	console.warn(`⚠️ Track stuck on ${queue.guild.name}: ${event.thresholdMs}ms threshold exceeded`);
-	
+
 	if (queue.messageChannel) {
 		queue.messageChannel
 			.send('⚠️ Track got stuck, skipping...')
@@ -418,11 +372,6 @@ function onTrackStuck(player, queue, event) {
 	playNext(player, queue);
 }
 
-/**
- * @param {import('shoukaku').Player} player 
- * @param {Object} queue 
- * @param {Object} event 
- */
 async function onTrackException(player, queue, event) {
 	const track = queue.tracks.peekAt(0);
 	const error = event.exception;
@@ -431,7 +380,7 @@ async function onTrackException(player, queue, event) {
 
 	if (error?.message?.includes('requires login') || error?.message?.includes('age restricted')) {
 		console.log(`🔄 Attempting to find alternate source for: ${track?.info?.title}`);
-		
+
 		const alternate = await tryAlternateSources(queue, track);
 		if (alternate) {
 			console.log(`✅ Found alternate version! Now playing.`);
@@ -443,7 +392,7 @@ async function onTrackException(player, queue, event) {
 	}
 
 	queue.tracks.removeOne(0);
-	
+
 	if (queue.messageChannel) {
 		queue.messageChannel
 			.send(`❌ Could not play: ${track?.info?.title || 'Unknown track'}\n${error?.message || 'Unknown error'}`)
@@ -453,14 +402,9 @@ async function onTrackException(player, queue, event) {
 	playNext(player, queue);
 }
 
-/**
- * @param {import('shoukaku').Player} player 
- * @param {Object} queue 
- * @param {Object} event 
- */
 function onWebsocketClosed(player, queue, event) {
 	console.warn(`⚠️ Websocket closed on ${queue.guild.name}: code=${event.code}, reason=${event.reason}`);
-	
+
 	if (queue.messageChannel) {
 		queue.messageChannel
 			.send('⚠️ Voice connection was closed unexpectedly')
@@ -470,11 +414,6 @@ function onWebsocketClosed(player, queue, event) {
 	queue.disconnect();
 }
 
-/**
- * @param {Object} queue 
- * @param {Object} track 
- * @returns {Promise<Object|null>} 
- */
 async function tryAlternateSources(queue, track) {
 	if (!track) return null;
 
@@ -493,7 +432,6 @@ async function tryAlternateSources(queue, track) {
 		return null;
 	}
 
-
 	try {
 		const scResult = await node.rest.resolve(`scsearch:${query}`);
 		if (scResult?.data && scResult.data.length > 0) {
@@ -502,7 +440,6 @@ async function tryAlternateSources(queue, track) {
 	} catch (error) {
 		console.debug('SoundCloud search failed:', error?.message ?? error);
 	}
-
 
 	try {
 		const ytResult = await node.rest.resolve(`ytsearch:${query}`);
@@ -516,41 +453,8 @@ async function tryAlternateSources(queue, track) {
 	return null;
 }
 
-/**
- * @param {import('shoukaku').Player} player 
- * @param {Object} queue 
- */
 async function playNext(player, queue) {
 	let nextTrack = queue.tracks.peekAt(0);
-
-	// 
-	/*
-	if (!nextTrack && queue.autoplay) {
-		try {
-			// Only send announcement on FIRST autoplay queue (when playlist is just fetched)
-			const isFirstAutoplay = queue.autoplayPlaylist && queue.autoplayPlaylistIndex <= 1;
-			
-			const autoplayTrack = await getAutoplayTrack(queue);
-			if (autoplayTrack) {
-				queue.addTrack(autoplayTrack);
-				nextTrack = queue.tracks.peekAt(0);
-				
-				// Send message only on first track from new playlist
-				if (isFirstAutoplay && queue.messageChannel) {
-					const announceTitle = getDisplayTitle(autoplayTrack.info?.title);
-					queue.messageChannel
-						.send({
-							content: `${EMOJIS.autoplay || '🔁'} Autoplay queued **${announceTitle}**`,
-							allowedMentions: { parse: [] }
-						})
-						.catch(() => null);
-				}
-			}
-		} catch (error) {
-			console.error('Failed to queue autoplay track:', error);
-		}
-	}
-	*/
 
 	if (!nextTrack) {
 		console.log(`✅ Queue finished on ${queue.guild.name}`);
@@ -596,7 +500,7 @@ async function playNext(player, queue) {
 			if (queue && queue.player && !queue.is247) {
 				queue.disconnect();
 			}
-		}, 5 * 60 * 1000); 
+		}, 5 * 60 * 1000);
 
 		queue.disconnectTimeout = disconnectTimeout;
 		return;
@@ -681,7 +585,7 @@ async function getAutoplayTrack(queue) {
 	queue.autoplayPlaylistIndex++;
 
 	if (track) {
-		
+
 		const currentTrackUri = queue.lastPlayedTrackInfo?.uri;
 		if (currentTrackUri && track.info?.uri === currentTrackUri) {
 			console.log(`⏭️ Autoplay: Skipping current track - "${track.info.title}"`);
@@ -701,7 +605,7 @@ async function getAutoplayTrack(queue) {
 			}
 			return null;
 		}
-		
+
 		console.log(`✅ Autoplay: Queueing from playlist - ${track.info.title}`);
 		queue.autoplayHistory.add(track.info.uri);
 	}
@@ -793,7 +697,6 @@ async function fetchAutoplayPlaylist(trackInfo, node, history, currentTrackUri) 
 
 			console.log(`✅ Autoplay: Got ${spotifyTracks.length} tracks from Spotify playlist`);
 
-			
 			const filteredTracks = [];
 			const seenTitles = new Set();
 
@@ -845,10 +748,6 @@ async function fetchAutoplayPlaylist(trackInfo, node, history, currentTrackUri) 
 	}
 }
 
-/**
- * @param {number} ms 
- * @returns {string} 
- */
 function formatDuration(ms) {
 	if (!ms || ms < 0) return '0:00';
 	const seconds = Math.floor((ms / 1000) % 60);
@@ -868,8 +767,8 @@ function extractYouTubeId(url) {
 }
 
 /**
- * @param {string} url 
- * @returns {Promise<Object>} 
+ * @param {string} url
+ * @returns {Promise<Object>}
  */
 async function fetchYouTubeStats(url) {
 	const videoId = extractYouTubeId(url);
@@ -883,23 +782,22 @@ async function fetchYouTubeStats(url) {
 		const oembedUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}&format=json`;
 		console.log(`📡 Fetching from: ${oembedUrl}`);
 		const response = await fetch(oembedUrl);
-		
+
 		if (!response.ok) {
 			console.warn(`⚠️ Oembed response not ok: ${response.status}`);
 			return { rating: null, trending: false };
 		}
-		
+
 		const data = await response.json();
 		console.log(`✅ Oembed data received:`, data);
-		
-		
-		const rating = (4.0 + Math.random() * 1.0).toFixed(1); 
-		
+
+		const rating = (4.0 + Math.random() * 1.0).toFixed(1);
+
 		const title = data.title?.toLowerCase() || '';
 		const author = data.author_name?.toLowerCase() || '';
-		
-		const isTrending = 
-			title.includes('official') || 
+
+		const isTrending =
+			title.includes('official') ||
 			title.includes('music video') ||
 			title.includes('mv') ||
 			title.includes('trending') ||
@@ -911,7 +809,7 @@ async function fetchYouTubeStats(url) {
 			author.includes('official') ||
 			author.includes('music') ||
 			false;
-		
+
 		console.log(`📊 Stats for "${data.title}": Rating=${rating}, Trending=${isTrending}`);
 		return { rating, trending: isTrending };
 	} catch (error) {
@@ -921,16 +819,16 @@ async function fetchYouTubeStats(url) {
 }
 
 /**
- * @param {string} songTitle 
- * @param {string} artist 
- * @returns {Object} 
+ * @param {string} songTitle
+ * @param {string} artist
+ * @returns {Object}
  */
 function detectLanguageAndGenre(songTitle, artist) {
 	const combined = `${songTitle || ''} ${artist || ''}`;
 	const textLower = combined.toLowerCase();
 
 	let language = 'english';
-	
+
 	const hasDevanagari = /[\u0900-\u097F\u1CD0-\u1CF6]/.test(combined);
 
 	if (
@@ -1007,11 +905,11 @@ function detectLanguageAndGenre(songTitle, artist) {
 }
 
 /**
- * @param {string} songTitle 
- * @param {string} artist 
- * @param {Object} client 
- * @param {string} guildId 
- * @returns {Promise<Array>} 
+ * @param {string} songTitle
+ * @param {string} artist
+ * @param {Object} client
+ * @param {string} guildId
+ * @returns {Promise<Array>}
  */
 async function fetchRecommendations(trackInfo, client, guildId) {
 	try {
@@ -1180,7 +1078,7 @@ async function fetchRecommendations(trackInfo, client, guildId) {
 }
 
 /**
- * @returns {Promise<string|null>} 
+ * @returns {Promise<string|null>}
  */
 async function getSpotifyAccessToken() {
 	try {
@@ -1221,8 +1119,8 @@ export {
 };
 
 /**
- * @param {Array} components 
- * @returns {Array|null} 
+ * @param {Array} components
+ * @returns {Array|null}
  */
 function disableAllComponents(components) {
 	if (!Array.isArray(components) || components.length === 0) return null;
@@ -1236,7 +1134,6 @@ function disableAllComponents(components) {
 		return clone;
 	};
 
-	
 	const isContainer = components.some((top) => {
 		const json = top.toJSON ? top.toJSON() : top;
 		return Array.isArray(json.components) && json.components.some((c) => Array.isArray(c.components));
@@ -1257,7 +1154,7 @@ function disableAllComponents(components) {
 }
 
 /**
- * @returns {ContainerBuilder} 
+ * @returns {ContainerBuilder}
  */
 function buildQueueEndContainer() {
 	const container = new ContainerBuilder();
@@ -1276,5 +1173,3 @@ function buildQueueEndContainer() {
 
 	return container;
 }
-
-

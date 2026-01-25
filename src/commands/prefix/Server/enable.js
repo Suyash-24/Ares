@@ -28,13 +28,12 @@ async function execute(message, args, client) {
 	let isCategory = false;
 	let resolvedName = null;
 
-	// Check if it's a command
 	const command = client.prefixCommands.get(targetName) || client.prefixCommands.get(client.prefixAliases.get(targetName));
-	
+
 	if (command) {
 		resolvedName = command.name;
 	} else {
-		// Check if it's a category
+
 		const categories = new Set(client.prefixCommands.map(c => c.category ? c.category.toLowerCase() : null).filter(c => c));
 		if (categories.has(targetName)) {
 			isCategory = true;
@@ -48,7 +47,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 	}
 
-	// Determine Scope
 	let scope = 'global';
 	let scopeName = 'Server-wide';
 
@@ -81,7 +79,7 @@ async function execute(message, args, client) {
 		}
 
 		const updated = current.filter(s => s !== scope);
-		
+
 		if (updated.length === 0) {
 			delete guildData.moderation.disabledCommands[resolvedName];
 		} else {
@@ -93,7 +91,7 @@ async function execute(message, args, client) {
 		container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Enabled**`));
 		container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		container.addTextDisplayComponents(td => td.setContent(`${isCategory ? 'Category' : 'Command'} \`${resolvedName}\` is now enabled **${scopeName}**.`));
-		
+
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 
 	} catch (err) {

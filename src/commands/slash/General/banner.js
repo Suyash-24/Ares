@@ -10,7 +10,6 @@ export default {
   async execute(interaction) {
     const targetUser = interaction.options.getUser('user') ?? interaction.user;
 
-   
     const fullUser = await interaction.client.users.fetch(targetUser.id, { force: true });
     const bannerUrl = fullUser.bannerURL({ size: 4096, extension: 'png' });
 

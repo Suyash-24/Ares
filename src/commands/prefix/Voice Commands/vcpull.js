@@ -7,11 +7,10 @@ const description = 'Pulls a user to your current voice channel.';
 const usage = 'vcpull <user>';
 const permissions = [PermissionFlagsBits.MoveMembers];
 
-// Helper to check permissions
 function hasPerms(member, perm) {
 	return member.id === member.guild.ownerId ||
-		   member.permissions.has(perm) || 
-		   member.permissions.has(PermissionFlagsBits.Administrator) || 
+		   member.permissions.has(perm) ||
+		   member.permissions.has(PermissionFlagsBits.Administrator) ||
 		   member.permissions.has(PermissionFlagsBits.ManageGuild);
 }
 
@@ -19,7 +18,7 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 
 	if (!hasPerms(message.member, PermissionFlagsBits.MoveMembers)) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need **Move Members** permission to use this command.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -27,13 +26,12 @@ async function execute(message, args, client) {
 
 	const destinationChannel = message.member.voice.channel;
 	if (!destinationChannel) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You need to be in a voice channel to pull someone.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Resolve target member
 	let targetMember;
 	if (message.mentions.members.size > 0) {
 		targetMember = message.mentions.members.first();
@@ -51,37 +49,36 @@ async function execute(message, args, client) {
 	}
 
 	if (!targetMember) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Please specify a valid member to pull.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
 	if (!targetMember.voice.channel) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} **${targetMember.user.username}** is not in a voice channel.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
 	if (targetMember.voice.channel.id === destinationChannel.id) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} **${targetMember.user.username}** is already in your channel.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check hierarchy/permissions
 	if (targetMember.id === message.guild.ownerId && message.author.id !== message.guild.ownerId) {
-		 container.addTextDisplayComponents(td => 
+		 container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You cannot pull the server owner.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
-	
-	 if (message.author.id !== message.guild.ownerId && 
+
+	 if (message.author.id !== message.guild.ownerId &&
 		message.member.roles.highest.position <= targetMember.roles.highest.position) {
-		 container.addTextDisplayComponents(td => 
+		 container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} You cannot pull this member due to role hierarchy.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -90,15 +87,15 @@ async function execute(message, args, client) {
 	try {
 		const oldChannelName = targetMember.voice.channel ? targetMember.voice.channel.name : 'Unknown';
 		await targetMember.voice.setChannel(destinationChannel, `Pulled by ${message.author.tag}`);
-		
-		container.addTextDisplayComponents(td => 
+
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.success || '✅'} Pulled **${targetMember.user.username}** from **${oldChannelName}** to **${destinationChannel.name}**.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
-		
+
 	} catch (error) {
 		console.error(error);
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Failed to pull member.`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });

@@ -11,7 +11,6 @@ const buildNotice = (title, description) => {
   return container;
 };
 
-// Store active unban operations
 const activeUnbans = new Map();
 
 export default {
@@ -21,13 +20,13 @@ export default {
   category: 'Moderation',
 
   async execute(message, args, client) {
-    // Check antinuke admin + Discord admin first
+
     const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
     const isOwner = message.guild.ownerId === message.author.id;
     const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
     const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
     const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-    
+
     if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
       const container = buildNotice(
         `# ${EMOJIS.error} **Permission Denied**`,
@@ -40,7 +39,6 @@ export default {
       });
     }
 
-    // Handle cancel subcommand
     if (args[0] && args[0].toLowerCase() === 'cancel') {
       if (!activeUnbans.has(message.guildId)) {
         const container = buildNotice(
@@ -68,7 +66,6 @@ export default {
       });
     }
 
-    // Regular unbanall execution
     if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
       const container = buildNotice(
         `# ${EMOJIS.error} **Permission Denied**`,
@@ -124,11 +121,10 @@ export default {
       const successPreview = [];
       const failurePreview = [];
 
-      // Set up unban tracking
       activeUnbans.set(message.guildId, { cancelled: false });
 
       for (const ban of bans.values()) {
-        // Check if unban was cancelled
+
         if (activeUnbans.get(message.guildId)?.cancelled) {
           break;
         }
@@ -148,7 +144,6 @@ export default {
         }
       }
 
-      // Check if operation was cancelled
       const wasCancelled = activeUnbans.get(message.guildId)?.cancelled;
       activeUnbans.delete(message.guildId);
 
@@ -168,7 +163,6 @@ export default {
         }
       }
 
-      // Send mod log if any users were successfully unbanned
       if (successes.length > 0) {
         await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_MASS_ACTION, {
           executor: message.author,
@@ -183,7 +177,7 @@ export default {
 
       const resultContainer = buildNotice(
         `# ${wasCancelled ? EMOJIS.error : EMOJIS.success} **${wasCancelled ? 'Unban Cancelled' : 'Unban Report'}**`,
-        wasCancelled 
+        wasCancelled
           ? `Unban operation was cancelled.\n\n${resultDescription}`
           : resultDescription
       );

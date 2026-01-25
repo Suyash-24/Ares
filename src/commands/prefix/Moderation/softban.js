@@ -27,7 +27,7 @@ export default {
     const config = message.client.config;
     const headmodRoles = config.headmodRoles ? (Array.isArray(config.headmodRoles) ? config.headmodRoles : [config.headmodRoles]) : [];
     const isHeadmod = message.member.roles.cache.some(role => headmodRoles.includes(role.id));
-    
+
     const hasPermission = message.member.permissions.has(PermissionFlagsBits.BanMembers) || isHeadmod;
 
     if (!hasPermission) {
@@ -56,7 +56,7 @@ export default {
     }
 
     const userMention = message.mentions.users.first() || (args[0] && await message.guild.members.fetch(args[0]).then(m => m.user).catch(() => null));
-    
+
     if (!userMention) {
       const container = buildNotice(
         `# ${EMOJIS.error} **Invalid User**`,
@@ -98,7 +98,6 @@ export default {
         });
       }
 
-      // Mark this as a command-invoked action so logging knows who did it
       markCommandInvoker(message.guild.id, 'softban', userMention.id, message.author);
 
       await message.guild.bans.create(userMention.id, {
@@ -106,7 +105,6 @@ export default {
         deleteMessageSeconds: 24 * 60 * 60
       });
 
-      // Save action to database
       let caseNum = 1;
       try {
         const guildData = await message.client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
@@ -129,7 +127,7 @@ export default {
           { $set: guildData },
           { upsert: true }
         );
-        
+
         caseNum = caseNumber;
       } catch (dbError) {
         console.error('Error saving softban action to database:', dbError);
@@ -147,7 +145,6 @@ export default {
 
       await message.guild.bans.remove(userMention.id, 'Soft ban - messages deleted');
 
-      // Send log for softban
       await sendLog(message.client, message.guildId, LOG_EVENTS.MOD_SOFTBAN, {
         executor: message.author,
         target: userMention,

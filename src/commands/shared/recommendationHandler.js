@@ -20,10 +20,9 @@ export default {
 			return;
 		}
 
-		
 		if (interaction.message && queue.nowPlayingMessageId && interaction.message.id !== queue.nowPlayingMessageId) {
 			await disableInteractionMessage(interaction).catch(() => {});
-			await interaction.editReply({ 
+			await interaction.editReply({
 				content: '⛔ This recommendation panel is no longer active. Please use the current Now Playing message.',
 				ephemeral: false
 			});
@@ -31,14 +30,14 @@ export default {
 		}
 
 		const recommendations = recommendationCache.get(interaction.customId);
-		
+
 		if (expiredRecommendations.has(interaction.customId)) {
 			await interaction.editReply({
 				content: '❌ Recommendations have expired. Please play a new song to get fresh recommendations.'
 			});
 			return;
 		}
-		
+
 		if (!recommendations) {
 			await interaction.editReply({
 				content: '❌ Recommendations have expired. Please play a new song.'
@@ -97,7 +96,7 @@ export default {
 			queue.addTrack(userTrack);
 
 			const container = new ContainerBuilder();
-			
+
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS?.success || '✅'} | Track Added`)
 			);
@@ -106,13 +105,13 @@ export default {
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
 
-			let displayTitle = title.includes('|') 
+			let displayTitle = title.includes('|')
 				? title.split('|')[0].trim()
 				: title;
-			
+
 			const parenIndex = displayTitle.indexOf('(');
 			const bracketIndex = displayTitle.indexOf('[');
-			
+
 			let trimIndex = -1;
 			if (parenIndex !== -1 && bracketIndex !== -1) {
 				trimIndex = Math.min(parenIndex, bracketIndex);
@@ -121,18 +120,18 @@ export default {
 			} else if (bracketIndex !== -1) {
 				trimIndex = bracketIndex;
 			}
-			
-			const finalTitle = trimIndex !== -1 
+
+			const finalTitle = trimIndex !== -1
 				? displayTitle.substring(0, trimIndex).trim()
 				: displayTitle;
 
-			const thumbnailUrl = track.info?.artworkUrl || 
+			const thumbnailUrl = track.info?.artworkUrl ||
 				(uri?.includes('youtube.com') || uri?.includes('youtu.be')
 					? `https://img.youtube.com/vi/${extractYouTubeId(uri)}/mqdefault.jpg`
 					: null);
 
 			container.addSectionComponents((section) => {
-				const trackInfo = 
+				const trackInfo =
 					`**${EMOJIS?.ytmusic || '✅'} [${finalTitle}](${uri || 'https://unknown'})**\n` +
 					`**via ➜ ${author}**\n\n` +
 					`Duration: \`${formatTime(track.info?.length)}\`\n` +

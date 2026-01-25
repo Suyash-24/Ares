@@ -19,9 +19,8 @@ async function execute(message, args, client) {
 
 	const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
 	if (!guildData.moderation) guildData.moderation = {};
-	
-	// Default is TRUE (Show Notice)
-	const currentSetting = guildData.moderation.disableNotice !== false; // defaults to true if undefined
+
+	const currentSetting = guildData.moderation.disableNotice !== false;
 
 	let newState = !currentSetting;
 	if (args[0]) {

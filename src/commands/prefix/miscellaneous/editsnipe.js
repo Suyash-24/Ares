@@ -10,36 +10,34 @@ export default {
     usage: 'editsnipe [index]',
     async execute(message, args, client) {
         const editedMsgs = getEditedMessages(message.guild.id, message.channel.id);
-        
+
         if (editedMsgs.length === 0) {
             const c = new ContainerBuilder()
                 .addTextDisplayComponents(t => t.setContent(`${EMOJIS.error} No edited messages found in this channel.`));
-            return message.reply({ 
-                components: [c], 
-                flags: MessageFlags.IsComponentsV2, 
-                allowedMentions: { repliedUser: false, parse: [] } 
+            return message.reply({
+                components: [c],
+                flags: MessageFlags.IsComponentsV2,
+                allowedMentions: { repliedUser: false, parse: [] }
             });
         }
 
-        // Parse index (1-indexed for users, 0-indexed internally)
         let index = 0;
         if (args[0]) {
             index = parseInt(args[0], 10) - 1;
             if (isNaN(index) || index < 0 || index >= editedMsgs.length) {
                 const c = new ContainerBuilder()
                     .addTextDisplayComponents(t => t.setContent(`${EMOJIS.error} Invalid index. Use a number between 1 and ${editedMsgs.length}.`));
-                return message.reply({ 
-                    components: [c], 
-                    flags: MessageFlags.IsComponentsV2, 
-                    allowedMentions: { repliedUser: false, parse: [] } 
+                return message.reply({
+                    components: [c],
+                    flags: MessageFlags.IsComponentsV2,
+                    allowedMentions: { repliedUser: false, parse: [] }
                 });
             }
         }
 
         const editedMsg = editedMsgs[index];
         const timestamp = Math.floor(editedMsg.timestamp / 1000);
-        
-        // Escape mentions to prevent pings
+
         const escapeContent = (content) => content
             .replace(/@everyone/g, '@\u200beveryone')
             .replace(/@here/g, '@\u200bhere')
@@ -48,12 +46,10 @@ export default {
         const oldContent = escapeContent(editedMsg.oldContent || '*Empty*');
         const newContent = escapeContent(editedMsg.newContent || '*Empty*');
 
-        // Build the aesthetic container
         const container = new ContainerBuilder()
             .addTextDisplayComponents(t => t.setContent(`## ${EMOJIS.logEdit || '✏️'} Edited Message`))
             .addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 
-        // Author and time info
         container.addTextDisplayComponents(t => t.setContent(
             `${EMOJIS.members || '👤'} **Author**\n` +
             `> ${editedMsg.author.username} \`${editedMsg.author.id}\`\n\n` +
@@ -62,7 +58,6 @@ export default {
             `${EMOJIS.trending || '🔗'} **[Jump to Message](${editedMsg.messageUrl})**`
         ));
 
-        // Before content
         container
             .addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small))
             .addTextDisplayComponents(t => t.setContent(
@@ -70,7 +65,6 @@ export default {
                 `>>> ${oldContent}`
             ));
 
-        // After content
         container
             .addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small))
             .addTextDisplayComponents(t => t.setContent(
@@ -78,7 +72,6 @@ export default {
                 `>>> ${newContent}`
             ));
 
-        // Add footer with index info ONLY if there are multiple edits
         if (editedMsgs.length > 1) {
             container
                 .addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small))
@@ -87,10 +80,10 @@ export default {
                 ));
         }
 
-        return message.reply({ 
-            components: [container], 
-            flags: MessageFlags.IsComponentsV2, 
-            allowedMentions: { repliedUser: false, parse: [] } 
+        return message.reply({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+            allowedMentions: { repliedUser: false, parse: [] }
         });
     }
 };

@@ -18,7 +18,6 @@ export default {
 
 		const queue = client.queue.get(message.guildId);
 
-
 		if (!queue || !queue.player || !queue.tracks || queue.tracks.size === 0) {
 			return message.reply({
 				content: '❌ I\'m not playing any music.',

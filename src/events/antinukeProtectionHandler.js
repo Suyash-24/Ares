@@ -33,14 +33,14 @@ function isWhitelisted(client, guild, userId, guildData) {
     if (client.config?.owners && Array.isArray(client.config.owners) && client.config.owners.includes(userId)) return true;
     if (Array.isArray(guildData?.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(userId)) return true;
     if (Array.isArray(guildData?.antinuke?.whitelist) && guildData.antinuke.whitelist.includes(userId)) return true;
-    // Check if user is an admin with immune flag (only immune admins bypass protection)
+
     if (Array.isArray(guildData?.antinuke?.admins)) {
-        const isImmune = guildData.antinuke.admins.some(admin => 
+        const isImmune = guildData.antinuke.admins.some(admin =>
             (typeof admin === 'string' ? false : admin.id === userId && admin.immune === true)
         );
         if (isImmune) return true;
     }
-    // Note: Regular antinuke admins are NOT whitelisted - they can configure but are still monitored
+
     return false;
 }
 
@@ -52,8 +52,8 @@ function isModuleEnabled(guildData, eventType) {
 
 function getModuleConfig(guildData, eventType) {
     const module = MODULE_MAP[eventType];
-    const defaultConfig = { 
-        threshold: guildData?.antinuke?.defaultThreshold || 3, 
+    const defaultConfig = {
+        threshold: guildData?.antinuke?.defaultThreshold || 3,
         punishment: guildData?.antinuke?.defaultPunishment || 'ban',
         window: guildData?.antinuke?.defaultWindow || 60
     };
@@ -83,21 +83,17 @@ async function protocolUser(client, guild, member, reason, guildData) {
     try {
         const rolesToRemove = member.roles.cache.filter(r => r.id !== guild.id && r.editable);
         const removedRoles = rolesToRemove.map(r => r.id);
-        
-        // Get timeout duration from antinuke config (default 28 days)
-        const timeoutDuration = (guildData.antinuke.defaultPunishment === 'timeout' 
+
+        const timeoutDuration = (guildData.antinuke.defaultPunishment === 'timeout'
             ? guildData.antinuke.timeoutDuration || 28 * 24 * 60 * 60 * 1000
             : 28 * 24 * 60 * 60 * 1000);
-        
-        // Strip all roles
+
         await member.roles.remove(rolesToRemove, reason);
-        
-        // Apply timeout
+
         await member.timeout(timeoutDuration, reason);
 
-        // Store protocol entry
         if (!guildData.antinuke.protocol) guildData.antinuke.protocol = [];
-        
+
         const existing = guildData.antinuke.protocol.find(p => p.id === member.id);
         if (existing) {
             existing.roles = [...new Set([...existing.roles, ...removedRoles])];
@@ -133,7 +129,7 @@ async function protocolUser(client, guild, member, reason, guildData) {
 
 async function executePunishment(client, guild, executorId, punishment, reason, guildData) {
     const member = await guild.members.fetch(executorId).catch(() => null);
-    
+
     try {
         switch (punishment) {
             case 'ban':
@@ -148,7 +144,7 @@ async function executePunishment(client, guild, executorId, punishment, reason, 
                     success: true
                 });
                 return { action: 'Banned', success: true };
-            
+
             case 'kick':
                 if (member) {
                     await member.kick(reason);
@@ -163,7 +159,7 @@ async function executePunishment(client, guild, executorId, punishment, reason, 
                     });
                 }
                 return { action: 'Kicked', success: !!member };
-            
+
             case 'strip':
                 if (member) {
                     const roles = member.roles.cache.filter(r => r.id !== guild.id && r.editable);
@@ -179,7 +175,7 @@ async function executePunishment(client, guild, executorId, punishment, reason, 
                     });
                 }
                 return { action: 'Stripped roles', success: !!member };
-            
+
             case 'timeout':
                 if (member) {
                     await member.timeout(28 * 24 * 60 * 60 * 1000, reason);
@@ -194,14 +190,14 @@ async function executePunishment(client, guild, executorId, punishment, reason, 
                     });
                 }
                 return { action: 'Timed out (28 days)', success: !!member };
-            
+
             case 'protocol':
                 if (member) {
                     const result = await protocolUser(client, guild, member, reason, guildData);
                     return { action: 'Protocol Applied', success: result.success };
                 }
                 return { action: 'Protocol failed', success: false };
-            
+
             default:
                 await guild.members.ban(executorId, { reason, deleteMessageSeconds: 0 });
                 await sendAntinukeLog(client, guildData, guild, {
@@ -224,27 +220,27 @@ async function executePunishment(client, guild, executorId, punishment, reason, 
 async function handleStrike(client, guild, executorId, executorTag, eventType, guildData, details = '') {
     const config = getModuleConfig(guildData, eventType);
     const module = MODULE_MAP[eventType];
-    
+
     const guildKey = guild.id;
     if (!strikes.has(guildKey)) strikes.set(guildKey, new Map());
     const guildStrikes = strikes.get(guildKey);
     if (!guildStrikes.has(executorId)) guildStrikes.set(executorId, {});
     const userStrikes = guildStrikes.get(executorId);
-    
+
     const now = Date.now();
     if (!userStrikes[module]) {
         userStrikes[module] = { count: 0, timestamps: [] };
     }
-    
+
     const windowMs = (config.window || 60) * 1000;
     userStrikes[module].timestamps = userStrikes[module].timestamps.filter(t => now - t < windowMs);
     userStrikes[module].timestamps.push(now);
     userStrikes[module].count = userStrikes[module].timestamps.length;
-    
+
     const count = userStrikes[module].count;
-    
+
     console.log(`[Antinuke] Strike ${count}/${config.threshold} for ${executorTag} (${module})`);
-    
+
     if (count < config.threshold) {
         await sendAntinukeLog(client, guildData, guild, {
             eventType: 'strike',
@@ -255,36 +251,36 @@ async function handleStrike(client, guild, executorId, executorTag, eventType, g
             threshold: config.threshold
         });
     }
-    
+
     if (count >= config.threshold) {
         console.log(`[Antinuke] Threshold reached - executing ${config.punishment} on ${executorTag}`);
-        
+
         const reason = `[Antinuke] ${module} protection triggered (${count}/${config.threshold} actions in ${config.window}s)`;
         const result = await executePunishment(client, guild, executorId, config.punishment, reason, guildData);
-        
+
         userStrikes[module] = { count: 0, timestamps: [] };
-        
+
         return { punished: true, ...result };
     }
-    
+
     return { punished: false, strikes: count, threshold: config.threshold };
 }
 
 async function processEvent(client, guild, auditLogType, eventType, targetId = null, extraDetails = '') {
     const guildData = await client.db.findOne({ guildId: guild.id });
-    
+
     if (!guildData?.antinuke?.enabled) return;
     if (!isModuleEnabled(guildData, eventType)) return;
-    
+
     try {
         const auditEntry = await fetchAuditLog(guild, auditLogType, targetId);
         if (!auditEntry) return;
-        
+
         const executor = auditEntry.executor;
         if (!executor) return;
-        
+
         if (isWhitelisted(client, guild, executor.id, guildData)) return;
-        
+
         const details = extraDetails || `Target: ${auditEntry.target?.name || auditEntry.target?.id || 'Unknown'}`;
         await handleStrike(client, guild, executor.id, executor.tag || executor.username, eventType, guildData, details);
     } catch (error) {
@@ -295,7 +291,7 @@ async function processEvent(client, guild, auditLogType, eventType, targetId = n
 export default (client) => {
     client.on(Events.ChannelDelete, async (channel) => {
         if (!channel.guild) return;
-        await processEvent(client, channel.guild, AuditLogEvent.ChannelDelete, 'channelDelete', 
+        await processEvent(client, channel.guild, AuditLogEvent.ChannelDelete, 'channelDelete',
             channel.id, `Channel: #${channel.name}`, 'Delete');
     });
 
@@ -318,13 +314,13 @@ export default (client) => {
     client.on(Events.GuildRoleUpdate, async (oldRole, newRole) => {
         const oldPerms = oldRole.permissions;
         const newPerms = newRole.permissions;
-        
-        const addedDangerous = DANGEROUS_PERMISSIONS.filter(p => 
+
+        const addedDangerous = DANGEROUS_PERMISSIONS.filter(p =>
             !oldPerms.has(p) && newPerms.has(p)
         );
-        
+
         if (addedDangerous.length === 0) return;
-        
+
         await processEvent(client, newRole.guild, AuditLogEvent.RoleUpdate, 'roleUpdate',
             newRole.id, `Role: @${newRole.name}\nDangerous permissions added:\n• ${addedDangerous.join('\n• ')}\n\nMembers affected: ${newRole.members.size}`);
     });
@@ -338,16 +334,16 @@ export default (client) => {
         const guildData = await client.db.findOne({ guildId: member.guild.id });
         if (!guildData?.antinuke?.enabled) return;
         if (!isModuleEnabled(guildData, 'memberKick')) return;
-        
+
         try {
             const auditEntry = await fetchAuditLog(member.guild, AuditLogEvent.MemberKick, member.id);
             if (!auditEntry) return;
-            
+
             const executor = auditEntry.executor;
             if (!executor) return;
             if (isWhitelisted(client, member.guild, executor.id, guildData)) return;
-            
-            await handleStrike(client, member.guild, executor.id, executor.tag || executor.username, 
+
+            await handleStrike(client, member.guild, executor.id, executor.tag || executor.username,
                 'memberKick', guildData, `User: ${member.user.tag} (${member.id})\nJoined: <t:${Math.floor(member.joinedTimestamp / 1000)}:R>`);
         } catch (e) {
             console.error('[Antinuke] Error in kick handler:', e.message);
@@ -358,22 +354,22 @@ export default (client) => {
         const guildData = await client.db.findOne({ guildId: channel.guild.id });
         if (!guildData?.antinuke?.enabled) return;
         if (!isModuleEnabled(guildData, 'webhookCreate')) return;
-        
+
         try {
             const [createEntry, deleteEntry] = await Promise.all([
                 fetchAuditLog(channel.guild, AuditLogEvent.WebhookCreate),
                 fetchAuditLog(channel.guild, AuditLogEvent.WebhookDelete)
             ]);
-            
+
             const auditEntry = createEntry || deleteEntry;
             if (!auditEntry) return;
-            
+
             const executor = auditEntry.executor;
             if (!executor) return;
             if (isWhitelisted(client, channel.guild, executor.id, guildData)) return;
-            
+
             const eventType = createEntry ? 'webhookCreate' : 'webhookDelete';
-            await handleStrike(client, channel.guild, executor.id, executor.tag || executor.username, 
+            await handleStrike(client, channel.guild, executor.id, executor.tag || executor.username,
                 eventType, guildData, `Channel: #${channel.name}\nWebhook: ${auditEntry.target?.name || 'Unknown'}`);
         } catch (e) {
             console.error('[Antinuke] Error in webhook handler:', e.message);
@@ -382,26 +378,26 @@ export default (client) => {
 
     client.on(Events.GuildMemberAdd, async (member) => {
         if (!member.user.bot) return;
-        
+
         const guildData = await client.db.findOne({ guildId: member.guild.id });
         if (!guildData?.antinuke?.enabled) return;
-        
+
         try {
             const auditEntry = await fetchAuditLog(member.guild, AuditLogEvent.BotAdd, member.id);
             if (!auditEntry) return;
-            
+
             const executor = auditEntry.executor;
             if (!executor) return;
-            
+
             const isWhitelistedUser = isWhitelisted(client, member.guild, executor.id, guildData);
             const strictBotVerification = guildData.antinuke?.strictBotVerification !== false;
             const isBotVerified = member.user.flags?.has('VerifiedBot') || false;
-            
+
             if (strictBotVerification && !isBotVerified) {
                 try {
                     await member.kick('[Antinuke] Unverified bot blocked by strict verification');
                     console.log(`[Antinuke] Kicked unverified bot: ${member.user.tag} (added by ${executor.tag})`);
-                    
+
                     await sendAntinukeLog(client, guildData, member.guild, {
                         eventType: 'botadd',
                         executor: { id: executor.id, tag: executor.tag || executor.username },
@@ -411,9 +407,9 @@ export default (client) => {
                         strikes: 0,
                         threshold: 0
                     });
-                    
+
                     if (!isWhitelistedUser && isModuleEnabled(guildData, 'botAdd')) {
-                        await handleStrike(client, member.guild, executor.id, executor.tag || executor.username, 
+                        await handleStrike(client, member.guild, executor.id, executor.tag || executor.username,
                             'botAdd', guildData, `Unverified bot: ${member.user.tag} (${member.id})`);
                     }
                 } catch (e) {
@@ -429,15 +425,15 @@ export default (client) => {
                 }
                 return;
             }
-            
+
             if (isWhitelistedUser) return;
-            
+
             if (!isModuleEnabled(guildData, 'botAdd')) return;
-            
+
             try {
                 await member.kick('[Antinuke] Unauthorized bot addition');
                 console.log(`[Antinuke] Kicked unauthorized bot: ${member.user.tag}`);
-                
+
                 await sendAntinukeLog(client, guildData, member.guild, {
                     eventType: 'botadd',
                     executor: { id: executor.id, tag: executor.tag || executor.username },
@@ -458,8 +454,8 @@ export default (client) => {
                     threshold: 0
                 });
             }
-            
-            await handleStrike(client, member.guild, executor.id, executor.tag || executor.username, 
+
+            await handleStrike(client, member.guild, executor.id, executor.tag || executor.username,
                 'botAdd', guildData, `Bot: ${member.user.tag} (${member.id})\nPermissions: ${member.permissions.toArray().length} perms`);
         } catch (e) {
             console.error('[Antinuke] Error in bot add handler:', e.message);
@@ -470,28 +466,28 @@ export default (client) => {
         const vanityChanged = oldGuild.vanityURLCode !== newGuild.vanityURLCode;
         const nameChanged = oldGuild.name !== newGuild.name;
         const iconChanged = oldGuild.icon !== newGuild.icon;
-        
+
         if (!vanityChanged && !nameChanged && !iconChanged) return;
-        
+
         const guildData = await client.db.findOne({ guildId: newGuild.id });
         if (!guildData?.antinuke?.enabled) return;
         if (!isModuleEnabled(guildData, 'guildUpdate')) return;
-        
+
         try {
             const auditEntry = await fetchAuditLog(newGuild, AuditLogEvent.GuildUpdate);
             if (!auditEntry) return;
-            
+
             const executor = auditEntry.executor;
             if (!executor) return;
-            
+
             let details = [];
             if (vanityChanged) details.push(`Vanity: ${oldGuild.vanityURLCode || 'none'} → ${newGuild.vanityURLCode || 'none'}`);
             if (nameChanged) details.push(`Name: ${oldGuild.name} → ${newGuild.name}`);
             if (iconChanged) details.push('Icon changed');
-            
+
             if (isWhitelisted(client, newGuild, executor.id, guildData)) return;
-            
-            await handleStrike(client, newGuild, executor.id, executor.tag || executor.username, 
+
+            await handleStrike(client, newGuild, executor.id, executor.tag || executor.username,
                 'guildUpdate', guildData, details.join('\n'));
         } catch (e) {
             console.error('[Antinuke] Error in guild update handler:', e.message);
@@ -510,15 +506,13 @@ export default (client) => {
 
     client.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
         const guildData = await client.db.findOne({ guildId: newMember.guild.id });
-        
-        // Protocol Hold: Check if user is in protocol and trying to help them
+
         const isInProtocol = guildData?.antinuke?.protocol?.some(p => p.id === newMember.id);
         const oldRoles = oldMember.roles.cache;
         const newRoles = newMember.roles.cache;
-        
+
         const addedRoles = newRoles.filter(r => !oldRoles.has(r.id));
-        
-        // If member is in protocol and roles are being added, enforce Protocol Hold
+
         if (isInProtocol && addedRoles.size > 0) {
             try {
                 const auditEntry = await fetchAuditLog(newMember.guild, AuditLogEvent.MemberRoleUpdate, newMember.id);
@@ -526,9 +520,9 @@ export default (client) => {
                     const executor = auditEntry.executor;
                     if (executor && !isWhitelisted(client, newMember.guild, executor.id, guildData)) {
                         const reason = `[Antinuke Protocol Hold] Attempted to modify protocol user: ${newMember.user.tag}`;
-                        const result = await executePunishment(client, newMember.guild, executor.id, 
+                        const result = await executePunishment(client, newMember.guild, executor.id,
                             guildData.antinuke.defaultPunishment || 'kick', reason, guildData);
-                        
+
                         await sendAntinukeLog(client, guildData, newMember.guild, {
                             eventType: 'protocolHold',
                             executor: { id: executor.id, tag: executor.tag || executor.username },
@@ -536,35 +530,35 @@ export default (client) => {
                             punishment: result.action,
                             success: result.success
                         });
-                        
+
                         await newMember.roles.remove(addedRoles).catch(() => {});
                     }
                 }
             } catch (e) {}
             return;
         }
-        
+
         if (addedRoles.size === 0) return;
-        
-        const dangerousAdded = addedRoles.filter(r => 
+
+        const dangerousAdded = addedRoles.filter(r =>
             DANGEROUS_PERMISSIONS.some(p => r.permissions.has(p))
         );
-        
+
         if (dangerousAdded.size === 0) return;
-        
+
         if (!guildData?.antinuke?.enabled) return;
         if (!isModuleEnabled(guildData, 'memberRoleUpdate')) return;
-        
+
         try {
             const auditEntry = await fetchAuditLog(newMember.guild, AuditLogEvent.MemberRoleUpdate, newMember.id);
             if (!auditEntry) return;
-            
+
             const executor = auditEntry.executor;
             if (!executor) return;
             if (isWhitelisted(client, newMember.guild, executor.id, guildData)) return;
-            
-            await handleStrike(client, newMember.guild, executor.id, executor.tag || executor.username, 
-                'memberRoleUpdate', guildData, 
+
+            await handleStrike(client, newMember.guild, executor.id, executor.tag || executor.username,
+                'memberRoleUpdate', guildData,
                 `User: ${newMember.user.tag} (${newMember.id})\nDangerous roles added:\n• ${dangerousAdded.map(r => r.name).join('\n• ')}`);
         } catch (e) {
             console.error('[Antinuke] Error in member role update handler:', e.message);
@@ -574,11 +568,11 @@ export default (client) => {
     setInterval(() => {
         const now = Date.now();
         const maxAge = 300000;
-        
+
         for (const [guildId, guildStrikes] of strikes.entries()) {
             for (const [userId, userStrikes] of guildStrikes.entries()) {
                 let hasActiveStrikes = false;
-                
+
                 for (const [module, data] of Object.entries(userStrikes)) {
                     if (data.timestamps) {
                         data.timestamps = data.timestamps.filter(t => now - t < maxAge);
@@ -586,12 +580,12 @@ export default (client) => {
                         if (data.count > 0) hasActiveStrikes = true;
                     }
                 }
-                
+
                 if (!hasActiveStrikes) {
                     guildStrikes.delete(userId);
                 }
             }
-            
+
             if (guildStrikes.size === 0) {
                 strikes.delete(guildId);
             }

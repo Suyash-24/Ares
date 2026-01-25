@@ -28,7 +28,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 	}
 
-	// Check if bot can manage this role
 	const botMember = message.guild.members.me;
 	if (role.position >= botMember.roles.highest.position) {
 		const c = new ContainerBuilder();
@@ -40,15 +39,15 @@ async function execute(message, args, client) {
 	const rewardIndex = leveling.rewards.roles.findIndex(r => r.roleId === roleId);
 
 	const c = new ContainerBuilder();
-	
+
 	if (rewardIndex === -1) {
-		// Add new role reward
+
 		leveling.rewards.roles.push({ level: newLevel, roleId: role.id });
 		c.addTextDisplayComponents(td => td.setContent(`## ${EMOJIS.success || '✅'} Role Reward Added`));
 		c.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.roles || '🎭'} <@&${role.id}> will be awarded at **Level ${newLevel}**`));
 	} else {
-		// Update existing role reward
+
 		const oldLevel = leveling.rewards.roles[rewardIndex].level;
 		leveling.rewards.roles[rewardIndex].level = newLevel;
 		c.addTextDisplayComponents(td => td.setContent(`## ${EMOJIS.success || '✅'} Role Reward Updated`));

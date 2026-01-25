@@ -107,7 +107,6 @@ export default {
 			});
 		}
 
-		// Blend the two colors to create a gradient effect (using average)
 		const r1 = (color1 >> 16) & 255;
 		const g1 = (color1 >> 8) & 255;
 		const b1 = color1 & 255;

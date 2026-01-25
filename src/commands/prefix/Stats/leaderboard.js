@@ -12,13 +12,12 @@ import { getActiveVoiceSessions } from '../../../events/statsHandler.js';
 const name = 'statsboard';
 const aliases = ['slb', 'statsleaderboard', 'statslb'];
 
-// Component handlers for buttons
 const components = [
 	{
 		customId: /^stats_lb_(type|period)_(messages|voice)_(today|week|month|all)$/,
 		execute: async (interaction) => {
 			const parts = interaction.customId.split('_');
-			// Format: stats_lb_type_<type>_<period> or stats_lb_period_<type>_<period>
+
 			const type = parts[3];
 			const period = parts[4];
 			const client = interaction.client;
@@ -174,21 +173,18 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Validate type argument
 	const validTypes = ['messages', 'voice'];
 	const validPeriods = ['today', 'week', 'month', 'all'];
-	
+
 	let type = args[0]?.toLowerCase();
 	let period = args[1]?.toLowerCase();
-	
-	// Default to valid values if invalid input
+
 	if (!validTypes.includes(type)) type = 'messages';
 	if (!validPeriods.includes(period)) period = 'all';
-	
+
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Calculate time range based on period
 	const now = Date.now();
 	let startTime = 0;
 	let periodLabel = 'All Time';

@@ -1,22 +1,17 @@
-/**
- * Ares Logging System - Complete Implementation
- * Handles all server event logging with comprehensive configuration
- */
+
 
 import { ContainerBuilder, SeparatorSpacingSize, EmbedBuilder, AuditLogEvent, ChannelType, MessageFlags, ButtonBuilder, ButtonStyle } from 'discord.js';
 import EMOJIS from './emojis.js';
 import { getCommandInvoker } from '../events/loggingEvents.js';
 
-// Event type constants
 export const LOG_EVENTS = {
-	// Message Events
+
 	MESSAGE_DELETE: 'messageDelete',
 	MESSAGE_EDIT: 'messageEdit',
 	BULK_DELETE: 'bulkDelete',
 	MESSAGE_PIN: 'messagePin',
 	MESSAGE_UNPIN: 'messageUnpin',
 
-	// Member Events
 	MEMBER_JOIN: 'memberJoin',
 	MEMBER_LEAVE: 'memberLeave',
 	BOT_ADD: 'botAdd',
@@ -31,7 +26,6 @@ export const LOG_EVENTS = {
 	TIMEOUT_ADD: 'timeoutAdd',
 	TIMEOUT_REMOVE: 'timeoutRemove',
 
-	// Channel Events
 	CHANNEL_CREATE: 'channelCreate',
 	CHANNEL_DELETE: 'channelDelete',
 	CHANNEL_UPDATE: 'channelUpdate',
@@ -39,12 +33,10 @@ export const LOG_EVENTS = {
 	THREAD_DELETE: 'threadDelete',
 	THREAD_UPDATE: 'threadUpdate',
 
-	// Role Events
 	ROLE_CREATE: 'roleCreate',
 	ROLE_DELETE: 'roleDelete',
 	ROLE_UPDATE: 'roleUpdate',
 
-	// Emoji & Sticker Events
 	EMOJI_CREATE: 'emojiCreate',
 	EMOJI_DELETE: 'emojiDelete',
 	EMOJI_UPDATE: 'emojiUpdate',
@@ -52,21 +44,18 @@ export const LOG_EVENTS = {
 	STICKER_DELETE: 'stickerDelete',
 	STICKER_UPDATE: 'stickerUpdate',
 
-	// Server Events
 	SERVER_UPDATE: 'serverUpdate',
 	BOOST_ADD: 'boostAdd',
 	BOOST_REMOVE: 'boostRemove',
 	INVITE_CREATE: 'inviteCreate',
 	INVITE_DELETE: 'inviteDelete',
 
-	// Voice Events
 	VOICE_JOIN: 'voiceJoin',
 	VOICE_LEAVE: 'voiceLeave',
 	VOICE_MOVE: 'voiceMove',
 	VOICE_MUTE: 'voiceMute',
 	VOICE_DEAFEN: 'voiceDeafen',
 
-	// Moderation Events (Ares Actions)
 	MOD_BAN: 'modBan',
 	MOD_KICK: 'modKick',
 	MOD_MUTE: 'modMute',
@@ -106,11 +95,9 @@ export const LOG_EVENTS = {
 	MOD_CASE_DELETE: 'modCaseDelete',
 	MOD_CASE_REASON: 'modCaseReason',
 
-	// Automod Events
 	AUTOMOD_ACTION: 'automodAction'
 };
 
-// Log category mapping
 export const LOG_CATEGORIES = {
 	message: ['messageDelete', 'messageEdit', 'bulkDelete', 'messagePin', 'messageUnpin'],
 	member: ['memberJoin', 'memberLeave', 'nicknameUpdate', 'usernameUpdate', 'avatarUpdate', 'roleAdd', 'roleRemove'],
@@ -133,7 +120,6 @@ export const LOG_CATEGORIES = {
 	emoji: ['emojiCreate', 'emojiDelete', 'emojiUpdate', 'stickerCreate', 'stickerDelete', 'stickerUpdate']
 };
 
-// Category to channel mapping for display
 export const CATEGORY_NAMES = {
 	message: 'Message Logs',
 	member: 'Member Logs',
@@ -145,7 +131,6 @@ export const CATEGORY_NAMES = {
 	emoji: 'Emoji & Sticker Logs'
 };
 
-// Event icons for visual appeal
 const EVENT_ICONS = {
 	messageDelete: EMOJIS.logDelete,
 	messageEdit: EMOJIS.logEdit,
@@ -231,7 +216,6 @@ const EVENT_ICONS = {
 	automodAction: EMOJIS.logMod
 };
 
-// Event titles for embeds
 const EVENT_TITLES = {
 	messageDelete: 'Message Deleted',
 	messageEdit: 'Message Edited',
@@ -317,21 +301,17 @@ const EVENT_TITLES = {
 	automodAction: 'Automod Action'
 };
 
-// Embed colors by category
 const CATEGORY_COLORS = {
-	message: 0x3498db, // Blue
-	member: 0x2ecc71, // Green
-	mod: 0xe74c3c, // Red
-	server: 0x9b59b6, // Purple
-	voice: 0x1abc9c, // Teal
-	role: 0xf39c12, // Orange
-	channel: 0x95a5a6, // Gray
-	emoji: 0xe91e63 // Pink
+	message: 0x3498db,
+	member: 0x2ecc71,
+	mod: 0xe74c3c,
+	server: 0x9b59b6,
+	voice: 0x1abc9c,
+	role: 0xf39c12,
+	channel: 0x95a5a6,
+	emoji: 0xe91e63
 };
 
-/**
- * Default logging configuration
- */
 export function getDefaultLoggingConfig() {
 	return {
 		enabled: false,
@@ -344,17 +324,16 @@ export function getDefaultLoggingConfig() {
 			role: null,
 			channel: null,
 			emoji: null,
-			combined: null // For servers using a single log channel
+			combined: null
 		},
 		events: {
-			// Message Events
+
 			messageDelete: true,
 			messageEdit: true,
 			bulkDelete: true,
 			messagePin: true,
 			messageUnpin: true,
 
-			// Member Events
 			memberJoin: true,
 			memberLeave: true,
 			memberBan: true,
@@ -368,7 +347,6 @@ export function getDefaultLoggingConfig() {
 			timeoutAdd: true,
 			timeoutRemove: true,
 
-			// Channel Events
 			channelCreate: true,
 			channelDelete: true,
 			channelUpdate: true,
@@ -376,12 +354,10 @@ export function getDefaultLoggingConfig() {
 			threadDelete: true,
 			threadUpdate: true,
 
-			// Role Events
 			roleCreate: true,
 			roleDelete: true,
 			roleUpdate: true,
 
-			// Emoji & Sticker Events
 			emojiCreate: true,
 			emojiDelete: true,
 			emojiUpdate: true,
@@ -389,7 +365,6 @@ export function getDefaultLoggingConfig() {
 			stickerDelete: true,
 			stickerUpdate: true,
 
-			// Server Events
 			serverUpdate: true,
 			boostAdd: true,
 			boostRemove: true,
@@ -397,14 +372,12 @@ export function getDefaultLoggingConfig() {
 			inviteDelete: true,
 			botAdd: true,
 
-			// Voice Events
 			voiceJoin: true,
 			voiceLeave: true,
 			voiceMove: true,
 			voiceMute: true,
 			voiceDeafen: true,
 
-			// Mod Events
 			modBan: true,
 			modKick: true,
 			modMute: true,
@@ -456,21 +429,15 @@ export function getDefaultLoggingConfig() {
 	};
 }
 
-/**
- * Get the category for a specific event type
- */
 export function getCategoryForEvent(eventType) {
 	for (const [category, events] of Object.entries(LOG_CATEGORIES)) {
 		if (events.includes(eventType)) {
 			return category;
 		}
 	}
-	return 'message'; // Default fallback
+	return 'message';
 }
 
-/**
- * Get the log channel for an event type
- */
 export async function getLogChannel(client, guildId, eventType) {
 	const guildData = await client.db.findOne({ guildId });
 	if (!guildData?.logging?.enabled) {
@@ -478,15 +445,14 @@ export async function getLogChannel(client, guildId, eventType) {
 	}
 
 	const config = guildData.logging;
-	
-	// Check if event is enabled - auto-enable new events if any event in same category is enabled
+
 	const category = getCategoryForEvent(eventType);
-	
+
 	if (!config.events?.[eventType]) {
-		// Auto-enable new events if other events in the same category are already enabled
+
 		const hasAnyCategoryEvent = LOG_CATEGORIES[category]?.some(e => config.events?.[e]);
 		if (hasAnyCategoryEvent) {
-			// Auto-enable this event
+
 			if (!config.events) config.events = {};
 			config.events[eventType] = true;
 			await client.db.updateOne(
@@ -498,8 +464,7 @@ export async function getLogChannel(client, guildId, eventType) {
 			return null;
 		}
 	}
-	
-	// Check for category-specific channel first, then combined
+
 	const channelId = config.channels?.[category] || config.channels?.combined;
 	if (!channelId) {
 		return null;
@@ -511,28 +476,20 @@ export async function getLogChannel(client, guildId, eventType) {
 	return guild.channels.cache.get(channelId);
 }
 
-/**
- * Check if logging should be ignored for this context
- */
 export async function shouldIgnore(client, guildId, context) {
 	const guildData = await client.db.findOne({ guildId });
 	if (!guildData?.logging?.ignore) return false;
 
 	const ignore = guildData.logging.ignore;
 
-	// Check if specific bot is in ignore list
 	if (context.user?.bot && context.user?.id && ignore.specificBots?.includes(context.user.id)) return true;
 
-	// Check if all bots should be ignored
 	if (ignore.bots && context.user?.bot) return true;
 
-	// Check if user is in ignore list
 	if (context.user?.id && ignore.users?.includes(context.user.id)) return true;
 
-	// Check if channel is in ignore list
 	if (context.channel?.id && ignore.channels?.includes(context.channel.id)) return true;
 
-	// Check if user has any ignored role
 	if (context.member?.roles?.cache) {
 		const memberRoles = [...context.member.roles.cache.keys()];
 		if (memberRoles.some(roleId => ignore.roles?.includes(roleId))) return true;
@@ -541,35 +498,28 @@ export async function shouldIgnore(client, guildId, context) {
 	return false;
 }
 
-/**
- * Create a beautiful log container using v2 components
- */
 export function createLogContainer(eventType, data) {
 	const icon = EVENT_ICONS[eventType] || '📋';
 	const title = EVENT_TITLES[eventType] || 'Event Logged';
 
 	const container = new ContainerBuilder();
-	
-	// Title with icon
-	container.addTextDisplayComponents(text => 
+
+	container.addTextDisplayComponents(text =>
 		text.setContent(`# ${icon} ${title}`)
 	);
-	
-	container.addSeparatorComponents(sep => 
+
+	container.addSeparatorComponents(sep =>
 		sep.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Build main info section
 	const infoLines = [];
 
-	// Executor (no ping)
 	if (data.executor) {
 		const executorTag = data.executor.tag || data.executor.user?.tag || data.executor.username || 'Unknown';
 		const executorId = data.executor.id || data.executor.user?.id || 'Unknown';
 		infoLines.push(`**${EMOJIS.members} Executor:** ${executorTag} (ID: ${executorId})`);
 	}
 
-	// Target (no ping)
 	if (data.target) {
 		const targetTag = data.target.tag || data.target.user?.tag || data.target.name || data.target.username || 'Unknown';
 		const targetId = data.target.id || data.target.user?.id;
@@ -580,47 +530,39 @@ export function createLogContainer(eventType, data) {
 		}
 	}
 
-	// Channel
 	if (data.channel) {
 		const channelId = data.channel.id || data.channel;
 		infoLines.push(`**${EMOJIS.channels} Channel:** <#${channelId}>`);
 	}
 
-	// Role (for role events)
 	if (data.role) {
 		const roleName = data.role.name || 'Unknown Role';
 		const roleId = data.role.id;
 		infoLines.push(`**${EMOJIS.roles} Role:** ${roleName} (<@&${roleId}>)`);
 	}
 
-	// Thread (for thread events)
 	if (data.thread) {
 		const threadName = data.thread.name || 'Unknown Thread';
 		const threadId = data.thread.id;
 		infoLines.push(`**🧵 Thread:** ${threadName} (<#${threadId}>)`);
 	}
 
-	// Roles removed (for voidstaff)
 	if (data.rolesRemoved && Array.isArray(data.rolesRemoved)) {
 		infoLines.push(`**${EMOJIS.roles} Roles Removed:** ${data.rolesRemoved.join(', ')}`);
 	}
 
-	// Note content
 	if (data.note) {
 		infoLines.push(`**📝 Note:** ${data.note.substring(0, 500)}`);
 	}
 
-	// Note count (for notes clear)
 	if (data.noteCount) {
 		infoLines.push(`**📊 Notes Cleared:** ${data.noteCount}`);
 	}
 
-	// Warning count (for clearwarnings)
 	if (data.warningCount) {
 		infoLines.push(`**⚠️ Warnings Cleared:** ${data.warningCount}`);
 	}
 
-	// Previous/New topic (for channel topic change)
 	if (data.previousTopic !== undefined) {
 		infoLines.push(`**${EMOJIS.previous} Previous Topic:** ${data.previousTopic || '(none)'}`);
 	}
@@ -628,7 +570,6 @@ export function createLogContainer(eventType, data) {
 		infoLines.push(`**${EMOJIS.next} New Topic:** ${data.newTopic || '(none)'}`);
 	}
 
-	// Previous/New nickname (for nick command)
 	if (data.previousNickname !== undefined) {
 		infoLines.push(`**${EMOJIS.previous} Previous Nickname:** ${data.previousNickname || '(none)'}`);
 	}
@@ -636,12 +577,10 @@ export function createLogContainer(eventType, data) {
 		infoLines.push(`**${EMOJIS.next} New Nickname:** ${data.newNickname || '(none)'}`);
 	}
 
-	// Clear type (for clear command)
 	if (data.clearType) {
 		infoLines.push(`**🗑️ Clear Type:** ${data.clearType}`);
 	}
 
-	// Case info (for delcase, reason commands)
 	if (data.caseId) {
 		infoLines.push(`**📋 Case ID:** #${data.caseId}`);
 	}
@@ -655,19 +594,16 @@ export function createLogContainer(eventType, data) {
 		infoLines.push(`**${EMOJIS.next} New Reason:** ${data.newReason.substring(0, 300)}`);
 	}
 
-	// Time window (for raidwipe)
 	if (data.timeWindow) {
 		infoLines.push(`**⏱️ Time Window:** ${data.timeWindow}`);
 	}
 
-	// Details (for mass action, raidwipe, etc.)
 	if (data.details) {
 		infoLines.push(`**📋 Details:** ${data.details}`);
 	}
 
-	// Duration
 	if (data.duration) {
-		// Format duration if it's a number (ms)
+
 		let durationStr = data.duration;
 		if (typeof data.duration === 'number') {
 			const seconds = Math.floor(data.duration / 1000);
@@ -682,54 +618,44 @@ export function createLogContainer(eventType, data) {
 		infoLines.push(`**${EMOJIS.duration} Duration:** ${durationStr}`);
 	}
 
-	// Count
 	if (data.count) {
 		infoLines.push(`**${EMOJIS.commands} Count:** ${data.count}`);
 	}
 
-	// Reason
 	if (data.reason) {
 		infoLines.push(`**📝 Reason:** ${data.reason.substring(0, 500)}`);
 	}
 
-	// Content
 	if (data.content) {
 		infoLines.push(`**${EMOJIS.logMessage} Content:**\n${data.content.substring(0, 1000)}`);
 	}
 
-	// Roles added/removed
 	if (data.roles) {
 		infoLines.push(`**${EMOJIS.roles} Roles:**\n${data.roles.substring(0, 1000)}`);
 	}
 
-	// Emoji name (for emoji events)
 	if (data.emojiName) {
 		infoLines.push(`**😀 Emoji:** \`:${data.emojiName}:\`${data.emojiPreview ? ` ${data.emojiPreview}` : ''}`);
 	}
 
-	// Emoji name change (old -> new)
 	if (data.oldName && data.newName) {
 		infoLines.push(`**😀 Name Changed:**\n\`:${data.oldName}:\` → \`:${data.newName}:\`${data.emojiPreview ? `\n**Preview:** ${data.emojiPreview}` : ''}`);
 	}
 
-	// Before/After changes (skip if we have oldName/newName for emoji)
 	if (data.before !== undefined && data.after !== undefined && !data.oldName) {
 		const beforeStr = String(data.before || '*None*').substring(0, 500);
 		const afterStr = String(data.after || '*None*').substring(0, 500);
 		infoLines.push(`**${EMOJIS.previous} Before:** ${beforeStr}\n**${EMOJIS.next} After:** ${afterStr}`);
 	}
 
-	// Changes array (for role/channel updates)
 	if (data.changes && data.changes.length > 0) {
 		infoLines.push(`**${EMOJIS.log} Changes:**\n${data.changes.join('\n').substring(0, 1000)}`);
 	}
 
-	// Permissions
 	if (data.permissions) {
 		infoLines.push(`**${EMOJIS.security} Permissions:**\n${data.permissions.substring(0, 1000)}`);
 	}
 
-	// Attachments
 	if (data.attachments && data.attachments.length > 0) {
 		const attachmentList = data.attachments.map(a => {
 			const size = a.size ? ` (${formatFileSize(a.size)})` : '';
@@ -738,25 +664,22 @@ export function createLogContainer(eventType, data) {
 		infoLines.push(`**📎 Attachments (${data.attachments.length}):**\n${attachmentList}`);
 	}
 
-	// Build content sections (consolidate all middle parts)
 	const contentSections = [];
 
-	// Add main info with thumbnail accessory
 	if (infoLines.length > 0) {
-		// Only use section if we have a thumbnail/image to display
+
 		if (data.thumbnail || data.image) {
 			container.addSectionComponents(section => {
-				section.addTextDisplayComponents(text => 
+				section.addTextDisplayComponents(text =>
 					text.setContent(infoLines.join('\n'))
 				);
 
-				// Add thumbnail as accessory (right side)
 				if (data.thumbnail) {
-					section.setThumbnailAccessory(thumbnail => 
+					section.setThumbnailAccessory(thumbnail =>
 						thumbnail.setURL(data.thumbnail).setDescription('Event thumbnail')
 					);
 				} else if (data.image) {
-					section.setThumbnailAccessory(thumbnail => 
+					section.setThumbnailAccessory(thumbnail =>
 						thumbnail.setURL(data.image).setDescription('Event image')
 					);
 				}
@@ -764,22 +687,20 @@ export function createLogContainer(eventType, data) {
 				return section;
 			});
 		} else {
-			// No thumbnail, just add text display normally
-			container.addTextDisplayComponents(text => 
+
+			container.addTextDisplayComponents(text =>
 				text.setContent(infoLines.join('\n'))
 			);
 		}
 	}
 
-	// Add action buttons if provided
 	if (data.transcriptUrl || data.hasTranscript || data.transcriptBuffer || data.viewUrl) {
-		container.addSeparatorComponents(sep => 
+		container.addSeparatorComponents(sep =>
 			sep.setSpacing(SeparatorSpacingSize.Small)
 		);
 
 		const buttons = [];
-		
-		// Transcript button - use custom ID for interaction
+
 		if (data.hasTranscript || data.transcriptUrl || data.transcriptBuffer) {
 			buttons.push(
 				new ButtonBuilder()
@@ -806,17 +727,16 @@ export function createLogContainer(eventType, data) {
 		}
 	}
 
-	container.addSeparatorComponents(sep => 
+	container.addSeparatorComponents(sep =>
 		sep.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Footer info
 	const footerParts = [];
 	if (data.messageId) footerParts.push(`${EMOJIS.id} Message ID: ${data.messageId}`);
 	if (data.userId) footerParts.push(`${EMOJIS.members} User ID: ${data.userId}`);
 	if (data.channelId) footerParts.push(`${EMOJIS.channels} Channel ID: ${data.channelId}`);
 	if (data.roleId) footerParts.push(`${EMOJIS.roles} Role ID: ${data.roleId}`);
-	
+
 	const timestamp = new Date().toLocaleString('en-US', {
 		month: 'short',
 		day: 'numeric',
@@ -825,19 +745,16 @@ export function createLogContainer(eventType, data) {
 		minute: '2-digit',
 		hour12: true
 	});
-	
+
 	footerParts.push(`${EMOJIS.date} ${timestamp}`);
-	
-	container.addTextDisplayComponents(text => 
+
+	container.addTextDisplayComponents(text =>
 		text.setContent(`-# ${footerParts.join(' • ')}`)
 	);
 
 	return container;
 }
 
-/**
- * Create a beautiful log embed (legacy - kept for fallback)
- */
 export function createLogEmbed(eventType, data) {
 	const category = getCategoryForEvent(eventType);
 	const icon = EVENT_ICONS[eventType] || '📋';
@@ -849,7 +766,6 @@ export function createLogEmbed(eventType, data) {
 		.setColor(color)
 		.setTimestamp();
 
-	// Add fields based on data
 	if (data.executor) {
 		embed.addFields({
 			name: '👤 Executor',
@@ -934,22 +850,20 @@ export function createLogEmbed(eventType, data) {
 	}
 
 	if (data.attachments && data.attachments.length > 0) {
-		const imageAttachment = data.attachments.find(a => 
-			a.contentType?.startsWith('image/') || 
+		const imageAttachment = data.attachments.find(a =>
+			a.contentType?.startsWith('image/') ||
 			/\.(png|jpg|jpeg|gif|webp)$/i.test(a.name || a.url)
 		);
-		
-		// Set the first image as the embed image
+
 		if (imageAttachment) {
 			embed.setImage(imageAttachment.url);
 		}
-		
-		// List all attachments
+
 		const attachmentList = data.attachments.map(a => {
 			const size = a.size ? ` (${formatFileSize(a.size)})` : '';
 			return `[${a.name || 'attachment'}](${a.url})${size}`;
 		}).join('\n').substring(0, 1024);
-		
+
 		embed.addFields({
 			name: `📎 Attachments (${data.attachments.length})`,
 			value: attachmentList,
@@ -957,18 +871,16 @@ export function createLogEmbed(eventType, data) {
 		});
 	}
 
-	// Set thumbnail if available
 	if (data.thumbnail) {
 		embed.setThumbnail(data.thumbnail);
 	}
 
-	// Set footer with additional info
 	const footerParts = [];
 	if (data.messageId) footerParts.push(`Message ID: ${data.messageId}`);
 	if (data.userId) footerParts.push(`User ID: ${data.userId}`);
 	if (data.channelId) footerParts.push(`Channel ID: ${data.channelId}`);
 	if (data.roleId) footerParts.push(`Role ID: ${data.roleId}`);
-	
+
 	if (footerParts.length > 0) {
 		embed.setFooter({ text: footerParts.join(' • ') });
 	}
@@ -976,35 +888,29 @@ export function createLogEmbed(eventType, data) {
 	return embed;
 }
 
-/**
- * Send a log to the appropriate channel
- */
 export async function sendLog(client, guildId, eventType, data) {
 	try {
-		// Check if we should ignore this log
+
 		if (await shouldIgnore(client, guildId, data)) return false;
 
 		const logChannel = await getLogChannel(client, guildId, eventType);
 		if (!logChannel) return false;
 
-		// Store transcript buffer for later retrieval via button
 		if (data.files && data.files.length > 0) {
 			const transcriptFile = data.files[0];
-			// Create a unique ID for this transcript
+
 			const transcriptId = `transcript_${guildId}_${Date.now()}`;
 			data.transcriptId = transcriptId;
 			data.hasTranscript = true;
-			
-			// Store in a Map for retrieval (with 1 hour expiry)
+
 			if (!global.transcripts) global.transcripts = new Map();
 			global.transcripts.set(transcriptId, {
 				buffer: transcriptFile.attachment,
 				name: transcriptFile.name,
 				description: transcriptFile.description,
-				expiresAt: Date.now() + (60 * 60 * 1000) // 1 hour
+				expiresAt: Date.now() + (60 * 60 * 1000)
 			});
-			
-			// Clean up expired transcripts
+
 			for (const [id, data] of global.transcripts.entries()) {
 				if (Date.now() > data.expiresAt) {
 					global.transcripts.delete(id);
@@ -1012,19 +918,16 @@ export async function sendLog(client, guildId, eventType, data) {
 			}
 		}
 
-		// Create the main log container
 		const container = createLogContainer(eventType, data);
 
-		const messageOptions = { 
+		const messageOptions = {
 			components: [container],
 			flags: MessageFlags.IsComponentsV2,
 			allowedMentions: { parse: [] }
 		};
 
-		// Send the log message WITHOUT files (they're stored in memory)
 		await logChannel.send(messageOptions);
 
-		// Store in database for retention/search
 		await storeLog(client, guildId, eventType, data);
 
 		return true;
@@ -1034,13 +937,10 @@ export async function sendLog(client, guildId, eventType, data) {
 	}
 }
 
-/**
- * Store log in database for retention and search
- */
 async function storeLog(client, guildId, eventType, data) {
 	try {
 		const guildData = await client.db.findOne({ guildId }) || {};
-		
+
 		if (!guildData.logs) guildData.logs = [];
 
 		const logEntry = {
@@ -1052,15 +952,12 @@ async function storeLog(client, guildId, eventType, data) {
 
 		guildData.logs.push(logEntry);
 
-		// Apply retention limits
 		const retention = guildData.logging?.retention || { maxEvents: 10000, days: 30 };
-		
-		// Limit by count
+
 		if (guildData.logs.length > retention.maxEvents) {
 			guildData.logs = guildData.logs.slice(-retention.maxEvents);
 		}
 
-		// Limit by age
 		if (retention.days) {
 			const cutoff = Date.now() - (retention.days * 24 * 60 * 60 * 1000);
 			guildData.logs = guildData.logs.filter(log => log.timestamp > cutoff);
@@ -1072,9 +969,6 @@ async function storeLog(client, guildId, eventType, data) {
 	}
 }
 
-/**
- * Sanitize log data for database storage
- */
 function sanitizeLogData(data) {
 	const sanitized = {};
 
@@ -1082,7 +976,7 @@ function sanitizeLogData(data) {
 		if (value === null || value === undefined) continue;
 
 		if (typeof value === 'object' && value.id) {
-			// Extract IDs from Discord objects
+
 			sanitized[key] = {
 				id: value.id,
 				name: value.name || value.tag || value.username || null
@@ -1102,44 +996,36 @@ function sanitizeLogData(data) {
 	return sanitized;
 }
 
-/**
- * Search logs in database
- */
 export async function searchLogs(client, guildId, options = {}) {
 	const guildData = await client.db.findOne({ guildId });
 	if (!guildData?.logs) return [];
 
 	let logs = [...guildData.logs];
 
-	// Filter by event type
 	if (options.eventType) {
 		logs = logs.filter(log => log.eventType === options.eventType);
 	}
 
-	// Filter by category
 	if (options.category) {
 		const categoryEvents = LOG_CATEGORIES[options.category] || [];
 		logs = logs.filter(log => categoryEvents.includes(log.eventType));
 	}
 
-	// Filter by user
 	if (options.userId) {
-		logs = logs.filter(log => 
+		logs = logs.filter(log =>
 			log.data?.target?.id === options.userId ||
 			log.data?.executor?.id === options.userId ||
 			log.data?.userId === options.userId
 		);
 	}
 
-	// Filter by channel
 	if (options.channelId) {
-		logs = logs.filter(log => 
+		logs = logs.filter(log =>
 			log.data?.channel?.id === options.channelId ||
 			log.data?.channelId === options.channelId
 		);
 	}
 
-	// Filter by keyword
 	if (options.keyword) {
 		const keyword = options.keyword.toLowerCase();
 		logs = logs.filter(log => {
@@ -1151,7 +1037,6 @@ export async function searchLogs(client, guildId, options = {}) {
 		});
 	}
 
-	// Filter by time range
 	if (options.after) {
 		logs = logs.filter(log => log.timestamp > options.after);
 	}
@@ -1159,10 +1044,8 @@ export async function searchLogs(client, guildId, options = {}) {
 		logs = logs.filter(log => log.timestamp < options.before);
 	}
 
-	// Sort by timestamp (newest first)
 	logs.sort((a, b) => b.timestamp - a.timestamp);
 
-	// Limit results
 	if (options.limit) {
 		logs = logs.slice(0, options.limit);
 	}
@@ -1170,17 +1053,11 @@ export async function searchLogs(client, guildId, options = {}) {
 	return logs;
 }
 
-/**
- * Export logs to JSON format
- */
 export async function exportLogs(client, guildId, options = {}) {
 	const logs = await searchLogs(client, guildId, options);
 	return JSON.stringify(logs, null, 2);
 }
 
-/**
- * Purge logs from database
- */
 export async function purgeLogs(client, guildId, options = {}) {
 	const guildData = await client.db.findOne({ guildId });
 	if (!guildData?.logs) return 0;
@@ -1188,23 +1065,19 @@ export async function purgeLogs(client, guildId, options = {}) {
 	let logsToKeep = [...guildData.logs];
 	const originalCount = logsToKeep.length;
 
-	// Filter by event type
 	if (options.eventType) {
 		logsToKeep = logsToKeep.filter(log => log.eventType !== options.eventType);
 	}
 
-	// Filter by category
 	if (options.category) {
 		const categoryEvents = LOG_CATEGORIES[options.category] || [];
 		logsToKeep = logsToKeep.filter(log => !categoryEvents.includes(log.eventType));
 	}
 
-	// Filter by age
 	if (options.olderThan) {
 		logsToKeep = logsToKeep.filter(log => log.timestamp > options.olderThan);
 	}
 
-	// Purge all if specified
 	if (options.all) {
 		logsToKeep = [];
 	}
@@ -1214,9 +1087,6 @@ export async function purgeLogs(client, guildId, options = {}) {
 	return originalCount - logsToKeep.length;
 }
 
-/**
- * Get logging statistics
- */
 export async function getLoggingStats(client, guildId) {
 	const guildData = await client.db.findOne({ guildId });
 	if (!guildData?.logs) return { total: 0, byCategory: {}, byEvent: {} };
@@ -1231,10 +1101,9 @@ export async function getLoggingStats(client, guildId) {
 	};
 
 	for (const log of logs) {
-		// Count by event
+
 		stats.byEvent[log.eventType] = (stats.byEvent[log.eventType] || 0) + 1;
 
-		// Count by category
 		const category = getCategoryForEvent(log.eventType);
 		stats.byCategory[category] = (stats.byCategory[category] || 0) + 1;
 	}
@@ -1242,12 +1111,9 @@ export async function getLoggingStats(client, guildId) {
 	return stats;
 }
 
-/**
- * Utility to fetch audit log executor
- */
 export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold = 10000) {
 	try {
-		// Map audit log event types to command action types
+
 		const auditLogToCommandMap = {
 			[AuditLogEvent.MessageBulkDelete]: 'delete',
 			[AuditLogEvent.MemberUpdate]: 'nick',
@@ -1262,11 +1128,9 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 			[AuditLogEvent.ThreadUpdate]: 'threadlock',
 		};
 
-		// First, check if we have a command invoker marked for this action
 		const commandActionType = auditLogToCommandMap[type] || type;
 		let commandInvoker = getCommandInvoker(guild.id, commandActionType, targetId);
-		
-		// Try alternate action types for role updates
+
 		if (!commandInvoker && type === AuditLogEvent.MemberRoleUpdate) {
 			commandInvoker = getCommandInvoker(guild.id, 'roleadd', targetId) ||
 							 getCommandInvoker(guild.id, 'roleremove', targetId) ||
@@ -1279,7 +1143,6 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 							 getCommandInvoker(guild.id, 'rolerestore', targetId);
 		}
 
-		// Try alternate action types for role updates (color, hoist, etc.)
 		if (!commandInvoker && type === AuditLogEvent.RoleUpdate) {
 			commandInvoker = getCommandInvoker(guild.id, 'rolecolor', targetId) ||
 							 getCommandInvoker(guild.id, 'rolecolorgradient', targetId) ||
@@ -1289,12 +1152,10 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 							 getCommandInvoker(guild.id, 'rolementionable', targetId);
 		}
 
-		// Try alternate action types for thread updates
 		if (!commandInvoker && type === AuditLogEvent.ThreadUpdate) {
 			commandInvoker = getCommandInvoker(guild.id, 'threadunlock', targetId);
 		}
 
-		// Try alternate for nick (forcenickname)
 		if (!commandInvoker && type === AuditLogEvent.MemberUpdate) {
 			commandInvoker = getCommandInvoker(guild.id, 'forcenickname', targetId);
 		}
@@ -1303,9 +1164,8 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 			return commandInvoker;
 		}
 
-		// Small delay to allow audit log to be created
 		await new Promise(resolve => setTimeout(resolve, 500));
-		
+
 		const auditLogs = await guild.fetchAuditLogs({
 			limit: 10,
 			type
@@ -1315,7 +1175,6 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 			return null;
 		}
 
-		// For bulk delete, just get the most recent entry since Discord doesn't provide proper targeting
 		if (type === AuditLogEvent.MessageBulkDelete) {
 			const recentEntry = auditLogs.entries.first();
 			if (recentEntry && Date.now() - recentEntry.createdTimestamp < timeThreshold) {
@@ -1324,14 +1183,12 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 			return null;
 		}
 
-		// For other events, try to match by target ID
 		const entry = auditLogs.entries.find(e => {
 			const timeDiff = Date.now() - e.createdTimestamp;
 			const targetMatch = e.target?.id === targetId || e.targetId === targetId;
 			return timeDiff < timeThreshold && targetMatch;
 		});
 
-		// If no exact match, try to find the most recent entry within time threshold
 		if (!entry) {
 			const recentEntry = auditLogs.entries.find(e => {
 				const timeDiff = Date.now() - e.createdTimestamp;
@@ -1347,29 +1204,23 @@ export async function fetchAuditLogExecutor(guild, type, targetId, timeThreshold
 	}
 }
 
-/**
- * Format file size for display
- */
 function formatFileSize(bytes) {
 	if (!bytes) return '0 B';
 	const units = ['B', 'KB', 'MB', 'GB'];
 	let unitIndex = 0;
 	let size = bytes;
-	
+
 	while (size >= 1024 && unitIndex < units.length - 1) {
 		size /= 1024;
 		unitIndex++;
 	}
-	
+
 	return `${size.toFixed(unitIndex > 0 ? 1 : 0)} ${units[unitIndex]}`;
 }
 
-/**
- * Format permission changes for logging
- */
 export function formatPermissionChanges(oldPerms, newPerms) {
 	const changes = [];
-	
+
 	const allPerms = new Set([
 		...Object.keys(oldPerms || {}),
 		...Object.keys(newPerms || {})
@@ -1378,7 +1229,7 @@ export function formatPermissionChanges(oldPerms, newPerms) {
 	for (const perm of allPerms) {
 		const oldVal = oldPerms?.[perm];
 		const newVal = newPerms?.[perm];
-		
+
 		if (oldVal !== newVal) {
 			const oldStr = oldVal === true ? '✅' : oldVal === false ? '❌' : '➖';
 			const newStr = newVal === true ? '✅' : newVal === false ? '❌' : '➖';
@@ -1389,12 +1240,9 @@ export function formatPermissionChanges(oldPerms, newPerms) {
 	return changes.length > 0 ? changes.join('\n') : 'No changes';
 }
 
-/**
- * Format duration for display
- */
 export function formatDuration(ms) {
 	if (!ms) return 'Permanent';
-	
+
 	const seconds = Math.floor(ms / 1000);
 	const minutes = Math.floor(seconds / 60);
 	const hours = Math.floor(minutes / 60);
@@ -1406,9 +1254,6 @@ export function formatDuration(ms) {
 	return `${seconds}s`;
 }
 
-/**
- * Get channel type string
- */
 export function getChannelTypeString(type) {
 	const types = {
 		[ChannelType.GuildText]: 'Text Channel',

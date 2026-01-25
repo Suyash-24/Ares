@@ -9,7 +9,6 @@ const buildNotice = (title, description) => {
 	return container;
 };
 
-// Store active tasks by guild ID with cancellation flag
 const activeTasks = new Map();
 
 export const getActiveTasks = () => activeTasks;
@@ -29,7 +28,7 @@ export const cancelActiveTask = (guildId) => {
 export const clearActiveTask = (guildId) => activeTasks.delete(guildId);
 export const hasActiveTask = (guildId) => {
 	const task = activeTasks.get(guildId);
-	// Task is considered active if it exists and was set within the last 5 minutes
+
 	return task && (Date.now() - task.timestamp) < 300000;
 };
 

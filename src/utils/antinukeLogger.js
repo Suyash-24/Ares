@@ -53,8 +53,8 @@ async function sendAntinukeLog(client, guildData, guild, logData) {
 
     try {
         const { embeds, components } = createLogEmbed(logData);
-        await channel.send({ 
-            embeds, 
+        await channel.send({
+            embeds,
             components: components || [],
             allowedMentions: { parse: [] }
         });
@@ -87,41 +87,40 @@ function createLogEmbed(data) {
         case 'ban':
         case 'kick':
             return createMemberActionLog(emoji, eventType, color, executor, target, details, punishment, punished, strikes, threshold, timestamp, success);
-        
+
         case 'role':
             return createRoleLog(emoji, color, executor, target, details, punishment, punished, strikes, threshold, timestamp, action, success);
-        
+
         case 'channel':
             return createChannelLog(emoji, color, executor, target, details, punishment, punished, strikes, threshold, timestamp, action, success);
-        
+
         case 'webhook':
             return createWebhookLog(emoji, color, executor, details, punishment, punished, strikes, threshold, timestamp, action, success);
-        
+
         case 'emoji':
             return createEmojiLog(emoji, color, executor, target, details, punishment, punished, strikes, threshold, timestamp, action, success);
-        
+
         case 'botadd':
             return createBotAddLog(emoji, color, executor, target, details, punishment, punished, strikes, threshold, timestamp, success);
-        
+
         case 'vanity':
         case 'guildUpdate':
             return createServerUpdateLog(emoji, color, executor, changes, punishment, punished, strikes, threshold, timestamp, success);
-        
+
         case 'permissions':
             return createPermissionLog(emoji, color, executor, target, details, punishment, punished, strikes, threshold, timestamp, success);
-        
+
         case 'protocol':
             return createProtocolLog(emoji, color, executor, target, reason, timestamp, success);
-        
+
         case 'protocolHold':
             return createProtocolHoldLog(emoji, color, executor, target, punishment, timestamp, success);
-        
+
         case 'strike':
             return createStrikeLog(emoji, color, executor, action, details, strikes, threshold, timestamp);
         case 'configChange':
             return createConfigChangeLog(emoji, color, executor, action, details, changes, timestamp);
-        
-        
+
         default:
             return createGenericLog(emoji, color, executor, action, details, punishment, strikes, threshold, timestamp);
     }
@@ -133,20 +132,20 @@ function createMemberActionLog(emoji, eventType, color, executor, target, detail
         .setTitle(`${emoji} Anti-${eventType.charAt(0).toUpperCase() + eventType.slice(1)} Protection`)
         .setDescription(`**Suspicious ${eventType} activity detected**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '🎯 Target', 
-                value: target || 'Unknown', 
-                inline: true 
+            {
+                name: '🎯 Target',
+                value: target || 'Unknown',
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             }
         );
 
@@ -156,24 +155,24 @@ function createMemberActionLog(emoji, eventType, color, executor, target, detail
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Action Taken', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Successfully executed' : '❌ Execution failed'}`, 
-                inline: false 
+            {
+                name: '⚖️ Action Taken',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Successfully executed' : '❌ Execution failed'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Threshold reached: ${strikes || threshold}/${threshold} strikes` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strike Counter', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strike Counter',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             },
-            { 
-                name: '⏱️ Status', 
-                value: `Monitoring...`, 
-                inline: true 
+            {
+                name: '⏱️ Status',
+                value: `Monitoring...`,
+                inline: true
             }
         );
         embed.setFooter({ text: `${threshold - strikes} strikes remaining` });
@@ -190,20 +189,20 @@ function createRoleLog(emoji, color, executor, target, details, punishment, puni
         .setTitle(`${emoji} Anti-Role Protection`)
         .setDescription(`**Suspicious role activity detected**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '🎭 Action Type', 
-                value: `\`${action || 'Role Change'}\``, 
-                inline: true 
+            {
+                name: '🎭 Action Type',
+                value: `\`${action || 'Role Change'}\``,
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             }
         );
 
@@ -217,19 +216,19 @@ function createRoleLog(emoji, color, executor, target, details, punishment, puni
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Punishment Issued', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Successfully applied' : '❌ Failed to apply'}`, 
-                inline: false 
+            {
+                name: '⚖️ Punishment Issued',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Successfully applied' : '❌ Failed to apply'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Threshold breached: ${strikes || threshold}/${threshold}` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Current Strikes', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Current Strikes',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `Warning: ${threshold - strikes} more actions will trigger punishment` });
@@ -246,20 +245,20 @@ function createChannelLog(emoji, color, executor, target, details, punishment, p
         .setTitle(`${emoji} Anti-Channel Protection`)
         .setDescription(`**Channel modification detected**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '📝 Operation', 
-                value: `\`${action || 'Channel Change'}\``, 
-                inline: true 
+            {
+                name: '📝 Operation',
+                value: `\`${action || 'Channel Change'}\``,
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             }
         );
 
@@ -273,19 +272,19 @@ function createChannelLog(emoji, color, executor, target, details, punishment, p
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Action Taken', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Executed successfully' : '❌ Failed to execute'}`, 
-                inline: false 
+            {
+                name: '⚖️ Action Taken',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Executed successfully' : '❌ Failed to execute'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Limit exceeded: ${strikes || threshold}/${threshold} actions` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strike Count', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strike Count',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `${threshold - strikes} actions left before punishment` });
@@ -302,20 +301,20 @@ function createWebhookLog(emoji, color, executor, details, punishment, punished,
         .setTitle(`${emoji} Anti-Webhook Protection`)
         .setDescription(`**Webhook activity detected**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '🪝 Action', 
-                value: `\`${action || 'Webhook Change'}\``, 
-                inline: true 
+            {
+                name: '🪝 Action',
+                value: `\`${action || 'Webhook Change'}\``,
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             }
         );
 
@@ -325,19 +324,19 @@ function createWebhookLog(emoji, color, executor, details, punishment, punished,
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Punishment', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied' : '❌ Failed'}`, 
-                inline: false 
+            {
+                name: '⚖️ Punishment',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied' : '❌ Failed'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Webhook spam detected: ${strikes || threshold}/${threshold}` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strikes', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strikes',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `Monitoring webhook activity` });
@@ -354,20 +353,20 @@ function createEmojiLog(emoji, color, executor, target, details, punishment, pun
         .setTitle(`${emoji} Anti-Emoji Protection`)
         .setDescription(`**Emoji/Sticker modification detected**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '😀 Action', 
-                value: `\`${action || 'Emoji Change'}\``, 
-                inline: true 
+            {
+                name: '😀 Action',
+                value: `\`${action || 'Emoji Change'}\``,
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             }
         );
 
@@ -381,19 +380,19 @@ function createEmojiLog(emoji, color, executor, target, details, punishment, pun
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Action Taken', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Success' : '❌ Failed'}`, 
-                inline: false 
+            {
+                name: '⚖️ Action Taken',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Success' : '❌ Failed'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Mass emoji operation stopped: ${strikes || threshold}/${threshold}` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strike Count', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strike Count',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `Tracking emoji operations` });
@@ -410,20 +409,20 @@ function createBotAddLog(emoji, color, executor, target, details, punishment, pu
         .setTitle(`${emoji} Anti-Bot Protection`)
         .setDescription(`**Unauthorized bot addition blocked**`)
         .addFields(
-            { 
-                name: '👤 Added By', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Added By',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '🤖 Bot', 
-                value: target || 'Unknown Bot', 
-                inline: true 
+            {
+                name: '🤖 Bot',
+                value: target || 'Unknown Bot',
+                inline: true
             },
-            { 
-                name: '🚫 Status', 
-                value: '`Removed`', 
-                inline: true 
+            {
+                name: '🚫 Status',
+                value: '`Removed`',
+                inline: true
             }
         );
 
@@ -433,19 +432,19 @@ function createBotAddLog(emoji, color, executor, target, details, punishment, pu
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Punishment', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied to user' : '❌ Failed to apply'}`, 
-                inline: false 
+            {
+                name: '⚖️ Punishment',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied to user' : '❌ Failed to apply'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Bot spam prevention: ${strikes || threshold}/${threshold}` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strikes', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strikes',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `Monitoring bot additions` });
@@ -462,10 +461,10 @@ function createServerUpdateLog(emoji, color, executor, changes, punishment, puni
         .setTitle(`${emoji} Anti-Vanity Protection`)
         .setDescription(`**Server settings modified**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: false 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: false
             }
         );
 
@@ -475,19 +474,19 @@ function createServerUpdateLog(emoji, color, executor, changes, punishment, puni
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Action Taken', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Executed' : '❌ Failed'}`, 
-                inline: false 
+            {
+                name: '⚖️ Action Taken',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Executed' : '❌ Failed'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Critical setting changed: ${strikes || threshold}/${threshold}` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strike Level', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strike Level',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `Server modification tracked` });
@@ -504,20 +503,20 @@ function createPermissionLog(emoji, color, executor, target, details, punishment
         .setTitle(`${emoji} Anti-Permission Protection`)
         .setDescription(`**Dangerous permissions detected**`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '🎯 Target', 
-                value: target || 'Unknown', 
-                inline: true 
+            {
+                name: '🎯 Target',
+                value: target || 'Unknown',
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             }
         );
 
@@ -527,19 +526,19 @@ function createPermissionLog(emoji, color, executor, target, details, punishment
 
     if (punished) {
         embed.addFields(
-            { 
-                name: '⚖️ Punishment', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied' : '❌ Failed'}`, 
-                inline: false 
+            {
+                name: '⚖️ Punishment',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied' : '❌ Failed'}`,
+                inline: false
             }
         );
         embed.setFooter({ text: `Permission abuse stopped: ${strikes || threshold}/${threshold}` });
     } else if (strikes !== undefined) {
         embed.addFields(
-            { 
-                name: '⚡ Strikes', 
-                value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-                inline: true 
+            {
+                name: '⚡ Strikes',
+                value: `\`\`\`${strikes}/${threshold}\`\`\``,
+                inline: true
             }
         );
         embed.setFooter({ text: `Permission changes monitored` });
@@ -556,25 +555,25 @@ function createProtocolLog(emoji, color, executor, target, reason, timestamp, su
         .setTitle(`${emoji} Protocol Applied`)
         .setDescription(`**User placed under antinuke protocol**`)
         .addFields(
-            { 
-                name: '🎯 Target User', 
-                value: target || 'Unknown', 
-                inline: true 
+            {
+                name: '🎯 Target User',
+                value: target || 'Unknown',
+                inline: true
             },
-            { 
-                name: '📋 Reason', 
-                value: reason || 'Antinuke violation', 
-                inline: false 
+            {
+                name: '📋 Reason',
+                value: reason || 'Antinuke violation',
+                inline: false
             },
-            { 
-                name: '⚖️ Restrictions', 
-                value: '```• All roles removed\n• 28-day timeout applied\n• Tracked in database```', 
-                inline: false 
+            {
+                name: '⚖️ Restrictions',
+                value: '```• All roles removed\n• 28-day timeout applied\n• Tracked in database```',
+                inline: false
             },
-            { 
-                name: '🔒 Status', 
-                value: success ? '✅ Protocol Active' : '❌ Failed to Apply', 
-                inline: false 
+            {
+                name: '🔒 Status',
+                value: success ? '✅ Protocol Active' : '❌ Failed to Apply',
+                inline: false
             }
         )
         .setFooter({ text: 'User is under strict monitoring' })
@@ -589,30 +588,30 @@ function createProtocolHoldLog(emoji, color, executor, target, punishment, times
         .setTitle(`${emoji} Protocol Hold Enforced`)
         .setDescription(`**Attempted to modify protocol user**`)
         .addFields(
-            { 
-                name: '👤 Violator', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Violator',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '🎯 Protocol User', 
-                value: target || 'Unknown', 
-                inline: true 
+            {
+                name: '🎯 Protocol User',
+                value: target || 'Unknown',
+                inline: true
             },
-            { 
-                name: '\u200b', 
-                value: '\u200b', 
-                inline: true 
+            {
+                name: '\u200b',
+                value: '\u200b',
+                inline: true
             },
-            { 
-                name: '📋 Violation', 
-                value: 'Attempted to add roles to a user under protocol', 
-                inline: false 
+            {
+                name: '📋 Violation',
+                value: 'Attempted to add roles to a user under protocol',
+                inline: false
             },
-            { 
-                name: '⚖️ Punishment', 
-                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied' : '❌ Failed'}`, 
-                inline: false 
+            {
+                name: '⚖️ Punishment',
+                value: `\`\`\`${punishment}\`\`\`\n${success ? '✅ Applied' : '❌ Failed'}`,
+                inline: false
             }
         )
         .setFooter({ text: 'Protocol Hold automatically enforced' })
@@ -627,20 +626,20 @@ function createStrikeLog(emoji, color, executor, action, details, strikes, thres
         .setTitle(`${emoji} Strike Logged`)
         .setDescription(`**User action logged**`)
         .addFields(
-            { 
-                name: '👤 User', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 User',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '📝 Action', 
-                value: `\`${action}\``, 
-                inline: true 
+            {
+                name: '📝 Action',
+                value: `\`${action}\``,
+                inline: true
             },
-            { 
-                name: '⚡ Count', 
-                value: `\`${strikes}/${threshold}\``, 
-                inline: true 
+            {
+                name: '⚡ Count',
+                value: `\`${strikes}/${threshold}\``,
+                inline: true
             }
         );
 
@@ -650,10 +649,10 @@ function createStrikeLog(emoji, color, executor, action, details, strikes, thres
 
     const remaining = threshold - strikes;
     if (remaining === 1) {
-        embed.addFields({ 
-            name: '⚠️ Warning', 
-            value: '```One more action will trigger punishment!```', 
-            inline: false 
+        embed.addFields({
+            name: '⚠️ Warning',
+            value: '```One more action will trigger punishment!```',
+            inline: false
         });
     }
 
@@ -668,15 +667,15 @@ function createGenericLog(emoji, color, executor, action, details, punishment, s
         .setColor(color)
         .setTitle(`${emoji} Antinuke Alert`)
         .addFields(
-            { 
-                name: '👤 Executor', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: true 
+            {
+                name: '👤 Executor',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: true
             },
-            { 
-                name: '📝 Action', 
-                value: `\`${action || 'Unknown'}\``, 
-                inline: true 
+            {
+                name: '📝 Action',
+                value: `\`${action || 'Unknown'}\``,
+                inline: true
             }
         );
 
@@ -685,18 +684,18 @@ function createGenericLog(emoji, color, executor, action, details, punishment, s
     }
 
     if (punishment) {
-        embed.addFields({ 
-            name: '⚖️ Punishment', 
-            value: `\`\`\`${punishment}\`\`\``, 
-            inline: false 
+        embed.addFields({
+            name: '⚖️ Punishment',
+            value: `\`\`\`${punishment}\`\`\``,
+            inline: false
         });
     }
 
     if (strikes !== undefined && threshold !== undefined) {
-        embed.addFields({ 
-            name: '⚡ Strikes', 
-            value: `\`\`\`${strikes}/${threshold}\`\`\``, 
-            inline: true 
+        embed.addFields({
+            name: '⚡ Strikes',
+            value: `\`\`\`${strikes}/${threshold}\`\`\``,
+            inline: true
         });
     }
 
@@ -711,15 +710,15 @@ function createConfigChangeLog(emoji, color, executor, action, details, changes,
         .setTitle(`${emoji} Configuration Updated`)
         .setDescription(`**Antinuke settings modified**`)
         .addFields(
-            { 
-                name: '👤 Modified By', 
-                value: formatUserMention(executor.id, executor.tag), 
-                inline: false 
+            {
+                name: '👤 Modified By',
+                value: formatUserMention(executor.id, executor.tag),
+                inline: false
             },
-            { 
-                name: '📝 Action', 
-                value: `\`${action}\``, 
-                inline: false 
+            {
+                name: '📝 Action',
+                value: `\`${action}\``,
+                inline: false
             }
         );
 

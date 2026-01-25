@@ -6,27 +6,26 @@ const COMPONENT_IDS = {
 };
 
 const buildMemberCountComponents = async (guild, state = 'active') => {
-    // Fetch all members to get accurate counts
+
     try {
         await guild.members.fetch();
     } catch (error) {
-        // Use cached members if fetch fails
+
     }
 
     const totalMembers = guild.memberCount;
     const humans = guild.members.cache.filter(member => !member.user.bot).size;
     const bots = guild.members.cache.filter(member => member.user.bot).size;
-    
-    // Calculate percentages
+
     const humanPercent = totalMembers > 0 ? ((humans / totalMembers) * 100).toFixed(1) : 0;
     const botPercent = totalMembers > 0 ? ((bots / totalMembers) * 100).toFixed(1) : 0;
 
     const container = new ContainerBuilder()
-        .addTextDisplayComponents(td => 
+        .addTextDisplayComponents(td =>
             td.setContent(`# ${EMOJIS.members || '👥'} Member Statistics`)
         )
         .addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small))
-        .addTextDisplayComponents(td => 
+        .addTextDisplayComponents(td =>
             td.setContent(
                 `${EMOJIS.users || '👤'} **Total Members:** \`${totalMembers.toLocaleString()}\`\n\n` +
                 `${EMOJIS.members || '👥'} **Humans:** \`${humans.toLocaleString()}\` *(${humanPercent}%)*\n` +
@@ -75,9 +74,9 @@ export default {
             customId: COMPONENT_IDS.refresh,
             async execute(interaction) {
                 try {
-                    // Defer immediately to prevent 3-second timeout
+
                     await interaction.deferUpdate();
-                    
+
                     const components = await buildMemberCountComponents(interaction.guild);
                     await interaction.editReply({
                         components,

@@ -20,7 +20,7 @@ export default {
 		try {
 			const page = Math.max(0, parseInt(args[0]) || 0);
 			const pageSize = 4;
-			const allTracks = queue.tracks.toArray().slice(1); // Exclude current track
+			const allTracks = queue.tracks.toArray().slice(1);
 			const totalPages = allTracks.length > 0 ? Math.ceil(allTracks.length / pageSize) : 1;
 			const currentPage = Math.min(page, Math.max(0, totalPages - 1));
 
@@ -104,7 +104,6 @@ function buildQueueContainer({ description, totalTracks, totalDuration, currentP
 		textDisplay.setContent(`📊 Total: ${totalTracks} track${totalTracks === 1 ? '' : 's'} (${totalDuration})`)
 	);
 
-	
 	if (totalPages > 1) {
 		container.addSeparatorComponents((separator) =>
 			separator.setSpacing(SeparatorSpacingSize.Small)

@@ -8,7 +8,7 @@ export default {
 	category: 'Music',
 
 	async execute(message, args, client) {
-	
+
 		if (!message.member?.voice.channel) {
 			return message.reply({
 				content: '❌ You must be in a voice channel to use this command.',
@@ -17,7 +17,6 @@ export default {
 		}
 
 		const queue = client.queue.get(message.guildId);
-
 
 		if (!queue || queue.stopped) {
 			return message.reply({
@@ -41,18 +40,17 @@ export default {
 		}
 
 		try {
-			const queueLength = queue.tracks.length - 1; 
-			queue.tracks.removeOne(0); 
-			queue.clear(); 
-			const currentTrack = queue.tracks.peekAt(0); 
-			
+			const queueLength = queue.tracks.length - 1;
+			queue.tracks.removeOne(0);
+			queue.clear();
+			const currentTrack = queue.tracks.peekAt(0);
 
 			const current = queue.tracks.peekAt(0);
 			queue.clear();
 			if (current) {
 				queue.addTrack(current);
 			}
-			
+
 			const container = buildClearContainer({
 				cleared: queueLength
 			});

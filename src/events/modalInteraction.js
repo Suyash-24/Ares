@@ -113,47 +113,46 @@ export default function registerModalInteraction(client) {
       }
     }
 
-    // Handle welcome configuration modals: welcome_modal_<option>_<channelId>_<authorId>
     if (interaction.customId.startsWith('welcome_modal_')) {
       const parts = interaction.customId.split('_');
       const option = parts[2];
       const channelId = parts[3];
       const authorId = parts[4];
-      
+
       if (interaction.user.id !== authorId) {
         await interaction.reply({ content: '❌ You cannot use this.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const db = interaction.client.db;
       let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-      
+
       if (!guildData.welcome || !guildData.welcome.channels) {
         await interaction.reply({ content: '❌ Welcome system not configured.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const channelConfig = guildData.welcome.channels.find(c => c.channelId === channelId);
       if (!channelConfig) {
         await interaction.reply({ content: '❌ That channel is no longer configured.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const value = interaction.fields.getTextInputValue('value')?.trim() || null;
-      
+
       const parseColor = (input) => {
         if (!input) return null;
         let hex = input.replace('#', '');
         if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return null;
         return parseInt(hex, 16);
       };
-      
+
       const isValidUrl = (str) => {
         if (!str || typeof str !== 'string') return false;
         const lower = str.trim().toLowerCase();
         return lower.startsWith('http://') || lower.startsWith('https://');
       };
-      
+
       switch (option) {
         case 'content':
           channelConfig.content = value;
@@ -244,12 +243,11 @@ export default function registerModalInteraction(client) {
           await interaction.reply({ content: '❌ Unknown option.', flags: 64 }).catch(() => {});
           return;
       }
-      
+
       await db.updateOne({ guildId: interaction.guildId }, { $set: { welcome: guildData.welcome } }, { upsert: true });
-      
-      // Rebuild the config container with updated values
+
       const { ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
-      
+
       const parseFields = (fieldsStr) => {
         if (!fieldsStr) return [];
         return fieldsStr.split(';;').map(f => {
@@ -258,7 +256,7 @@ export default function registerModalInteraction(client) {
           return { name, value, inline: inline?.toLowerCase() === 'true' };
         }).filter(Boolean);
       };
-      
+
       const parseButtons = (buttonsStr) => {
         if (!buttonsStr) return [];
         return buttonsStr.split(';;').map(b => {
@@ -267,7 +265,7 @@ export default function registerModalInteraction(client) {
           return { label, url };
         }).filter(Boolean);
       };
-      
+
       const container = new ContainerBuilder();
       if (channelConfig.color) container.setAccentColor(channelConfig.color);
       container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Config for <#${channelId}>`));
@@ -290,7 +288,7 @@ export default function registerModalInteraction(client) {
         `**Fields:** ${channelConfig.fields ? `${parseFields(channelConfig.fields).length} field(s)` : 'None'}\n` +
         `**Buttons:** ${channelConfig.buttons ? `${parseButtons(channelConfig.buttons).length} button(s)` : 'None'}`
       ));
-      
+
       container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
       container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder().setCustomId(`welcome_cfg_content_${channelId}_${authorId}`).setLabel('Content').setStyle(ButtonStyle.Secondary),
@@ -310,13 +308,11 @@ export default function registerModalInteraction(client) {
         new ButtonBuilder().setCustomId(`welcome_cfg_buttons_${channelId}_${authorId}`).setLabel('Buttons').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`welcome_testch_${channelId}_${authorId}`).setLabel('Test').setStyle(ButtonStyle.Primary).setEmoji(EMOJIS.test)
       ));
-      
-      // Update the message with new config values
+
       await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
 
-  // Leveling reward modal
   if (interaction.customId.startsWith('leveling_reward_modal:')) {
     const parts = interaction.customId.split(':');
     const authorId = parts[1];
@@ -374,7 +370,6 @@ export default function registerModalInteraction(client) {
     return;
   }
 
-  // Leveling message field modal
   if (interaction.customId.startsWith('leveling_msg_modal:')) {
     const [, field, authorId] = interaction.customId.split(':');
     if (interaction.user.id !== authorId) {
@@ -390,7 +385,6 @@ export default function registerModalInteraction(client) {
     const leveling = await ensureLevelingConfig(interaction.client.db, interaction.guildId);
     leveling.announce.message = leveling.announce.message || {};
 
-    // field is title, body, or footer
     if (value) {
       leveling.announce.message[field] = value;
     } else {
@@ -416,7 +410,6 @@ export default function registerModalInteraction(client) {
     return;
   }
 
-  // Leveling template modal
   if (interaction.customId.startsWith('leveling_template_modal:')) {
     const [, authorId] = interaction.customId.split(':');
     if (interaction.user.id !== authorId) {
@@ -451,60 +444,56 @@ export default function registerModalInteraction(client) {
     return;
   }
 
-    // Handle welcome add channel modal: welcome_addch_modal_<authorId>
     if (interaction.customId.startsWith('welcome_addch_modal_')) {
       const authorId = interaction.customId.split('_')[3];
-      
+
       if (interaction.user.id !== authorId) {
         await interaction.reply({ content: '❌ You cannot use this.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const input = interaction.fields.getTextInputValue('channel')?.trim();
       if (!input) {
         await interaction.reply({ content: '❌ Please provide a channel.', flags: 64 }).catch(() => {});
         return;
       }
-      
-      // Parse channel from input (ID, mention, or name)
+
       let channel = null;
       const channelIdMatch = input.match(/<#(\d+)>/) || input.match(/^(\d{17,19})$/);
       if (channelIdMatch) {
         channel = interaction.guild.channels.cache.get(channelIdMatch[1]);
       } else {
-        // Try to find by name (case-insensitive)
+
         const searchName = input.replace(/^#/, '').toLowerCase();
         channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === searchName && c.isTextBased());
       }
-      
+
       if (!channel) {
         await interaction.reply({ content: '❌ Channel not found. Use channel name (e.g. `general`) or channel ID.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       if (!channel.isTextBased()) {
         await interaction.reply({ content: '❌ Please select a text channel.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const channelId = channel.id;
       const db = interaction.client.db;
       let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-      
+
       if (!guildData.welcome) {
         guildData.welcome = { enabled: false, channels: [] };
       }
       if (!guildData.welcome.channels) {
         guildData.welcome.channels = [];
       }
-      
-      // Check if already exists
+
       if (guildData.welcome.channels.some(c => c.channelId === channelId)) {
         await interaction.reply({ content: `❌ <#${channelId}> is already a welcome channel.`, flags: 64 }).catch(() => {});
         return;
       }
-      
-      // Add new channel config
+
       guildData.welcome.channels.push({
         channelId,
         content: null,
@@ -521,13 +510,12 @@ export default function registerModalInteraction(client) {
         fields: null,
         buttons: null
       });
-      
+
       await db.updateOne({ guildId: interaction.guildId }, { $set: { welcome: guildData.welcome } }, { upsert: true });
-      
-      // Rebuild and update the main container
+
       const { ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
       const config = guildData.welcome;
-      
+
       const rebuildMainContainer = () => {
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Welcome Configuration`));
@@ -536,7 +524,7 @@ export default function registerModalInteraction(client) {
           `**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
           `**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
         ));
-        
+
         if (config.channels.length > 0) {
           for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
             const ch = config.channels[i];
@@ -553,7 +541,7 @@ export default function registerModalInteraction(client) {
             container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
           }
         }
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => td.setContent(
           `**Placeholders:**\n` +
@@ -563,7 +551,7 @@ export default function registerModalInteraction(client) {
           `\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
           `\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
         ));
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
@@ -572,7 +560,7 @@ export default function registerModalInteraction(client) {
             .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             .setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
         ));
-        
+
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
             .setCustomId(`welcome_addchannel_${authorId}`)
@@ -588,44 +576,42 @@ export default function registerModalInteraction(client) {
             .setStyle(ButtonStyle.Secondary)
             .setEmoji(EMOJIS.test)
         ));
-        
+
         return container;
       };
-      
+
       await interaction.update({ components: [rebuildMainContainer()], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
 
-    // Handle welcome remove channel modal: welcome_rmch_modal_<authorId>
     if (interaction.customId.startsWith('welcome_rmch_modal_')) {
       const authorId = interaction.customId.split('_')[3];
-      
+
       if (interaction.user.id !== authorId) {
         await interaction.reply({ content: '❌ You cannot use this.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const input = interaction.fields.getTextInputValue('channel')?.trim();
       if (!input) {
         await interaction.reply({ content: '❌ Please provide a channel.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const db = interaction.client.db;
       let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-      
+
       if (!guildData.welcome || !guildData.welcome.channels || guildData.welcome.channels.length === 0) {
         await interaction.reply({ content: '❌ No welcome channels configured.', flags: 64 }).catch(() => {});
         return;
       }
-      
-      // Parse channel from input (ID, mention, or name)
+
       let channelId = null;
       const channelIdMatch = input.match(/<#(\d+)>/) || input.match(/^(\d{17,19})$/);
       if (channelIdMatch) {
         channelId = channelIdMatch[1];
       } else {
-        // Try to find by name (case-insensitive) among configured channels
+
         const searchName = input.replace(/^#/, '').toLowerCase();
         const foundConfig = guildData.welcome.channels.find(c => {
           const ch = interaction.guild.channels.cache.get(c.channelId);
@@ -633,31 +619,29 @@ export default function registerModalInteraction(client) {
         });
         if (foundConfig) channelId = foundConfig.channelId;
       }
-      
+
       if (!channelId) {
         await interaction.reply({ content: '❌ Channel not found. Use channel name (e.g. `general`) or channel ID.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const channelIndex = guildData.welcome.channels.findIndex(c => c.channelId === channelId);
       if (channelIndex === -1) {
         await interaction.reply({ content: `❌ <#${channelId}> is not a configured welcome channel.`, flags: 64 }).catch(() => {});
         return;
       }
-      
+
       guildData.welcome.channels.splice(channelIndex, 1);
-      
-      // If no channels left, disable welcome
+
       if (guildData.welcome.channels.length === 0) {
         guildData.welcome.enabled = false;
       }
-      
+
       await db.updateOne({ guildId: interaction.guildId }, { $set: { welcome: guildData.welcome } }, { upsert: true });
-      
-      // Rebuild and update the main container
+
       const { ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
       const config = guildData.welcome;
-      
+
       const rebuildMainContainer = () => {
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Welcome Configuration`));
@@ -666,7 +650,7 @@ export default function registerModalInteraction(client) {
           `**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
           `**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
         ));
-        
+
         if (config.channels.length > 0) {
           for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
             const ch = config.channels[i];
@@ -683,7 +667,7 @@ export default function registerModalInteraction(client) {
             container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
           }
         }
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => td.setContent(
           `**Placeholders:**\n` +
@@ -693,7 +677,7 @@ export default function registerModalInteraction(client) {
           `\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
           `\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
         ));
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
@@ -702,7 +686,7 @@ export default function registerModalInteraction(client) {
             .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             .setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
         ));
-        
+
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
             .setCustomId(`welcome_addchannel_${authorId}`)
@@ -718,68 +702,64 @@ export default function registerModalInteraction(client) {
             .setStyle(ButtonStyle.Secondary)
             .setEmoji(EMOJIS.test)
         ));
-        
+
         return container;
       };
-      
+
       await interaction.update({ components: [rebuildMainContainer()], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
 
-    // Handle goodbye add channel modal: goodbye_addch_modal_<authorId>
     if (interaction.customId.startsWith('goodbye_addch_modal_')) {
       const authorId = interaction.customId.split('_')[3];
-      
+
       if (interaction.user.id !== authorId) {
         await interaction.reply({ content: '❌ You cannot use this.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const input = interaction.fields.getTextInputValue('channel')?.trim();
       if (!input) {
         await interaction.reply({ content: '❌ Please provide a channel.', flags: 64 }).catch(() => {});
         return;
       }
-      
-      // Parse channel from input (ID, mention, or name)
+
       let channel = null;
       const channelIdMatch = input.match(/<#(\d+)>/) || input.match(/^(\d{17,19})$/);
       if (channelIdMatch) {
         channel = interaction.guild.channels.cache.get(channelIdMatch[1]);
       } else {
-        // Try to find by name (case-insensitive)
+
         const searchName = input.replace(/^#/, '').toLowerCase();
         channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === searchName && c.isTextBased());
       }
-      
+
       if (!channel) {
         await interaction.reply({ content: '❌ Channel not found. Use channel name (e.g. `general`) or channel ID.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       if (!channel.isTextBased()) {
         await interaction.reply({ content: '❌ Please select a text channel.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const channelId = channel.id;
       const db = interaction.client.db;
       let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-      
+
       if (!guildData.goodbye) {
         guildData.goodbye = { enabled: false, channels: [] };
       }
       if (!guildData.goodbye.channels) {
         guildData.goodbye.channels = [];
       }
-      
-      // Check if already exists
+
       if (guildData.goodbye.channels.some(c => c.channelId === channelId)) {
         await interaction.reply({ content: `❌ <#${channelId}> is already a goodbye channel.`, flags: 64 }).catch(() => {});
         return;
       }
-      
-      // Add new channel config
+
       guildData.goodbye.channels.push({
         channelId,
         content: null,
@@ -796,13 +776,12 @@ export default function registerModalInteraction(client) {
         fields: null,
         buttons: null
       });
-      
+
       await db.updateOne({ guildId: interaction.guildId }, { $set: { goodbye: guildData.goodbye } }, { upsert: true });
-      
-      // Rebuild and update the main container
+
       const { ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
       const config = guildData.goodbye;
-      
+
       const rebuildMainContainer = () => {
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Goodbye Configuration`));
@@ -811,7 +790,7 @@ export default function registerModalInteraction(client) {
           `**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
           `**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
         ));
-        
+
         if (config.channels.length > 0) {
           for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
             const ch = config.channels[i];
@@ -828,7 +807,7 @@ export default function registerModalInteraction(client) {
             container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
           }
         }
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => td.setContent(
           `**Placeholders:**\n` +
@@ -838,7 +817,7 @@ export default function registerModalInteraction(client) {
           `\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
           `\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
         ));
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
@@ -847,7 +826,7 @@ export default function registerModalInteraction(client) {
             .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             .setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
         ));
-        
+
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
             .setCustomId(`goodbye_addchannel_${authorId}`)
@@ -863,44 +842,42 @@ export default function registerModalInteraction(client) {
             .setStyle(ButtonStyle.Secondary)
             .setEmoji(EMOJIS.test)
         ));
-        
+
         return container;
       };
-      
+
       await interaction.update({ components: [rebuildMainContainer()], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
 
-    // Handle goodbye remove channel modal: goodbye_rmch_modal_<authorId>
     if (interaction.customId.startsWith('goodbye_rmch_modal_')) {
       const authorId = interaction.customId.split('_')[3];
-      
+
       if (interaction.user.id !== authorId) {
         await interaction.reply({ content: '❌ You cannot use this.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const input = interaction.fields.getTextInputValue('channel')?.trim();
       if (!input) {
         await interaction.reply({ content: '❌ Please provide a channel.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const db = interaction.client.db;
       let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-      
+
       if (!guildData.goodbye || !guildData.goodbye.channels || guildData.goodbye.channels.length === 0) {
         await interaction.reply({ content: '❌ No goodbye channels configured.', flags: 64 }).catch(() => {});
         return;
       }
-      
-      // Parse channel from input (ID, mention, or name)
+
       let channelId = null;
       const channelIdMatch = input.match(/<#(\d+)>/) || input.match(/^(\d{17,19})$/);
       if (channelIdMatch) {
         channelId = channelIdMatch[1];
       } else {
-        // Try to find by name (case-insensitive) among configured channels
+
         const searchName = input.replace(/^#/, '').toLowerCase();
         const foundConfig = guildData.goodbye.channels.find(c => {
           const ch = interaction.guild.channels.cache.get(c.channelId);
@@ -908,31 +885,29 @@ export default function registerModalInteraction(client) {
         });
         if (foundConfig) channelId = foundConfig.channelId;
       }
-      
+
       if (!channelId) {
         await interaction.reply({ content: '❌ Channel not found. Use channel name (e.g. `general`) or channel ID.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const channelIndex = guildData.goodbye.channels.findIndex(c => c.channelId === channelId);
       if (channelIndex === -1) {
         await interaction.reply({ content: `❌ <#${channelId}> is not a configured goodbye channel.`, flags: 64 }).catch(() => {});
         return;
       }
-      
+
       guildData.goodbye.channels.splice(channelIndex, 1);
-      
-      // If no channels left, disable goodbye
+
       if (guildData.goodbye.channels.length === 0) {
         guildData.goodbye.enabled = false;
       }
-      
+
       await db.updateOne({ guildId: interaction.guildId }, { $set: { goodbye: guildData.goodbye } }, { upsert: true });
-      
-      // Rebuild and update the main container
+
       const { ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
       const config = guildData.goodbye;
-      
+
       const rebuildMainContainer = () => {
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Goodbye Configuration`));
@@ -941,7 +916,7 @@ export default function registerModalInteraction(client) {
           `**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
           `**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
         ));
-        
+
         if (config.channels.length > 0) {
           for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
             const ch = config.channels[i];
@@ -958,7 +933,7 @@ export default function registerModalInteraction(client) {
             container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
           }
         }
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => td.setContent(
           `**Placeholders:**\n` +
@@ -968,7 +943,7 @@ export default function registerModalInteraction(client) {
           `\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
           `\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
         ));
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
@@ -977,7 +952,7 @@ export default function registerModalInteraction(client) {
             .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
             .setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
         ));
-        
+
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder()
             .setCustomId(`goodbye_addchannel_${authorId}`)
@@ -993,55 +968,54 @@ export default function registerModalInteraction(client) {
             .setStyle(ButtonStyle.Secondary)
             .setEmoji(EMOJIS.test)
         ));
-        
+
         return container;
       };
-      
+
       await interaction.update({ components: [rebuildMainContainer()], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
 
-    // Handle goodbye configuration modals: goodbye_modal_<option>_<channelId>_<authorId>
     if (interaction.customId.startsWith('goodbye_modal_')) {
       const parts = interaction.customId.split('_');
       const option = parts[2];
       const channelId = parts[3];
       const authorId = parts[4];
-      
+
       if (interaction.user.id !== authorId) {
         await interaction.reply({ content: '❌ You cannot use this.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const db = interaction.client.db;
       let guildData = await db.findOne({ guildId: interaction.guildId }) || { guildId: interaction.guildId };
-      
+
       if (!guildData.goodbye || !guildData.goodbye.channels) {
         await interaction.reply({ content: '❌ Goodbye system not configured.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const channelConfig = guildData.goodbye.channels.find(c => c.channelId === channelId);
       if (!channelConfig) {
         await interaction.reply({ content: '❌ That channel is no longer configured.', flags: 64 }).catch(() => {});
         return;
       }
-      
+
       const value = interaction.fields.getTextInputValue('value')?.trim() || null;
-      
+
       const parseColor = (input) => {
         if (!input) return null;
         let hex = input.replace('#', '');
         if (!/^[0-9A-Fa-f]{6}$/.test(hex)) return null;
         return parseInt(hex, 16);
       };
-      
+
       const isValidUrl = (str) => {
         if (!str || typeof str !== 'string') return false;
         const lower = str.trim().toLowerCase();
         return lower.startsWith('http://') || lower.startsWith('https://');
       };
-      
+
       switch (option) {
         case 'content':
           channelConfig.content = value;
@@ -1132,12 +1106,11 @@ export default function registerModalInteraction(client) {
           await interaction.reply({ content: '❌ Unknown option.', flags: 64 }).catch(() => {});
           return;
       }
-      
+
       await db.updateOne({ guildId: interaction.guildId }, { $set: { goodbye: guildData.goodbye } }, { upsert: true });
-      
-      // Rebuild the config container with updated values
+
       const { ContainerBuilder, ButtonBuilder, ButtonStyle, SeparatorSpacingSize, MessageFlags } = await import('discord.js');
-      
+
       const parseFields = (fieldsStr) => {
         if (!fieldsStr) return [];
         return fieldsStr.split(';;').map(f => {
@@ -1146,7 +1119,7 @@ export default function registerModalInteraction(client) {
           return { name, value, inline: inline?.toLowerCase() === 'true' };
         }).filter(Boolean);
       };
-      
+
       const parseButtons = (buttonsStr) => {
         if (!buttonsStr) return [];
         return buttonsStr.split(';;').map(b => {
@@ -1155,7 +1128,7 @@ export default function registerModalInteraction(client) {
           return { label, url };
         }).filter(Boolean);
       };
-      
+
       const container = new ContainerBuilder();
       if (channelConfig.color) container.setAccentColor(channelConfig.color);
       container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Config for <#${channelId}>`));
@@ -1178,7 +1151,7 @@ export default function registerModalInteraction(client) {
         `**Fields:** ${channelConfig.fields ? `${parseFields(channelConfig.fields).length} field(s)` : 'None'}\n` +
         `**Buttons:** ${channelConfig.buttons ? `${parseButtons(channelConfig.buttons).length} button(s)` : 'None'}`
       ));
-      
+
       container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
       container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder().setCustomId(`goodbye_cfg_content_${channelId}_${authorId}`).setLabel('Content').setStyle(ButtonStyle.Secondary),
@@ -1198,17 +1171,15 @@ export default function registerModalInteraction(client) {
         new ButtonBuilder().setCustomId(`goodbye_cfg_buttons_${channelId}_${authorId}`).setLabel('Buttons').setStyle(ButtonStyle.Secondary),
         new ButtonBuilder().setCustomId(`goodbye_testch_${channelId}_${authorId}`).setLabel('Test').setStyle(ButtonStyle.Primary).setEmoji(EMOJIS.test)
       ));
-      
-      // Update the message with new config values
+
       await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       return;
     }
 
-    // ============ STARBOARD COLOR MODAL ============
     if (interaction.customId === 'starboard_color_modal') {
       try {
         const colorValue = interaction.fields.getTextInputValue('color_value')?.trim();
-        
+
         if (!colorValue) {
           await interaction.reply({ content: '❌ Please provide a color.', ephemeral: true });
           return;
@@ -1222,7 +1193,7 @@ export default function registerModalInteraction(client) {
 
         const guildId = interaction.guildId;
         const guildData = await interaction.client.db.findOne({ guildId }) || { guildId };
-        
+
         if (!guildData.starboard) {
           guildData.starboard = {
             enabled: false,
@@ -1244,10 +1215,9 @@ export default function registerModalInteraction(client) {
         guildData.starboard.color = hex;
         await interaction.client.db.updateOne({ guildId }, { $set: { starboard: guildData.starboard } }, { upsert: true });
 
-        // Refresh wizard
         const { buildWizardContainer } = await import('../commands/prefix/Starboard/starboard.js');
         const newContainer = buildWizardContainer(guildData);
-        
+
         await interaction.update({ components: [newContainer], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
         return;
       } catch (error) {
@@ -1255,14 +1225,12 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ An error occurred.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END STARBOARD COLOR MODAL ============
 
-    // ============ AUTOMOD LOG CHANNEL MODAL ============
     if (interaction.customId === 'automod_logchannel_modal') {
       try {
         const input = interaction.fields.getTextInputValue('channel_id')?.trim();
         const guildId = interaction.guildId;
-        
+
         let channelId = null;
         const channelIdMatch = input.match(/<#(\d+)>/) || input.match(/^(\d{17,19})$/);
         if (channelIdMatch) {
@@ -1272,25 +1240,25 @@ export default function registerModalInteraction(client) {
           const channel = interaction.guild.channels.cache.find(c => c.name.toLowerCase() === searchName && c.isTextBased());
           if (channel) channelId = channel.id;
         }
-        
+
         if (!channelId) {
           await interaction.reply({ content: '❌ Channel not found. Use channel name or ID.', ephemeral: true }).catch(() => {});
           return;
         }
-        
+
         const channel = interaction.guild.channels.cache.get(channelId);
         if (!channel || !channel.isTextBased()) {
           await interaction.reply({ content: '❌ Please provide a valid text channel.', ephemeral: true }).catch(() => {});
           return;
         }
-        
+
         const guildData = await interaction.client.db.findOne({ guildId }) || {};
         const { getDefaultConfig, buildWizardContainer } = await import('../commands/prefix/Automod/automod.js');
         let config = guildData.automod || getDefaultConfig();
         config.logChannel = channelId;
-        
+
         await interaction.client.db.updateOne({ guildId }, { $set: { automod: config } }, { upsert: true });
-        
+
         const updatedContainer = buildWizardContainer(config);
         await interaction.update({ components: [updatedContainer], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
       } catch (error) {
@@ -1298,9 +1266,7 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ An error occurred.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END AUTOMOD LOG CHANNEL MODAL ============
 
-    // ============ AUTOMOD WORDS ADD MODAL ============
     if (interaction.customId === 'automod_words_add_modal') {
       try {
         const input = interaction.fields.getTextInputValue('word')?.trim().toLowerCase();
@@ -1312,7 +1278,7 @@ export default function registerModalInteraction(client) {
         }
 
         const newWords = input.split(',').map(w => w.trim()).filter(w => w.length > 0);
-        
+
         if (newWords.length === 0) {
             await interaction.reply({ content: '❌ Invalid input.', ephemeral: true }).catch(() => {});
             return;
@@ -1349,9 +1315,7 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ An error occurred.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END AUTOMOD WORDS ADD MODAL ============
 
-    // ============ AUTOMOD WORDS BULK REMOVE MODAL ============
     if (interaction.customId === 'automod_words_bulk_remove_modal') {
       try {
         const input = interaction.fields.getTextInputValue('words')?.trim().toLowerCase();
@@ -1380,7 +1344,7 @@ export default function registerModalInteraction(client) {
 
         let removedCount = 0;
         const initialLength = config.modules.badwords.words.length;
-        
+
         config.modules.badwords.words = config.modules.badwords.words.filter(w => !removeWords.includes(w));
         removedCount = initialLength - config.modules.badwords.words.length;
 
@@ -1399,9 +1363,7 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ An error occurred.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END AUTOMOD WORDS BULK REMOVE MODAL ============
 
-    // ============ AUTOMOD STRIKE EXPIRY MODAL ============
     if (interaction.customId === 'automod_strike_expiry_modal') {
       try {
         const hours = parseInt(interaction.fields.getTextInputValue('hours')?.trim());
@@ -1426,22 +1388,19 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ An error occurred.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END AUTOMOD STRIKE EXPIRY MODAL ============
 
-    // ============ BIRTHDAY WISH MESSAGE MODAL ============
     if (interaction.customId === 'birthday_wish_modal') {
       try {
         const guildId = interaction.guildId;
         const guildData = await interaction.client.db.findOne({ guildId }) || {};
         const existingMsg = guildData.birthday_config?.wishMessage || {};
-        
+
         const content = interaction.fields.getTextInputValue('content') || '';
         const title = interaction.fields.getTextInputValue('title') || '';
         const description = interaction.fields.getTextInputValue('description') || '';
         const footer = interaction.fields.getTextInputValue('footer') || '';
 
-        // Preserve existing appearance settings (thumbnail, image, accentColor)
-        const wishMessage = { 
+        const wishMessage = {
           content, title, description, footer,
           thumbnail: existingMsg.thumbnail || 'avatar',
           image: existingMsg.image || '',
@@ -1463,21 +1422,18 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ Failed to save message.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END BIRTHDAY WISH MESSAGE MODAL ============
 
-    // ============ BIRTHDAY APPEARANCE MODAL ============
     if (interaction.customId === 'birthday_appearance_modal') {
       try {
         const guildId = interaction.guildId;
         const guildData = await interaction.client.db.findOne({ guildId }) || {};
         const existingMsg = guildData.birthday_config?.wishMessage || {};
-        
+
         const thumbnail = interaction.fields.getTextInputValue('thumbnail') || 'avatar';
         const image = interaction.fields.getTextInputValue('image') || '';
         const accentColor = interaction.fields.getTextInputValue('accentColor') || '';
 
-        // Preserve existing fields, update appearance
-        const wishMessage = { 
+        const wishMessage = {
           ...existingMsg,
           thumbnail,
           image: image || '',
@@ -1499,20 +1455,17 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ Failed to save settings.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END BIRTHDAY APPEARANCE MODAL ============
 
-    // ============ BIRTHDAY ADVANCED MODAL (Legacy) ============
     if (interaction.customId === 'birthday_advanced_modal') {
       try {
         const guildId = interaction.guildId;
         const guildData = await interaction.client.db.findOne({ guildId }) || {};
         const existingMsg = guildData.birthday_config?.wishMessage || {};
-        
+
         const image = interaction.fields.getTextInputValue('image') || '';
         const accentColor = interaction.fields.getTextInputValue('accentColor') || '';
 
-        // Preserve existing fields, update image and accentColor
-        const wishMessage = { 
+        const wishMessage = {
           ...existingMsg,
           image: image || '',
           accentColor: accentColor === 'none' ? '' : (accentColor || '')
@@ -1533,47 +1486,41 @@ export default function registerModalInteraction(client) {
         await interaction.reply({ content: '❌ Failed to save settings.', ephemeral: true }).catch(() => {});
       }
     }
-    // ============ END BIRTHDAY ADVANCED MODAL ============
 
-    // ==================== EMBED BUILDER MODALS ====================
-    
-    // Embed Title Modal
     if (interaction.customId === 'embed_title_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         session.title = interaction.fields.getTextInputValue('title') || null;
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Title Modal]', err); }
     }
-    
-    // Embed Description Modal
+
     if (interaction.customId === 'embed_desc_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         session.description = interaction.fields.getTextInputValue('description') || null;
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Desc Modal]', err); }
     }
-    
-    // Embed Color Modal
+
     if (interaction.customId === 'embed_color_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         const colorInput = interaction.fields.getTextInputValue('color') || '';
         if (colorInput) {
           const hex = colorInput.replace('#', '');
@@ -1583,182 +1530,172 @@ export default function registerModalInteraction(client) {
           session.color = null;
         }
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Color Modal]', err); }
     }
-    
-    // Embed URL Modal
+
     if (interaction.customId === 'embed_url_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         session.url = interaction.fields.getTextInputValue('url') || null;
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed URL Modal]', err); }
     }
-    
-    // Embed Author Modal
+
     if (interaction.customId === 'embed_author_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         const name = interaction.fields.getTextInputValue('name') || null;
         const icon = interaction.fields.getTextInputValue('icon') || null;
         const url = interaction.fields.getTextInputValue('url') || null;
-        
+
         if (name) {
           session.author = { name, iconURL: icon, url };
         } else {
           session.author = null;
         }
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Author Modal]', err); }
     }
-    
-    // Embed Footer Modal
+
     if (interaction.customId === 'embed_footer_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         const text = interaction.fields.getTextInputValue('text') || null;
         const icon = interaction.fields.getTextInputValue('icon') || null;
-        
+
         if (text) {
           session.footer = { text, iconURL: icon };
         } else {
           session.footer = null;
         }
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Footer Modal]', err); }
     }
-    
-    // Embed Thumbnail Modal
+
     if (interaction.customId === 'embed_thumb_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         session.thumbnail = interaction.fields.getTextInputValue('thumbnail') || null;
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Thumb Modal]', err); }
     }
-    
-    // Embed Image Modal
+
     if (interaction.customId === 'embed_image_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         session.image = interaction.fields.getTextInputValue('image') || null;
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Image Modal]', err); }
     }
-    
-    // Embed Field Modal
+
     if (interaction.customId === 'embed_field_modal') {
       try {
         const { embedSessions, buildEmbedBuilderUI } = await import('../commands/prefix/miscellaneous/embed.js');
         const userId = interaction.user.id;
         const session = embedSessions.get(userId) || {};
-        
+
         const name = interaction.fields.getTextInputValue('name');
         const value = interaction.fields.getTextInputValue('value');
         const inlineInput = interaction.fields.getTextInputValue('inline') || 'no';
         const inline = inlineInput.toLowerCase() === 'yes' || inlineInput.toLowerCase() === 'true';
-        
+
         if (!session.fields) session.fields = [];
         session.fields.push({ name, value, inline });
         embedSessions.set(userId, session);
-        
+
         const container = buildEmbedBuilderUI(userId, session);
         await interaction.update({ components: [container], flags: MessageFlags.IsComponentsV2 });
       } catch (err) { console.error('[Embed Field Modal]', err); }
     }
-    // ==================== END EMBED BUILDER MODALS ====================
 
-    // ==================== COMPONENT BUILDER MODALS ====================
     if (interaction.customId.startsWith('comp_modal_')) {
         try {
             const { ButtonBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ButtonStyle, ComponentType } = await import('discord.js');
             const { componentSessions, buildComponentBuilderUI } = await import('../commands/prefix/miscellaneous/component.js');
-            
+
             const userId = interaction.user.id;
             const session = componentSessions.get(userId);
             if (!session) return interaction.reply({ content: '❌ Session expired.', flags: MessageFlags.Ephemeral });
-            
+
             const currentRow = session.rows[session.selectedRow];
             if (!currentRow) return interaction.reply({ content: '❌ No row selected.', flags: MessageFlags.Ephemeral });
-            
-            // --- ADD BUTTON ---
+
             if (interaction.customId.startsWith('comp_modal_btn_')) {
                 const label = interaction.fields.getTextInputValue('label');
                 const styleStr = interaction.fields.getTextInputValue('style').toLowerCase();
                 const idOrUrl = interaction.fields.getTextInputValue('id_url');
                 const emoji = interaction.fields.getTextInputValue('emoji');
-                
+
                 const btn = new ButtonBuilder().setLabel(label);
                 if (emoji) btn.setEmoji(emoji);
-                
+
                 let style = ButtonStyle.Secondary;
                 if (styleStr === 'primary' || styleStr === 'blurple') style = ButtonStyle.Primary;
                 else if (styleStr === 'success' || styleStr === 'green') style = ButtonStyle.Success;
                 else if (styleStr === 'danger' || styleStr === 'red') style = ButtonStyle.Danger;
                 else if (styleStr === 'link' || styleStr === 'url') style = ButtonStyle.Link;
-                
+
                 btn.setStyle(style);
                 if (style === ButtonStyle.Link) btn.setURL(idOrUrl);
                 else btn.setCustomId(idOrUrl);
-                
+
                 currentRow.addComponents(btn);
             }
-            
-            // --- ADD SELECT MENU ---
+
             else if (interaction.customId.startsWith('comp_modal_select_')) {
                 const customId = interaction.fields.getTextInputValue('id');
                 const placeholder = interaction.fields.getTextInputValue('placeholder');
                 const range = interaction.fields.getTextInputValue('range').split('-');
                 const optionsText = interaction.fields.getTextInputValue('options');
-                
+
                 const min = parseInt(range[0]) || 1;
                 const max = parseInt(range[1]) || 1;
-                
+
                 const select = new StringSelectMenuBuilder()
                     .setCustomId(customId)
                     .setMinValues(min)
                     .setMaxValues(max);
-                    
+
                 if (placeholder) select.setPlaceholder(placeholder);
-                
+
                 const options = [];
                 const lines = optionsText.split('\n');
                 for (const line of lines) {
                     const parts = line.split('|').map(p => p.trim());
-                    // Label | Value | Desc | Emoji
+
                     if (parts[0]) {
                         const opt = new StringSelectMenuOptionBuilder()
                             .setLabel(parts[0])
@@ -1768,16 +1705,16 @@ export default function registerModalInteraction(client) {
                         options.push(opt);
                     }
                 }
-                
+
                 if (options.length > 0) {
                     select.addOptions(options);
                     currentRow.addComponents(select);
                 }
             }
-            
+
             const container = buildComponentBuilderUI(userId, session);
             await interaction.update({ components: [container] });
-            
+
         } catch (err) {
             console.error('[Component Modal]', err);
             try { await interaction.reply({ content: '❌ Failed to add component.', flags: MessageFlags.Ephemeral }); } catch {}
@@ -1785,4 +1722,3 @@ export default function registerModalInteraction(client) {
     }
   });
 }
-

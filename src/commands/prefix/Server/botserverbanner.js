@@ -21,12 +21,11 @@ async function execute(message, args, client) {
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 	}
 
-	// Determine Source
 	const attachment = message.attachments.first();
 	const bannerURL = attachment ? attachment.url : args[0];
 
 	try {
-        // Reset if no URL
+
 		if (!bannerURL) {
 			await message.guild.members.editMe({ banner: null });
 			container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Banner Reset**`));
@@ -34,7 +33,6 @@ async function execute(message, args, client) {
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 		}
 
-        // Validate Format
         const validExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.webp'];
         const cleanUrl = bannerURL.split('?')[0].toLowerCase();
         if (!validExtensions.some(ext => cleanUrl.endsWith(ext))) {
@@ -43,7 +41,6 @@ async function execute(message, args, client) {
              return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Fetch and Buffer
         let buffer;
         try {
             const response = await fetch(bannerURL);
@@ -57,9 +54,8 @@ async function execute(message, args, client) {
              return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
         }
 
-        // Set New Banner
 		await message.guild.members.editMe({ banner: buffer });
-            
+
         container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} **Banner Updated**`));
 		container.addTextDisplayComponents(td => td.setContent('The bot\'s server banner has been updated successfully!'));
 		container.addMediaGalleryComponents(mg => mg.addItems(i => i.setURL(bannerURL)));
@@ -70,7 +66,7 @@ async function execute(message, args, client) {
 		console.error('ServerBanner Error:', err);
 		container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Failed**`));
         if (err.code === 50013) {
-             container.addTextDisplayComponents(td => td.setContent('I lack permissions to change my banner in this server.'));   
+             container.addTextDisplayComponents(td => td.setContent('I lack permissions to change my banner in this server.'));
         } else if (err.code === 50035) {
              container.addTextDisplayComponents(td => td.setContent('Invalid image form body (too large or unsupported).'));
         } else {

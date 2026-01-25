@@ -1,7 +1,6 @@
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
 
-// Helper to format duration
 const formatDuration = (ms) => {
     const seconds = Math.floor(ms / 1000);
     const minutes = Math.floor(seconds / 60);
@@ -16,7 +15,7 @@ const formatDuration = (ms) => {
 
 export default function registerAfkHandler(client) {
     client.on('messageCreate', async (message) => {
-        // Ignore bots and DMs
+
         if (!message.guild || message.author.bot) return;
 
         try {
@@ -26,13 +25,11 @@ export default function registerAfkHandler(client) {
             const guildData = await client.db.findOne({ guildId }) || {};
             const afkUsers = guildData.afkUsers || {};
 
-            // --- CHECK IF SENDER IS AFK ---
             if (afkUsers[userId]) {
                 const afkData = afkUsers[userId];
                 const duration = formatDuration(Date.now() - afkData.timestamp);
                 const mentionsCount = afkData.mentions?.length || 0;
 
-                // Restore nickname
                 try {
                     const member = message.member;
                     if (member && member.manageable && afkData.originalNickname !== undefined) {
@@ -40,7 +37,6 @@ export default function registerAfkHandler(client) {
                     }
                 } catch (e) {}
 
-                // Store mentions history before clearing (expires in 30 minutes)
                 if (mentionsCount > 0) {
                     await client.db.updateOne(
                         { guildId },
@@ -49,7 +45,6 @@ export default function registerAfkHandler(client) {
                     );
                 }
 
-                // Remove AFK status
                 delete afkUsers[userId];
                 await client.db.updateOne(
                     { guildId },
@@ -57,7 +52,6 @@ export default function registerAfkHandler(client) {
                     { upsert: true }
                 );
 
-                // Send welcome back message
                 const container = new ContainerBuilder();
                 container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.afkremoved || '👋'} Welcome Back, ${message.author.username}!`));
                 container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -74,7 +68,6 @@ export default function registerAfkHandler(client) {
                 }).catch(() => {});
             }
 
-            // --- CHECK IF MESSAGE MENTIONS ANY AFK USERS ---
             const mentionedUsers = message.mentions.users;
             if (mentionedUsers.size > 0) {
                 const afkMentioned = [];
@@ -83,14 +76,13 @@ export default function registerAfkHandler(client) {
                     if (afkUsers[mentionedId] && mentionedId !== userId) {
                         const afkData = afkUsers[mentionedId];
                         const duration = formatDuration(Date.now() - afkData.timestamp);
-                        
+
                         afkMentioned.push({
                             user: mentionedUser,
                             reason: afkData.reason,
                             duration
                         });
 
-                        // Store this mention for the AFK user
                         if (!afkData.mentions) afkData.mentions = [];
                         afkData.mentions.push({
                             userId: userId,
@@ -101,7 +93,6 @@ export default function registerAfkHandler(client) {
                     }
                 }
 
-                // Update database with new mentions
                 if (afkMentioned.length > 0) {
                     await client.db.updateOne(
                         { guildId },
@@ -109,7 +100,6 @@ export default function registerAfkHandler(client) {
                         { upsert: true }
                     );
 
-                    // Send AFK notification
                     const container = new ContainerBuilder();
                     container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.afk || '💤'} User is AFK`));
                     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -119,7 +109,7 @@ export default function registerAfkHandler(client) {
                         line += `\n-# AFK for ${m.duration}`;
                         return line;
                     });
-                    
+
                     container.addTextDisplayComponents(td => td.setContent(lines.join('\n\n')));
 
                     message.reply({

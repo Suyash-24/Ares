@@ -11,7 +11,7 @@ async function execute(message, args, client) {
 
 	const input = args.join(' ');
 	if (!input) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Please provide options separated by | (e.g. \`.choose Pizza | Burger\`)`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -20,7 +20,7 @@ async function execute(message, args, client) {
 	const options = input.split('|').map(o => o.trim()).filter(o => o.length > 0);
 
 	if (options.length < 2) {
-		container.addTextDisplayComponents(td => 
+		container.addTextDisplayComponents(td =>
 			td.setContent(`${EMOJIS.error || '❌'} Please provide at least two options separated by |`)
 		);
 		return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
@@ -28,7 +28,7 @@ async function execute(message, args, client) {
 
 	const choice = options[Math.floor(Math.random() * options.length)];
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`**🤔 I choose...**\n\n✨ **${choice}**`)
 	);
 

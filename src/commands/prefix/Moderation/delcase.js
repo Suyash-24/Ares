@@ -50,7 +50,6 @@ export default {
 			});
 		}
 
-		// Check if user can use delcase command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -133,7 +132,6 @@ export default {
 				});
 			}
 
-			// Find the case
 			const caseIndex = guildData.moderation.actions.findIndex(action => action.caseNumber === caseId);
 
 			if (caseIndex === -1) {
@@ -155,7 +153,6 @@ export default {
 				});
 			}
 
-			// Store the case info before deletion for confirmation
 			const deletedCase = guildData.moderation.actions[caseIndex];
 			const type = deletedCase.type?.toUpperCase() || 'UNKNOWN';
 			const emoji = getActionEmoji(deletedCase.type);
@@ -163,17 +160,14 @@ export default {
 			const reason = deletedCase.reason || 'No reason provided';
 			const date = formatDate(deletedCase.timestamp);
 
-			// Mark the case as deleted instead of removing it
 			guildData.moderation.actions[caseIndex].deleted = true;
 
-			// Update database
 			await client.db.updateOne(
 				{ guildId: message.guildId },
 				{ $set: guildData },
 				{ upsert: true }
 			);
 
-			// Send mod log for case deletion
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_CASE_DELETE, {
 				executor: message.author,
 				caseId: caseId,
@@ -181,7 +175,6 @@ export default {
 				details: `Case #${caseId} (${type}) deleted - Original reason: ${reason}`
 			});
 
-			// Send confirmation
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.success} Case Deleted`)

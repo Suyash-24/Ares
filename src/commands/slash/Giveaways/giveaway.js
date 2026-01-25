@@ -7,30 +7,26 @@ function buildMessageFromInteraction(interaction) {
 	const member = interaction.member;
 	const author = interaction.user;
 	const client = interaction.client;
-	
-	// Build mentions object from interaction options
+
 	const mentions = {
 		channels: new Map(),
 		roles: new Map(),
 		users: new Map()
 	};
-	
-	// Add channel mention if provided
+
 	const targetChannel = interaction.options.getChannel('channel');
 	if (targetChannel) {
 		mentions.channels.set(targetChannel.id, targetChannel);
 	}
-	
-	// Add role mentions
+
 	const reqRole = interaction.options.getRole('requiredrole');
 	const prizeRole = interaction.options.getRole('prizerole');
 	if (reqRole) mentions.roles.set(reqRole.id, reqRole);
 	if (prizeRole) mentions.roles.set(prizeRole.id, prizeRole);
-	
-	// Add host mention
+
 	const host = interaction.options.getUser('host');
 	if (host) mentions.users.set(host.id, host);
-	
+
 	return {
 		guild,
 		channel,
@@ -40,7 +36,7 @@ function buildMessageFromInteraction(interaction) {
 		guildId: guild?.id,
 		mentions: {
 			channels: { first: () => targetChannel },
-			roles: { 
+			roles: {
 				first: () => null,
 				map: (fn) => {
 					const roles = [];
@@ -53,17 +49,17 @@ function buildMessageFromInteraction(interaction) {
 		},
 		reply: async (options) => {
 			if (!interaction.replied && !interaction.deferred) {
-				await interaction.reply({ 
-					components: options.components, 
-					flags: options.flags, 
-					content: options.content, 
-					allowedMentions: options.allowedMentions, 
-					ephemeral: options.ephemeral || false 
+				await interaction.reply({
+					components: options.components,
+					flags: options.flags,
+					content: options.content,
+					allowedMentions: options.allowedMentions,
+					ephemeral: options.ephemeral || false
 				}).catch(() => {});
 			} else {
-				await interaction.editReply({ 
-					components: options.components, 
-					content: options.content 
+				await interaction.editReply({
+					components: options.components,
+					content: options.content
 				}).catch(() => {});
 			}
 		}
@@ -180,21 +176,19 @@ export default {
 			.setName('list')
 			.setDescription('List all giveaways in this server')
 		),
-	
+
 	async execute(interaction) {
 		const subcommand = interaction.options.getSubcommand();
 		const message = buildMessageFromInteraction(interaction);
-		
+
 		if (subcommand === 'start') {
 			const channel = interaction.options.getChannel('channel');
 			const duration = interaction.options.getString('duration');
 			const winners = interaction.options.getInteger('winners');
 			const prize = interaction.options.getString('prize');
-			
-			// Build args array for prefix command
+
 			let args = ['start', `<#${channel.id}>`, duration, winners.toString(), prize];
-			
-			// Add optional flags
+
 			const description = interaction.options.getString('description');
 			const color = interaction.options.getString('color');
 			const image = interaction.options.getString('image');
@@ -206,7 +200,7 @@ export default {
 			const minAge = interaction.options.getInteger('minage');
 			const minStay = interaction.options.getInteger('minstay');
 			const host = interaction.options.getUser('host');
-			
+
 			if (description) args.push('--desc', description);
 			if (color) args.push('--color', color);
 			if (image) args.push('--image', image);
@@ -218,7 +212,7 @@ export default {
 			if (minAge !== null) args.push('--age', minAge.toString());
 			if (minStay !== null) args.push('--stay', minStay.toString());
 			if (host) args.push('--host', `<@${host.id}>`);
-			
+
 			await prefix.execute(message, args, interaction.client);
 		} else if (subcommand === 'end') {
 			const messageId = interaction.options.getString('message_id');

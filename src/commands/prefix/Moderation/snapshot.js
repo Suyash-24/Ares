@@ -58,7 +58,7 @@ export default {
 	category: 'Moderation',
 
 	async execute(message, args, client) {
-				// Cooldown: 1 minute per user
+
 				if (!client._snapshotCooldowns) client._snapshotCooldowns = new Map();
 				const cooldownKey = `${message.guildId}_${message.author.id}`;
 				const now = Date.now();
@@ -152,7 +152,6 @@ export default {
 				});
 			}
 
-			// Store snapshot data for pagination
 			if (!client._snapshotCache) client._snapshotCache = new Map();
 			const cacheKey = `${message.guildId}_${role.id}_${message.author.id}_${format}`;
 			const memberIds = Array.from(membersWithRole.keys());
@@ -163,10 +162,9 @@ export default {
 				format,
 				authorId: message.author.id
 			});
-			// Set a timeout to delete after 5 minutes
+
 			setTimeout(() => client._snapshotCache.delete(cacheKey), 5 * 60 * 1000);
 
-			// Paginate JSON with 3 member objects per page, others with 10 lines per page
 			const getPage = (pageNum) => {
 				let output;
 				if (format === 'json') {
@@ -199,7 +197,7 @@ export default {
 							output = 'id,username\n' + pageMembers.map(m => `${m.user.id},${m.user.username}`).join('\n');
 							break;
 					}
-					// Failsafe: only 10 lines in the code block for non-JSON
+
 					if (output) {
 						const lines = output.split('\n');
 						if (format === 'csv' && lines.length > 11) {

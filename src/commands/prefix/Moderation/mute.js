@@ -147,12 +147,11 @@ export default {
 		}
 
 		try {
-			// Mark this as a command-invoked action so logging knows who did it
+
 			markCommandInvoker(message.guild.id, 'mute', target.id, message.author);
-			
+
 			await target.timeout(durationMs, reason);
 
-			// Send mod log
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_MUTE, {
 				executor: message.author,
 				target: target.user,
@@ -162,7 +161,6 @@ export default {
 				thumbnail: target.user.displayAvatarURL()
 			});
 
-			// Save action to database
 			try {
 				const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
 				if (!guildData.moderation) guildData.moderation = {};

@@ -20,26 +20,17 @@ export default function registerReadyEvent(discordClient, config) {
 └─────────────────────────────────────────────────────────────┘
 `);
 		console.log('🎧 [Shoukaku] Music system ready');
-		
-		// Restore detained users from database
+
 		await restoreDetainedUsers(readyClient);
 
-		// Restore temporary roles from database
-		// Initialize temporary role manager (restores + schedules removals)
 		await initializeTemporaryRoleManager(readyClient);
 
-		// Restore slowmode expirations and schedule clear timers
 		await initializeSlowmodeManager(readyClient);
-		
-		// Initialize invite tracker (cache all guild invites)
+
 		await inviteTrackerReady(readyClient);
-		
-		// Initialize voice sessions (detect users already in voice channels)
+
 		await initializeVoiceSessions(readyClient);
-		
-		// Set bot status with command count (same logic as help command for consistency)
-		// Help command only counts PREFIX commands, not slash commands
-		// SUBCOMMAND_REGISTRY - must match help.js exactly
+
 		const SUBCOMMAND_REGISTRY = {
 			'antiraid': { 'config': 1, 'enable': 1, 'disable': 1, 'massjoin': 1, 'avatar': 1, 'newaccounts': 1, 'state': 1, 'whitelist': 1, 'log': 1 },
 			'automod': { 'on': 1, 'off': 1, 'config': 1, 'module': 1, 'preset': 1, 'ignore': 1, 'unignore': 1, 'words': 1, 'logchannel': 1, 'stats': 1, 'strikes': 1, 'notify': 1, 'reset': 1 },
@@ -55,30 +46,28 @@ export default function registerReadyEvent(discordClient, config) {
 			'bumpreminder': { 'channel': 1, 'enable': 1, 'disable': 1, 'thankyou': 1, 'message': 1, 'autolock': 1, 'autoclean': 1, 'config': 1 },
 			'logs': { 'search': 1, 'export': 1, 'ignore': 1, 'status': 1, 'purge': 1, 'stats': 1 }
 		};
-		
-		// Count function matching help.js exactly
+
 		const getSubcommandCount = (cmd) => {
 			const registered = SUBCOMMAND_REGISTRY[cmd.name?.toLowerCase()];
 			if (registered) return Object.keys(registered).length;
-			
+
 			if (cmd.usage) {
 				const match = cmd.usage.match(/<([^>]+\|[^>]+)>/);
 				if (match) return match[1].split('|').length;
 			}
 			return 1;
 		};
-		
-		// Count ONLY prefix commands (help menu doesn't show slash commands)
+
 		let totalCommands = 0;
 		readyClient.prefixCommands.forEach((cmd) => {
-			if (cmd.category === 'Bot Owner') return; // Skip Bot Owner category
+			if (cmd.category === 'Bot Owner') return;
 			totalCommands += getSubcommandCount(cmd);
 		});
-		
+
 		readyClient.user.setPresence({
 			activities: [{
 				name: `/help | ${totalCommands} commands`,
-				type: 3 // Watching
+				type: 3
 			}],
 			status: 'online'
 		});
@@ -89,14 +78,12 @@ export default function registerReadyEvent(discordClient, config) {
 				const db = readyClient.db;
 				if (!db) return;
 
-				// Stats tracking for member join
 				try {
 					await handleMemberJoin(member, readyClient);
 				} catch (e) {
 					console.error('[Stats] Member join stats error:', e);
 				}
 
-				// Invite tracking for member join
 				try {
 					await inviteTrackerMemberAdd(member, readyClient);
 				} catch (e) {
@@ -104,7 +91,7 @@ export default function registerReadyEvent(discordClient, config) {
 				}
 
 				const guildData = await db.findOne({ guildId: guild.id }) || {};
-				
+
 				try {
 					const rawForced = guildData.moderation?.forcedNicknames?.[member.id];
 						const forcedNick = rawForced && typeof rawForced === 'object' ? rawForced.nickname : rawForced;
@@ -119,28 +106,25 @@ export default function registerReadyEvent(discordClient, config) {
 					console.error('[forcenickname] guildMemberAdd restore error:', e);
 				}
 
-				// Multi-channel welcome support
 				if (guildData.welcome?.enabled && guildData.welcome?.channels?.length > 0) {
 					for (const channelConfig of guildData.welcome.channels) {
 						try {
 							const welcomeChannel = guild.channels.cache.get(channelConfig.channelId);
 							if (!welcomeChannel) continue;
-							
+
 							const embed = buildWelcomeEmbed(channelConfig, member);
 							const messageContent = channelConfig.content ? replacePlaceholders(channelConfig.content, member) : null;
 							const buttonRow = buildWelcomeButtons(channelConfig, member);
-							
-							// Skip if no content and no embed
+
 							if (!messageContent && !embed) continue;
-							
+
 							const sendOptions = { allowedMentions: { parse: ['users'] } };
 							if (messageContent) sendOptions.content = messageContent;
 							if (embed) sendOptions.embeds = [embed];
 							if (buttonRow) sendOptions.components = [buttonRow];
-							
+
 							const sentMsg = await welcomeChannel.send(sendOptions).catch(e => console.error('[welcome] send error:', e));
-							
-							// Self-destruct
+
 							if (sentMsg && channelConfig.selfDestruct) {
 								setTimeout(() => sentMsg.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 							}
@@ -149,7 +133,7 @@ export default function registerReadyEvent(discordClient, config) {
 						}
 					}
 				}
-				// Legacy single-channel support
+
 				else if (guildData.welcome?.enabled && guildData.welcome?.channel) {
 					try {
 						const welcomeChannel = guild.channels.cache.get(guildData.welcome.channel);
@@ -157,7 +141,7 @@ export default function registerReadyEvent(discordClient, config) {
 							const config = guildData.welcome;
 							const embed = buildWelcomeEmbed(config, member);
 							const messageContent = config.content ? replacePlaceholders(config.content, member) : null;
-							
+
 							if (messageContent || embed) {
 								const sendOptions = { allowedMentions: { parse: ['users'] } };
 								if (messageContent) sendOptions.content = messageContent;
@@ -195,7 +179,7 @@ export default function registerReadyEvent(discordClient, config) {
 				console.error('[bindrole] guildMemberAdd handler error:', err);
 			}
 		});
-			
+
 		readyClient.on(Events.GuildMemberUpdate, async (oldMember, newMember) => {
 			try {
 				if (!readyClient.db) return;
@@ -224,14 +208,12 @@ export default function registerReadyEvent(discordClient, config) {
 				const db = readyClient.db;
 				if (!db) return;
 
-				// Stats tracking for member leave
 				try {
 					await handleMemberLeave(member, readyClient);
 				} catch (e) {
 					console.error('[Stats] Member leave stats error:', e);
 				}
 
-				// Invite tracking for member leave
 				try {
 					await inviteTrackerMemberRemove(member, readyClient);
 				} catch (e) {
@@ -240,29 +222,26 @@ export default function registerReadyEvent(discordClient, config) {
 
 				const guildData = await db.findOne({ guildId: guild.id }) || {};
 				const leveling = await ensureLevelingConfig(db, guild.id);
-				
-				// Multi-channel goodbye support
+
 				if (guildData.goodbye?.enabled && guildData.goodbye?.channels?.length > 0) {
 					for (const channelConfig of guildData.goodbye.channels) {
 						try {
 							const goodbyeChannel = guild.channels.cache.get(channelConfig.channelId);
 							if (!goodbyeChannel) continue;
-							
+
 							const embed = buildGoodbyeEmbed(channelConfig, member);
 							const messageContent = channelConfig.content ? replaceGoodbyePlaceholders(channelConfig.content, member) : null;
 							const buttonRow = buildGoodbyeButtons(channelConfig, member);
-							
-							// Skip if no content and no embed
+
 							if (!messageContent && !embed) continue;
-							
+
 							const sendOptions = { allowedMentions: { parse: ['users'] } };
 							if (messageContent) sendOptions.content = messageContent;
 							if (embed) sendOptions.embeds = [embed];
 							if (buttonRow) sendOptions.components = [buttonRow];
-							
+
 							const sentMsg = await goodbyeChannel.send(sendOptions).catch(e => console.error('[goodbye] send error:', e));
-							
-							// Self-destruct
+
 							if (sentMsg && channelConfig.selfDestruct) {
 								setTimeout(() => sentMsg.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
 							}
@@ -271,14 +250,14 @@ export default function registerReadyEvent(discordClient, config) {
 						}
 					}
 				}
-				// Legacy single-channel support
+
 				else if (guildData.goodbye?.enabled && guildData.goodbye?.channel) {
 					const goodbyeChannel = guild.channels.cache.get(guildData.goodbye.channel);
 					if (!goodbyeChannel) return;
 					const config = guildData.goodbye;
 					const embed = buildGoodbyeEmbed(config, member);
 					const messageContent = config.content ? replaceGoodbyePlaceholders(config.content, member) : null;
-					
+
 					if (messageContent || embed) {
 						const sendOptions = { allowedMentions: { parse: ['users'] } };
 						if (messageContent) sendOptions.content = messageContent;
@@ -287,7 +266,6 @@ export default function registerReadyEvent(discordClient, config) {
 					}
 				}
 
-				// Leveling auto-cleanup: leave/kick handled here; ban handled in GuildBanAdd
 				const cleanup = leveling.autoCleanup || {};
 				let erased = false;
 
@@ -333,7 +311,6 @@ export default function registerReadyEvent(discordClient, config) {
 			}
 		});
 
-		// Voice state update handler for stats tracking
 		readyClient.on(Events.VoiceStateUpdate, async (oldState, newState) => {
 			try {
 				await handleVoiceStats(oldState, newState, readyClient);
@@ -342,7 +319,6 @@ export default function registerReadyEvent(discordClient, config) {
 			}
 		});
 
-		// Invite tracking events
 		readyClient.on(Events.InviteCreate, async (invite) => {
 			try {
 				await handleInviteCreate(invite);
@@ -369,10 +345,9 @@ export default function registerReadyEvent(discordClient, config) {
 	});
 }
 
-// Function to restore detained users on bot startup
 async function restoreDetainedUsers(client) {
 	try {
-		// Loop through all cached guilds and check for detains
+
 		for (const guild of client.guilds.cache.values()) {
 			const guildData = await client.db.findOne({ guildId: guild.id });
 			if (!guildData || !guildData.moderation?.detains) continue;
@@ -383,10 +358,10 @@ async function restoreDetainedUsers(client) {
 				const timeUntilExpiry = detainRecord.expiresAt - Date.now();
 
 				if (timeUntilExpiry <= 0) {
-					// Already expired, restore immediately
+
 					await restoreDetainedUser(client, detainRecord);
 				} else {
-					// Set up timer for this detention
+
 					setTimeout(() => {
 						restoreDetainedUser(client, detainRecord);
 					}, timeUntilExpiry);
@@ -400,7 +375,6 @@ async function restoreDetainedUsers(client) {
 	}
 }
 
-// Helper function to restore detained user
 async function restoreDetainedUser(client, detainRecord) {
 	try {
 		const guild = client.guilds.cache.get(detainRecord.guildId);
@@ -409,15 +383,12 @@ async function restoreDetainedUser(client, detainRecord) {
 		const member = await guild.members.fetch(detainRecord.userId).catch(() => null);
 		if (!member) return;
 
-		// Remove detain role
 		await member.roles.remove(detainRecord.detainRole).catch(() => {});
 
-		// Restore old roles
 		if (detainRecord.oldRoles && detainRecord.oldRoles.length > 0) {
 			await member.roles.add(detainRecord.oldRoles).catch(() => {});
 		}
 
-		// Update database to remove the record
 		const guildData = await client.db.findOne({ guildId: detainRecord.guildId });
 		if (guildData && guildData.moderation?.detains) {
 			guildData.moderation.detains = guildData.moderation.detains.filter(
@@ -431,5 +402,3 @@ async function restoreDetainedUser(client, detainRecord) {
 		console.error('Error restoring detained user:', error);
 	}
 }
-
-// Temporary roles are handled by temporaryRoleManager utility

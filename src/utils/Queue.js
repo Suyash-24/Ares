@@ -1,15 +1,8 @@
 import Denque from 'denque';
 import { attachPlayerEvents, detachPlayerEvents } from './shoukakuManager.js';
 
-
 export class Queue {
-	/**
-	 * @param {Object} options - Queue options
-	 * @param {import('discord.js').Client} options.client - Discord client
-	 * @param {import('discord.js').Guild} options.guild - Guild
-	 * @param {import('discord.js').VoiceChannel} options.voiceChannel - Voice channel
-	 * @param {import('discord.js').TextChannel} options.messageChannel - Text channel for messages
-	 */
+
 	constructor(options) {
 		this.client = options.client;
 		this.guild = options.guild;
@@ -20,17 +13,14 @@ export class Queue {
 		this.player = null;
 		this.stopped = true;
 		this.paused = false;
-		this.repeat = 'OFF'; 
-		this.autoplay = false; 
+		this.repeat = 'OFF';
+		this.autoplay = false;
 		this.lastPlayedTrackInfo = null;
-		this.autoplayPlaylist = []; 
-		this.autoplayPlaylistIndex = 0; 
+		this.autoplayPlaylist = [];
+		this.autoplayPlaylistIndex = 0;
 		this.autoplayHistory = new Set();
 	}
 
-	/**
-	 * @returns {Promise<void>}
-	 */
 	async connect() {
 		try {
 			const player = await this.client.shoukaku.joinVoiceChannel({
@@ -49,7 +39,6 @@ export class Queue {
 			throw error;
 		}
 	}
-
 
 	disconnect() {
 		try {
@@ -74,9 +63,6 @@ export class Queue {
 		}
 	}
 
-	/**
-	 * @param {Object|Array} tracks 
-	 */
 	addTrack(tracks) {
 		if (Array.isArray(tracks)) {
 			for (const track of tracks) {
@@ -87,9 +73,6 @@ export class Queue {
 		}
 	}
 
-	/**
-	 * @returns {Promise<void>}
-	 */
 	async play() {
 		if (!this.player) {
 			await this.connect();
@@ -99,7 +82,7 @@ export class Queue {
 
 		if (!track) {
 			console.log(`✅ Queue finished on ${this.guild.name}`);
-			
+
 			if (this.messageChannel) {
 				await this.messageChannel
 					.send('✅ No more tracks in queue, leaving voice channel')
@@ -126,26 +109,19 @@ export class Queue {
 		}
 	}
 
-	/**
-	 * @returns {Promise<void>}
-	 */
 	async skip() {
 		if (!this.player) return;
 
 		try {
 			this.autoplayPlaylist = [];
 			this.autoplayPlaylistIndex = 0;
-			
+
 			await this.player.stopTrack();
 		} catch (error) {
 			console.error('Failed to skip track:', error);
 		}
 	}
 
-	/**
-	 * @param {boolean} paused 
-	 * @returns {Promise<void>}
-	 */
 	async setPaused(paused) {
 		if (!this.player) return;
 
@@ -157,10 +133,6 @@ export class Queue {
 		}
 	}
 
-	/**
-	 * @param {number} volume 
-	 * @returns {Promise<void>}
-	 */
 	async setVolume(volume) {
 		if (!this.player) return;
 
@@ -171,27 +143,18 @@ export class Queue {
 		}
 	}
 
-	/**
-
-	 * @param {string} mode 
-	 */
 	setRepeat(mode) {
 		if (['OFF', 'ONCE', 'ALL'].includes(mode)) {
 			this.repeat = mode;
 		}
 	}
 
-	/**
-
-	 * @param {boolean} enabled 
-	 */
 	setAutoplay(enabled) {
 		this.autoplay = Boolean(enabled);
 	}
 
 	shuffle() {
 		if (this.tracks.length <= 1) return;
-
 
 		const first = this.tracks.removeOne(0);
 		const remaining = [];
@@ -205,28 +168,20 @@ export class Queue {
 			[remaining[i], remaining[j]] = [remaining[j], remaining[i]];
 		}
 
-	
 		this.tracks.push(first);
 		for (const track of remaining) {
 			this.tracks.push(track);
 		}
 	}
 
-
 	clear() {
 		this.tracks.clear();
 	}
 
-	/**
-	 * @returns {number}
-	 */
 	size() {
 		return this.tracks.length;
 	}
 
-	/**
-	 * @returns {Array}
-	 */
 	toArray() {
 		const result = [];
 		for (let i = 0; i < this.tracks.length; i++) {

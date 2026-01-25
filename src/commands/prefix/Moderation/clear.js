@@ -38,7 +38,6 @@ export default {
 			});
 		}
 
-		// Check if user can use clear command (admin only)
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -126,7 +125,6 @@ export default {
 
 			const guildData = await client.db.findOne({ guildId: message.guildId });
 
-			// Count what will be cleared
 			let countToClear = 0;
 			const typeDisplay = clearType === 'warnings' ? '⚠️ Warnings' : clearType === 'crimefiles' ? '🕵️ Crime Files' : '📋 Mod History';
 
@@ -163,7 +161,6 @@ export default {
 				});
 			}
 
-			// Show confirmation with button
 			const confirmContainer = new ContainerBuilder();
 			confirmContainer.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ⚠️ Confirm Clear ${typeDisplay}`)
@@ -183,7 +180,6 @@ export default {
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
 
-			// Add confirmation buttons
 			confirmContainer.addActionRowComponents((row) => {
 				const confirmBtn = new ButtonBuilder()
 					.setCustomId(`clear_confirm_${clearType}_${target.user.id}_${message.author.id}`)
@@ -205,7 +201,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Store message ID for later reference
 			client.clearCommands = client.clearCommands || new Map();
 			client.clearCommands.set(`clear_confirm_${clearType}_${target.user.id}_${message.author.id}`, {
 				messageId: reply.id,

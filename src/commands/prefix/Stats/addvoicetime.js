@@ -18,7 +18,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -28,7 +27,6 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Parse arguments
 	const targetUser = message.mentions.users.first();
 	const durationArg = args.find(a => !a.startsWith('<@'));
 
@@ -65,26 +63,22 @@ async function execute(message, args, client) {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
 		const today = new Date().toISOString().split('T')[0];
 		const timestamp = Date.now();
-		
-		// Initialize user stats
+
 		if (!stats.users[targetUser.id]) {
 			stats.users[targetUser.id] = { messages: [], voice: [], joins: [] };
 		}
-		
-		// Add voice entry
+
 		stats.users[targetUser.id].voice.push({ ts: timestamp, ch: 'bonus', mins: minutes });
-		
-		// Update daily stats
+
 		if (!stats.daily[today]) {
 			stats.daily[today] = { messages: 0, voice: 0, joins: 0, leaves: 0 };
 		}
 		stats.daily[today].voice += minutes;
-		
+
 		await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-		
-		// Calculate new total
+
 		const newTotal = stats.users[targetUser.id].voice.reduce((sum, v) => sum + (v.mins || 0), 0);
-		
+
 		container.addTextDisplayComponents(td => td.setContent(
 			`# ${EMOJIS.check || '✅'} Voice Time Added\n\n` +
 			`Added **${formatVoiceTime(minutes)}** to <@${targetUser.id}>.\n` +

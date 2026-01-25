@@ -10,27 +10,24 @@ export default {
     usage: 'reactionsnipe',
     async execute(message, args, client) {
         const removedReactions = getRemovedReactions(message.guild.id, message.channel.id);
-        
+
         if (removedReactions.length === 0) {
             const c = new ContainerBuilder()
                 .addTextDisplayComponents(t => t.setContent(`${EMOJIS.error} No removed reactions found in this channel.`));
-            return message.reply({ 
-                components: [c], 
-                flags: MessageFlags.IsComponentsV2, 
-                allowedMentions: { repliedUser: false, parse: [] } 
+            return message.reply({
+                components: [c],
+                flags: MessageFlags.IsComponentsV2,
+                allowedMentions: { repliedUser: false, parse: [] }
             });
         }
 
-        // Get the most recent removed reaction
         const reaction = removedReactions[0];
         const timestamp = Math.floor(reaction.timestamp / 1000);
 
-        // Build the aesthetic container
         const container = new ContainerBuilder()
             .addTextDisplayComponents(t => t.setContent(`## ${EMOJIS.logEmoji || '😶'} Reaction Removed`))
             .addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
 
-        // Reaction details
         container.addTextDisplayComponents(t => t.setContent(
             `${EMOJIS.members || '👤'} **User**\n` +
             `> ${reaction.user.username} \`${reaction.user.id}\`\n\n` +
@@ -41,12 +38,11 @@ export default {
             `${EMOJIS.trending || '🔗'} **[Jump to Message](${reaction.messageUrl})**`
         ));
 
-        // Show recent reaction removals summary (only if there are more)
         if (removedReactions.length > 1) {
-            const recentList = removedReactions.slice(1, 6).map((r, i) => 
+            const recentList = removedReactions.slice(1, 6).map((r, i) =>
                 `> ${i + 2}. ${r.emoji} by **${r.user.username}** <t:${Math.floor(r.timestamp / 1000)}:R>`
             ).join('\n');
-            
+
             container
                 .addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small))
                 .addTextDisplayComponents(t => t.setContent(
@@ -54,10 +50,10 @@ export default {
                 ));
         }
 
-        return message.reply({ 
-            components: [container], 
-            flags: MessageFlags.IsComponentsV2, 
-            allowedMentions: { repliedUser: false, parse: [] } 
+        return message.reply({
+            components: [container],
+            flags: MessageFlags.IsComponentsV2,
+            allowedMentions: { repliedUser: false, parse: [] }
         });
     }
 };

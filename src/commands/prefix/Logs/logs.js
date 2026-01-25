@@ -1,7 +1,4 @@
-/**
- * Ares Logging System - Logs Main Command
- * Search, export, ignore, status, and purge logs
- */
+
 
 import {
 	ContainerBuilder,
@@ -29,7 +26,7 @@ export default {
 	aliases: ['log'],
 
 	async execute(message, args, client) {
-		// Check permissions
+
 		if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -87,7 +84,6 @@ async function showHelp(message, client) {
 		textDisplay.setContent(`**Available Subcommands:**`)
 	);
 
-	// Search section
 	container.addTextDisplayComponents((textDisplay) =>
 		textDisplay.setContent(
 			`**\`.logs search\`** - Search through logs\n` +
@@ -101,7 +97,6 @@ async function showHelp(message, client) {
 		separator.setSpacing(SeparatorSpacingSize.Small).setDivider(true)
 	);
 
-	// Export section
 	container.addTextDisplayComponents((textDisplay) =>
 		textDisplay.setContent(
 			`**\`.logs export\`** - Export logs to JSON\n` +
@@ -113,7 +108,6 @@ async function showHelp(message, client) {
 		separator.setSpacing(SeparatorSpacingSize.Small).setDivider(true)
 	);
 
-	// Ignore section
 	container.addTextDisplayComponents((textDisplay) =>
 		textDisplay.setContent(
 			`**\`.logs ignore\`** - Manage ignore rules\n` +
@@ -127,7 +121,6 @@ async function showHelp(message, client) {
 		separator.setSpacing(SeparatorSpacingSize.Small).setDivider(true)
 	);
 
-	// Status & Stats section
 	container.addTextDisplayComponents((textDisplay) =>
 		textDisplay.setContent(
 			`**\`.logs status\`** - Show current logging configuration\n\n` +
@@ -138,7 +131,6 @@ async function showHelp(message, client) {
 		separator.setSpacing(SeparatorSpacingSize.Small).setDivider(true)
 	);
 
-	// Purge section
 	container.addTextDisplayComponents((textDisplay) =>
 		textDisplay.setContent(
 			`**\`.logs purge\`** - Delete stored logs\n` +
@@ -301,7 +293,7 @@ async function handleIgnore(message, args, client) {
 	}
 
 	if (!args.length) {
-		// Show current ignore rules
+
 		const ignore = guildData.logging.ignore;
 
 		const container = new ContainerBuilder();
@@ -344,7 +336,7 @@ async function handleIgnore(message, args, client) {
 			}
 			const channelId = ignoreValue.replace(/[<#>]/g, '');
 			if (!guildData.logging.ignore.channels) guildData.logging.ignore.channels = [];
-			
+
 			const channelIndex = guildData.logging.ignore.channels.indexOf(channelId);
 			if (channelIndex > -1) {
 				guildData.logging.ignore.channels.splice(channelIndex, 1);
@@ -361,7 +353,7 @@ async function handleIgnore(message, args, client) {
 			}
 			const roleId = ignoreValue.replace(/[<@&>]/g, '');
 			if (!guildData.logging.ignore.roles) guildData.logging.ignore.roles = [];
-			
+
 			const roleIndex = guildData.logging.ignore.roles.indexOf(roleId);
 			if (roleIndex > -1) {
 				guildData.logging.ignore.roles.splice(roleIndex, 1);
@@ -378,7 +370,7 @@ async function handleIgnore(message, args, client) {
 			}
 			const userId = ignoreValue.replace(/[<@!>]/g, '');
 			if (!guildData.logging.ignore.users) guildData.logging.ignore.users = [];
-			
+
 			const userIndex = guildData.logging.ignore.users.indexOf(userId);
 			if (userIndex > -1) {
 				guildData.logging.ignore.users.splice(userIndex, 1);
@@ -392,8 +384,8 @@ async function handleIgnore(message, args, client) {
 		case 'bots':
 		case 'bot':
 			guildData.logging.ignore.bots = !guildData.logging.ignore.bots;
-			result = guildData.logging.ignore.bots 
-				? 'Bot actions will now be ignored.' 
+			result = guildData.logging.ignore.bots
+				? 'Bot actions will now be ignored.'
 				: 'Bot actions will now be logged.';
 			break;
 
@@ -509,7 +501,6 @@ async function handlePurge(message, args, client) {
 		});
 	}
 
-	// Require confirmation
 	const confirmMessage = await message.reply({
 		content: `⚠️ Are you sure you want to purge ${purgeTarget === 'all' ? 'all logs' : `${CATEGORY_NAMES[purgeTarget]} logs`}? This cannot be undone. Type \`confirm\` to proceed.`
 	});

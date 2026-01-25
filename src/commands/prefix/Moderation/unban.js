@@ -151,12 +151,10 @@ export default {
 				});
 			}
 
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'unban', targetUser.id, message.author);
 
 			await message.guild.members.unban(targetId, reason);
 
-			// Save action to database
 			let caseNum;
 			try {
 				const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
@@ -205,7 +203,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Send log for unban
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_UNBAN, {
 				executor: message.author,
 				target: targetUser,

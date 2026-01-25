@@ -10,9 +10,9 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 
 	const result = Math.random() < 0.5 ? 'Heads' : 'Tails';
-	const emoji = result === 'Heads' ? '🪙' : '🪙'; 
+	const emoji = result === 'Heads' ? '🪙' : '🪙';
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`**${emoji} Coin Flip Result**\n\nThe coin landed on **${result}**!`)
 	);
 

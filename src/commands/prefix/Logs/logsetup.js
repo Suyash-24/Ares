@@ -1,7 +1,4 @@
-/**
- * Ares Logging System - Setup Command
- * Interactive wizard to configure log channels
- */
+
 
 import {
 	ContainerBuilder,
@@ -24,7 +21,6 @@ import {
 	LOG_CATEGORIES
 } from '../../../utils/LoggingManager.js';
 
-// Track pending channel selections (guildId_userId -> { type, category })
 const pendingSelections = new Map();
 
 export default {
@@ -35,7 +31,7 @@ export default {
 	aliases: ['setuplog', 'setuplogging', 'loggingsetup'],
 
 	async execute(message, args, client) {
-		// Check permissions
+
 		if (!message.member.permissions.has(PermissionFlagsBits.ManageGuild)) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -55,11 +51,9 @@ export default {
 			});
 		}
 
-		// Get current config
 		const guildData = await client.db.findOne({ guildId: message.guild.id }) || {};
 		const loggingConfig = guildData.logging || getDefaultLoggingConfig();
 
-		// Create the setup wizard embed with buttons inside container
 		const container = new ContainerBuilder();
 		container.addTextDisplayComponents((textDisplay) =>
 			textDisplay.setContent(`# ${EMOJIS.log} Logging Setup Wizard`)
@@ -83,7 +77,6 @@ export default {
 			separator.setSpacing(SeparatorSpacingSize.Small)
 		);
 
-		// Add buttons inside container
 		container.addActionRowComponents(row => row.addComponents(
 			new ButtonBuilder().setCustomId('logsetup_quick').setLabel('Quick Setup').setStyle(ButtonStyle.Primary).setEmoji('1445774775413637180'),
 			new ButtonBuilder().setCustomId('logsetup_category').setLabel('Category Setup').setStyle(ButtonStyle.Secondary).setEmoji('1445775938980679730'),
@@ -102,16 +95,14 @@ export default {
 			allowedMentions: { repliedUser: false }
 		});
 
-		// Create collector for button interactions
 		const collector = sentMessage.createMessageComponentCollector({
 			filter: (i) => i.user.id === message.author.id,
-			time: 300000 // 5 minutes
+			time: 300000
 		});
 
 		collector.on('collect', async (interaction) => {
 			const customId = interaction.customId;
 
-			// Refresh guildData for each interaction
 			const freshGuildData = await client.db.findOne({ guildId: interaction.guild.id }) || {};
 
 			if (customId === 'logsetup_main') {
@@ -186,7 +177,6 @@ export default {
 						separator.setSpacing(SeparatorSpacingSize.Small)
 					);
 
-					// Add disabled buttons to show it's expired
 					expiredContainer.addActionRowComponents(row => row.addComponents(
 						new ButtonBuilder().setCustomId('logsetup_expired_1').setLabel('Quick Setup').setStyle(ButtonStyle.Secondary).setDisabled(true).setEmoji('1445774775413637180'),
 						new ButtonBuilder().setCustomId('logsetup_expired_2').setLabel('Category Setup').setStyle(ButtonStyle.Secondary).setDisabled(true).setEmoji('1445775938980679730'),
@@ -198,7 +188,7 @@ export default {
 						flags: MessageFlags.IsComponentsV2
 					});
 				} catch (e) {
-					// Message might be deleted
+
 				}
 			}
 		});
@@ -267,7 +257,6 @@ async function handleQuickSetup(interaction, client, guildData) {
 		)
 	);
 
-	// Channel select menu
 	container.addActionRowComponents(row => row.addComponents(
 		new ChannelSelectMenuBuilder()
 			.setCustomId('logsetup_quick_channel')
@@ -279,7 +268,6 @@ async function handleQuickSetup(interaction, client, guildData) {
 		separator.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Action buttons
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId('logsetup_quick_remove').setLabel('Remove Channel').setStyle(ButtonStyle.Danger).setDisabled(!currentChannel).setEmoji('1443596439367192586'),
 		new ButtonBuilder().setCustomId('logsetup_main').setLabel('Cancel').setStyle(ButtonStyle.Secondary).setEmoji('1443596560947744939')
@@ -299,7 +287,6 @@ async function handleQuickChannelSelect(interaction, client, guildData) {
 		return interaction.reply({ content: `${EMOJIS.error} Channel not found.`, ephemeral: true });
 	}
 
-	// Update config
 	if (!guildData.logging) guildData.logging = getDefaultLoggingConfig();
 	guildData.logging.enabled = true;
 	guildData.logging.channels = {
@@ -401,7 +388,6 @@ async function handleCategorySetup(interaction, client, guildData) {
 		)
 	);
 
-	// Add select menu inside container
 	container.addActionRowComponents(row => row.addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId('logsetup_category_select')
@@ -435,7 +421,6 @@ async function handleCategoryChannelPrompt(interaction, client, guildData) {
 	const categoryName = CATEGORY_NAMES[category];
 	const currentChannel = guildData.logging?.channels?.[category];
 
-	// Store the selected category for this user
 	pendingSelections.set(`${interaction.guild.id}_${interaction.user.id}`, { category });
 
 	const container = new ContainerBuilder();
@@ -452,7 +437,6 @@ async function handleCategoryChannelPrompt(interaction, client, guildData) {
 		)
 	);
 
-	// Channel select menu
 	container.addActionRowComponents(row => row.addComponents(
 		new ChannelSelectMenuBuilder()
 			.setCustomId('logsetup_cat_channel')
@@ -464,7 +448,6 @@ async function handleCategoryChannelPrompt(interaction, client, guildData) {
 		separator.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Action buttons
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId('logsetup_cat_remove').setLabel('Remove Channel').setStyle(ButtonStyle.Danger).setDisabled(!currentChannel).setEmoji('1443596439367192586'),
 		new ButtonBuilder().setCustomId('logsetup_category').setLabel('Back to Categories').setStyle(ButtonStyle.Secondary).setEmoji('1445775938980679730'),
@@ -492,7 +475,6 @@ async function handleCategoryChannelSelect(interaction, client, guildData) {
 		return interaction.reply({ content: `${EMOJIS.error} Channel not found.`, ephemeral: true });
 	}
 
-	// Update config
 	if (!guildData.logging) guildData.logging = getDefaultLoggingConfig();
 	if (!guildData.logging.channels) guildData.logging.channels = {};
 	guildData.logging.channels[category] = channelId;
@@ -534,7 +516,6 @@ async function handleCategoryChannelRemove(interaction, client, guildData) {
 	const category = pending.category;
 	const categoryName = CATEGORY_NAMES[category];
 
-	// Update config
 	if (!guildData.logging) guildData.logging = getDefaultLoggingConfig();
 	if (!guildData.logging.channels) guildData.logging.channels = {};
 	guildData.logging.channels[category] = null;
@@ -575,7 +556,7 @@ async function handleEventsSetup(interaction, client, guildData) {
 	container.addSeparatorComponents((separator) =>
 		separator.setSpacing(SeparatorSpacingSize.Small)
 	);
-	
+
 	const events = guildData.logging?.events || {};
 	const enabledCount = Object.values(events).filter(v => v !== false).length;
 	const totalCount = Object.values(LOG_CATEGORIES).flat().length;
@@ -587,7 +568,6 @@ async function handleEventsSetup(interaction, client, guildData) {
 		)
 	);
 
-	// Add select menu inside container
 	container.addActionRowComponents(row => row.addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId('logsetup_event_category')
@@ -625,7 +605,6 @@ async function handleEventToggle(interaction, client, guildData) {
 	const events = LOG_CATEGORIES[category] || [];
 	const currentEvents = guildData.logging?.events || {};
 
-	// Store category for toggle actions
 	pendingSelections.set(`${interaction.guild.id}_${interaction.user.id}`, { category });
 
 	const container = new ContainerBuilder();
@@ -651,7 +630,6 @@ async function handleEventToggle(interaction, client, guildData) {
 		)
 	);
 
-	// Individual event toggle dropdown
 	container.addActionRowComponents(row => row.addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId(`logsetup_evt_toggle_${category}`)
@@ -673,13 +651,11 @@ async function handleEventToggle(interaction, client, guildData) {
 		separator.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Bulk toggle buttons
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId(`logsetup_evt_enableall_${category}`).setLabel('Enable All').setStyle(ButtonStyle.Success).setDisabled(allEnabled).setEmoji('1445346263028600903'),
 		new ButtonBuilder().setCustomId(`logsetup_evt_disableall_${category}`).setLabel('Disable All').setStyle(ButtonStyle.Danger).setDisabled(allDisabled).setEmoji('1445346396910911528')
 	));
 
-	// Navigation
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId('logsetup_events').setLabel('Back to Categories').setStyle(ButtonStyle.Secondary).setEmoji('1445776041401651240'),
 		new ButtonBuilder().setCustomId('logsetup_main').setLabel('Main Menu').setStyle(ButtonStyle.Secondary).setEmoji('1445775144470577286')
@@ -693,7 +669,7 @@ async function handleEventToggle(interaction, client, guildData) {
 
 async function handleEventToggleAction(interaction, client, guildData, customId) {
 	const parts = customId.split('_');
-	const action = parts[2]; // enableall or disableall
+	const action = parts[2];
 	const category = parts[3];
 	const events = LOG_CATEGORIES[category] || [];
 
@@ -707,7 +683,6 @@ async function handleEventToggleAction(interaction, client, guildData, customId)
 
 	await client.db.updateOne({ guildId: interaction.guild.id }, { $set: { logging: guildData.logging } });
 
-	// Refresh and show updated view
 	await showEventCategoryView(interaction, client, guildData, category, `${enable ? 'Enabled' : 'Disabled'} all ${CATEGORY_NAMES[category]} events!`);
 }
 
@@ -723,7 +698,6 @@ async function handleSingleEventToggle(interaction, client, guildData, customId)
 
 	await client.db.updateOne({ guildId: interaction.guild.id }, { $set: { logging: guildData.logging } });
 
-	// Refresh and show updated view
 	await showEventCategoryView(interaction, client, guildData, category, `${!currentState ? 'Enabled' : 'Disabled'} \`${eventName}\``);
 }
 
@@ -756,7 +730,6 @@ async function showEventCategoryView(interaction, client, guildData, category, s
 		textDisplay.setContent(statusText)
 	);
 
-	// Individual event toggle dropdown
 	container.addActionRowComponents(row => row.addComponents(
 		new StringSelectMenuBuilder()
 			.setCustomId(`logsetup_evt_toggle_${category}`)
@@ -778,13 +751,11 @@ async function showEventCategoryView(interaction, client, guildData, category, s
 		separator.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Bulk toggle buttons
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId(`logsetup_evt_enableall_${category}`).setLabel('Enable All').setStyle(ButtonStyle.Success).setDisabled(allEnabled).setEmoji('1445346263028600903'),
 		new ButtonBuilder().setCustomId(`logsetup_evt_disableall_${category}`).setLabel('Disable All').setStyle(ButtonStyle.Danger).setDisabled(allDisabled).setEmoji('1445346396910911528')
 	));
 
-	// Navigation
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId('logsetup_events').setLabel('Back to Categories').setStyle(ButtonStyle.Secondary).setEmoji('1445776041401651240'),
 		new ButtonBuilder().setCustomId('logsetup_main').setLabel('Main Menu').setStyle(ButtonStyle.Secondary).setEmoji('1445775144470577286')
@@ -826,7 +797,6 @@ async function handleIgnoreSetup(interaction, client, guildData) {
 		separator.setSpacing(SeparatorSpacingSize.Small)
 	);
 
-	// Action buttons - Row 1
 	container.addActionRowComponents(row => row.addComponents(
 		new ButtonBuilder().setCustomId('logsetup_ignore_channels').setLabel('Channels').setStyle(ButtonStyle.Primary).setEmoji('1434583519920783402'),
 		new ButtonBuilder().setCustomId('logsetup_ignore_roles').setLabel('Roles').setStyle(ButtonStyle.Primary).setEmoji('1434589572112842762'),
@@ -867,7 +837,6 @@ async function handleIgnoreChannelsPrompt(interaction, client, guildData) {
 		)
 	);
 
-	// Channel select menu
 	container.addActionRowComponents(row => row.addComponents(
 		new ChannelSelectMenuBuilder()
 			.setCustomId('logsetup_ignore_channel_select')

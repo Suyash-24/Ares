@@ -8,7 +8,6 @@ import EMOJIS from '../../../utils/emojis.js';
 import { markCommandInvoker } from '../../../events/loggingEvents.js';
 import { sendLog, LOG_EVENTS } from '../../../utils/LoggingManager.js';
 
-// Store active timers: Map<guildId_userId, timeoutId>
 const detainTimers = new Map();
 
 export default {
@@ -16,7 +15,7 @@ export default {
 	description: 'Temporarily restrict a user by removing all roles',
 	usage: 'detain <user> <duration> [reason]',
 	category: 'Moderation',
-	detainTimers, // Export for other commands to use
+	detainTimers,
 
 	async execute(message, args, client) {
 		if (args.length < 2) {
@@ -38,7 +37,6 @@ export default {
 			});
 		}
 
-		// Check if user can use detain command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'detain', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -59,7 +57,6 @@ export default {
 			});
 		}
 
-		// Parse target user
 		const target = await parseUserInput(args[0], message.guild, client);
 		if (!target) {
 			const container = new ContainerBuilder();
@@ -99,7 +96,6 @@ export default {
 			});
 		}
 
-		// Check self-moderation
 		if (target.id === message.author.id) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -119,7 +115,6 @@ export default {
 			});
 		}
 
-		// Parse duration
 		const durationStr = args[1];
 		const durationMs = parseDuration(durationStr);
 
@@ -145,7 +140,7 @@ export default {
 		const reason = args.slice(2).join(' ') || 'No reason provided';
 
 		try {
-			// Get guild data
+
 			let guildData = await client.db.findOne({ guildId: message.guildId });
 
 			if (!guildData) {
@@ -173,7 +168,6 @@ export default {
 				};
 			}
 
-			// Check if detain role is configured
 			if (!guildData.moderation.detainRole) {
 				const container = new ContainerBuilder();
 				container.addTextDisplayComponents((textDisplay) =>
@@ -193,7 +187,6 @@ export default {
 				});
 			}
 
-			// Get the detain role
 			const detainRole = message.guild.roles.cache.get(guildData.moderation.detainRole);
 			if (!detainRole) {
 				const container = new ContainerBuilder();
@@ -214,7 +207,6 @@ export default {
 				});
 			}
 
-			// Check if user is already detained
 			const existingDetain = guildData.moderation.detains?.find(d => d.userId === target.id);
 			if (existingDetain) {
 				const container = new ContainerBuilder();
@@ -235,7 +227,6 @@ export default {
 				});
 			}
 
-			// Role hierarchy checks
 			const moderatorHighest = ModerationPermissions.getHighestRole(message.member);
 			const targetHighest = ModerationPermissions.getHighestRole(target);
 			const botHighest = message.guild.members.me.roles.highest;
@@ -278,29 +269,24 @@ export default {
 				});
 			}
 
-			// Save user's current roles (exclude @everyone and managed roles)
 			const oldRoles = target.roles.cache
 				.filter(role => role.id !== message.guild.id && !role.managed)
 				.map(role => role.id);
 
-			// Check if detainMode is enabled (default to true if not set)
-			const detainMode = guildData.moderation.detainMode !== false; // Default true
+			const detainMode = guildData.moderation.detainMode !== false;
 			let rolesToSet = [detainRole.id];
 
 			if (!detainMode) {
-				// Keep existing roles and add detain role
+
 				rolesToSet = [...oldRoles, detainRole.id];
 			}
 
-			// Mark this as a command-invoked action so logging knows who did it
 			markCommandInvoker(message.guild.id, 'detain', target.id, message.author);
 
-			// Set roles based on detain mode
 			await target.roles.set(rolesToSet).catch(err => {
 				throw new Error(`Failed to modify roles: ${err.message}`);
 			});
 
-			// Store detain record
 			const detainRecord = {
 				userId: target.id,
 				moderatorId: message.author.id,
@@ -320,10 +306,8 @@ export default {
 			guildData.moderation.detains.push(detainRecord);
 			await client.db.updateOne({ guildId: message.guildId }, guildData, { upsert: true });
 
-			// Set up auto-restore timer
 			setupDetainTimer(client, detainRecord);
 
-			// Send message to detain channel if configured
 			if (guildData.moderation.detainChannel) {
 				try {
 					const detainChannel = message.guild.channels.cache.get(guildData.moderation.detainChannel);
@@ -338,11 +322,9 @@ export default {
 				}
 			}
 
-			// Get custom messages
 			const messages = getDetainMessages(guildData);
 			const durationDisplay = formatDuration(durationMs);
 
-			// Prepare message variables
 			const messageVars = {
 				user: formatUserDisplay(target.user),
 				duration: durationDisplay,
@@ -350,7 +332,6 @@ export default {
 				moderator: message.author.username
 			};
 
-			// Send DM to user if possible
 			try {
 				const dmMessage = formatDetainMessage(messages.detain, messageVars);
 				await target.send(dmMessage).catch(() => {});
@@ -358,7 +339,6 @@ export default {
 				console.error('Error sending DM to detained user:', err);
 			}
 
-			// Send confirmation with formatted display
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.jail || '⛓️'} User Detained`)
@@ -367,14 +347,12 @@ export default {
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
 
-			// Format as key-value pairs like the second image
 			const displayInfo = `**User:** ${formatUserDisplay(target.user)}\n**Duration:** ${durationDisplay}\n**Reason:** ${reason}`;
 
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(displayInfo)
 			);
 
-			// Send log for detain
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_DETAIN, {
 				executor: message.author,
 				target: target.user,
@@ -411,28 +389,25 @@ export default {
 	}
 };
 
-// Helper function to setup auto-restore timer
 function setupDetainTimer(client, detainRecord) {
 	const timeUntilExpiry = detainRecord.expiresAt - Date.now();
 	const timerKey = `${detainRecord.guildId}_${detainRecord.userId}`;
 
 	if (timeUntilExpiry <= 0) {
-		// Already expired, restore immediately
+
 		restoreDetainedUser(client, detainRecord);
 		return;
 	}
 
 	const timerId = setTimeout(() => {
 		restoreDetainedUser(client, detainRecord);
-		// Remove from map after execution
+
 		detainTimers.delete(timerKey);
 	}, timeUntilExpiry);
 
-	// Store the timer ID so we can cancel it later
 	detainTimers.set(timerKey, timerId);
 }
 
-// Helper function to restore detained user
 async function restoreDetainedUser(client, detainRecord) {
 	try {
 		const guild = client.guilds.cache.get(detainRecord.guildId);
@@ -441,15 +416,12 @@ async function restoreDetainedUser(client, detainRecord) {
 		const member = await guild.members.fetch(detainRecord.userId).catch(() => null);
 		if (!member) return;
 
-		// Remove detain role
 		await member.roles.remove(detainRecord.detainRole).catch(() => {});
 
-		// Restore old roles
 		if (detainRecord.oldRoles && detainRecord.oldRoles.length > 0) {
 			await member.roles.add(detainRecord.oldRoles).catch(() => {});
 		}
 
-		// Update database to remove the record
 		const guildData = await client.db.findOne({ guildId: detainRecord.guildId });
 		if (guildData && guildData.moderation?.detains) {
 			guildData.moderation.detains = guildData.moderation.detains.filter(
@@ -457,7 +429,6 @@ async function restoreDetainedUser(client, detainRecord) {
 			);
 			await client.db.updateOne({ guildId: detainRecord.guildId }, guildData);
 
-			// Send message to detain channel if configured
 			if (guildData.moderation.detainChannel) {
 				try {
 					const detainChannel = guild.channels.cache.get(guildData.moderation.detainChannel);
@@ -478,7 +449,6 @@ async function restoreDetainedUser(client, detainRecord) {
 	}
 }
 
-// Helper function to format duration
 function formatDuration(ms) {
 	const seconds = Math.floor(ms / 1000);
 	const minutes = Math.floor(seconds / 60);

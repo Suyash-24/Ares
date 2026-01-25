@@ -77,9 +77,9 @@ export default {
     const sendAllowed = overwrite?.allow?.has(PermissionFlagsBits.SendMessages) ?? false;
     const sendDenied = overwrite?.deny?.has(PermissionFlagsBits.SendMessages) ?? false;
 
-    let action; // 'allowed' or 'denied'
+    let action;
     try {
-      // Use PascalCase keys which discord.js expects for overwrite options
+
       if (sendAllowed) {
         await channel.permissionOverwrites.edit(role, { SendMessages: false });
         action = 'denied';

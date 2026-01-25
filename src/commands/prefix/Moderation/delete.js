@@ -29,7 +29,6 @@ export default {
 			});
 		}
 
-		// Check if user can use delete command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'delete', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -50,7 +49,6 @@ export default {
 			});
 		}
 
-		// Check if first arg is a message ID filter (before, after, between, upto)
 		const hasIdFilter = args[0].includes(':') && (
 			args[0].startsWith('before:') ||
 			args[0].startsWith('after:') ||
@@ -58,11 +56,11 @@ export default {
 			args[0].startsWith('upto:')
 		);
 
-		let amount = 100; // Default to 100 for ID filters
+		let amount = 100;
 		let startIndex = 0;
 
 		if (!hasIdFilter) {
-			// Normal mode: need message count
+
 			amount = parseInt(args[0]);
 			if (isNaN(amount) || amount < 2 || amount > 100) {
 				const container = new ContainerBuilder();
@@ -85,26 +83,24 @@ export default {
 			startIndex = 1;
 		}
 
-		// Parse filters and user
 		let filters = {};
 		let targetUser = null;
 
 		for (let i = startIndex; i < args.length; i++) {
 			const arg = args[i];
 
-			// Check for parameterized filters
 			if (arg.includes(':')) {
 				const [key, value] = arg.split(':');
 				filters[key.toLowerCase()] = value;
 			} else if (arg.startsWith('-')) {
-				// Skip flags starting with -
+
 				continue;
 			} else {
-				// Try to parse as user mention/ID
+
 				try {
 					targetUser = await message.guild.members.fetch(arg.replace(/[<@!>]/g, ''));
 				} catch {
-					// If not a user, treat as a filter flag
+
 					filters[arg.toLowerCase()] = true;
 				}
 			}
@@ -130,74 +126,55 @@ export default {
 		}
 
 		try {
-			// 6 hours in milliseconds
+
 			const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 			const sixHoursAgo = Date.now() - SIX_HOURS_MS;
 
-			// Fetch a larger batch to ensure we find enough messages within 6 hours
 			const messages = await message.channel.messages.fetch({ limit: 100 });
 			let toDelete = [];
 
-			// Filter messages within 6 hours
 			let recentMessages = messages.filter(msg => msg.createdTimestamp >= sixHoursAgo && msg.id !== message.id);
 
-			// Apply filters
 			recentMessages = recentMessages.filter(msg => {
-				// User filter
+
 				if (targetUser && msg.author.id !== targetUser.id) return false;
 
-				// Bots filter
 				if (filters.bots && !msg.author.bot) return false;
 
-				// Humans filter
 				if (filters.humans && msg.author.bot) return false;
 
-				// Webhooks filter
 				if (filters.webhooks && msg.webhookId === null) return false;
 
-				// Links filter
 				if (filters.links && !/(https?:\/\/[^\s]+)/g.test(msg.content)) return false;
 
-				// Embeds filter
 				if (filters.embeds && msg.embeds.length === 0) return false;
 
-				// Files/Attachments filter
 				if (filters.files && msg.attachments.size === 0) return false;
 
-				// Images filter
 				if (filters.images) {
 					const hasImages = msg.attachments.some(att => att.contentType?.startsWith('image/'));
 					if (!hasImages) return false;
 				}
 
-				// Stickers filter
 				if (filters.stickers && msg.stickers.size === 0) return false;
 
-				// Emojis filter (custom emojis in content)
 				if (filters.emojis && !/<a?:\w+:\d+>/g.test(msg.content)) return false;
 
-				// Mentions filter
 				if (filters.mentions && msg.mentions.size === 0 && msg.mentions.has(message.guild.members.me.id) === false) return false;
 
-				// Reactions filter
 				if (filters.reactions && msg.reactions.cache.size === 0) return false;
 
-				// Activity filter (bot messages, system messages)
 				if (filters.activity && msg.author.bot === false && msg.type === 'Default') return false;
 
-				// Contains filter
 				if (filters.contains && !msg.content.toLowerCase().includes(filters.contains.toLowerCase())) return false;
 
-				// Startswith filter
 				if (filters.startswith && !msg.content.toLowerCase().startsWith(filters.startswith.toLowerCase())) return false;
 
-				// Endswith filter
 				if (filters.endswith && !msg.content.toLowerCase().endsWith(filters.endswith.toLowerCase())) return false;
 
 				return true;
 			});
 
-			// Handle range filters (before, after, between, upto)
 			if (filters.before) {
 				recentMessages = recentMessages.filter(msg => BigInt(msg.id) < BigInt(filters.before));
 			}
@@ -220,7 +197,6 @@ export default {
 				recentMessages = recentMessages.filter(msg => BigInt(msg.id) <= BigInt(filters.upto));
 			}
 
-			// Convert collection to array, sort by newest first and take the requested amount
 			toDelete = Array.from(recentMessages.values())
 				.sort((a, b) => b.createdTimestamp - a.createdTimestamp)
 				.slice(0, amount);
@@ -243,7 +219,6 @@ export default {
 					allowedMentions: { repliedUser: false }
 				});
 
-				// Delete the command message and reply after 5 seconds
 				setTimeout(() => {
 					markMessageAsAresDeleted(message.id);
 					message.delete().catch(() => {});
@@ -253,7 +228,6 @@ export default {
 				return;
 			}
 
-			// Mark all messages as deleted by Ares for logging
 			for (const msg of toDelete) {
 				markMessageAsAresDeleted(msg.id);
 			}
@@ -287,7 +261,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 
-			// Delete the command message and reply after 5 seconds
 			setTimeout(() => {
 				markMessageAsAresDeleted(message.id);
 				message.delete().catch(() => {});

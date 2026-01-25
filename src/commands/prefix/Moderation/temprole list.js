@@ -33,7 +33,6 @@ export default {
 				});
 			}
 
-			// Filter for active roles (should already be cleaned up)
 			const now = new Date();
 			const activeRoles = guildData.temporaryRoles.filter(tr => new Date(tr.expiresAt) > now);
 
@@ -55,7 +54,6 @@ export default {
 				});
 			}
 
-			// Build container with role list
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
 				textDisplay.setContent(`# ${EMOJIS.info || 'ℹ️'} Active Temporary Roles (${activeRoles.length})`)
@@ -64,7 +62,6 @@ export default {
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
 
-			// Add each role with separator between them
 			for (let i = 0; i < activeRoles.length; i++) {
 				const tempRole = activeRoles[i];
 				try {
@@ -86,7 +83,6 @@ export default {
 							)
 						);
 
-						// Add separator between roles (but not after the last one)
 						if (i < activeRoles.length - 1) {
 							container.addSeparatorComponents((separator) =>
 								separator.setSpacing(SeparatorSpacingSize.Small)

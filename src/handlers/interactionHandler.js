@@ -49,7 +49,6 @@ export default function registerInteractionHandler(discordClient) {
 		if (interaction.isMessageComponent()) {
 			let handler = discordClient.components.get(interaction.customId);
 
-			// If no exact match, check for regex patterns
 			if (!handler) {
 				for (const [key, value] of discordClient.components) {
 					if (key instanceof RegExp && key.test(interaction.customId)) {

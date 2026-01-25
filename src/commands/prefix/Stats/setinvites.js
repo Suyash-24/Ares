@@ -17,7 +17,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -27,22 +26,19 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Usage: setinvites @user <type> <amount>
-	// Type: regular, fake, left, bonus
 	let targetUser = message.mentions.users.first();
 	let argOffset = 1;
-	
-	// If no mention, try to parse first arg as user ID
+
 	if (!targetUser && args[0]) {
 		const userId = args[0].replace(/[<@!>]/g, '');
 		try {
 			targetUser = await client.users.fetch(userId);
 			argOffset = 1;
 		} catch {
-			// Not a valid user ID, will show usage
+
 		}
 	}
-	
+
 	const type = args[argOffset]?.toLowerCase();
 	const amount = parseInt(args[argOffset + 1]);
 
@@ -79,7 +75,6 @@ async function execute(message, args, client) {
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
 
-		// Initialize invites structure
 		if (!stats.invites) {
 			stats.invites = {};
 		}
@@ -99,7 +94,6 @@ async function execute(message, args, client) {
 
 		await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
 
-		// Calculate new total
 		const inv = stats.invites[targetUser.id];
 		const total = (inv.regular || 0) + (inv.bonus || 0) - (inv.left || 0) - (inv.fake || 0);
 

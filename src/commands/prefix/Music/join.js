@@ -33,7 +33,7 @@ export default {
 			targetChannel = message.member.voice.channel;
 		} else {
 			const mention = args[0];
-			
+
 			const channelMention = message.mentions.channels.first();
 			if (channelMention) {
 				targetChannel = channelMention;
@@ -62,7 +62,6 @@ export default {
 			}
 		}
 
-
 		if (!targetChannel || targetChannel.type !== ChannelType.GuildVoice) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -82,7 +81,6 @@ export default {
 			});
 		}
 
-
 		if (!message.guild.members.me?.permissions.has('Connect')) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -101,7 +99,6 @@ export default {
 				allowedMentions: { repliedUser: false }
 			});
 		}
-
 
 		if (!message.guild.members.me?.permissionsIn(targetChannel).has('Connect')) {
 			const container = new ContainerBuilder();
@@ -127,12 +124,10 @@ export default {
 
 			let queue = client.queue.get(message.guildId);
 
-			
 			if (queue && queue.player) {
 				queue.disconnect();
 				client.queue.delete(message.guildId);
 			}
-
 
 			queue = new Queue({
 				client,

@@ -24,12 +24,12 @@ async function execute(message, args, client) {
 	leveling.members = {};
 
 	await client.db.updateOne({ guildId: message.guildId }, { $set: { leveling } });
-	
+
 	const c = new ContainerBuilder();
 	c.addTextDisplayComponents(td => td.setContent(`## ${EMOJIS.success || '✅'} Levels Reset`));
 	c.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 	c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.members || '👥'} Reset level and XP for **${memberCount}** members.`));
-	
+
 	await message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 }
 

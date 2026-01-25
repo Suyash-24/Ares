@@ -18,7 +18,6 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Check permissions
 	if (!message.member.permissions.has(PermissionFlagsBits.Administrator)) {
 		const c = new ContainerBuilder();
 		c.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} You need **Administrator** permission to use this command.`));
@@ -28,7 +27,6 @@ async function execute(message, args, client) {
 	const container = new ContainerBuilder();
 	const botName = client.user.username;
 
-	// Parse arguments
 	const targetUser = message.mentions.users.first();
 	const durationArg = args.find(a => !a.startsWith('<@'));
 
@@ -63,18 +61,16 @@ async function execute(message, args, client) {
 
 	try {
 		const stats = await ensureStatsConfig(client.db, message.guildId);
-		
+
 		if (!stats.users[targetUser.id] || !stats.users[targetUser.id].voice?.length) {
 			container.addTextDisplayComponents(td => td.setContent(
 				`${EMOJIS.error || '❌'} **${targetUser.username}** has no voice data to remove.`
 			));
 			return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 		}
-		
-		// Calculate current total
+
 		const oldTotal = stats.users[targetUser.id].voice.reduce((sum, v) => sum + (v.mins || 0), 0);
-		
-		// Remove voice time by reducing entries from the end
+
 		let remaining = minutesToRemove;
 		while (remaining > 0 && stats.users[targetUser.id].voice.length > 0) {
 			const last = stats.users[targetUser.id].voice[stats.users[targetUser.id].voice.length - 1];
@@ -86,13 +82,13 @@ async function execute(message, args, client) {
 				remaining = 0;
 			}
 		}
-		
+
 		const actualRemoved = minutesToRemove - remaining;
-		
+
 		await client.db.updateOne({ guildId: message.guildId }, { $set: { stats } });
-		
+
 		const newTotal = stats.users[targetUser.id].voice.reduce((sum, v) => sum + (v.mins || 0), 0);
-		
+
 		container.addTextDisplayComponents(td => td.setContent(
 			`# ${EMOJIS.check || '✅'} Voice Time Removed\n\n` +
 			`Removed **${formatVoiceTime(actualRemoved)}** from <@${targetUser.id}>.\n` +

@@ -11,20 +11,17 @@ import { ensureStatsConfig, formatNumber } from '../../../utils/statsManager.js'
 const name = 'invites';
 const aliases = ['invitestats', 'myinvites'];
 
-/**
- * Build invites panel for a user
- */
 function buildInvitesPanel(guild, user, inviteData, authorId, botName) {
 	const container = new ContainerBuilder();
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`# ${EMOJIS.invite || '📨'} Invite Stats`)
 	);
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
 	const avatarUrl = user.displayAvatarURL({ size: 64, extension: 'png' });
-	
+
 	const total = inviteData.total || 0;
 	const regular = inviteData.regular || 0;
 	const left = inviteData.left || 0;
@@ -51,7 +48,6 @@ function buildInvitesPanel(guild, user, inviteData, authorId, botName) {
 
 	container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
-	// Recent invites
 	const recentInvites = inviteData.invited?.slice(-5) || [];
 	if (recentInvites.length > 0) {
 		container.addTextDisplayComponents(td => td.setContent(`### ${EMOJIS.users || '👥'} Recent Invites`));
@@ -67,16 +63,13 @@ function buildInvitesPanel(guild, user, inviteData, authorId, botName) {
 	return container;
 }
 
-/**
- * Get invite data for a user
- */
 async function getInviteData(client, guildId, userId) {
 	const stats = await ensureStatsConfig(client.db, guildId);
-	
+
 	if (!stats.invites) {
 		stats.invites = {};
 	}
-	
+
 	if (!stats.invites[userId]) {
 		stats.invites[userId] = {
 			total: 0,
@@ -87,7 +80,7 @@ async function getInviteData(client, guildId, userId) {
 			invited: []
 		};
 	}
-	
+
 	return stats.invites[userId];
 }
 
@@ -98,26 +91,25 @@ async function execute(message, args, client) {
 		return message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 	}
 
-	// Target user (mentioned, user ID, or self)
 	let targetUser = message.mentions.users.first();
-	
+
 	if (!targetUser && args[0]) {
 		const userId = args[0].replace(/[<@!>]/g, '');
 		try {
 			targetUser = await client.users.fetch(userId);
 		} catch {
-			// Invalid user ID, use message author
+
 			targetUser = message.author;
 		}
 	}
-	
+
 	if (!targetUser) {
 		targetUser = message.author;
 	}
-	
+
 	const inviteData = await getInviteData(client, message.guildId, targetUser.id);
 	const botName = client.user.username;
-	
+
 	const panel = buildInvitesPanel(message.guild, targetUser, inviteData, message.author.id, botName);
 
 	await message.reply({ components: [panel], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });

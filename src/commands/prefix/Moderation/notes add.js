@@ -34,7 +34,6 @@ export default {
 			});
 		}
 
-		// Check if user can use notes command
 		const canUse = await ModerationPermissions.canUseCommand(message.member, 'warn', client, message.guildId);
 		if (!canUse.allowed) {
 			const container = new ContainerBuilder();
@@ -57,7 +56,7 @@ export default {
 
 		const targetInput = effectiveArgs[0];
 		const target = await parseUserInput(targetInput, message.guild, client);
-		
+
 		if (!target) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>
@@ -124,7 +123,6 @@ export default {
 				finalGuildData.moderation.notes = {};
 			}
 
-			// Get user ID - handle both member and user objects
 			const userId = target.id;
 
 			if (!finalGuildData.moderation.notes[userId]) {
@@ -143,7 +141,6 @@ export default {
 				{ $set: finalGuildData }
 			);
 
-			// Get user object - handle both member and user objects
 			const userObj = target.user || target;
 
 			const container = new ContainerBuilder();
@@ -161,7 +158,6 @@ export default {
 				)
 			);
 
-			// Send log for note add
 			await sendLog(client, message.guildId, LOG_EVENTS.MOD_NOTE_ADD, {
 				executor: message.author,
 				target: userObj,

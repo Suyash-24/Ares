@@ -25,7 +25,7 @@ async function execute(message, args, client) {
 	state.muteAnnouncements = setting === 'disable' || setting === 'off';
 
 	await client.db.updateOne({ guildId: message.guildId }, { $set: { leveling } });
-	
+
 	const c = new ContainerBuilder();
 	c.addTextDisplayComponents(td => td.setContent(`## ${state.muteAnnouncements ? '🔇' : '🔔'} Level-Up Messages`));
 	c.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -34,7 +34,7 @@ async function execute(message, args, client) {
 			? `${EMOJIS.success || '✅'} Level-up messages **disabled** for you.`
 			: `${EMOJIS.success || '✅'} Level-up messages **enabled** for you.`
 	));
-	
+
 	await message.reply({ components: [c], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
 }
 

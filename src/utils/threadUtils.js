@@ -2,7 +2,7 @@ import { PermissionFlagsBits } from 'discord.js';
 
 export const getThreadPermissionLevel = async (member, client, guildId) => {
 	try {
-		if (member.permissions.has(PermissionFlagsBits.ManageThreads) || 
+		if (member.permissions.has(PermissionFlagsBits.ManageThreads) ||
 			member.permissions.has(PermissionFlagsBits.ManageChannels)) {
 			return 'discord';
 		}
@@ -33,7 +33,7 @@ export const getThreadPermissionLevel = async (member, client, guildId) => {
 
 export const validateThreadPermission = async (member, client, guildId, requiredLevel = 'mod') => {
 	const permLevel = await getThreadPermissionLevel(member, client, guildId);
-	
+
 	if (permLevel === 'discord') return true;
 
 	const hierarchy = { support: 0, mod: 1, headmod: 2 };

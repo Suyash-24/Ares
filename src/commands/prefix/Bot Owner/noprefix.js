@@ -7,19 +7,17 @@ const description = 'Manage no-prefix access for users, servers, or roles.';
 const usage = 'noprefix <add|remove|list|status> <user|server|role> [target] [duration|lifetime]';
 const category = 'Bot Owner';
 
-// Reserved guildId for global no-prefix data
 const NOPREFIX_KEY = '_noprefix';
-const LIFETIME = 9999999999999; // Far future timestamp for "lifetime"
+const LIFETIME = 9999999999999;
 
-// Parse duration string like "30d", "7d", "90d", "lifetime" to ms
 function parseDuration(str) {
-    if (!str) return 90 * 24 * 60 * 60 * 1000; // Default 90 days
+    if (!str) return 90 * 24 * 60 * 60 * 1000;
     if (str.toLowerCase() === 'lifetime') return LIFETIME;
     const match = str.match(/^(\d+)d$/i);
     if (match) {
         return parseInt(match[1]) * 24 * 60 * 60 * 1000;
     }
-    return null; // Invalid format
+    return null;
 }
 
 function formatDuration(ms) {
@@ -46,7 +44,6 @@ function formatTimestamp(ts) {
 async function execute(message, args, client) {
     const container = new ContainerBuilder();
 
-    // Check if user is bot owner
     const ownerIds = client.config?.ownerIds || [];
     const isBotOwner = ownerIds.includes(message.author.id) || client.application?.owner?.id === message.author.id;
 
@@ -77,26 +74,22 @@ async function execute(message, args, client) {
         return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Get or initialize no-prefix data
     let npData = await client.db.findOne({ guildId: NOPREFIX_KEY }) || { guildId: NOPREFIX_KEY, users: [], servers: [], roles: [] };
     if (!npData.users) npData.users = [];
     if (!npData.servers) npData.servers = [];
     if (!npData.roles) npData.roles = [];
 
-    // Clean expired entries (but keep lifetime ones)
     const now = Date.now();
     npData.users = npData.users.filter(u => u.expiresAt > now || u.expiresAt >= LIFETIME);
     npData.servers = npData.servers.filter(s => s.expiresAt > now || s.expiresAt >= LIFETIME);
     npData.roles = npData.roles.filter(r => r.expiresAt > now || r.expiresAt >= LIFETIME);
 
-    // LIST
     if (action === 'list') {
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.info || '📋'} No-Prefix Grants`));
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
 
         let content = '';
 
-        // Bot Owners (always have lifetime)
         if (ownerIds.length > 0) {
             content += '**👑 Bot Owners** *(auto-lifetime)*\n';
             for (const oid of ownerIds) {
@@ -141,7 +134,6 @@ async function execute(message, args, client) {
         return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // STATUS
     if (action === 'status') {
         if (!type || !['user', 'server', 'role'].includes(type)) {
             container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Invalid Type**`));
@@ -153,8 +145,7 @@ async function execute(message, args, client) {
 
         if (type === 'user') {
             const userId = targetArg ? targetArg.replace(/[<@!>]/g, '') : message.author.id;
-            
-            // Check bot owner
+
             if (ownerIds.includes(userId) || client.application?.owner?.id === userId) {
                 container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.success || '👑'} Bot Owner`));
                 container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
@@ -245,7 +236,6 @@ async function execute(message, args, client) {
         return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Handle USER
     if (type === 'user') {
         const targetArg = args[2];
         const durationArg = args[3];
@@ -313,17 +303,16 @@ async function execute(message, args, client) {
         }
     }
 
-    // Handle SERVER
     if (type === 'server') {
         const targetArg = args[2];
         const durationArg = args[3];
 
         if (action === 'add') {
-            // Check if targetArg is a duration or server ID
+
             const isDurationArg = targetArg?.match(/^(\d+d|lifetime)$/i);
             const finalServerId = isDurationArg ? message.guildId : (targetArg || message.guildId);
             const duration = parseDuration(isDurationArg ? targetArg : durationArg);
-            
+
             if ((isDurationArg ? null : durationArg) && duration === null) {
                 container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Invalid Duration**`));
                 container.addTextDisplayComponents(td => td.setContent('Duration format: `30d`, `7d`, `lifetime`'));
@@ -374,7 +363,6 @@ async function execute(message, args, client) {
         }
     }
 
-    // Handle ROLE
     if (type === 'role') {
         const targetArg = args[2];
         const durationArg = args[3];

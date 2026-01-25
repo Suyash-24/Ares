@@ -25,9 +25,8 @@ const parseColor = (input) => {
   return parseInt(hex, 16);
 };
 
-// Extended placeholders with Bleed-style variables
 const placeholders = {
-  // User variables
+
   '{user}': (member) => `<@${member.id}>`,
   '{user.mention}': (member) => `<@${member.id}>`,
   '{user.tag}': (member) => member.user.tag,
@@ -38,8 +37,7 @@ const placeholders = {
   '{user.created_at_timestamp}': (member) => `<t:${Math.floor(member.user.createdTimestamp / 1000)}:R>`,
   '{user.joined_at}': (member) => member.joinedAt ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:F>` : 'Unknown',
   '{user.joined_at_timestamp}': (member) => member.joinedAt ? `<t:${Math.floor(member.joinedTimestamp / 1000)}:R>` : 'Unknown',
-  
-  // Guild variables
+
   '{server}': (member) => member.guild.name,
   '{guild}': (member) => member.guild.name,
   '{guild.name}': (member) => member.guild.name,
@@ -67,20 +65,18 @@ const placeholders = {
   '{guild.role_count}': (member) => member.guild.roles.cache.size.toString(),
   '{guild.emoji_count}': (member) => member.guild.emojis.cache.size.toString(),
   '{guild.channel_count}': (member) => member.guild.channels.cache.size.toString(),
-  
-  // Time variables - Discord timestamp format (works in content/description, NOT in embed footer)
+
   '{timestamp}': () => `<t:${Math.floor(Date.now() / 1000)}:F>`,
   '{timestamp.relative}': () => `<t:${Math.floor(Date.now() / 1000)}:R>`,
   '{timestamp.date}': () => `<t:${Math.floor(Date.now() / 1000)}:D>`,
   '{timestamp.time}': () => `<t:${Math.floor(Date.now() / 1000)}:T>`,
-  // Formatted date strings (works everywhere including embed footer)
+
   '{date}': () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
   '{date.short}': () => new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
   '{time}': () => new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
   '{datetime}': () => new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })
 };
 
-// Footer-safe timestamp replacements (uses UTC since footers don't support Discord's auto-timezone)
 const footerSafePlaceholders = {
   '{timestamp}': () => new Date().toLocaleString('en-GB', { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'short' }) + ' UTC',
   '{timestamp.relative}': () => 'just now',
@@ -97,15 +93,14 @@ export const replacePlaceholders = (text, member) => {
   return result;
 };
 
-// For footer text - converts timestamps to readable format since embed footers don't support Discord timestamp markdown
 const replacePlaceholdersFooterSafe = (text, member) => {
   if (!text) return '';
   let result = text;
-  // First apply footer-safe timestamp replacements
+
   for (const [placeholder, fn] of Object.entries(footerSafePlaceholders)) {
     result = result.split(placeholder).join(fn(member));
   }
-  // Then apply regular placeholders
+
   for (const [placeholder, fn] of Object.entries(placeholders)) {
     result = result.split(placeholder).join(fn(member));
   }
@@ -118,7 +113,6 @@ const isValidUrl = (str) => {
   return lower.startsWith('http://') || lower.startsWith('https://');
 };
 
-// Parse self-destruct flag from message content
 const parseSelfDestruct = (content) => {
   const match = content.match(/--self[_-]?destruct\s+(\d+)/i);
   if (match) {
@@ -130,7 +124,6 @@ const parseSelfDestruct = (content) => {
   return null;
 };
 
-// Parse fields from embed config: name && value && inline ;; name && value && inline
 export const parseFields = (fieldsStr) => {
   if (!fieldsStr) return [];
   const fields = [];
@@ -148,7 +141,6 @@ export const parseFields = (fieldsStr) => {
   return fields;
 };
 
-// Parse buttons from config: label && url ;; label && url
 export const parseButtons = (buttonsStr) => {
   if (!buttonsStr) return [];
   const buttons = [];
@@ -180,7 +172,7 @@ const defaultChannelConfig = {
   selfDestruct: null,
   fields: null,
   buttons: null,
-  timestamp: true  // Discord's built-in timestamp (shows local time for each viewer)
+  timestamp: true
 };
 
 const defaultConfig = {
@@ -188,20 +180,19 @@ const defaultConfig = {
   channels: []
 };
 
-// Build embed for actual goodbye messages (returns null if no embed content)
 export const buildGoodbyeEmbed = (channelConfig, member) => {
-  // Check if there's any meaningful embed content
-  const hasEmbedContent = channelConfig.title || channelConfig.description || 
-                          channelConfig.author || channelConfig.footer || 
-                          channelConfig.thumbnail || channelConfig.image || 
+
+  const hasEmbedContent = channelConfig.title || channelConfig.description ||
+                          channelConfig.author || channelConfig.footer ||
+                          channelConfig.thumbnail || channelConfig.image ||
                           channelConfig.fields || channelConfig.color;
-  
+
   if (!hasEmbedContent) return null;
-  
+
   const embed = new EmbedBuilder();
-  
+
   if (channelConfig.color) embed.setColor(channelConfig.color);
-  
+
   if (channelConfig.author) {
     const authorText = replacePlaceholders(channelConfig.author, member);
     const authorIconUrl = channelConfig.authorIcon ? replacePlaceholders(channelConfig.authorIcon, member) : null;
@@ -211,15 +202,15 @@ export const buildGoodbyeEmbed = (channelConfig, member) => {
       embed.setAuthor({ name: authorText });
     }
   }
-  
+
   if (channelConfig.title) {
     embed.setTitle(replacePlaceholders(channelConfig.title, member));
   }
-  
+
   if (channelConfig.description) {
     embed.setDescription(replacePlaceholders(channelConfig.description, member));
   }
-  
+
   if (channelConfig.fields) {
     const fields = parseFields(channelConfig.fields);
     for (const field of fields) {
@@ -230,21 +221,21 @@ export const buildGoodbyeEmbed = (channelConfig, member) => {
       });
     }
   }
-  
+
   if (channelConfig.thumbnail) {
     const thumbUrl = replacePlaceholders(channelConfig.thumbnail, member);
     if (isValidUrl(thumbUrl)) {
       embed.setThumbnail(thumbUrl);
     }
   }
-  
+
   if (channelConfig.image) {
     const imageUrl = replacePlaceholders(channelConfig.image, member);
     if (isValidUrl(imageUrl)) {
       embed.setImage(imageUrl);
     }
   }
-  
+
   if (channelConfig.footer) {
     const footerText = replacePlaceholdersFooterSafe(channelConfig.footer, member);
     const footerIconUrl = channelConfig.footerIcon ? replacePlaceholders(channelConfig.footerIcon, member) : null;
@@ -254,21 +245,19 @@ export const buildGoodbyeEmbed = (channelConfig, member) => {
       embed.setFooter({ text: footerText });
     }
   }
-  
-  // Add Discord's built-in timestamp (shows local time for each viewer)
+
   if (channelConfig.timestamp !== false) {
     embed.setTimestamp();
   }
-  
+
   return embed;
 };
 
-// Build action row with buttons
 export const buildGoodbyeButtons = (channelConfig, member) => {
   if (!channelConfig.buttons) return null;
   const buttons = parseButtons(channelConfig.buttons);
   if (buttons.length === 0) return null;
-  
+
   const row = new ActionRowBuilder();
   for (const btn of buttons) {
     row.addComponents(
@@ -296,10 +285,9 @@ export default {
 
     const subcommand = args[0]?.toLowerCase();
     const rawContent = message.content;
-    
+
     let guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId };
-    
-    // Migrate old single-channel config to new multi-channel format
+
     if (guildData.goodbye && !guildData.goodbye.channels) {
       const oldConfig = guildData.goodbye;
       const newConfig = { enabled: oldConfig.enabled || false, channels: [] };
@@ -324,11 +312,10 @@ export default {
       guildData.goodbye = newConfig;
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: newConfig } }, { upsert: true });
     }
-    
+
     if (!guildData.goodbye) guildData.goodbye = { ...defaultConfig, channels: [] };
     const config = guildData.goodbye;
 
-    // SHOW command
     if (!subcommand || subcommand === 'show') {
       const container = new ContainerBuilder();
       container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Goodbye Configuration`));
@@ -337,8 +324,7 @@ export default {
         `**Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}\n` +
         `**Channels:** ${config.channels.length > 0 ? config.channels.map(c => `<#${c.channelId}>`).join(', ') : 'None configured'}`
       ));
-      
-      // Show channel previews (up to 3)
+
       if (config.channels.length > 0) {
         for (let i = 0; i < Math.min(config.channels.length, 3); i++) {
           const ch = config.channels[i];
@@ -355,8 +341,7 @@ export default {
           container.addTextDisplayComponents(td => td.setContent(`*...and ${config.channels.length - 3} more channel(s)*`));
         }
       }
-      
-      // Show placeholders
+
       container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
       container.addTextDisplayComponents(td => td.setContent(
         `**Placeholders:**\n` +
@@ -366,8 +351,7 @@ export default {
         `\`{guild.banner}\` \`{guild.boost_count}\` \`{guild.boost_tier}\`\n` +
         `\`{guild.vanity}\` \`{guild.owner_id}\` \`{timestamp}\``
       ));
-      
-      // Toggle button
+
       container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
       container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder()
@@ -376,7 +360,7 @@ export default {
           .setStyle(config.enabled ? ButtonStyle.Danger : ButtonStyle.Success)
           .setEmoji(config.enabled ? EMOJIS.disabletoggle : EMOJIS.enabletoggle)
       ));
-      
+
       container.addActionRowComponents(row => row.addComponents(
         new ButtonBuilder()
           .setCustomId(`goodbye_addchannel_${message.author.id}`)
@@ -392,99 +376,92 @@ export default {
           .setStyle(ButtonStyle.Secondary)
           .setEmoji(EMOJIS.test)
       ));
-      
+
       return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // ADD command - Add a channel for goodbye messages
     if (subcommand === 'add') {
       const channelArg = args[1];
       if (!channelArg) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Missing Channel`, 'Please specify a channel.\n\n**Usage:** `goodbye add #channel`\n**Optional:** `goodbye add #channel --self_destruct 10`')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       const channel = resolveChannel(message.guild, channelArg);
       if (!channel) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Channel`, 'Could not find that channel.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       if (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.GuildAnnouncement) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Channel Type`, 'Goodbye channel must be a text channel.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
-      // Check if channel already exists
+
       if (config.channels.some(c => c.channelId === channel.id)) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Already Configured`, `<#${channel.id}> is already configured for goodbye messages.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
-      // Check max channels (limit to 5)
+
       if (config.channels.length >= 5) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Limit Reached`, 'You can only have up to 5 goodbye channels.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
-      // Parse self-destruct option
+
       const selfDestruct = parseSelfDestruct(rawContent);
-      
-      // Create new channel config
+
       const newChannelConfig = {
         ...defaultChannelConfig,
         channelId: channel.id,
         selfDestruct
       };
-      
+
       config.channels.push(newChannelConfig);
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: config } }, { upsert: true });
-      
+
       let response = `Goodbye channel <#${channel.id}> has been added.`;
       if (selfDestruct) {
         response += `\nMessages will self-destruct after **${selfDestruct} seconds**.`;
       }
       response += `\n\nUse \`goodbye config #${channel.name} <option> <value>\` to customize.`;
-      
+
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Channel Added`, response)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // REMOVE command - Remove a channel
     if (subcommand === 'remove') {
       const channelArg = args[1];
       if (!channelArg) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Missing Channel`, 'Please specify a channel to remove.\n\n**Usage:** `goodbye remove #channel`')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       const channel = resolveChannel(message.guild, channelArg);
       const channelId = channel?.id || channelArg.replace(/[<#>]/g, '');
-      
+
       const index = config.channels.findIndex(c => c.channelId === channelId);
       if (index === -1) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Not Found`, 'That channel is not configured for goodbye messages.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       config.channels.splice(index, 1);
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: config } }, { upsert: true });
-      
+
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Channel Removed`, `Goodbye channel has been removed.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // LIST command - List all configured channels with pagination
     if (subcommand === 'list') {
       if (config.channels.length === 0) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.info || 'ℹ️'} No Channels`, 'No goodbye channels are configured.\n\nUse `goodbye add #channel` to add one.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       const PER_PAGE = 3;
       const totalPages = Math.ceil(config.channels.length / PER_PAGE);
       const page = 0;
-      
+
       const buildListContainer = (pageNum) => {
         const container = new ContainerBuilder();
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Goodbye Channels (${config.channels.length})`));
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => td.setContent(`**System Status:** ${config.enabled ? `${EMOJIS.success} Enabled` : `${EMOJIS.error} Disabled`}`));
-        
+
         const start = pageNum * PER_PAGE;
         const end = Math.min(start + PER_PAGE, config.channels.length);
         const pageChannels = config.channels.slice(start, end);
-        
+
         for (let i = 0; i < pageChannels.length; i++) {
           const ch = pageChannels[i];
           const globalIndex = start + i + 1;
@@ -498,7 +475,7 @@ export default {
             `**Fields:** ${ch.fields ? parseFields(ch.fields).length : 0} | **Buttons:** ${ch.buttons ? parseButtons(ch.buttons).length : 0}`
           ));
         }
-        
+
         if (totalPages > 1) {
           container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
           container.addTextDisplayComponents(td => td.setContent(`**Page ${pageNum + 1}/${totalPages}**`));
@@ -515,22 +492,19 @@ export default {
               .setDisabled(pageNum >= totalPages - 1)
           ));
         }
-        
+
         return container;
       };
-      
+
       return message.reply({ components: [buildListContainer(page)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // CONFIG command - Configure a specific channel
     if (subcommand === 'config') {
       let channelArg = args[1];
       let option = args[2]?.toLowerCase();
-      
-      // Check if first arg is an option (not a channel) - auto-select if only 1 channel configured
+
       const configOptions = ['content', 'title', 'description', 'desc', 'author', 'authoricon', 'footer', 'footericon', 'thumbnail', 'image', 'color', 'selfdestruct', 'self_destruct', 'fields', 'buttons'];
-      
-      // Helper: extract value from raw content after the option name (preserves newlines)
+
       const extractValueFromRaw = (optionName) => {
         const optionPattern = new RegExp(`\\b${optionName}\\b\\s*`, 'i');
         const match = rawContent.match(optionPattern);
@@ -540,31 +514,29 @@ export default {
         }
         return null;
       };
-      
-      // If first arg is an option name but multiple channels exist, guide the user
+
       if (channelArg && configOptions.includes(channelArg.toLowerCase()) && config.channels.length > 1) {
         const channelsList = config.channels.map(c => `<#${c.channelId}>`).join(', ');
-        return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Multiple Channels Configured`, 
-          `Please specify which channel to configure.\n\n**Usage:** \`goodbye config #channel ${channelArg.toLowerCase()} <value>\`\n\n**Configured channels:** ${channelsList}`)], 
+        return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Multiple Channels Configured`,
+          `Please specify which channel to configure.\n\n**Usage:** \`goodbye config #channel ${channelArg.toLowerCase()} <value>\`\n\n**Configured channels:** ${channelsList}`)],
           flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       let value;
       if (channelArg && configOptions.includes(channelArg.toLowerCase()) && config.channels.length === 1) {
-        // Shift args: the first arg is actually the option, not the channel
+
         option = channelArg.toLowerCase();
-        channelArg = null; // Will be auto-selected below
+        channelArg = null;
         value = extractValueFromRaw(option);
       } else if (option) {
         value = extractValueFromRaw(option);
       } else {
         value = null;
       }
-      
-      // Auto-select channel if only one configured and no channel specified
+
       let channelId;
       let channelConfig;
-      
+
       if (!channelArg && config.channels.length === 1) {
         channelConfig = config.channels[0];
         channelId = channelConfig.channelId;
@@ -575,13 +547,13 @@ export default {
         channelId = channel?.id || channelArg.replace(/[<#>]/g, '');
         channelConfig = config.channels.find(c => c.channelId === channelId);
       }
-      
+
       if (!channelConfig) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Not Found`, 'That channel is not configured for goodbye messages.\n\nUse `goodbye add #channel` first.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       if (!option) {
-        // Show current config for this channel with buttons
+
         const container = new ContainerBuilder();
         if (channelConfig.color) container.setAccentColor(channelConfig.color);
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.settings || '⚙️'} Config for <#${channelId}>`));
@@ -604,7 +576,7 @@ export default {
           `**Fields:** ${channelConfig.fields ? `${parseFields(channelConfig.fields).length} field(s)` : 'None'}\n` +
           `**Buttons:** ${channelConfig.buttons ? `${parseButtons(channelConfig.buttons).length} button(s)` : 'None'}`
         ));
-        
+
         container.addSeparatorComponents(s => s.setSpacing(SeparatorSpacingSize.Small));
         container.addActionRowComponents(row => row.addComponents(
           new ButtonBuilder().setCustomId(`goodbye_cfg_content_${channelId}_${message.author.id}`).setLabel('Content').setStyle(ButtonStyle.Secondary),
@@ -624,11 +596,10 @@ export default {
           new ButtonBuilder().setCustomId(`goodbye_cfg_buttons_${channelId}_${message.author.id}`).setLabel('Buttons').setStyle(ButtonStyle.Secondary),
           new ButtonBuilder().setCustomId(`goodbye_testch_${channelId}_${message.author.id}`).setLabel('Test').setStyle(ButtonStyle.Primary).setEmoji(EMOJIS.test)
         ));
-        
+
         return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
-      // Handle each option
+
       switch (option) {
         case 'content':
           if (!value) {
@@ -639,7 +610,7 @@ export default {
             channelConfig.content = value;
           }
           break;
-          
+
         case 'color':
           if (!value) {
             return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Missing Color`, 'Provide a hex color.\nUsage: `goodbye config #channel color #ED4245`')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
@@ -650,7 +621,7 @@ export default {
           }
           channelConfig.color = color;
           break;
-          
+
         case 'title':
           if (!value) {
             channelConfig.title = null;
@@ -660,7 +631,7 @@ export default {
             channelConfig.title = value;
           }
           break;
-          
+
         case 'description':
         case 'desc':
           if (!value) {
@@ -671,7 +642,7 @@ export default {
             channelConfig.description = value;
           }
           break;
-          
+
         case 'author':
           if (!value) {
             channelConfig.author = null;
@@ -681,7 +652,7 @@ export default {
             channelConfig.author = value;
           }
           break;
-          
+
         case 'authoricon':
           if (!value) {
             channelConfig.authorIcon = null;
@@ -691,7 +662,7 @@ export default {
             channelConfig.authorIcon = value;
           }
           break;
-          
+
         case 'footer':
           if (!value) {
             channelConfig.footer = null;
@@ -701,7 +672,7 @@ export default {
             channelConfig.footer = value;
           }
           break;
-          
+
         case 'footericon':
           if (!value) {
             channelConfig.footerIcon = null;
@@ -711,7 +682,7 @@ export default {
             channelConfig.footerIcon = value;
           }
           break;
-          
+
         case 'thumbnail':
           if (!value) {
             channelConfig.thumbnail = null;
@@ -721,7 +692,7 @@ export default {
             channelConfig.thumbnail = value;
           }
           break;
-          
+
         case 'image':
           if (!value) {
             channelConfig.image = null;
@@ -731,7 +702,7 @@ export default {
             channelConfig.image = value;
           }
           break;
-          
+
         case 'selfdestruct':
         case 'self_destruct':
           if (!value || value.toLowerCase() === 'off' || value === '0') {
@@ -744,12 +715,12 @@ export default {
             channelConfig.selfDestruct = seconds;
           }
           break;
-          
+
         case 'fields':
           if (!value || value.toLowerCase() === 'none' || value.toLowerCase() === 'clear') {
             channelConfig.fields = null;
           } else {
-            // Validate format
+
             const testFields = parseFields(value);
             if (testFields.length === 0) {
               return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Format`, 'Use format: `Name && Value && inline ;; Name2 && Value2 && false`')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
@@ -757,12 +728,12 @@ export default {
             channelConfig.fields = value;
           }
           break;
-          
+
         case 'buttons':
           if (!value || value.toLowerCase() === 'none' || value.toLowerCase() === 'clear') {
             channelConfig.buttons = null;
           } else {
-            // Validate format
+
             const testButtons = parseButtons(value);
             if (testButtons.length === 0) {
               return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Invalid Format`, 'Use format: `Label && https://url ;; Label2 && https://url2`')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
@@ -770,16 +741,15 @@ export default {
             channelConfig.buttons = value;
           }
           break;
-          
+
         default:
           return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Unknown Option`, `Available options:\n\`content\`, \`color\`, \`title\`, \`description\`, \`author\`, \`authoricon\`,\n\`footer\`, \`footericon\`, \`thumbnail\`, \`image\`, \`selfdestruct\`,\n\`fields\`, \`buttons\``)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: config } }, { upsert: true });
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Updated`, `**${option}** has been updated for <#${channelId}>.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // TOGGLE command
     if (subcommand === 'toggle' || subcommand === 'enable' || subcommand === 'disable') {
       if (subcommand === 'enable') {
         config.enabled = true;
@@ -788,20 +758,19 @@ export default {
       } else {
         config.enabled = !config.enabled;
       }
-      
+
       if (config.enabled && config.channels.length === 0) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} No Channels`, 'Add a goodbye channel first with `goodbye add #channel`.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: config } }, { upsert: true });
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Goodbye ${config.enabled ? 'Enabled' : 'Disabled'}`, config.enabled ? 'Goodbye messages are now enabled.' : 'Goodbye messages are now disabled.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // TEST command
     if (subcommand === 'test') {
       const channelArg = args[1];
       let targetChannels = [];
-      
+
       if (channelArg) {
         const channel = resolveChannel(message.guild, channelArg);
         const channelId = channel?.id || channelArg.replace(/[<#>]/g, '');
@@ -816,74 +785,71 @@ export default {
         }
         targetChannels = config.channels;
       }
-      
+
       let successCount = 0;
       let failCount = 0;
-      
+
       for (const channelConfig of targetChannels) {
         const channel = message.guild.channels.cache.get(channelConfig.channelId);
         if (!channel) {
           failCount++;
           continue;
         }
-        
+
         try {
           const embed = buildGoodbyeEmbed(channelConfig, message.member);
           const content = channelConfig.content ? replacePlaceholders(channelConfig.content, message.member) : null;
           const buttonRow = buildGoodbyeButtons(channelConfig, message.member);
-          
+
           if (!content && !embed) {
             failCount++;
             continue;
           }
-          
+
           const messagePayload = { allowedMentions: { parse: ['users'] } };
           if (content) messagePayload.content = content;
           if (embed) messagePayload.embeds = [embed];
           if (buttonRow) messagePayload.components = [buttonRow];
-          
+
           const sent = await channel.send(messagePayload);
-          
-          // Handle self-destruct for test message too
+
           if (channelConfig.selfDestruct) {
             setTimeout(() => sent.delete().catch(() => {}), channelConfig.selfDestruct * 1000);
           }
-          
+
           successCount++;
         } catch (err) {
           console.error('[goodbye] test send failed:', err?.message || err);
           failCount++;
         }
       }
-      
+
       if (successCount === 0) {
         return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Test Failed`, 'Failed to send test messages. Check bot permissions or add some content.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       let response = `Sent ${successCount} test message${successCount !== 1 ? 's' : ''}.`;
       if (failCount > 0) response += ` (${failCount} failed)`;
-      
+
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Test Sent`, response)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // RESET command
     if (subcommand === 'reset') {
       guildData.goodbye = { ...defaultConfig, channels: [] };
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: guildData.goodbye } }, { upsert: true });
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Reset Complete`, 'Goodbye settings have been reset to defaults.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }
 
-    // Legacy single-channel commands - work when only 1 channel is configured
     const legacyCommands = ['channel', 'content', 'title', 'description', 'desc', 'author', 'authoricon', 'footer', 'footericon', 'thumbnail', 'image', 'color'];
-    
+
     if (legacyCommands.includes(subcommand)) {
-      // 'channel' command - redirect to new syntax or add channel
+
       if (subcommand === 'channel') {
         const channelArg = args[1];
         if (channelArg) {
           const channel = resolveChannel(message.guild, channelArg);
           if (channel) {
-            // If they're trying to set a channel the old way, add it as a new channel
+
             if (config.channels.length === 0) {
               const newChannelConfig = { ...defaultChannelConfig, channelId: channel.id };
               config.channels.push(newChannelConfig);
@@ -892,28 +858,26 @@ export default {
             }
           }
         }
-        return message.reply({ components: [buildNotice(`# ${EMOJIS.info || 'ℹ️'} Multi-Channel Support`, 
-          'Goodbye now supports multiple channels!\n\n**Commands:**\n`goodbye add #channel` - Add a channel\n`goodbye remove #channel` - Remove a channel\n`goodbye config #channel` - Configure a channel\n`goodbye list` - List all channels')], 
+        return message.reply({ components: [buildNotice(`# ${EMOJIS.info || 'ℹ️'} Multi-Channel Support`,
+          'Goodbye now supports multiple channels!\n\n**Commands:**\n`goodbye add #channel` - Add a channel\n`goodbye remove #channel` - Remove a channel\n`goodbye config #channel` - Configure a channel\n`goodbye list` - List all channels')],
           flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
-      // For other legacy commands, apply to the first/only channel
+
       if (config.channels.length === 0) {
-        return message.reply({ components: [buildNotice(`# ${EMOJIS.error} No Channel`, 
-          'No goodbye channel is configured.\n\n**Use:** `goodbye channel #channel` or `goodbye add #channel`')], 
+        return message.reply({ components: [buildNotice(`# ${EMOJIS.error} No Channel`,
+          'No goodbye channel is configured.\n\n**Use:** `goodbye channel #channel` or `goodbye add #channel`')],
           flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
+
       if (config.channels.length > 1) {
-        return message.reply({ components: [buildNotice(`# ${EMOJIS.info || 'ℹ️'} Multiple Channels`, 
-          `You have ${config.channels.length} channels configured. Use the config command:\n\n\`goodbye config #channel ${subcommand} <value>\``)], 
+        return message.reply({ components: [buildNotice(`# ${EMOJIS.info || 'ℹ️'} Multiple Channels`,
+          `You have ${config.channels.length} channels configured. Use the config command:\n\n\`goodbye config #channel ${subcommand} <value>\``)],
           flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
       }
-      
-      // Apply to the single configured channel
+
       const channelConfig = config.channels[0];
       const value = args.slice(1).join(' ').replace(/\\n/g, '\n');
-      
+
       switch (subcommand) {
         case 'content':
           channelConfig.content = value || null;
@@ -973,7 +937,7 @@ export default {
           }
           break;
       }
-      
+
       await client.db.updateOne({ guildId: message.guildId }, { $set: { goodbye: config } }, { upsert: true });
       return message.reply({ components: [buildNotice(`# ${EMOJIS.success} Updated`, `**${subcommand}** has been ${value ? 'updated' : 'cleared'}.`)], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
     }

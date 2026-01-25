@@ -11,10 +11,10 @@ async function execute(message, args, client) {
     const container = new ContainerBuilder();
 
     try {
-        // Get guild-specific prefix or global
+
         let currentPrefix = client.prefix || '.';
         const guildData = await client.db.findOne({ guildId: message.guildId });
-        
+
         if (guildData?.prefix) {
             currentPrefix = guildData.prefix;
         }
@@ -23,7 +23,7 @@ async function execute(message, args, client) {
 
         container.addTextDisplayComponents(td => td.setContent(`# ${EMOJIS.info || '📋'} Server Prefix`));
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-        
+
         let content = `**Current Prefix:** \`${currentPrefix}\`\n`;
         content += `**Type:** ${isCustom ? '🔧 Custom (Server)' : '🌐 Global (Default)'}\n\n`;
         content += `> Use \`${currentPrefix}help\` to see all commands.`;

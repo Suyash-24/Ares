@@ -4,7 +4,6 @@ const COMPONENT_IDS = {
   refresh: 'ping:refresh'
 };
 
-// Helper to measure DB ping
 async function getDbPing(client) {
   const db = client.db || client.database || null;
   if (!db) return { type: 'none', ping: null };
@@ -13,15 +12,15 @@ async function getDbPing(client) {
   try {
     const start = Date.now();
     if (dbType === 'postgres') {
-      // Postgres: SELECT 1
+
       await db.postgresClient.query('SELECT 1');
       ping = Date.now() - start;
     } else if (dbType === 'sqlite') {
-      // SQLite: SELECT 1
+
       db.sqliteDb.prepare('SELECT 1').get();
       ping = Date.now() - start;
     } else if (dbType === 'json') {
-      // JSON: dummy read
+
       await db.findOne({ guildId: 'ping' });
       ping = Date.now() - start;
     }

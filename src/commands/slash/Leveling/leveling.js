@@ -6,7 +6,7 @@ export default {
 	data: new SlashCommandBuilder()
 		.setName('leveling')
 		.setDescription('Manage leveling settings')
-		.setDefaultMemberPermissions(1 << 5) // Manage Guild
+		.setDefaultMemberPermissions(1 << 5)
 		.setDMPermission(false),
 	async execute(interaction) {
 		if (!interaction.memberPermissions.has('ManageGuild') && !interaction.memberPermissions.has('Administrator')) {

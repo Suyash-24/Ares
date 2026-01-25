@@ -107,12 +107,11 @@ export default {
 		}
 
 		try {
-			// Mark this as a command-invoked action so logging knows who did it
+
 			markCommandInvoker(message.guild.id, 'kick', target.id, message.author);
-			
+
 			await target.kick(reason);
 
-			// Save action to database
 			try {
 				const guildData = await client.db.findOne({ guildId: message.guildId }) || { guildId: message.guildId, moderation: {} };
 				if (!guildData.moderation) guildData.moderation = {};
@@ -156,7 +155,6 @@ export default {
 					allowedMentions: { repliedUser: false }
 				});
 
-				// Send log for kick
 				await sendLog(client, message.guildId, LOG_EVENTS.MOD_KICK, {
 					executor: message.author,
 					target: target.user,

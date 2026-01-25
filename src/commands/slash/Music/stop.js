@@ -35,7 +35,7 @@ export default {
 
 			await queue.player?.stopTrack();
 			queue.clear();
-			
+
 			if (!queue.is247) {
 				queue.disconnect();
 				client.queue.delete(interaction.guildId);
@@ -48,7 +48,7 @@ export default {
 			container.addSeparatorComponents((separator) =>
 				separator.setSpacing(SeparatorSpacingSize.Small)
 			);
-			const message_text = queue.is247 
+			const message_text = queue.is247
 				? 'Stopped playing music. Bot will stay in voice channel (24/7 mode enabled).'
 				: 'Stopped playing and left the voice channel.';
 			container.addTextDisplayComponents((textDisplay) =>

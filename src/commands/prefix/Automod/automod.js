@@ -175,7 +175,7 @@ const buildWizardContainer = (config, disabled = false, currentPage = 'main') =>
 
 const buildModulesPage = (config, disabled = false) => {
     const container = new ContainerBuilder();
-    
+
     container.addTextDisplayComponents(td =>
         td.setContent(
             `${EMOJIS.automod || '🛡️'} **MODULE CONFIGURATION**\n` +
@@ -190,7 +190,7 @@ const buildModulesPage = (config, disabled = false) => {
         const status = cfg.enabled ? EMOJIS.success : EMOJIS.error;
         moduleList += `${status} **${mod.name}** • ${mod.description}\n`;
     }
-    
+
     container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
     container.addTextDisplayComponents(td => td.setContent(moduleList.trim()));
 
@@ -235,7 +235,7 @@ const buildModulesPage = (config, disabled = false) => {
 
 const buildPunishmentsPage = (config, selectedModule = null, disabled = false) => {
     const container = new ContainerBuilder();
-    
+
     if (!selectedModule) {
         container.addTextDisplayComponents(td =>
             td.setContent(
@@ -251,7 +251,7 @@ const buildPunishmentsPage = (config, selectedModule = null, disabled = false) =
             const punishments = cfg.punishments || [mod.defaultPunishment];
             punishList += `**${mod.name}** → ${punishments.join(' + ')}\n`;
         }
-        
+
         container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
         container.addTextDisplayComponents(td => td.setContent(punishList.trim()));
 
@@ -315,7 +315,7 @@ const buildPunishmentsPage = (config, selectedModule = null, disabled = false) =
 
 const buildIgnorePage = (config, selectedModule = null, disabled = false) => {
     const container = new ContainerBuilder();
-    
+
     container.addTextDisplayComponents(td =>
         td.setContent(
             `${EMOJIS.ignorerules || '🚫'} **IGNORE RULES**\n` +
@@ -366,7 +366,7 @@ const buildIgnorePage = (config, selectedModule = null, disabled = false) => {
 const buildModuleIgnorePage = (config, selectedModule, disabled = false) => {
     const container = new ContainerBuilder();
     const mod = MODULES[selectedModule];
-    
+
     if (!mod) {
         container.addTextDisplayComponents(td => td.setContent(`❌ **Error:** Invalid module configuration.`));
         container.addActionRowComponents(new ActionRowBuilder().addComponents(
@@ -428,7 +428,7 @@ const buildModuleIgnorePage = (config, selectedModule, disabled = false) => {
 
 const buildWordsPage = (config, disabled = false) => {
     const container = new ContainerBuilder();
-    
+
     const words = config.modules?.badwords?.words || [];
 
     container.addTextDisplayComponents(td =>
@@ -488,8 +488,8 @@ const buildWordsPage = (config, disabled = false) => {
 
 const buildStrikesPage = (config, disabled = false) => {
     const container = new ContainerBuilder();
-    
-    const strikesEnabled = config.strikesEnabled !== false; // Default to enabled
+
+    const strikesEnabled = config.strikesEnabled !== false;
     const strikeActions = config.strikeActions || { 3: { action: 'mute', duration: '10m' }, 5: { action: 'mute', duration: '1h' }, 7: { action: 'kick' }, 10: { action: 'ban' } };
     const actionsText = Object.entries(strikeActions)
         .sort((a, b) => parseInt(a[0]) - parseInt(b[0]))
@@ -1108,7 +1108,6 @@ export default {
         if (!config.strikes) config.strikes = {};
         if (!config.strikeActions) config.strikeActions = { 3: { action: 'mute', duration: '10m' }, 5: { action: 'mute', duration: '1h' }, 7: { action: 'kick' }, 10: { action: 'ban' } };
 
-        // Handle toggle on/off
         if (action === 'on' || action === 'enable') {
             config.strikesEnabled = true;
             await this.saveConfig(client, message.guildId, config);
@@ -1209,7 +1208,7 @@ export default {
             if (!userData || userData.count === 0) {
                 return this.sendInfo(message, 'User Strikes', `<@${userId}> has **0 strikes**.`);
             }
-            const history = (userData.history || []).slice(-5).map(h => 
+            const history = (userData.history || []).slice(-5).map(h =>
                 `• ${h.amount} strike(s) - ${h.reason || 'Unknown'} (<t:${Math.floor(h.time / 1000)}:R>)`
             ).join('\n');
             return this.sendInfo(message, 'User Strikes', `<@${userId}> has **${userData.count} strikes**.\n\n**Recent History:**\n${history || '*No history*'}`);
@@ -1220,11 +1219,11 @@ export default {
 
     async handleNotify(message, args, client, config) {
         const action = args[1]?.toLowerCase();
-        
+
         if (!action || !['on', 'off', 'enable', 'disable'].includes(action)) {
             const status = config.notifyUser !== false ? 'Enabled' : 'Disabled';
             const emoji = config.notifyUser !== false ? EMOJIS.success : EMOJIS.error;
-            return this.sendInfo(message, 'Notify Settings', 
+            return this.sendInfo(message, 'Notify Settings',
                 `**User Warnings:** ${emoji} **${status}**\n\n` +
                 `When enabled, users will receive a temporary message in the channel mentioning them when their message is deleted/moderated.\n\n` +
                 `Usage: \`.automod notify on/off\``
@@ -1235,7 +1234,7 @@ export default {
         config.notifyUser = newState;
         await this.saveConfig(client, message.guildId, config);
 
-        return this.sendSuccess(message, 'Notify Updated', 
+        return this.sendSuccess(message, 'Notify Updated',
             `User warnings have been ${newState ? '**enabled**' : '**disabled**'}.`
         );
     },

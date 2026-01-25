@@ -41,7 +41,6 @@ client.prefixAliases = new Collection();
 client.components = new Collection();
 client.componentContexts = new Map();
 
-
 client.updateConfig = async (newConfig) => {
 	const CONFIG_PATH = path.join(__dirname, 'config.json');
 	try {
@@ -63,7 +62,7 @@ process.on('unhandledRejection', (reason) => {
 
 process.on('warning', (warning) => {
 	if (warning.name === 'DeprecationWarning' && warning.message.includes('The ready event has been renamed to clientReady')) {
-		// Suppress specific discord.js v14 warning
+
 		return;
 	}
 	console.warn(warning);

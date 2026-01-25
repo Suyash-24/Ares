@@ -53,7 +53,6 @@ export default {
 
 		const position = parseInt(args[0]);
 
-		
 		if (isNaN(position) || position < 1 || position > queue.tracks.size - 1) {
 			const container = new ContainerBuilder();
 			container.addTextDisplayComponents((textDisplay) =>

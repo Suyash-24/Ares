@@ -89,7 +89,7 @@ export default {
     .addSubcommand(sub => sub
       .setName('reset')
       .setDescription('Reset all welcome settings')),
-  
+
   async execute(interaction) {
     const subcommand = interaction.options.getSubcommand();
     const channel = interaction.options.getChannel('channel');
@@ -97,37 +97,35 @@ export default {
     const value = interaction.options.getString('value');
     const messageContent = interaction.options.getString('message');
     const selfDestruct = interaction.options.getInteger('self_destruct');
-    
-    // Build args array to pass to prefix command
+
     const args = [subcommand];
-    
-    // Build raw content for parsing
+
     let rawContent = `welcome ${subcommand}`;
-    
+
     if (channel) {
       args.push(`<#${channel.id}>`);
       rawContent += ` <#${channel.id}>`;
     }
-    
+
     if (option) {
       args.push(option);
       rawContent += ` ${option}`;
     }
-    
+
     if (value) {
       args.push(...value.split(/\s+/));
       rawContent += ` ${value}`;
     }
-    
+
     if (messageContent) {
       args.push(...messageContent.split(/\s+/));
       rawContent += ` ${messageContent}`;
     }
-    
+
     if (selfDestruct) {
       rawContent += ` --self_destruct ${selfDestruct}`;
     }
-    
+
     const message = buildMessageFromInteraction(interaction, rawContent);
     await prefix.execute(message, args, interaction.client);
   }

@@ -1,21 +1,12 @@
-// ─────────────────────────────────────────────────────────────────────────────
-// Ticket Transcript Generator - Creates HTML transcripts of ticket conversations
-// ─────────────────────────────────────────────────────────────────────────────
+
 
 import { AttachmentBuilder } from 'discord.js';
 
-/**
- * Generate an HTML transcript of a ticket channel
- * @param {TextChannel} channel - The ticket channel
- * @param {Object} ticket - Ticket data from DB
- * @param {Guild} guild - The guild
- * @returns {Promise<AttachmentBuilder>} - The HTML file as an attachment
- */
 export async function generateTranscript(channel, ticket, guild) {
-	// Fetch all messages (up to 500)
+
 	const messages = [];
 	let lastId;
-	
+
 	while (true) {
 		const fetched = await channel.messages.fetch({ limit: 100, before: lastId });
 		if (fetched.size === 0) break;
@@ -24,14 +15,11 @@ export async function generateTranscript(channel, ticket, guild) {
 		if (fetched.size < 100 || messages.length >= 500) break;
 	}
 
-	// Sort oldest to newest
 	messages.reverse();
 
-	// Get ticket owner info
 	const ticketOwner = await guild.members.fetch(ticket.userId).catch(() => null);
 	const ownerName = ticketOwner?.user?.tag || `Unknown User (${ticket.userId})`;
 
-	// Generate HTML
 	const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,10 +28,10 @@ export async function generateTranscript(channel, ticket, guild) {
 	<title>Ticket #${ticket.ticketId} - ${guild.name}</title>
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; }
-		body { 
-			font-family: 'Segoe UI', Whitney, sans-serif; 
-			background: #36393f; 
-			color: #dcddde; 
+		body {
+			font-family: 'Segoe UI', Whitney, sans-serif;
+			background: #36393f;
+			color: #dcddde;
 			padding: 20px;
 			line-height: 1.5;
 		}
@@ -76,18 +64,18 @@ export async function generateTranscript(channel, ticket, guild) {
 			align-items: baseline;
 			gap: 8px;
 		}
-		.author .name { 
-			font-weight: 600; 
+		.author .name {
+			font-weight: 600;
 			color: #fff;
 			cursor: pointer;
 		}
 		.author .name:hover { text-decoration: underline; }
-		.author .timestamp { 
-			font-size: 12px; 
-			color: #72767d; 
+		.author .timestamp {
+			font-size: 12px;
+			color: #72767d;
 		}
-		.text { 
-			color: #dcddde; 
+		.text {
+			color: #dcddde;
 			word-wrap: break-word;
 			white-space: pre-wrap;
 		}
@@ -138,21 +126,20 @@ export async function generateTranscript(channel, ticket, guild) {
 			<p><strong>Messages:</strong> <span>${messages.length}</span></p>
 		</div>
 	</div>
-	
+
 	<div class="messages">
 		${messages.map(msg => renderMessage(msg)).join('')}
 	</div>
-	
+
 	<div class="footer">
 		Transcript generated on ${new Date().toLocaleString()} • Powered by Ares Bot
 	</div>
 </body>
 </html>`;
 
-	// Create attachment
 	const buffer = Buffer.from(html, 'utf-8');
-	const attachment = new AttachmentBuilder(buffer, { 
-		name: `ticket-${ticket.ticketId}-transcript.html` 
+	const attachment = new AttachmentBuilder(buffer, {
+		name: `ticket-${ticket.ticketId}-transcript.html`
 	});
 
 	return attachment;
@@ -172,7 +159,7 @@ function renderMessage(msg) {
 	const avatar = msg.author.displayAvatarURL({ size: 64, extension: 'png' });
 	const timestamp = new Date(msg.createdTimestamp).toLocaleString();
 	const content = escapeHtml(msg.content) || '';
-	
+
 	// Handle attachments
 	let attachmentsHtml = '';
 	if (msg.attachments.size > 0) {

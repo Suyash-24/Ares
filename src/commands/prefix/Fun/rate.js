@@ -11,7 +11,7 @@ async function execute(message, args, client) {
 
 	let subject = 'You';
 	if (args.length > 0) {
-		// Try to see if it's a mention or just text
+
 		if (message.mentions.users.size > 0 && args[0].startsWith('<@')) {
 			subject = message.mentions.users.first().username;
 		} else {
@@ -21,15 +21,14 @@ async function execute(message, args, client) {
 		subject = message.author.username;
 	}
 
-	// Fun randomization
 	const score = Math.floor(Math.random() * 101);
-	
+
 	let stars = '';
-	// 5 stars total representation
+
 	const filled = Math.round((score / 100) * 5);
 	stars = '★'.repeat(filled) + '☆'.repeat(5 - filled);
 
-	container.addTextDisplayComponents(td => 
+	container.addTextDisplayComponents(td =>
 		td.setContent(`**📝 Rating**\n\nI rate **${subject}**\n**${score}/100**\n${stars}`)
 	);
 

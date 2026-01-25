@@ -37,13 +37,12 @@ export default {
 			});
 		}
 
-		// Check antinuke admin + Discord admin
 		const guildData = await client.db.findOne({ guildId: message.guildId }) || {};
 		const isOwner = message.guild.ownerId === message.author.id;
 		const isExtraOwner = Array.isArray(guildData.antinuke?.extraOwners) && guildData.antinuke.extraOwners.includes(message.author.id);
 		const isAdmin = Array.isArray(guildData.antinuke?.admins) && guildData.antinuke.admins.some(a => (typeof a === 'string' ? a === message.author.id : a.id === message.author.id));
 		const hasDiscordAdmin = message.member?.permissions?.has(PermissionFlagsBits.Administrator);
-		
+
 		if (!(hasDiscordAdmin && (isOwner || isExtraOwner || isAdmin))) {
 			return message.reply({
 				components: [buildNotice(`# ${EMOJIS.error} Missing Permissions`, 'You need **Discord Administrator** + **Antinuke Admin** permissions.')],
@@ -81,7 +80,6 @@ export default {
 		const executorHighest = message.member.roles.highest?.position ?? 0;
 		const botHighest = botMember.roles.highest?.position ?? 0;
 
-		// Check if executor's top role is high enough (unless owner)
 		if (role.position >= executorHighest && message.member.id !== message.guild.ownerId) {
 			return message.reply({
 				components: [buildNotice(`# ${EMOJIS.error} Role Too High`, 'The role must be below your highest role.')],
@@ -90,7 +88,6 @@ export default {
 			});
 		}
 
-		// Check if bot's top role is high enough
 		if (role.position >= botHighest) {
 			return message.reply({
 				components: [buildNotice(`# ${EMOJIS.error} Role Too High`, 'The role must be below my highest role.')],
