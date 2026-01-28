@@ -94,7 +94,7 @@ const components = [
 				return;
 			}
 			const panel = buildPage(leveling, page, authorId, interaction.guild, interaction.client.user.username);
-			await interaction.update({ components: [panel], flags: MessageFlags.IsComponentsV2 }).catch(() => {});
+			await interaction.update({ components: [panel], flags: MessageFlags.IsComponentsV2, allowedMentions: { users: [] } }).catch(() => {});
 		}
 	}
 ];

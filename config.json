@@ -21,10 +21,10 @@
     "nodes": [
       {
         "identifier": "Primary",
-        "host": "your-lavalink-host.com",
-        "port": 443,
-        "password": "your-password",
-        "secure": true,
+        "host": "de-01.strixnodes.com",
+        "port": 2010,
+        "password": "glace",
+        "secure": false,
         "retryAmount": 5,
         "retryDelay": 5000
       }
