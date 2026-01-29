@@ -205,21 +205,14 @@ async function createTicketFromCommand(message, reason = 'No reason provided') {
 
 export default {
 	name: 'ticket',
-	aliases: ['tickets', 't', 'new'],
+	aliases: ['tickets', 't'],
 	category: 'Tickets',
 
 	async execute(message, args) {
 		const client = message.client;
 		const subcommand = args[0]?.toLowerCase() || '';
-		const prefix = client.prefix || '.';
-		const content = message.content?.toLowerCase() || '';
 		const guildDataPerms = await client.db.findOne({ guildId: message.guild.id }) || {};
 		const isStaff = isStaffMember(message, guildDataPerms);
-
-		if (content.startsWith(`${prefix}new`)) {
-			const reason = args.join(' ') || 'No reason provided';
-			return createTicketFromCommand(message, reason);
-		}
 
 		if (subcommand === 'create' || subcommand === 'new' || subcommand === 'open') {
 			const reason = args.slice(1).join(' ') || 'No reason provided';
