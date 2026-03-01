@@ -1,10 +1,10 @@
 import { Events, ContainerBuilder, MessageFlags, SeparatorSpacingSize, PermissionFlagsBits } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
 
-const DISCORD_INVITE_REGEX = /(discord\.(gg|io|me|li)|discordapp\.com\/invite|discord\.com\/invite)\/[a-zA-Z0-9]+/gi;
+const DISCORD_INVITE_REGEX = /(discord\.(gg|io|me|li)|discordapp\.com\/invite|discord\.com\/invite)\/[a-zA-Z0-9]+/i;
 const URL_REGEX = /https?:\/\/[^\s<]+[^<.,:;"')\]\s]/gi;
 const ZALGO_REGEX = /[\u0300-\u036f\u0489]/g;
-const EVERYONE_HERE_REGEX = /@(everyone|here)/gi;
+const EVERYONE_HERE_REGEX = /@(everyone|here)/i;
 
 const COPYPASTAS = [
     'did you just seriously think',
@@ -63,6 +63,7 @@ const checkAntiInvite = (message) => {
 };
 
 const checkAntiLink = (message) => {
+    URL_REGEX.lastIndex = 0;
     const urls = message.content.match(URL_REGEX);
     if (!urls) return false;
     return urls.some(url => !url.includes('discord.com') && !url.includes('discord.gg'));

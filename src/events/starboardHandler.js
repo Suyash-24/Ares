@@ -9,7 +9,7 @@ export default function registerStarboardHandler(client) {
                 try {
                     await reaction.fetch();
                 } catch (err) {
-                    console.error('[Starboard] Could not fetch partial reaction:', err);
+                    if (err.code !== 10008) console.error('[Starboard] Could not fetch partial reaction:', err.message);
                     return;
                 }
             }
@@ -31,7 +31,7 @@ export default function registerStarboardHandler(client) {
                 try {
                     await reaction.fetch();
                 } catch (err) {
-                    console.error('[Starboard] Could not fetch partial reaction:', err);
+                    if (err.code !== 10008) console.error('[Starboard] Could not fetch partial reaction:', err.message);
                     return;
                 }
             }

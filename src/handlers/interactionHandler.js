@@ -59,7 +59,6 @@ export default function registerInteractionHandler(discordClient) {
 			}
 
 			if (!handler) {
-				console.log(`[InteractionHandler] No handler found for component: ${interaction.customId}`);
 				return;
 			}
 
