@@ -2,7 +2,11 @@
 const API = {
   async get(url) {
     const res = await fetch(url);
-    if (res.status === 401) { window.location.href = '/auth/login'; return null; }
+    if (res.status === 401) {
+      if (url.startsWith('/auth/')) return null;
+      window.location.href = '/auth/login';
+      return null;
+    }
     if (!res.ok) throw new Error(`API error: ${res.status}`);
     return res.json();
   },
@@ -13,7 +17,11 @@ const API = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    if (res.status === 401) { window.location.href = '/auth/login'; return null; }
+    if (res.status === 401) {
+      if (url.startsWith('/auth/')) return null;
+      window.location.href = '/auth/login';
+      return null;
+    }
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `API error: ${res.status}`);
@@ -27,7 +35,11 @@ const API = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
-    if (res.status === 401) { window.location.href = '/auth/login'; return null; }
+    if (res.status === 401) {
+      if (url.startsWith('/auth/')) return null;
+      window.location.href = '/auth/login';
+      return null;
+    }
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       throw new Error(err.error || `API error: ${res.status}`);
