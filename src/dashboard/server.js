@@ -3,6 +3,8 @@ import session from 'express-session';
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createAuthRouter } from './auth.js';
+import { createApiRouter } from './api/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -33,13 +35,8 @@ export function startDashboard(client) {
 	}));
 
 	if (clientSecret) {
-		// Lazy-import auth & API routes only when secret is available
-		import('./auth.js').then(({ createAuthRouter }) => {
-			app.use('/auth', createAuthRouter(client, baseUrl, clientSecret));
-		});
-		import('./api/index.js').then(({ createApiRouter }) => {
-			app.use('/api', createApiRouter(client));
-		});
+		app.use('/auth', createAuthRouter(client, baseUrl, clientSecret));
+		app.use('/api', createApiRouter(client));
 	} else {
 		console.warn('⚠️ [Dashboard] DISCORD_CLIENT_SECRET not set – auth/API disabled, serving frontend only.');
 		// Return 503 for auth/api routes when not configured
