@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ares Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+</head>
+<body>
+  <div id="bg-effects">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div id="app">
+    <!-- Sidebar -->
+    <nav id="sidebar" class="glass">
+      <div class="sidebar-brand">
+        <span class="brand-icon">⚡</span>
+        <span class="brand-text">Ares</span>
+      </div>
+      <div id="sidebar-nav"></div>
+      <div id="sidebar-user" class="sidebar-user"></div>
+    </nav>
+
+    <!-- Main content -->
+    <main id="content">
+      <div id="page-loading" class="page-loading">
+        <div class="spinner"></div>
+      </div>
+      <div id="page-content"></div>
+    </main>
+  </div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/router.js"></script>
+  <script src="/js/pages/landing.js"></script>
+  <script src="/js/pages/guilds.js"></script>
+  <script src="/js/pages/overview.js"></script>
+  <script src="/js/pages/config.js"></script>
+  <script src="/js/pages/moderation.js"></script>
+  <script src="/js/pages/music.js"></script>
+  <script src="/js/pages/stats.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

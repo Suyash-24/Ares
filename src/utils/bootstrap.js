@@ -28,6 +28,7 @@ import ticketHandler from '../events/ticketHandler.js';
 import { startInactivityScheduler } from './ticketScheduler.js';
 import { registerSnipeEvents } from '../events/snipeHandler.js';
 import registerTriggerHandler from '../events/triggerHandler.js';
+import { startDashboard } from '../dashboard/server.js';
 
 const CONFIG_PATH = path.join(path.dirname(fileURLToPath(import.meta.url)), '../../config.json');
 
@@ -148,6 +149,9 @@ export async function bootstrap(client, __dirname) {
 	startInactivityScheduler(client);
 
 	await client.login(token);
+
+	// Start web dashboard (requires DISCORD_CLIENT_SECRET env var)
+	startDashboard(client);
 }
 
 async function loadConfig() {
