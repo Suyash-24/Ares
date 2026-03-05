@@ -151,7 +151,11 @@ export async function bootstrap(client, __dirname) {
 	await client.login(token);
 
 	// Start web dashboard (requires DISCORD_CLIENT_SECRET env var)
-	startDashboard(client);
+	try {
+		startDashboard(client);
+	} catch (error) {
+		console.error('⚠️ [Dashboard] Failed to start:', error);
+	}
 }
 
 async function loadConfig() {

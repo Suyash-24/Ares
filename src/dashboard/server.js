@@ -1,14 +1,24 @@
 import express from 'express';
 import session from 'express-session';
 import { mkdirSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import fileStoreFactory from 'session-file-store';
 import { createAuthRouter } from './auth.js';
 import { createApiRouter } from './api/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FileStore = fileStoreFactory(session);
+const require = createRequire(import.meta.url);
+
+function resolveFileStore() {
+	try {
+		const mod = require('session-file-store');
+		const factory = mod?.default || mod;
+		return typeof factory === 'function' ? factory(session) : null;
+	} catch {
+		return null;
+	}
+}
 
 export function startDashboard(client) {
 	const port = parseInt(process.env.DASHBOARD_PORT || '3000', 10);
@@ -17,7 +27,8 @@ export function startDashboard(client) {
 	const sessionStoreDir = process.env.SESSION_STORE_DIR
 		? path.resolve(process.cwd(), process.env.SESSION_STORE_DIR)
 		: path.resolve(process.cwd(), 'data', 'sessions');
-	mkdirSync(sessionStoreDir, { recursive: true });
+	const FileStore = resolveFileStore();
+	if (FileStore) mkdirSync(sessionStoreDir, { recursive: true });
 	if (!process.env.SESSION_SECRET) {
 		console.warn('⚠️ [Dashboard] SESSION_SECRET not set – using default value. Set SESSION_SECRET in .env for secure persistent sessions.');
 	}
@@ -30,13 +41,7 @@ export function startDashboard(client) {
 
 	app.use(express.json({ limit: '1mb' }));
 
-	app.use(session({
-		store: new FileStore({
-			path: sessionStoreDir,
-			ttl: 7 * 24 * 60 * 60,
-			retries: 0,
-			logFn: () => {}
-		}),
+	const sessionOptions = {
 		secret: sessionSecret,
 		resave: false,
 		saveUninitialized: false,
@@ -47,7 +52,20 @@ export function startDashboard(client) {
 			sameSite: 'lax',
 			maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
 		}
-	}));
+	};
+
+	if (FileStore) {
+		sessionOptions.store = new FileStore({
+			path: sessionStoreDir,
+			ttl: 7 * 24 * 60 * 60,
+			retries: 0,
+			logFn: () => {}
+		});
+	} else {
+		console.warn('⚠️ [Dashboard] session-file-store unavailable – using memory sessions (will reset on restart). Run npm install to enable persistence.');
+	}
+
+	app.use(session(sessionOptions));
 
 	if (clientSecret) {
 		app.use('/auth', createAuthRouter(client, baseUrl, clientSecret));
