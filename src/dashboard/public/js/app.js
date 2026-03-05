@@ -52,6 +52,7 @@ function showSidebar(guildId) {
   const sidebar = document.getElementById('sidebar');
   sidebar.style.display = 'flex';
   document.getElementById('content').style.marginLeft = '';
+  document.getElementById('content').style.padding = '';
 
   const nav = document.getElementById('sidebar-nav');
 
