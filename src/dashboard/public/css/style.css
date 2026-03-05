@@ -386,7 +386,7 @@ tr:hover td { background: var(--bg-surface); }
 /* ── Landing / Login ── */
 .landing {
   display: flex; align-items: center; justify-content: center;
-  min-height: 100vh; text-align: center;
+  min-height: calc(100vh - 56px); text-align: center;
 }
 .landing-content { max-width: 480px; }
 .landing-title {

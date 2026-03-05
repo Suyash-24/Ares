@@ -1,17 +1,26 @@
 import express from 'express';
 import session from 'express-session';
-import crypto from 'node:crypto';
+import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import fileStoreFactory from 'session-file-store';
 import { createAuthRouter } from './auth.js';
 import { createApiRouter } from './api/index.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const FileStore = fileStoreFactory(session);
 
 export function startDashboard(client) {
 	const port = parseInt(process.env.DASHBOARD_PORT || '3000', 10);
 	const baseUrl = process.env.DASHBOARD_URL || `http://localhost:${port}`;
-	const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+	const sessionSecret = process.env.SESSION_SECRET || 'change_me_in_env_for_dashboard';
+	const sessionStoreDir = process.env.SESSION_STORE_DIR
+		? path.resolve(process.cwd(), process.env.SESSION_STORE_DIR)
+		: path.resolve(process.cwd(), 'data', 'sessions');
+	mkdirSync(sessionStoreDir, { recursive: true });
+	if (!process.env.SESSION_SECRET) {
+		console.warn('⚠️ [Dashboard] SESSION_SECRET not set – using default value. Set SESSION_SECRET in .env for secure persistent sessions.');
+	}
 
 	const clientSecret = process.env.DISCORD_CLIENT_SECRET;
 
@@ -22,6 +31,12 @@ export function startDashboard(client) {
 	app.use(express.json({ limit: '1mb' }));
 
 	app.use(session({
+		store: new FileStore({
+			path: sessionStoreDir,
+			ttl: 7 * 24 * 60 * 60,
+			retries: 0,
+			logFn: () => {}
+		}),
 		secret: sessionSecret,
 		resave: false,
 		saveUninitialized: false,
