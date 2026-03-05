@@ -409,9 +409,9 @@ tr:hover td { background: var(--bg-surface); }
   border-bottom: 1px solid var(--glass-border);
 }
 .lp-nav-inner {
-  max-width: 1200px; margin: 0 auto;
+  width: 100%; max-width: none; margin: 0;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 32px; height: 60px;
+  padding: 0 clamp(18px, 4vw, 72px); height: 60px;
 }
 .lp-nav-brand {
   display: flex; align-items: center; gap: 10px;
@@ -632,10 +632,11 @@ tr:hover td { background: var(--bg-surface); }
 /* ── Footer ── */
 .lp-footer {
   position: relative; z-index: 10;
-  border-top: 1px solid var(--glass-border); padding: 28px 24px;
+  border-top: 1px solid var(--glass-border); padding: 28px 0;
 }
 .lp-footer-inner {
-  max-width: 1100px; margin: 0 auto;
+  width: 100%; max-width: none; margin: 0;
+  padding: 0 clamp(18px, 4vw, 72px);
   display: flex; align-items: center; justify-content: space-between;
 }
 .lp-footer-brand {
@@ -654,8 +655,8 @@ tr:hover td { background: var(--bg-surface); }
   .lp-stats-row { grid-template-columns: repeat(2, 1fr); }
   .lp-hero-h1 { font-size: 2.2rem; }
   .lp-nav-links { display: none; }
-  .lp-nav-inner { padding: 0 16px; }
-  .lp-footer-inner { flex-direction: column; gap: 8px; text-align: center; }
+  .lp-nav-inner { padding: 0 14px; }
+  .lp-footer-inner { padding: 0 14px; flex-direction: column; gap: 8px; text-align: center; }
 }
 
 /* ── Toast notifications ── */
