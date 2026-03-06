@@ -270,6 +270,23 @@ function getTotalCmds(categories) {
   return categories.reduce((s, c) => s + getCmdCount(c), 0);
 }
 
+/* ─── sidebar category grouping ─── */
+function getDocsSidebarGroups(categories) {
+  const catMap = {};
+  categories.forEach(c => { catMap[c.id] = c; });
+  return [
+    { label: 'Getting Started', icon: '📖', items: [
+      { id: '__intro', icon: '🏠', title: 'Introduction' },
+      { id: '__setup', icon: '🚀', title: 'Quick Setup' },
+    ]},
+    { label: 'Security & Protection', icon: '🔐', items: ['antinuke', 'antiraid', 'automod'].map(id => catMap[id]).filter(Boolean) },
+    { label: 'Moderation', icon: '⚔️', items: ['moderation'].map(id => catMap[id]).filter(Boolean) },
+    { label: 'Engagement', icon: '🎯', items: ['music', 'leveling', 'stats', 'giveaways', 'fun'].map(id => catMap[id]).filter(Boolean) },
+    { label: 'Server Management', icon: '🏗️', items: ['config', 'welcome', 'logs', 'tickets'].map(id => catMap[id]).filter(Boolean) },
+    { label: 'Utilities', icon: '🧰', items: ['general', 'voice', 'misc'].map(id => catMap[id]).filter(Boolean) },
+  ];
+}
+
 /* ─── shared navbar ─── */
 function docsNavbar() {
   return `
@@ -289,28 +306,60 @@ function docsNavbar() {
     </header>`;
 }
 
-/* ─── shared sidebar ─── */
+/* ─── shared sidebar (hierarchical tree) ─── */
 function docsSidebar(categories, activeId) {
+  const groups = getDocsSidebarGroups(categories);
+
+  // Determine which group should be open
+  function groupHasActive(group) {
+    return group.items.some(item => {
+      if (item.id === '__intro' && !activeId) return true;
+      if (item.id === '__setup' && !activeId) return true;
+      return item.id === activeId;
+    });
+  }
+
   return `
     <aside class="docs-sidebar" id="docs-sidebar">
-      <div class="docs-sidebar-title">Navigation</div>
+      <a class="docs-sidebar-brand" data-docs-link="/docs">
+        <span class="docs-sidebar-brand-icon">⚡</span>
+        <span class="docs-sidebar-brand-text">Ares Docs</span>
+      </a>
       <div class="docs-search">
         <svg class="docs-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" id="docs-search" class="docs-search-input" placeholder="Search modules..." autocomplete="off" />
+        <input type="text" id="docs-search" class="docs-search-input" placeholder="Search docs..." autocomplete="off" />
       </div>
       <nav class="docs-toc">
-        <a class="docs-toc-item${!activeId ? ' active' : ''}" data-docs-link="/docs">
-          <span class="docs-toc-icon">📖</span><span>Overview</span>
-        </a>
-        <div class="docs-toc-divider"></div>
-        <div class="docs-toc-group-label">Modules</div>
-        ${categories.map(c => `
-          <a class="docs-toc-item${activeId === c.id ? ' active' : ''}" data-docs-link="/docs/${c.id}">
-            <span class="docs-toc-icon">${c.icon}</span>
-            <span>${c.title}</span>
-            <span class="docs-toc-count">${getCmdCount(c)}</span>
-          </a>
-        `).join('')}
+        ${groups.map(group => {
+          const isOpen = groupHasActive(group);
+          return `
+            <div class="docs-toc-group${isOpen ? ' open' : ''}">
+              <button class="docs-toc-group-toggle" aria-expanded="${isOpen}">
+                <span class="docs-toc-group-icon">${group.icon}</span>
+                <span class="docs-toc-group-text">${group.label}</span>
+                <svg class="docs-toc-chevron" width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M3 4L5 6L7 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <div class="docs-toc-children">
+                ${group.items.map(item => {
+                  if (item.id === '__intro') {
+                    return `<a class="docs-toc-item${!activeId ? ' active' : ''}" data-docs-link="/docs" data-scroll="introduction">
+                      <span class="docs-toc-dot"></span><span>${item.title}</span>
+                    </a>`;
+                  }
+                  if (item.id === '__setup') {
+                    return `<a class="docs-toc-item" data-docs-link="/docs" data-scroll="getting-started">
+                      <span class="docs-toc-dot"></span><span>${item.title}</span>
+                    </a>`;
+                  }
+                  return `<a class="docs-toc-item${activeId === item.id ? ' active' : ''}" data-docs-link="/docs/${item.id}">
+                    <span class="docs-toc-dot"></span>
+                    <span>${item.title}</span>
+                    <span class="docs-toc-count">${getCmdCount(item)}</span>
+                  </a>`;
+                }).join('')}
+              </div>
+            </div>`;
+        }).join('')}
       </nav>
     </aside>`;
 }
@@ -328,14 +377,66 @@ function docsFooter() {
     </footer>`;
 }
 
+/* ─── hero illustration (SVG) ─── */
+function docsHeroIllustration() {
+  return `<svg class="docs-hero-illustration" viewBox="0 0 500 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- grid pattern -->
+    <defs>
+      <linearGradient id="dg1" x1="0" y1="0" x2="500" y2="220"><stop offset="0%" stop-color="#818cf8" stop-opacity="0.15"/><stop offset="100%" stop-color="#c084fc" stop-opacity="0.08"/></linearGradient>
+      <linearGradient id="dg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#c084fc"/></linearGradient>
+      <linearGradient id="dg3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#34d399"/><stop offset="100%" stop-color="#06b6d4"/></linearGradient>
+    </defs>
+    <rect width="500" height="220" rx="16" fill="url(#dg1)"/>
+    <!-- floating cards -->
+    <g opacity="0.9">
+      <rect x="30" y="30" width="130" height="80" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <rect x="42" y="44" width="40" height="4" rx="2" fill="url(#dg2)" opacity="0.7"/>
+      <rect x="42" y="54" width="90" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+      <rect x="42" y="63" width="70" height="3" rx="1.5" fill="rgba(255,255,255,0.08)"/>
+      <rect x="42" y="78" width="50" height="16" rx="4" fill="url(#dg2)" opacity="0.2"/>
+      <text x="54" y="90" font-size="7" fill="#818cf8" font-family="sans-serif" font-weight="600">.ban</text>
+    </g>
+    <g opacity="0.85">
+      <rect x="185" y="50" width="130" height="80" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <rect x="197" y="64" width="45" height="4" rx="2" fill="url(#dg3)" opacity="0.7"/>
+      <rect x="197" y="74" width="100" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+      <rect x="197" y="83" width="80" height="3" rx="1.5" fill="rgba(255,255,255,0.08)"/>
+      <rect x="197" y="98" width="55" height="16" rx="4" fill="url(#dg3)" opacity="0.2"/>
+      <text x="208" y="110" font-size="7" fill="#34d399" font-family="sans-serif" font-weight="600">.play</text>
+    </g>
+    <g opacity="0.75">
+      <rect x="340" y="25" width="130" height="80" rx="10" fill="rgba(255,255,255,0.04)" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+      <rect x="352" y="39" width="35" height="4" rx="2" fill="#f59e0b" opacity="0.5"/>
+      <rect x="352" y="49" width="95" height="3" rx="1.5" fill="rgba(255,255,255,0.12)"/>
+      <rect x="352" y="58" width="75" height="3" rx="1.5" fill="rgba(255,255,255,0.08)"/>
+      <rect x="352" y="73" width="60" height="16" rx="4" fill="rgba(245,158,11,0.15)"/>
+      <text x="361" y="85" font-size="7" fill="#fbbf24" font-family="sans-serif" font-weight="600">.antinuke</text>
+    </g>
+    <!-- terminal strip -->
+    <g opacity="0.6">
+      <rect x="60" y="140" width="380" height="55" rx="8" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.05)" stroke-width="1"/>
+      <circle cx="76" cy="153" r="4" fill="#ef4444" opacity="0.6"/>
+      <circle cx="88" cy="153" r="4" fill="#fbbf24" opacity="0.6"/>
+      <circle cx="100" cy="153" r="4" fill="#34d399" opacity="0.6"/>
+      <text x="76" y="176" font-size="8" fill="#818cf8" font-family="monospace" opacity="0.7">$ .help moderation</text>
+      <text x="76" y="188" font-size="7" fill="rgba(255,255,255,0.3)" font-family="monospace">Found 30 commands in Moderation module</text>
+    </g>
+    <!-- decorative dots -->
+    <circle cx="25" cy="180" r="2" fill="#818cf8" opacity="0.3"/>
+    <circle cx="480" cy="140" r="3" fill="#c084fc" opacity="0.25"/>
+    <circle cx="250" cy="18" r="2" fill="#34d399" opacity="0.35"/>
+    <circle cx="470" cy="200" r="1.5" fill="#f59e0b" opacity="0.3"/>
+  </svg>`;
+}
+
 /* ─── docs SPA navigation ─── */
-function docsNavigate(path) {
-  window.history.pushState({}, '', path);
-  renderDocs();
+function docsNavigate(path, scrollTarget) {
+  window.history.pushState({ scrollTarget }, '', path);
+  renderDocs(scrollTarget);
 }
 
 /* ─── main render (routes /docs and /docs/:moduleId) ─── */
-function renderDocs() {
+function renderDocs(scrollTarget) {
   document.getElementById('sidebar').style.display = 'none';
   document.getElementById('content').style.marginLeft = '0';
   document.getElementById('content').style.padding = '0';
@@ -349,16 +450,17 @@ function renderDocs() {
     if (cat) {
       renderDocsModule(categories, cat);
     } else {
-      renderDocsHome(categories);
+      renderDocsHome(categories, scrollTarget);
     }
   } else {
-    renderDocsHome(categories);
+    renderDocsHome(categories, scrollTarget);
   }
 }
 
 /* ─── home / overview page (/docs) ─── */
-function renderDocsHome(categories) {
+function renderDocsHome(categories, scrollTarget) {
   const totalCmds = getTotalCmds(categories);
+  const groups = getDocsSidebarGroups(categories);
 
   document.getElementById('page-content').innerHTML = `
     <div class="docs">
@@ -367,18 +469,31 @@ function renderDocsHome(categories) {
         ${docsSidebar(categories, null)}
         <main class="docs-main">
 
-          <section class="docs-hero docs-anim-fade" id="introduction">
-            <div class="docs-hero-badge">Documentation</div>
-            <h1 class="docs-hero-title">Ares <span class="lp-gradient-text">Documentation</span></h1>
-            <p class="docs-hero-desc">The complete guide to all ${totalCmds}+ commands, ${categories.length} modules, and configuration options.<br>Everything you need to manage your Discord server.</p>
-            <div class="docs-quick-stats">
-              <div class="docs-qstat docs-anim-up" style="--d:0"><span class="docs-qstat-num">${totalCmds}+</span><span class="docs-qstat-label">Commands</span></div>
-              <div class="docs-qstat docs-anim-up" style="--d:1"><span class="docs-qstat-num">${categories.length}</span><span class="docs-qstat-label">Modules</span></div>
-              <div class="docs-qstat docs-anim-up" style="--d:2"><span class="docs-qstat-num">Slash</span><span class="docs-qstat-label">& Prefix</span></div>
-              <div class="docs-qstat docs-anim-up" style="--d:3"><span class="docs-qstat-num">24/7</span><span class="docs-qstat-label">Uptime</span></div>
+          <!-- Hero with illustration -->
+          <section class="docs-hero-banner docs-anim-fade" id="introduction">
+            <div class="docs-hero-content">
+              <div class="docs-hero-badge">Documentation</div>
+              <h1 class="docs-hero-title">Ares <span class="lp-gradient-text">Documentation</span></h1>
+              <p class="docs-hero-desc">The complete guide to all ${totalCmds}+ commands across ${categories.length} modules. Everything you need to manage and protect your Discord server.</p>
+              <div class="docs-hero-actions">
+                <a class="docs-hero-btn docs-hero-btn-primary" data-docs-link="/docs" data-scroll="getting-started">Get Started</a>
+                <a class="docs-hero-btn docs-hero-btn-secondary" data-docs-link="/docs/moderation">Browse Commands</a>
+              </div>
+            </div>
+            <div class="docs-hero-visual">
+              ${docsHeroIllustration()}
             </div>
           </section>
 
+          <!-- Quick stats strip -->
+          <div class="docs-stats-strip docs-anim-slide" style="--d:0">
+            <div class="docs-strip-stat docs-anim-up" style="--d:0"><span class="docs-strip-num">${totalCmds}+</span><span class="docs-strip-label">Commands</span></div>
+            <div class="docs-strip-stat docs-anim-up" style="--d:1"><span class="docs-strip-num">${categories.length}</span><span class="docs-strip-label">Modules</span></div>
+            <div class="docs-strip-stat docs-anim-up" style="--d:2"><span class="docs-strip-num">Slash</span><span class="docs-strip-label">& Prefix</span></div>
+            <div class="docs-strip-stat docs-anim-up" style="--d:3"><span class="docs-strip-num">24/7</span><span class="docs-strip-label">Uptime</span></div>
+          </div>
+
+          <!-- Info callout -->
           <div class="docs-callout docs-callout-info docs-anim-slide" style="--d:0">
             <div class="docs-callout-icon">💡</div>
             <div>
@@ -386,6 +501,7 @@ function renderDocsHome(categories) {
             </div>
           </div>
 
+          <!-- Getting Started -->
           <section class="docs-guides" id="getting-started">
             <h2 class="docs-section-title docs-anim-slide" style="--d:0">Getting Started</h2>
             <p class="docs-section-desc docs-anim-slide" style="--d:1">Set up Ares in your server in under 2 minutes.</p>
@@ -420,21 +536,26 @@ function renderDocsHome(categories) {
             </div>
           </div>
 
-          <section class="docs-modules-overview docs-anim-slide" style="--d:0">
-            <h2 class="docs-section-title">All Modules</h2>
-            <p class="docs-section-desc">Click on a module to explore its commands in detail.</p>
-            <div class="docs-module-grid docs-module-grid-home">
-              ${categories.map((c, i) => `
-                <a class="docs-module-card docs-module-card-home docs-anim-up" data-docs-link="/docs/${c.id}" style="--d:${i % 6};--accent-c:${c.color}">
-                  <span class="docs-module-card-icon">${c.icon}</span>
-                  <span class="docs-module-card-title">${c.title}</span>
-                  <span class="docs-module-card-count">${getCmdCount(c)} commands</span>
-                  <p class="docs-module-card-desc">${c.desc}</p>
-                  <span class="docs-module-card-arrow">→</span>
-                </a>
-              `).join('')}
-            </div>
-          </section>
+          <!-- Module groups (organized by category) -->
+          ${groups.filter(g => g.items[0] && !g.items[0].id?.startsWith('__')).map((group, gi) => `
+            <section class="docs-group-section docs-anim-section" id="group-${gi}">
+              <div class="docs-group-header">
+                <span class="docs-group-icon">${group.icon}</span>
+                <h2 class="docs-group-title">${group.label}</h2>
+              </div>
+              <div class="docs-module-grid docs-module-grid-home">
+                ${group.items.map((c, i) => `
+                  <a class="docs-module-card docs-module-card-home docs-anim-up" data-docs-link="/docs/${c.id}" style="--d:${i};--accent-c:${c.color}">
+                    <span class="docs-module-card-icon">${c.icon}</span>
+                    <span class="docs-module-card-title">${c.title}</span>
+                    <span class="docs-module-card-count">${getCmdCount(c)} commands</span>
+                    <p class="docs-module-card-desc">${c.desc}</p>
+                    <span class="docs-module-card-arrow">→</span>
+                  </a>
+                `).join('')}
+              </div>
+            </section>
+          `).join('')}
 
           ${docsFooter()}
         </main>
@@ -445,15 +566,32 @@ function renderDocsHome(categories) {
   initDocsAnimations();
   initDocsHomeSearch(categories);
   initDocsNavLinks();
+  initDocsSidebarToggle();
   initDocsKeyboardSearch();
+
+  if (scrollTarget) {
+    requestAnimationFrame(() => {
+      const el = document.getElementById(scrollTarget);
+      if (el) {
+        const navH = document.querySelector('.lp-nav')?.offsetHeight || 0;
+        window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - navH - 24, behavior: 'smooth' });
+      }
+    });
+  }
 }
 
 /* ─── module sub-page (/docs/:moduleId) ─── */
 function renderDocsModule(categories, cat) {
   const cmdCount = getCmdCount(cat);
-  const catIdx = categories.indexOf(cat);
-  const prev = catIdx > 0 ? categories[catIdx - 1] : null;
-  const next = catIdx < categories.length - 1 ? categories[catIdx + 1] : null;
+  const allModules = categories;
+  const catIdx = allModules.indexOf(cat);
+  const prev = catIdx > 0 ? allModules[catIdx - 1] : null;
+  const next = catIdx < allModules.length - 1 ? allModules[catIdx + 1] : null;
+
+  // Find group label for breadcrumb
+  const groups = getDocsSidebarGroups(categories);
+  const parentGroup = groups.find(g => g.items.some(i => i.id === cat.id));
+  const groupLabel = parentGroup ? parentGroup.label : '';
 
   document.getElementById('page-content').innerHTML = `
     <div class="docs">
@@ -464,6 +602,8 @@ function renderDocsModule(categories, cat) {
 
           <nav class="docs-breadcrumb docs-anim-slide" style="--d:0">
             <a data-docs-link="/docs">Docs</a>
+            <span class="docs-breadcrumb-sep">›</span>
+            <span class="docs-breadcrumb-mid">${groupLabel}</span>
             <span class="docs-breadcrumb-sep">›</span>
             <span>${cat.title}</span>
           </nav>
@@ -504,28 +644,10 @@ function renderDocsModule(categories, cat) {
   initDocsAnimations();
   initDocsModuleSearch(cat);
   initDocsNavLinks();
+  initDocsSidebarToggle();
   initDocsExpandable();
   initDocsKeyboardSearch();
   window.scrollTo({ top: 0 });
-}
-
-/* ─── build category section (unused now but kept for compat) ─── */
-function buildCategorySection(c) {
-  return `
-    <section class="docs-category docs-anim-section" id="${c.id}">
-      <div class="docs-cat-header">
-        <div class="docs-cat-icon" style="--accent-c:${c.color}">${c.icon}</div>
-        <div class="docs-cat-header-text">
-          <h2 class="docs-cat-title">${c.title}</h2>
-          <p class="docs-cat-desc">${c.desc}</p>
-        </div>
-        <span class="docs-cat-badge">${getCmdCount(c)} commands</span>
-      </div>
-      <div class="docs-cmd-grid">
-        ${c.commands.map((cmd, i) => buildCommandCard(cmd, i)).join('')}
-      </div>
-    </section>
-  `;
 }
 
 /* ─── build command card ─── */
@@ -631,21 +753,24 @@ function initDocsAnimations() {
   });
 }
 
-/* ─── home page search (filter module cards) ─── */
+/* ─── home page search (filter module cards + sidebar) ─── */
 function initDocsHomeSearch(categories) {
   const input = document.getElementById('docs-search');
   if (!input) return;
   input.addEventListener('input', () => {
     const q = input.value.toLowerCase().trim();
+    // filter home module cards
     document.querySelectorAll('.docs-module-card-home').forEach(card => {
       const title = (card.querySelector('.docs-module-card-title')?.textContent || '').toLowerCase();
       const desc = (card.querySelector('.docs-module-card-desc')?.textContent || '').toLowerCase();
       card.style.display = (!q || title.includes(q) || desc.includes(q)) ? '' : 'none';
     });
+    // filter sidebar tree items
+    filterSidebarTree(q);
   });
 }
 
-/* ─── module page search (filter command cards) ─── */
+/* ─── module page search (filter command cards + sidebar) ─── */
 function initDocsModuleSearch(cat) {
   const input = document.getElementById('docs-search-module');
   if (!input) return;
@@ -656,28 +781,43 @@ function initDocsModuleSearch(cat) {
       const desc = (el.querySelector('.docs-cmd-desc')?.textContent || '').toLowerCase();
       const aliases = (el.querySelector('.docs-cmd-aliases')?.textContent || '').toLowerCase();
       const subs = (el.querySelector('.docs-cmd-subs')?.textContent || '').toLowerCase();
-      const match = !q || name.includes(q) || desc.includes(q) || aliases.includes(q) || subs.includes(q);
-      el.style.display = match ? '' : 'none';
+      el.style.display = (!q || name.includes(q) || desc.includes(q) || aliases.includes(q) || subs.includes(q)) ? '' : 'none';
     });
   });
 
-  // Also wire up sidebar search to navigate
   const sidebarInput = document.getElementById('docs-search');
   if (sidebarInput) {
     sidebarInput.addEventListener('input', () => {
-      const q = sidebarInput.value.toLowerCase().trim();
-      document.querySelectorAll('.docs-toc-item[data-docs-link]').forEach(item => {
-        if (!item.querySelector('.docs-toc-icon')) return;
-        const title = item.textContent.toLowerCase();
-        item.style.display = (!q || title.includes(q)) ? '' : 'none';
-      });
+      filterSidebarTree(sidebarInput.value.toLowerCase().trim());
+    });
+  }
+}
+
+/* ─── filter sidebar tree by query ─── */
+function filterSidebarTree(q) {
+  document.querySelectorAll('.docs-toc-group').forEach(group => {
+    const items = group.querySelectorAll('.docs-toc-item');
+    let anyVisible = false;
+    items.forEach(item => {
+      const text = item.textContent.toLowerCase();
+      const show = !q || text.includes(q);
+      item.style.display = show ? '' : 'none';
+      if (show) anyVisible = true;
+    });
+    group.style.display = anyVisible ? '' : 'none';
+    if (q && anyVisible) group.classList.add('open');
+  });
+  // Reset when cleared
+  if (!q) {
+    document.querySelectorAll('.docs-toc-group').forEach(g => {
+      g.style.display = '';
+      g.querySelectorAll('.docs-toc-item').forEach(i => i.style.display = '');
     });
   }
 }
 
 /* ─── keyboard shortcut ─── */
 function initDocsKeyboardSearch() {
-  // Remove old listener if attached
   if (window._docsKBHandler) document.removeEventListener('keydown', window._docsKBHandler);
   window._docsKBHandler = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -694,13 +834,28 @@ function initDocsNavLinks() {
   document.querySelectorAll('[data-docs-link]').forEach(a => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
-      docsNavigate(a.getAttribute('data-docs-link'));
+      const path = a.getAttribute('data-docs-link');
+      const scroll = a.getAttribute('data-scroll') || undefined;
+      docsNavigate(path, scroll);
     });
   });
   document.querySelectorAll('.docs [data-link]').forEach(a => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
       router.navigate(a.getAttribute('data-link'));
+    });
+  });
+}
+
+/* ─── sidebar collapsible groups + mobile toggle ─── */
+function initDocsSidebarToggle() {
+  // Group collapse/expand
+  document.querySelectorAll('.docs-toc-group-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.closest('.docs-toc-group');
+      const isOpen = group.classList.contains('open');
+      group.classList.toggle('open', !isOpen);
+      btn.setAttribute('aria-expanded', !isOpen);
     });
   });
 }

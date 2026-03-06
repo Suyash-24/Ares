@@ -16,8 +16,8 @@
       renderLanding();
     }
     // Listen for SPA nav on public pages
-    window.addEventListener('popstate', function publicNav() {
-      if (window.location.pathname.startsWith('/docs')) { renderDocs(); }
+    window.addEventListener('popstate', function publicNav(e) {
+      if (window.location.pathname.startsWith('/docs')) { renderDocs(e.state?.scrollTarget); }
       else { renderLanding(); }
     });
     return;
