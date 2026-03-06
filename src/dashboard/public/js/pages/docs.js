@@ -1,188 +1,275 @@
-// ── Documentation page ──
+// ── Documentation page (professional-grade, bleed/dyno/roti inspired) ──
+
+/* ─── command data ─── */
+function getDocsCategories() {
+  return [
+    {
+      id: 'moderation', icon: '🛡️', title: 'Moderation', color: '#ef4444',
+      desc: 'Comprehensive moderation toolkit to keep your server safe and organized — bans, mutes, warnings, role management, and advanced tools.',
+      commands: [
+        { name: 'ban', aliases: [], slash: true, perms: ['BanMembers'], usage: '.ban <user> [reason]', desc: 'Permanently ban a user from the server.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'reason', d: 'Reason for the ban', r: false }], examples: ['.ban @user Spamming', '.ban 123456789 Advertising'] },
+        { name: 'kick', aliases: [], slash: true, perms: ['KickMembers'], usage: '.kick <user> [reason]', desc: 'Kick a user from the server. They can rejoin with an invite.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'reason', d: 'Reason for the kick', r: false }], examples: ['.kick @user Being rude'] },
+        { name: 'mute', aliases: [], slash: true, perms: ['ModerateMembers'], usage: '.mute <user> <duration> [reason]', desc: 'Timeout a user for a specified duration. Uses Discord\'s native timeout.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'duration', d: 'Duration (e.g. 1h, 30m, 1d)', r: true }, { n: 'reason', d: 'Reason for the mute', r: false }], examples: ['.mute @user 1h Spam', '.mute @user 30m'] },
+        { name: 'unmute', aliases: [], slash: true, perms: ['ModerateMembers'], usage: '.unmute <user>', desc: 'Remove timeout from a muted user.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.unmute @user'] },
+        { name: 'warn', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.warn <user> <reason>', desc: 'Issue an official warning to a user. Warnings are logged and tracked.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'reason', d: 'Reason for the warning', r: true }], examples: ['.warn @user First offense', '.warn @user Spam warning'] },
+        { name: 'warnings', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.warnings <user>', desc: 'View all active warnings for a user with timestamps and reasons.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.warnings @user'] },
+        { name: 'clearwarnings', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.clearwarnings <user>', desc: 'Clear all warnings from a user\'s record.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.clearwarnings @user'] },
+        { name: 'delete', aliases: ['del', 'purge'], slash: true, perms: ['ManageMessages'], usage: '.delete <amount> [@user]', desc: 'Bulk delete messages in the current channel. Optionally filter by user.', params: [{ n: 'amount', d: 'Number of messages (1-100)', r: true }, { n: 'user', d: 'Filter by user', r: false }], examples: ['.delete 50', '.delete 10 @user'] },
+        { name: 'lock', aliases: [], slash: false, perms: ['ManageChannels'], usage: '.lock [channel] [reason]', desc: 'Lock a channel to prevent members from sending messages.', params: [{ n: 'channel', d: 'Channel mention (default: current)', r: false }, { n: 'reason', d: 'Reason shown to members', r: false }], examples: ['.lock', '.lock #general Cleaning chat'] },
+        { name: 'unlock', aliases: [], slash: false, perms: ['ManageChannels'], usage: '.unlock [channel]', desc: 'Unlock a previously locked channel.', params: [{ n: 'channel', d: 'Channel mention (default: current)', r: false }], examples: ['.unlock', '.unlock #general'] },
+        { name: 'slowmode', aliases: [], slash: false, perms: ['ManageChannels'], usage: '.slowmode <seconds>', desc: 'Set the slowmode interval for the current channel.', params: [{ n: 'seconds', d: 'Slowmode delay in seconds (0 to disable)', r: true }], examples: ['.slowmode 5', '.slowmode 0'] },
+        { name: 'detain', aliases: [], slash: false, perms: ['Administrator'], usage: '.detain <user> [reason]', desc: 'Detain a user — strips roles and applies a restricted role with limited permissions.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'reason', d: 'Reason for detention', r: false }], examples: ['.detain @user Suspicious activity'] },
+        { name: 'imute', aliases: [], slash: false, perms: ['ManageMessages'], usage: '.imute <user> [duration]', desc: 'Image/attachment mute — prevents a user from sending images.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'duration', d: 'Duration (optional)', r: false }], examples: ['.imute @user 2h'] },
+        { name: 'softban', aliases: [], slash: false, perms: ['BanMembers'], usage: '.softban <user> [reason]', desc: 'Ban and immediately unban a user to purge their recent messages.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'reason', d: 'Reason for softban', r: false }], examples: ['.softban @user Advertising'] },
+        { name: 'tempban', aliases: [], slash: false, perms: ['BanMembers'], usage: '.tempban <user> <duration> [reason]', desc: 'Temporarily ban a user. They will be automatically unbanned after the duration.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'duration', d: 'Ban duration (e.g. 7d, 24h)', r: true }, { n: 'reason', d: 'Reason for ban', r: false }], examples: ['.tempban @user 7d Repeated warnings'] },
+        { name: 'massban', aliases: [], slash: false, perms: ['Administrator'], usage: '.massban <user1> <user2> ...', desc: 'Ban multiple users at once. Useful for cleaning up raids.', params: [{ n: 'users', d: 'Multiple user mentions or IDs', r: true }], examples: ['.massban @user1 @user2 @user3'] },
+        { name: 'masskick', aliases: [], slash: false, perms: ['Administrator'], usage: '.masskick <user1> <user2> ...', desc: 'Kick multiple users at once.', params: [{ n: 'users', d: 'Multiple user mentions or IDs', r: true }], examples: ['.masskick @user1 @user2'] },
+        { name: 'role', aliases: [], slash: false, perms: ['ManageRoles'], usage: '.role <user> <role>', desc: 'Toggle a role for a member — adds if they don\'t have it, removes if they do.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'role', d: 'Role mention or name', r: true }], examples: ['.role @user Moderator'] },
+        { name: 'roleadd', aliases: [], slash: false, perms: ['ManageRoles'], usage: '.roleadd <user> <role>', desc: 'Add a specific role to a user.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'role', d: 'Role mention or name', r: true }], examples: ['.roleadd @user VIP'] },
+        { name: 'roleremove', aliases: [], slash: false, perms: ['ManageRoles'], usage: '.roleremove <user> <role>', desc: 'Remove a specific role from a user.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'role', d: 'Role mention or name', r: true }], examples: ['.roleremove @user VIP'] },
+        { name: 'temprole', aliases: [], slash: false, perms: ['ManageRoles'], usage: '.temprole <user> <role> <duration>', desc: 'Give a temporary role that auto-removes after the specified duration.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'role', d: 'Role mention', r: true }, { n: 'duration', d: 'Duration (e.g. 1d, 12h)', r: true }], examples: ['.temprole @user VIP 7d'] },
+        { name: 'nick', aliases: [], slash: false, perms: ['ManageNicknames'], usage: '.nick <user> [nickname]', desc: 'Change a member\'s nickname. Omit nickname to reset.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'nickname', d: 'New nickname (empty to reset)', r: false }], examples: ['.nick @user Cool Name', '.nick @user'] },
+        { name: 'nuke', aliases: [], slash: false, perms: ['ManageChannels'], usage: '.nuke', desc: 'Clone the current channel and delete the original — wipes all messages.', params: [], examples: ['.nuke'] },
+        { name: 'modhistory', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.modhistory <user>', desc: 'View the complete moderation history for a user — bans, kicks, warns, mutes.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.modhistory @user'] },
+        { name: 'modstats', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.modstats', desc: 'View moderation statistics — actions taken by each moderator.', params: [], examples: ['.modstats'] },
+        { name: 'snapshot', aliases: [], slash: false, perms: ['Administrator'], usage: '.snapshot', desc: 'Take a snapshot of all member roles for backup/restore purposes.', params: [], examples: ['.snapshot'] },
+        { name: 'voidstaff', aliases: [], slash: false, perms: ['Administrator'], usage: '.voidstaff <user>', desc: 'Strip all staff/admin roles from a user immediately.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.voidstaff @user'] },
+        { name: 'topic', aliases: [], slash: false, perms: ['ManageChannels'], usage: '.topic <text>', desc: 'Set the current channel\'s topic.', params: [{ n: 'text', d: 'New channel topic', r: true }], examples: ['.topic Welcome to general chat!'] },
+        { name: 'notes', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.notes <user> [note]', desc: 'Add or view moderator notes on a user.', params: [{ n: 'user', d: 'User mention or ID', r: true }, { n: 'note', d: 'Note content', r: false }], examples: ['.notes @user Previous offender', '.notes @user'] },
+        { name: 'reason', aliases: [], slash: false, perms: ['ModerateMembers'], usage: '.reason <case#> <reason>', desc: 'Update the reason for a moderation case.', params: [{ n: 'case', d: 'Case number', r: true }, { n: 'reason', d: 'New reason', r: true }], examples: ['.reason 42 Updated: repeated spam'] },
+      ]
+    },
+    {
+      id: 'antinuke', icon: '🔒', title: 'Anti-Nuke', color: '#f59e0b',
+      desc: 'Advanced server protection system — monitors destructive actions like mass bans, channel deletions, role modifications, and webhook abuse in real-time.',
+      commands: [
+        { name: 'antinuke', aliases: ['antiwizard'], slash: true, perms: ['Administrator'], usage: '.antinuke [subcommand]', desc: 'Configure the full anti-nuke protection system with 10+ protection modules, presets, and punishments.', params: [{ n: 'subcommand', d: 'enable / disable / wizard / preset / whitelist / settings', r: false }], examples: ['.antinuke enable', '.antinuke wizard', '.antinuke preset strict', '.antinuke ban threshold 3', '.antinuke whitelist add @user'],
+          subcommands: ['enable', 'disable', 'wizard', 'preset strict|recommended|light', 'ban threshold <n>', 'kick threshold <n>', 'channel threshold <n>', 'role threshold <n>', 'webhook threshold <n>', 'emoji threshold <n>', 'botadd on|off', 'vanity on|off', 'prune on|off', 'permissions on|off', 'whitelist add|remove <user>', 'settings'],
+          modules: ['ban', 'kick', 'role', 'channel', 'webhook', 'emoji', 'botadd', 'vanity', 'prune', 'permissions'],
+          punishments: ['protocol', 'strip', 'kick', 'ban', 'timeout']
+        },
+      ]
+    },
+    {
+      id: 'antiraid', icon: '🛡️', title: 'Anti-Raid', color: '#f97316',
+      desc: 'Real-time raid detection and response — monitors join rates, detects suspicious accounts, and triggers automated lockdown.',
+      commands: [
+        { name: 'antiraid', aliases: ['ar'], slash: false, perms: ['ManageGuild'], usage: '.antiraid <subcommand>', desc: 'Configure raid protection with join-rate monitoring, new account filtering, and whitelisting.', params: [{ n: 'subcommand', d: 'enable / massjoin / avatar / newaccounts / whitelist', r: true }], examples: ['.antiraid enable', '.antiraid massjoin threshold 5', '.antiraid newaccounts 7d', '.antiraid whitelist add @user'],
+          subcommands: ['enable', 'disable', 'massjoin threshold <n>', 'avatar', 'newaccounts <age>', 'whitelist add|remove <user>']
+        },
+      ]
+    },
+    {
+      id: 'automod', icon: '🤖', title: 'Automod', color: '#8b5cf6',
+      desc: 'Intelligent automatic moderation with 14 filter modules — anti-invite, anti-link, anti-spam, bad words, and more. Supports presets and granular configuration.',
+      commands: [
+        { name: 'automod', aliases: ['am'], slash: false, perms: ['ManageGuild'], usage: '.automod [subcommand]', desc: 'Configure automatic message moderation with multiple filter modules, presets, ignore lists, and custom punishments.', params: [{ n: 'subcommand', d: 'Module name or configuration action', r: false }], examples: ['.automod enable', '.automod preset moderate', '.automod antiinvite enable', '.automod badwords add toxicword', '.automod ignore add @Moderator'],
+          subcommands: ['enable', 'disable', 'preset strict|moderate|light', 'antiinvite enable|disable', 'antilink enable|disable', 'antispam enable|disable', 'anticaps enable|disable', 'antimention enable|disable', 'antiemoji enable|disable', 'badwords add|remove|list', 'maxlines <n>', 'antieveryone enable|disable', 'antizalgo enable|disable', 'anticopypasta enable|disable', 'antiai enable|disable', 'ignore add|remove <role|channel>', 'punishment <module> <warn|delete|mute|kick|ban>'],
+          modules: ['antiinvite', 'antilink', 'antispam', 'anticaps', 'antimention', 'antiemoji', 'badwords', 'maxlines', 'antieveryone', 'antirole', 'antizalgo', 'antinewlines', 'anticopypasta', 'antiai'],
+          punishments: ['warn', 'delete', 'mute', 'kick', 'ban', 'protocol']
+        },
+      ]
+    },
+    {
+      id: 'music', icon: '🎵', title: 'Music', color: '#06b6d4',
+      desc: 'Lavalink-powered music system with multi-source playback, queue management, 24/7 mode, autoplay, and loop controls.',
+      commands: [
+        { name: 'play', aliases: ['p'], slash: true, perms: [], usage: '.play <query or URL>', desc: 'Play a song from YouTube, Spotify, SoundCloud, or a direct URL. Adds to queue if already playing.', params: [{ n: 'query', d: 'Song name, URL, or playlist link', r: true }], examples: ['.play Never Gonna Give You Up', '.play https://youtube.com/watch?v=...', '/play Despacito'] },
+        { name: 'skip', aliases: [], slash: true, perms: [], usage: '.skip [amount]', desc: 'Skip the currently playing track, or skip multiple tracks at once.', params: [{ n: 'amount', d: 'Number of tracks to skip', r: false }], examples: ['.skip', '.skip 3'] },
+        { name: 'stop', aliases: [], slash: true, perms: [], usage: '.stop', desc: 'Stop playback, clear the queue, and disconnect from voice.', params: [], examples: ['.stop'] },
+        { name: 'pause', aliases: [], slash: true, perms: [], usage: '.pause', desc: 'Pause the currently playing track.', params: [], examples: ['.pause'] },
+        { name: 'resume', aliases: [], slash: true, perms: [], usage: '.resume', desc: 'Resume playback of the paused track.', params: [], examples: ['.resume'] },
+        { name: 'queue', aliases: ['q'], slash: true, perms: [], usage: '.queue [page]', desc: 'Show the current music queue with track names, durations, and requesters.', params: [{ n: 'page', d: 'Page number', r: false }], examples: ['.queue', '.queue 2'] },
+        { name: 'nowplaying', aliases: [], slash: true, perms: [], usage: '.nowplaying', desc: 'Display the currently playing track with a progress bar and details.', params: [], examples: ['.nowplaying'] },
+        { name: 'volume', aliases: [], slash: true, perms: [], usage: '.volume <1-200>', desc: 'Adjust the playback volume. Values above 100 may distort audio.', params: [{ n: 'level', d: 'Volume level (1-200)', r: true }], examples: ['.volume 50', '.volume 100'] },
+        { name: 'loop', aliases: [], slash: true, perms: [], usage: '.loop <off|once|all>', desc: 'Set the loop mode — loop a single track, the entire queue, or disable looping.', params: [{ n: 'mode', d: 'off / once / all', r: true }], examples: ['.loop once', '.loop all', '.loop off'] },
+        { name: 'shuffle', aliases: [], slash: true, perms: [], usage: '.shuffle', desc: 'Randomly reorder all tracks in the current queue.', params: [], examples: ['.shuffle'] },
+        { name: '247', aliases: [], slash: true, perms: [], usage: '.247 [on|off]', desc: 'Toggle 24/7 mode — the bot stays in voice channel even when the queue is empty.', params: [{ n: 'state', d: 'on / off', r: false }], examples: ['.247 on', '.247 off'] },
+        { name: 'autoplay', aliases: [], slash: false, perms: [], usage: '.autoplay [on|off]', desc: 'Automatically queue similar tracks when the queue ends.', params: [{ n: 'state', d: 'on / off', r: false }], examples: ['.autoplay on'] },
+        { name: 'remove', aliases: [], slash: true, perms: [], usage: '.remove <position>', desc: 'Remove a specific track from the queue by its position number.', params: [{ n: 'position', d: 'Track position in queue', r: true }], examples: ['.remove 3'] },
+        { name: 'clear', aliases: [], slash: true, perms: [], usage: '.clear', desc: 'Clear the entire music queue without stopping the current track.', params: [], examples: ['.clear'] },
+        { name: 'join', aliases: [], slash: true, perms: [], usage: '.join', desc: 'Make the bot join your current voice channel.', params: [], examples: ['.join'] },
+      ]
+    },
+    {
+      id: 'leveling', icon: '📊', title: 'Leveling', color: '#10b981',
+      desc: 'Full XP and leveling system with customizable rank cards, role rewards, leaderboards, and voice/message tracking.',
+      commands: [
+        { name: 'rank', aliases: ['level', 'profile'], slash: true, perms: [], usage: '.rank [@user]', desc: 'Display your or another user\'s rank card with XP, level, and progress.', params: [{ n: 'user', d: 'User to check (default: you)', r: false }], examples: ['.rank', '.rank @user', '/rank'] },
+        { name: 'leaderboard', aliases: ['lb', 'leveltop'], slash: true, perms: [], usage: '.leaderboard [page]', desc: 'View the server XP leaderboard with rankings and levels.', params: [{ n: 'page', d: 'Page number', r: false }], examples: ['.leaderboard', '.leaderboard 2'] },
+        { name: 'leveling', aliases: [], slash: true, perms: ['ManageGuild'], usage: '.leveling [subcommand]', desc: 'Configure the leveling system — enable/disable, set XP rates, role rewards, and announcement channels.', params: [{ n: 'subcommand', d: 'enable / disable / set / announce', r: false }], examples: ['.leveling enable', '.leveling set multiplier 2', '.leveling announce #levels'] },
+        { name: 'addxp', aliases: [], slash: true, perms: ['Administrator'], usage: '.addxp <user> <amount>', desc: 'Manually add XP to a user.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'amount', d: 'XP amount to add', r: true }], examples: ['.addxp @user 500'] },
+        { name: 'removexp', aliases: [], slash: true, perms: ['Administrator'], usage: '.removexp <user> <amount>', desc: 'Remove XP from a user.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'amount', d: 'XP amount to remove', r: true }], examples: ['.removexp @user 200'] },
+        { name: 'setlevel', aliases: [], slash: true, perms: ['Administrator'], usage: '.setlevel <user> <level>', desc: 'Directly set a user\'s level.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'level', d: 'Level number', r: true }], examples: ['.setlevel @user 10'] },
+        { name: 'setxp', aliases: [], slash: true, perms: ['Administrator'], usage: '.setxp <user> <xp>', desc: 'Directly set a user\'s XP amount.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'xp', d: 'XP amount', r: true }], examples: ['.setxp @user 5000'] },
+        { name: 'optout', aliases: [], slash: true, perms: [], usage: '.optout', desc: 'Opt out of the leveling system. Your XP will stop being tracked.', params: [], examples: ['.optout'] },
+        { name: 'reset', aliases: [], slash: true, perms: ['Administrator'], usage: '.reset', desc: 'Reset all leveling data for the server.', params: [], examples: ['.reset'] },
+        { name: 'cleanup', aliases: [], slash: true, perms: ['Administrator'], usage: '.cleanup [days]', desc: 'Clean up leveling data for users who left the server.', params: [{ n: 'days', d: 'Inactivity threshold in days', r: false }], examples: ['.cleanup 30'] },
+      ]
+    },
+    {
+      id: 'stats', icon: '📈', title: 'Statistics', color: '#6366f1',
+      desc: 'Comprehensive server analytics — message counts, voice time tracking, invite stats, daily/weekly/monthly reports, and configurable leaderboards.',
+      commands: [
+        { name: 'stats', aliases: [], slash: false, perms: [], usage: '.stats [@user]', desc: 'View your or another user\'s overall statistics including messages, voice time, and invites.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.stats', '.stats @user'] },
+        { name: 'messages', aliases: [], slash: true, perms: [], usage: '.messages [@user]', desc: 'View message count statistics for a user.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.messages', '.messages @user'] },
+        { name: 'voice', aliases: [], slash: false, perms: [], usage: '.voice [@user]', desc: 'View voice time statistics for a user.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.voice', '.voice @user'] },
+        { name: 'invites', aliases: [], slash: false, perms: [], usage: '.invites [page]', desc: 'View the invite leaderboard.', params: [{ n: 'page', d: 'Page number', r: false }], examples: ['.invites', '.invites 2'] },
+        { name: 'inviter', aliases: [], slash: false, perms: [], usage: '.inviter [@user]', desc: 'See who invited you or another user, and their invite count.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.inviter', '.inviter @user'] },
+        { name: 'daily', aliases: [], slash: false, perms: [], usage: '.daily [@user]', desc: 'View daily activity statistics.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.daily'] },
+        { name: 'weekly', aliases: [], slash: false, perms: [], usage: '.weekly [@user]', desc: 'View weekly activity statistics.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.weekly'] },
+        { name: 'monthly', aliases: [], slash: false, perms: [], usage: '.monthly [@user]', desc: 'View monthly activity statistics.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.monthly'] },
+        { name: 'top', aliases: [], slash: false, perms: [], usage: '.top [type] [page]', desc: 'View top members sorted by messages, voice, or invites.', params: [{ n: 'type', d: 'messages / voice / invites', r: false }, { n: 'page', d: 'Page number', r: false }], examples: ['.top messages', '.top voice 2'] },
+        { name: 'leaderboard', aliases: [], slash: true, perms: [], usage: '.leaderboard [type]', desc: 'View the stats leaderboard with customizable sorting.', params: [{ n: 'type', d: 'messages / voice / invites', r: false }], examples: ['.leaderboard messages'] },
+        { name: 'channel', aliases: [], slash: false, perms: [], usage: '.channel [#channel]', desc: 'View statistics for a specific channel.', params: [{ n: 'channel', d: 'Channel to check', r: false }], examples: ['.channel #general'] },
+        { name: 'statsconfig', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.statsconfig [subcommand]', desc: 'Configure the statistics system for your server.', params: [{ n: 'subcommand', d: 'Configuration action', r: false }], examples: ['.statsconfig'] },
+        { name: 'addmessages', aliases: [], slash: true, perms: ['Administrator'], usage: '.addmessages <user> <amount>', desc: 'Manually add message stats to a user.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'amount', d: 'Message count', r: true }], examples: ['.addmessages @user 100'] },
+        { name: 'addvoicetime', aliases: [], slash: true, perms: ['Administrator'], usage: '.addvoicetime <user> <hours>', desc: 'Manually add voice time to a user.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'hours', d: 'Hours to add', r: true }], examples: ['.addvoicetime @user 5'] },
+      ]
+    },
+    {
+      id: 'giveaways', icon: '🎉', title: 'Giveaways', color: '#ec4899',
+      desc: 'Full-featured giveaway system with customizable duration, winner count, requirements, and auto-reroll.',
+      commands: [
+        { name: 'giveaway', aliases: ['gw', 'giveaways'], slash: true, perms: ['ManageGuild'], usage: '.giveaway <subcommand> [options]', desc: 'Create and manage giveaways with full control over duration, prize, winner count, and more.', params: [{ n: 'subcommand', d: 'start / end / list / reroll', r: true }, { n: 'prize', d: 'Prize description', r: false }, { n: 'duration', d: 'Giveaway duration (e.g. 1d, 12h)', r: false }, { n: 'winners', d: 'Number of winners', r: false }], examples: ['.giveaway start Nitro Classic 1d 2', '.giveaway end', '.giveaway list', '.giveaway reroll'],
+          subcommands: ['start <prize> <duration> <winners>', 'end [messageID]', 'list', 'reroll [messageID]']
+        },
+      ]
+    },
+    {
+      id: 'tickets', icon: '🎫', title: 'Tickets', color: '#14b8a6',
+      desc: 'Panel-based support ticket system with categories, staff roles, transcripts, auto-close, and claimable tickets.',
+      commands: [
+        { name: 'ticket', aliases: ['tickets', 't'], slash: false, perms: ['ManageGuild'], usage: '.ticket <subcommand>', desc: 'Full ticket system with panel creation, member management, transcripts, and configuration.', params: [{ n: 'subcommand', d: 'new / add / remove / close / reopen / list / settings', r: true }, { n: 'user', d: 'User for add/remove', r: false }], examples: ['.ticket new', '.ticket add @user', '.ticket close', '.ticket list', '.ticket settings'],
+          subcommands: ['new', 'add <user>', 'remove <user>', 'close', 'reopen', 'list', 'settings']
+        },
+      ]
+    },
+    {
+      id: 'welcome', icon: '👋', title: 'Welcome & Goodbye', color: '#22c55e',
+      desc: 'Customizable welcome and goodbye message system with multi-channel support, embed builder, and placeholder variables.',
+      commands: [
+        { name: 'welcome', aliases: [], slash: true, perms: ['ManageGuild'], usage: '.welcome <subcommand> [options]', desc: 'Configure multi-channel welcome messages with embeds, placeholders, and auto-send.', params: [{ n: 'subcommand', d: 'add / remove / list / config / toggle / test / reset / show', r: true }, { n: 'channel', d: 'Target channel', r: false }], examples: ['.welcome add #welcome', '.welcome config #welcome', '.welcome test', '/welcome add #channel'],
+          subcommands: ['add <#channel>', 'remove <#channel>', 'list', 'config <#channel>', 'toggle', 'test', 'reset', 'show'],
+          placeholders: ['{user}', '{user.mention}', '{user.tag}', '{user.name}', '{user.id}', '{server}', '{memberCount}', '{user.created_at}', '{user.joined_at}']
+        },
+        { name: 'goodbye', aliases: [], slash: true, perms: ['ManageGuild'], usage: '.goodbye <subcommand> [options]', desc: 'Configure multi-channel goodbye/farewell messages.', params: [{ n: 'subcommand', d: 'add / remove / list / config / toggle / test / reset / show', r: true }, { n: 'channel', d: 'Target channel', r: false }], examples: ['.goodbye add #goodbye-channel', '.goodbye config #channel', '/goodbye add #farewell'],
+          subcommands: ['add <#channel>', 'remove <#channel>', 'list', 'config <#channel>', 'toggle', 'test', 'reset', 'show']
+        },
+      ]
+    },
+    {
+      id: 'logs', icon: '📝', title: 'Logging', color: '#64748b',
+      desc: 'Detailed event logging system — track message edits/deletes, member joins/leaves, role changes, moderation actions, and more.',
+      commands: [
+        { name: 'logsetup', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.logsetup', desc: 'Interactive setup wizard to configure logging for your server.', params: [], examples: ['.logsetup'] },
+        { name: 'logchannel', aliases: ['setchannel', 'setlogchannel'], slash: false, perms: ['ManageGuild'], usage: '.logchannel <category> <#channel|none>', desc: 'Set or remove the channel for a specific log category.', params: [{ n: 'category', d: 'Log category name', r: true }, { n: 'channel', d: 'Channel mention or "none"', r: true }], examples: ['.logchannel moderation #mod-logs', '.logchannel messages #msg-logs', '.logchannel moderation none'] },
+        { name: 'logevents', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.logevents', desc: 'View and configure which events are logged.', params: [], examples: ['.logevents'] },
+        { name: 'logtoggle', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.logtoggle', desc: 'Toggle the logging system on or off.', params: [], examples: ['.logtoggle'] },
+        { name: 'logs', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.logs [page]', desc: 'View recent server logs.', params: [{ n: 'page', d: 'Page number', r: false }], examples: ['.logs', '.logs 2'] },
+      ]
+    },
+    {
+      id: 'config', icon: '⚙️', title: 'Server Configuration', color: '#a855f7',
+      desc: 'Configure bot behavior — custom prefix, auto-responders, reaction triggers, starboard, birthdays, bump reminders, and command toggles.',
+      commands: [
+        { name: 'setprefix', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.setprefix <new prefix>', desc: 'Change the bot\'s command prefix for your server.', params: [{ n: 'prefix', d: 'New prefix symbol', r: true }], examples: ['.setprefix !', '.setprefix $'] },
+        { name: 'prefix', aliases: [], slash: false, perms: [], usage: '.prefix', desc: 'View the current server prefix.', params: [], examples: ['.prefix'] },
+        { name: 'trigger', aliases: ['triggers', 'autoresponder'], slash: false, perms: ['ManageGuild'], usage: '.trigger <subcommand>', desc: 'Create and manage auto-responder triggers with match modes, placeholders, and toggle support.', params: [{ n: 'subcommand', d: 'add / remove / list / edit / matchmode / toggle / info', r: true }], examples: ['.trigger add hello | Hello there!', '.trigger add !greet | Hey {user}!', '.trigger matchmode hello startswith', '.trigger toggle hello'],
+          subcommands: ['add <trigger> | <response>', 'remove <trigger>', 'list', 'edit <trigger> | <new response>', 'matchmode <trigger> <exact|startswith|endswith|includes|regex>', 'toggle <trigger>', 'info <trigger>'],
+          placeholders: ['{user}', '{user_name}', '{server}', '{channel}', '{args}', '{timestamp}']
+        },
+        { name: 'reaction', aliases: ['rt', 'reactiontrigger', 'autoreact'], slash: false, perms: ['ManageGuild'], usage: '.reaction <subcommand>', desc: 'Set up auto-reactions — the bot reacts with specified emojis when messages match triggers.', params: [{ n: 'subcommand', d: 'add / remove / list / messages / reset / matchmode', r: true }], examples: ['.reaction add 👍 hello', '.reaction remove 👍 hello', '.reaction matchmode hello startswith', '.reaction messages #selfies 👍 ❤️'],
+          subcommands: ['add <emoji> <trigger>', 'remove <emoji> <trigger>', 'list', 'messages <#channel> <emoji1> <emoji2>', 'reset', 'matchmode <trigger> <mode>']
+        },
+        { name: 'starboard', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.starboard [subcommand]', desc: 'Configure the starboard system — highlight popular messages with customizable emoji thresholds and settings.', params: [{ n: 'subcommand', d: 'set / emoji / selfstar / config / ignore / color', r: false }], examples: ['.starboard set #starboard', '.starboard emoji add ⭐ 3', '.starboard selfstar on', '.starboard color #FFD700'] },
+        { name: 'birthday', aliases: ['bday', 'bd'], slash: false, perms: [], usage: '.birthday <subcommand>', desc: 'Birthday system — set your birthday, view upcoming birthdays, and configure announcement channels.', params: [{ n: 'subcommand', d: 'set / view / upcoming / remove / setup', r: true }], examples: ['.birthday set 15/03', '.birthday view @user', '.birthday upcoming', '.birthday setup #announcements'] },
+        { name: 'bumpreminder', aliases: ['br', 'bumpr'], slash: true, perms: ['ManageChannels'], usage: '.bumpreminder [subcommand]', desc: 'Get automatic reminders to /bump your server on Disboard.', params: [{ n: 'subcommand', d: 'channel / message / toggle / autolock / autoclean', r: false }], examples: ['.bumpreminder channel #bumps', '.bumpreminder toggle on'] },
+        { name: 'customrole', aliases: ['cr', 'crole'], slash: false, perms: ['ManageGuild'], usage: '.customrole <subcommand>', desc: 'Manage custom role aliases — members can self-assign predefined roles.', params: [{ n: 'subcommand', d: 'add / remove / view / reqrole', r: true }], examples: ['.customrole add dev Developer', '.customrole remove artist', '.customrole view'] },
+        { name: 'disable', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.disable <command|module>', desc: 'Disable a specific command or module in your server.', params: [{ n: 'target', d: 'Command or module name', r: true }], examples: ['.disable 8ball', '.disable fun'] },
+        { name: 'enable', aliases: [], slash: false, perms: ['ManageGuild'], usage: '.enable <command|module>', desc: 'Re-enable a previously disabled command or module.', params: [{ n: 'target', d: 'Command or module name', r: true }], examples: ['.enable 8ball', '.enable fun'] },
+      ]
+    },
+    {
+      id: 'general', icon: '💬', title: 'General & Utility', color: '#3b82f6',
+      desc: 'Essential utility commands — user/server info, avatars, banners, bot info, suggestions, and more.',
+      commands: [
+        { name: 'help', aliases: ['h', 'commands', 'cmds'], slash: true, perms: [], usage: '.help [command|category]', desc: 'Browse all commands or get detailed help for a specific command.', params: [{ n: 'target', d: 'Command name or category', r: false }], examples: ['.help', '.help moderation', '.help ban'] },
+        { name: 'ping', aliases: ['pong'], slash: true, perms: [], usage: '.ping', desc: 'Check the bot\'s latency and API response time.', params: [], examples: ['.ping'] },
+        { name: 'botinfo', aliases: ['bi', 'bot'], slash: true, perms: [], usage: '.botinfo', desc: 'Show detailed bot information — version, uptime, memory usage, server count.', params: [], examples: ['.botinfo'] },
+        { name: 'serverinfo', aliases: ['guildinfo', 'si'], slash: true, perms: [], usage: '.serverinfo', desc: 'Show detailed server info — member count, roles, channels, boosts, creation date.', params: [], examples: ['.serverinfo'] },
+        { name: 'userinfo', aliases: ['whois', 'ui'], slash: true, perms: [], usage: '.userinfo [@user]', desc: 'Show detailed user profile — join date, roles, badges, permissions.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.userinfo', '.userinfo @user'] },
+        { name: 'avatar', aliases: ['av', 'pfp'], slash: true, perms: [], usage: '.avatar [@user]', desc: 'Get a user\'s avatar in full resolution with download links.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.avatar', '.avatar @user'] },
+        { name: 'banner', aliases: ['bg', 'userbanner', 'ub'], slash: true, perms: [], usage: '.banner [@user]', desc: 'Display a user\'s profile banner.', params: [{ n: 'user', d: 'User to check', r: false }], examples: ['.banner', '.banner @user'] },
+        { name: 'afk', aliases: [], slash: false, perms: [], usage: '.afk [reason]', desc: 'Set yourself as AFK. Others who mention you will see your status and reason.', params: [{ n: 'reason', d: 'AFK reason', r: false }], examples: ['.afk Be right back', '.afk In a meeting'] },
+        { name: 'suggest', aliases: ['suggestion'], slash: true, perms: [], usage: '.suggest <suggestion>', desc: 'Submit a suggestion to the server\'s suggestion channel.', params: [{ n: 'suggestion', d: 'Your suggestion text', r: true }], examples: ['.suggest Add a memes channel', '/suggest More events please'] },
+        { name: 'say', aliases: ['broadcast', 'announce'], slash: true, perms: ['ManageGuild'], usage: '.say [#channel] <message>', desc: 'Make the bot send a message. Supports channel targeting, replies, and edits.', params: [{ n: 'channel', d: 'Target channel', r: false }, { n: 'message', d: 'Message content', r: true }], examples: ['.say Hello everyone!', '.say #announcements Big news!'] },
+        { name: 'uptime', aliases: [], slash: false, perms: [], usage: '.uptime', desc: 'Show how long the bot has been running.', params: [], examples: ['.uptime'] },
+        { name: 'membercount', aliases: ['mc'], slash: false, perms: [], usage: '.membercount', desc: 'Show the total member count of the server.', params: [], examples: ['.membercount'] },
+        { name: 'boostcount', aliases: ['bc'], slash: false, perms: [], usage: '.boostcount', desc: 'Show the server boost count and tier level.', params: [], examples: ['.boostcount'] },
+        { name: 'invitebot', aliases: [], slash: true, perms: [], usage: '.invitebot', desc: 'Get the bot\'s invite link.', params: [], examples: ['.invitebot'] },
+      ]
+    },
+    {
+      id: 'fun', icon: '🎮', title: 'Fun', color: '#f43f5e',
+      desc: 'Entertainment commands — 8ball, coinflip, dice, shipping, hacking simulations, and more.',
+      commands: [
+        { name: '8ball', aliases: ['eightball', 'question'], slash: false, perms: [], usage: '.8ball <question>', desc: 'Ask the magic 8-ball a yes/no question and receive a mystical answer.', params: [{ n: 'question', d: 'Your question', r: true }], examples: ['.8ball Will I pass my exams?', '.8ball Is Discord the best?'] },
+        { name: 'coinflip', aliases: ['cf', 'flip', 'toss'], slash: false, perms: [], usage: '.coinflip', desc: 'Flip a coin — heads or tails.', params: [], examples: ['.coinflip'] },
+        { name: 'roll', aliases: ['dice', 'random'], slash: false, perms: [], usage: '.roll [limit]', desc: 'Roll a die with a custom upper limit (default: 100).', params: [{ n: 'limit', d: 'Maximum number (default: 100)', r: false }], examples: ['.roll', '.roll 20', '.roll 6'] },
+        { name: 'ship', aliases: ['match'], slash: false, perms: [], usage: '.ship [@user1] [@user2]', desc: 'Calculate the love compatibility between two users with a percentage and heart meter.', params: [{ n: 'user1', d: 'First user', r: false }, { n: 'user2', d: 'Second user', r: false }], examples: ['.ship @user1 @user2', '.ship @user'] },
+        { name: 'hack', aliases: ['hacker'], slash: false, perms: [], usage: '.hack <user>', desc: 'Run a simulated "hacking" sequence on a user — purely for fun.', params: [{ n: 'user', d: 'User to "hack"', r: true }], examples: ['.hack @user'] },
+        { name: 'rate', aliases: ['ratewaifu', 'rating'], slash: false, perms: [], usage: '.rate [user|text]', desc: 'Rate anything or anyone on a scale of 0-100.', params: [{ n: 'subject', d: 'User or text to rate', r: false }], examples: ['.rate @user', '.rate pizza', '.rate'] },
+        { name: 'choose', aliases: ['pick', 'choice'], slash: false, perms: [], usage: '.choose <opt1> | <opt2> | ...', desc: 'Randomly pick one option from a list separated by pipes.', params: [{ n: 'options', d: 'Options separated by |', r: true }], examples: ['.choose Pizza | Burger | Tacos', '.choose Yes | No | Maybe'] },
+      ]
+    },
+    {
+      id: 'voice', icon: '🔊', title: 'Voice Commands', color: '#0ea5e9',
+      desc: 'Full voice channel management — mute, deafen, kick, move, and pull members in bulk or individually.',
+      commands: [
+        { name: 'vcmute', aliases: [], slash: false, perms: ['MuteMembers'], usage: '.vcmute <user>', desc: 'Server-mute a member in their voice channel.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.vcmute @user'] },
+        { name: 'vcunmute', aliases: [], slash: false, perms: ['MuteMembers'], usage: '.vcunmute <user>', desc: 'Remove server-mute from a member in voice.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.vcunmute @user'] },
+        { name: 'vcmuteall', aliases: [], slash: false, perms: ['MuteMembers'], usage: '.vcmuteall', desc: 'Server-mute all members in your current voice channel.', params: [], examples: ['.vcmuteall'] },
+        { name: 'vcunmuteall', aliases: [], slash: false, perms: ['MuteMembers'], usage: '.vcunmuteall', desc: 'Unmute all members in your current voice channel.', params: [], examples: ['.vcunmuteall'] },
+        { name: 'vcdeafen', aliases: [], slash: false, perms: ['DeafenMembers'], usage: '.vcdeafen <user>', desc: 'Server-deafen a member in their voice channel.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.vcdeafen @user'] },
+        { name: 'vcundeafen', aliases: [], slash: false, perms: ['DeafenMembers'], usage: '.vcundeafen <user>', desc: 'Remove server-deafen from a member in voice.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.vcundeafen @user'] },
+        { name: 'vcdeafenall', aliases: [], slash: false, perms: ['DeafenMembers'], usage: '.vcdeafenall', desc: 'Deafen all members in your current voice channel.', params: [], examples: ['.vcdeafenall'] },
+        { name: 'vcundeafenall', aliases: [], slash: false, perms: ['DeafenMembers'], usage: '.vcundeafenall', desc: 'Undeafen all members in your current voice channel.', params: [], examples: ['.vcundeafenall'] },
+        { name: 'vckick', aliases: [], slash: false, perms: ['MoveMembers'], usage: '.vckick <user>', desc: 'Disconnect a member from their voice channel.', params: [{ n: 'user', d: 'User mention or ID', r: true }], examples: ['.vckick @user'] },
+        { name: 'vckickall', aliases: [], slash: false, perms: ['MoveMembers'], usage: '.vckickall', desc: 'Disconnect all members from your voice channel.', params: [], examples: ['.vckickall'] },
+        { name: 'vcmove', aliases: [], slash: false, perms: ['MoveMembers'], usage: '.vcmove <user> <#channel>', desc: 'Move a member to a different voice channel.', params: [{ n: 'user', d: 'User mention', r: true }, { n: 'channel', d: 'Target voice channel', r: true }], examples: ['.vcmove @user #lounge'] },
+        { name: 'vcmoveall', aliases: [], slash: false, perms: ['MoveMembers'], usage: '.vcmoveall <#channel>', desc: 'Move all members to a different voice channel.', params: [{ n: 'channel', d: 'Target voice channel', r: true }], examples: ['.vcmoveall #meeting'] },
+        { name: 'vcpull', aliases: [], slash: false, perms: ['MoveMembers'], usage: '.vcpull', desc: 'Pull all members from other channels into your voice channel.', params: [], examples: ['.vcpull'] },
+        { name: 'vclist', aliases: [], slash: false, perms: [], usage: '.vclist', desc: 'List all members in your current voice channel.', params: [], examples: ['.vclist'] },
+      ]
+    },
+    {
+      id: 'misc', icon: '✨', title: 'Miscellaneous', color: '#d946ef',
+      desc: 'Utility tools — emoji management, sticker tools, message sniping, embed builder, and reaction tracking.',
+      commands: [
+        { name: 'snipe', aliases: ['s'], slash: false, perms: [], usage: '.snipe [index]', desc: 'Recover the most recently deleted message in the channel.', params: [{ n: 'index', d: 'Message index (default: 1)', r: false }], examples: ['.snipe', '.snipe 3'] },
+        { name: 'editsnipe', aliases: [], slash: false, perms: [], usage: '.editsnipe [index]', desc: 'View the original content of the most recently edited message.', params: [{ n: 'index', d: 'Message index', r: false }], examples: ['.editsnipe', '.editsnipe 2'] },
+        { name: 'clearsnipe', aliases: [], slash: false, perms: ['ManageMessages'], usage: '.clearsnipe', desc: 'Clear the snipe cache for the current channel.', params: [], examples: ['.clearsnipe'] },
+        { name: 'reactionsnipe', aliases: [], slash: false, perms: [], usage: '.reactionsnipe', desc: 'Snipe the most recently removed reaction.', params: [], examples: ['.reactionsnipe'] },
+        { name: 'reactionhistory', aliases: [], slash: false, perms: [], usage: '.reactionhistory <messageID>', desc: 'View the full reaction history of a message.', params: [{ n: 'messageID', d: 'Message ID to check', r: true }], examples: ['.reactionhistory 123456789'] },
+        { name: 'addemoji', aliases: [], slash: false, perms: ['ManageEmojisAndStickers'], usage: '.addemoji <emoji|url> [name]', desc: 'Add a custom emoji to the server from an existing emoji or image URL.', params: [{ n: 'emoji', d: 'Emoji or image URL', r: true }, { n: 'name', d: 'Custom name for the emoji', r: false }], examples: ['.addemoji 😎 cool', '.addemoji https://i.imgur.com/...'] },
+        { name: 'addsticker', aliases: [], slash: false, perms: ['ManageEmojisAndStickers'], usage: '.addsticker [image] [name]', desc: 'Add a custom sticker to the server.', params: [{ n: 'image', d: 'Sticker image', r: true }, { n: 'name', d: 'Sticker name', r: false }], examples: ['.addsticker'] },
+        { name: 'steal', aliases: [], slash: false, perms: ['ManageEmojisAndStickers'], usage: '.steal <emoji|sticker> [name]', desc: 'Steal an emoji or sticker from another server.', params: [{ n: 'emoji', d: 'Emoji or sticker to steal', r: true }, { n: 'name', d: 'Custom name', r: false }], examples: ['.steal :pepe: myPepe'] },
+        { name: 'embed', aliases: [], slash: false, perms: ['ManageMessages'], usage: '.embed [name]', desc: 'Interactive embed builder — create rich embeds with titles, descriptions, colors, fields, and more.', params: [{ n: 'name', d: 'Embed template name', r: false }], examples: ['.embed', '.embed rules'] },
+        { name: 'component', aliases: [], slash: false, perms: ['ManageMessages'], usage: '.component [options]', desc: 'Create advanced message components like buttons and select menus.', params: [], examples: ['.component'] },
+      ]
+    },
+  ];
+}
+
+/* ─── main render ─── */
 function renderDocs() {
-  // Hide sidebar, full-width layout like landing
   document.getElementById('sidebar').style.display = 'none';
   document.getElementById('content').style.marginLeft = '0';
   document.getElementById('content').style.padding = '0';
 
-  const categories = [
-    {
-      id: 'moderation', icon: '🛡️', title: 'Moderation',
-      desc: '75+ commands for keeping your server safe and organized.',
-      commands: [
-        { name: 'ban', usage: '.ban @user [reason]', desc: 'Ban a member from the server.' },
-        { name: 'kick', usage: '.kick @user [reason]', desc: 'Kick a member from the server.' },
-        { name: 'mute', usage: '.mute @user [duration] [reason]', desc: 'Mute a member server-wide.' },
-        { name: 'warn', usage: '.warn @user [reason]', desc: 'Issue a warning to a member.' },
-        { name: 'clear', usage: '.clear [amount]', desc: 'Bulk delete messages in a channel.' },
-        { name: 'detain', usage: '.detain @user [reason]', desc: 'Detain a member with restricted access.' },
-        { name: 'lock', usage: '.lock [channel]', desc: 'Lock a channel to prevent messages.' },
-        { name: 'unlock', usage: '.unlock [channel]', desc: 'Unlock a previously locked channel.' },
-        { name: 'tempban', usage: '.tempban @user [duration] [reason]', desc: 'Temporarily ban a member.' },
-        { name: 'softban', usage: '.softban @user [reason]', desc: 'Ban and immediately unban to clear messages.' },
-        { name: 'massban', usage: '.massban @user1 @user2 ...', desc: 'Ban multiple members at once.' },
-        { name: 'modhistory', usage: '.modhistory @user', desc: 'View moderation history of a user.' },
-        { name: 'warnings', usage: '.warnings @user', desc: 'List all warnings for a user.' },
-        { name: 'slowmode', usage: '.slowmode [seconds]', desc: 'Set slowmode for a channel.' },
-        { name: 'nuke', usage: '.nuke', desc: 'Clone and delete the current channel.' },
-        { name: 'role', usage: '.role @user @role', desc: 'Manage roles for a member.' },
-        { name: 'nick', usage: '.nick @user [nickname]', desc: 'Change a member\'s nickname.' },
-        { name: 'temprole', usage: '.temprole @user @role [duration]', desc: 'Give a temporary role.' },
-        { name: 'snapshot', usage: '.snapshot', desc: 'Take a snapshot of all member roles.' },
-        { name: 'voidstaff', usage: '.voidstaff @user', desc: 'Remove all staff roles from a member.' }
-      ]
-    },
-    {
-      id: 'music', icon: '🎵', title: 'Music',
-      desc: 'Lavalink-powered music playback with full queue management.',
-      commands: [
-        { name: 'play', usage: '.play [query/URL]', desc: 'Play a song or add it to queue.' },
-        { name: 'skip', usage: '.skip', desc: 'Skip the current track.' },
-        { name: 'stop', usage: '.stop', desc: 'Stop playback and clear the queue.' },
-        { name: 'pause', usage: '.pause', desc: 'Pause the current track.' },
-        { name: 'resume', usage: '.resume', desc: 'Resume paused playback.' },
-        { name: 'queue', usage: '.queue', desc: 'Show the current music queue.' },
-        { name: 'nowplaying', usage: '.nowplaying', desc: 'Show the currently playing track.' },
-        { name: 'volume', usage: '.volume [1-100]', desc: 'Set playback volume.' },
-        { name: 'loop', usage: '.loop [off/track/queue]', desc: 'Toggle loop mode.' },
-        { name: 'shuffle', usage: '.shuffle', desc: 'Shuffle the current queue.' },
-        { name: '247', usage: '.247', desc: 'Toggle 24/7 mode — bot stays in voice.' },
-        { name: 'autoplay', usage: '.autoplay', desc: 'Auto-queue similar tracks when queue ends.' },
-        { name: 'remove', usage: '.remove [position]', desc: 'Remove a track from the queue.' },
-        { name: 'join', usage: '.join', desc: 'Join your current voice channel.' }
-      ]
-    },
-    {
-      id: 'leveling', icon: '📊', title: 'Leveling & Stats',
-      desc: 'XP, rank cards, voice tracking, leaderboards, and analytics.',
-      commands: [
-        { name: 'rank', usage: '.rank [@user]', desc: 'Show your or someone else\'s rank card.' },
-        { name: 'leaderboard', usage: '.leaderboard', desc: 'View the server XP leaderboard.' },
-        { name: 'leveling', usage: '.leveling', desc: 'Configure leveling settings.' },
-        { name: 'addxp', usage: '.addxp @user [amount]', desc: 'Add XP to a member.' },
-        { name: 'removexp', usage: '.removexp @user [amount]', desc: 'Remove XP from a member.' },
-        { name: 'setlevel', usage: '.setlevel @user [level]', desc: 'Set a member\'s level directly.' },
-        { name: 'messages', usage: '.messages [@user]', desc: 'View message count stats.' },
-        { name: 'optout', usage: '.optout', desc: 'Opt out of the leveling system.' },
-        { name: 'stats', usage: '.stats', desc: 'View detailed server statistics.' },
-        { name: 'invites', usage: '.invites [@user]', desc: 'Check invite statistics.' },
-        { name: 'voice', usage: '.voice [@user]', desc: 'View voice time stats.' },
-        { name: 'daily', usage: '.daily', desc: 'View daily activity stats.' },
-        { name: 'weekly', usage: '.weekly', desc: 'View weekly activity stats.' },
-        { name: 'top', usage: '.top', desc: 'View top active members.' }
-      ]
-    },
-    {
-      id: 'automod', icon: '⚙️', title: 'Automod',
-      desc: 'Intelligent automatic moderation filters.',
-      commands: [
-        { name: 'automod', usage: '.automod', desc: 'Configure automod settings — spam, invites, links, caps, mass mentions.' }
-      ]
-    },
-    {
-      id: 'antinuke', icon: '🔒', title: 'Anti-Nuke & Anti-Raid',
-      desc: 'Protect your server from nukes and raids.',
-      commands: [
-        { name: 'antinuke', usage: '.antinuke', desc: 'Configure anti-nuke protection — channel/role deletion limits, ban limits, and more.' },
-        { name: 'antiraid', usage: '.antiraid', desc: 'Configure anti-raid — join rate limits, account age filters, and lockdown.' }
-      ]
-    },
-    {
-      id: 'giveaways', icon: '🎉', title: 'Giveaways',
-      desc: 'Create and manage giveaways with ease.',
-      commands: [
-        { name: 'giveaway', usage: '.giveaway', desc: 'Create, end, reroll, pause, and manage giveaways.' }
-      ]
-    },
-    {
-      id: 'tickets', icon: '🎫', title: 'Tickets',
-      desc: 'Panel-based ticket system with transcripts.',
-      commands: [
-        { name: 'ticket', usage: '.ticket', desc: 'Set up ticket panels, categories, staff roles, auto-close, and transcripts.' }
-      ]
-    },
-    {
-      id: 'welcome', icon: '👋', title: 'Welcome & Goodbye',
-      desc: 'Custom join/leave messages for your server.',
-      commands: [
-        { name: 'welcome', usage: '.welcome', desc: 'Configure welcome messages, channels, and embed.' },
-        { name: 'goodbye', usage: '.goodbye', desc: 'Configure goodbye messages, channels, and embed.' }
-      ]
-    },
-    {
-      id: 'fun', icon: '🎮', title: 'Fun',
-      desc: 'Fun commands to keep chat entertaining.',
-      commands: [
-        { name: '8ball', usage: '.8ball [question]', desc: 'Ask the magic 8-ball a question.' },
-        { name: 'coinflip', usage: '.coinflip', desc: 'Flip a coin.' },
-        { name: 'roll', usage: '.roll [sides]', desc: 'Roll a die.' },
-        { name: 'ship', usage: '.ship @user1 @user2', desc: 'Ship two people together.' },
-        { name: 'hack', usage: '.hack @user', desc: 'Pretend to hack someone.' },
-        { name: 'rate', usage: '.rate @user', desc: 'Rate someone out of 10.' },
-        { name: 'choose', usage: '.choose [opt1] | [opt2]', desc: 'Choose between options.' }
-      ]
-    },
-    {
-      id: 'general', icon: '💬', title: 'General',
-      desc: 'Essential utility commands.',
-      commands: [
-        { name: 'help', usage: '.help [command]', desc: 'Show help menu or details for a specific command.' },
-        { name: 'ping', usage: '.ping', desc: 'Check bot latency.' },
-        { name: 'botinfo', usage: '.botinfo', desc: 'Show bot information and stats.' },
-        { name: 'serverinfo', usage: '.serverinfo', desc: 'Show detailed server information.' },
-        { name: 'userinfo', usage: '.userinfo [@user]', desc: 'Show user information.' },
-        { name: 'avatar', usage: '.avatar [@user]', desc: 'Get a user\'s avatar.' },
-        { name: 'banner', usage: '.banner [@user]', desc: 'Get a user\'s banner.' },
-        { name: 'afk', usage: '.afk [reason]', desc: 'Set yourself as AFK.' },
-        { name: 'suggest', usage: '.suggest [idea]', desc: 'Submit a suggestion.' },
-        { name: 'uptime', usage: '.uptime', desc: 'Show bot uptime.' },
-        { name: 'invitebot', usage: '.invitebot', desc: 'Get the bot invite link.' },
-        { name: 'say', usage: '.say [message]', desc: 'Make the bot say something.' }
-      ]
-    },
-    {
-      id: 'voice', icon: '🔊', title: 'Voice Commands',
-      desc: 'Manage voice channel members.',
-      commands: [
-        { name: 'vcmute', usage: '.vcmute @user', desc: 'Server-mute a member in voice.' },
-        { name: 'vcunmute', usage: '.vcunmute @user', desc: 'Server-unmute a member in voice.' },
-        { name: 'vckick', usage: '.vckick @user', desc: 'Kick a member from voice channel.' },
-        { name: 'vcmove', usage: '.vcmove @user [channel]', desc: 'Move a member to another voice channel.' },
-        { name: 'vcdeafen', usage: '.vcdeafen @user', desc: 'Server-deafen a member.' },
-        { name: 'vcmuteall', usage: '.vcmuteall', desc: 'Mute all members in your voice channel.' },
-        { name: 'vckickall', usage: '.vckickall', desc: 'Kick all members from voice.' },
-        { name: 'vcpull', usage: '.vcpull @user', desc: 'Pull a member into your voice channel.' }
-      ]
-    },
-    {
-      id: 'config', icon: '🔧', title: 'Server Configuration',
-      desc: 'Configure bot behavior for your server.',
-      commands: [
-        { name: 'prefix', usage: '.prefix [new]', desc: 'View or change the bot prefix.' },
-        { name: 'logs', usage: '.logs', desc: 'Configure logging settings.' },
-        { name: 'trigger', usage: '.trigger', desc: 'Create custom auto-responders.' },
-        { name: 'reaction', usage: '.reaction', desc: 'Set up auto-reactions on keywords.' },
-        { name: 'starboard', usage: '.starboard', desc: 'Configure the starboard system.' },
-        { name: 'birthday', usage: '.birthday', desc: 'Configure birthday announcements.' },
-        { name: 'bumpreminder', usage: '.bumpreminder', desc: 'Set up bump reminders.' }
-      ]
-    },
-    {
-      id: 'misc', icon: '✨', title: 'Miscellaneous',
-      desc: 'Emoji, sticker, snipe, and embed tools.',
-      commands: [
-        { name: 'snipe', usage: '.snipe', desc: 'Snipe the last deleted message.' },
-        { name: 'editsnipe', usage: '.editsnipe', desc: 'Snipe the last edited message.' },
-        { name: 'addemoji', usage: '.addemoji [emoji/url]', desc: 'Add a custom emoji to the server.' },
-        { name: 'addsticker', usage: '.addsticker', desc: 'Add a sticker to the server.' },
-        { name: 'steal', usage: '.steal [emoji]', desc: 'Steal an emoji from another server.' },
-        { name: 'embed', usage: '.embed', desc: 'Build and send a custom embed.' }
-      ]
-    }
-  ];
-
-  const sidebar = buildDocsSidebar(categories);
-  const content = buildDocsContent(categories);
+  const categories = getDocsCategories();
+  const totalCmds = categories.reduce((s, c) => s + c.commands.length, 0);
 
   document.getElementById('page-content').innerHTML = `
     <div class="docs">
@@ -203,98 +290,295 @@ function renderDocs() {
       </header>
 
       <div class="docs-layout">
-        <!-- Sidebar TOC -->
-        <aside class="docs-sidebar">
-          <div class="docs-sidebar-title">Documentation</div>
+        <!-- Sidebar -->
+        <aside class="docs-sidebar" id="docs-sidebar">
+          <div class="docs-sidebar-title">Navigation</div>
           <div class="docs-search">
+            <svg class="docs-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" id="docs-search" class="docs-search-input" placeholder="Search commands..." autocomplete="off" />
           </div>
-          ${sidebar}
+          <nav class="docs-toc">
+            <a href="#introduction" class="docs-toc-item active" data-section="introduction">
+              <span class="docs-toc-icon">📖</span><span>Introduction</span>
+            </a>
+            <a href="#getting-started" class="docs-toc-item" data-section="getting-started">
+              <span class="docs-toc-icon">🚀</span><span>Getting Started</span>
+            </a>
+            <div class="docs-toc-divider"></div>
+            <div class="docs-toc-group-label">Modules</div>
+            ${categories.map(c => `
+              <a href="#${c.id}" class="docs-toc-item" data-section="${c.id}">
+                <span class="docs-toc-icon">${c.icon}</span>
+                <span>${c.title}</span>
+                <span class="docs-toc-count">${c.commands.length}</span>
+              </a>
+            `).join('')}
+          </nav>
         </aside>
 
         <!-- Main content -->
         <main class="docs-main">
+
           <!-- Hero -->
-          <section class="docs-hero">
+          <section class="docs-hero docs-anim-fade" id="introduction">
+            <div class="docs-hero-badge">Documentation</div>
             <h1 class="docs-hero-title">Ares <span class="lp-gradient-text">Documentation</span></h1>
-            <p class="docs-hero-desc">Complete reference for all commands, modules, and configuration options. Default prefix: <code>.</code></p>
+            <p class="docs-hero-desc">The complete guide to all ${totalCmds}+ commands, ${categories.length} modules, and configuration options.<br>Everything you need to manage your Discord server.</p>
             <div class="docs-quick-stats">
-              <div class="docs-qstat"><span class="docs-qstat-num">200+</span><span class="docs-qstat-label">Commands</span></div>
-              <div class="docs-qstat"><span class="docs-qstat-num">13</span><span class="docs-qstat-label">Modules</span></div>
-              <div class="docs-qstat"><span class="docs-qstat-num">Slash</span><span class="docs-qstat-label">& Prefix</span></div>
+              <div class="docs-qstat docs-anim-up" style="--d:0"><span class="docs-qstat-num">${totalCmds}+</span><span class="docs-qstat-label">Commands</span></div>
+              <div class="docs-qstat docs-anim-up" style="--d:1"><span class="docs-qstat-num">${categories.length}</span><span class="docs-qstat-label">Modules</span></div>
+              <div class="docs-qstat docs-anim-up" style="--d:2"><span class="docs-qstat-num">Slash</span><span class="docs-qstat-label">& Prefix</span></div>
+              <div class="docs-qstat docs-anim-up" style="--d:3"><span class="docs-qstat-num">24/7</span><span class="docs-qstat-label">Uptime</span></div>
             </div>
           </section>
 
-          ${content}
+          <!-- Info callout -->
+          <div class="docs-callout docs-callout-info docs-anim-slide" style="--d:0">
+            <div class="docs-callout-icon">💡</div>
+            <div>
+              <strong>Default prefix:</strong> <code>.</code> — Change it with <code>.setprefix &lt;symbol&gt;</code>. Most commands also support <code>/slash</code> syntax.
+            </div>
+          </div>
+
+          <!-- Guide cards -->
+          <section class="docs-guides" id="getting-started">
+            <h2 class="docs-section-title docs-anim-slide" style="--d:0">Getting Started</h2>
+            <p class="docs-section-desc docs-anim-slide" style="--d:1">Set up Ares in your server in under 2 minutes.</p>
+            <div class="docs-guide-grid">
+              <div class="docs-guide-card docs-anim-up" style="--d:0">
+                <div class="docs-guide-step">1</div>
+                <h3>Invite Ares</h3>
+                <p>Add Ares to your server using the invite link. Grant the <strong>Administrator</strong> permission for full functionality.</p>
+              </div>
+              <div class="docs-guide-card docs-anim-up" style="--d:1">
+                <div class="docs-guide-step">2</div>
+                <h3>Set Up Protection</h3>
+                <p>Run <code>.antinuke wizard</code> and <code>.automod preset moderate</code> to enable security with recommended settings.</p>
+              </div>
+              <div class="docs-guide-card docs-anim-up" style="--d:2">
+                <div class="docs-guide-step">3</div>
+                <h3>Configure Features</h3>
+                <p>Set up <code>.welcome</code>, <code>.logsetup</code>, <code>.leveling enable</code>, and <code>.starboard</code> to customize your experience.</p>
+              </div>
+              <div class="docs-guide-card docs-anim-up" style="--d:3">
+                <div class="docs-guide-step">4</div>
+                <h3>Open Dashboard</h3>
+                <p>Visit the web dashboard for visual configuration, stats, music controls, and moderation management.</p>
+              </div>
+            </div>
+          </section>
+
+          <!-- Tip callout -->
+          <div class="docs-callout docs-callout-tip docs-anim-slide" style="--d:0">
+            <div class="docs-callout-icon">⚡</div>
+            <div>
+              <strong>Pro tip:</strong> Use <code>.help &lt;command&gt;</code> in Discord for quick inline help, or search this page with <kbd>Ctrl+K</kbd> / the search bar.
+            </div>
+          </div>
+
+          <!-- Module overview cards -->
+          <section class="docs-modules-overview docs-anim-slide" style="--d:0">
+            <h2 class="docs-section-title">Modules Overview</h2>
+            <div class="docs-module-grid">
+              ${categories.map((c, i) => `
+                <a href="#${c.id}" class="docs-module-card docs-anim-up" style="--d:${i % 6};--accent-c:${c.color}">
+                  <span class="docs-module-card-icon">${c.icon}</span>
+                  <span class="docs-module-card-title">${c.title}</span>
+                  <span class="docs-module-card-count">${c.commands.length} commands</span>
+                </a>
+              `).join('')}
+            </div>
+          </section>
+
+          <!-- Command sections -->
+          ${categories.map(c => buildCategorySection(c)).join('')}
+
+          <!-- Footer -->
+          <footer class="docs-footer docs-anim-fade">
+            <p>Ares Bot Documentation &mdash; Built with ❤️</p>
+            <div class="docs-footer-links">
+              <a href="/" data-link="/">Home</a>
+              <a href="https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener">Invite Bot</a>
+              <a href="/auth/login">Dashboard</a>
+            </div>
+          </footer>
         </main>
       </div>
     </div>
   `;
 
+  initDocsAnimations();
   initDocsSearch(categories);
   initDocsSidebarScroll();
   initDocsLinks();
+  initDocsExpandable();
+  initDocsKeyboardSearch();
 }
 
-function buildDocsSidebar(categories) {
-  return `<nav class="docs-toc">
-    ${categories.map(c => `
-      <a href="#${c.id}" class="docs-toc-item" data-section="${c.id}">
-        <span class="docs-toc-icon">${c.icon}</span>
-        <span>${c.title}</span>
-        <span class="docs-toc-count">${c.commands.length}</span>
-      </a>
-    `).join('')}
-  </nav>`;
-}
-
-function buildDocsContent(categories) {
-  return categories.map(c => `
-    <section class="docs-category" id="${c.id}">
+/* ─── build category section ─── */
+function buildCategorySection(c) {
+  return `
+    <section class="docs-category docs-anim-section" id="${c.id}">
       <div class="docs-cat-header">
-        <div class="docs-cat-icon">${c.icon}</div>
-        <div>
+        <div class="docs-cat-icon" style="--accent-c:${c.color}">${c.icon}</div>
+        <div class="docs-cat-header-text">
           <h2 class="docs-cat-title">${c.title}</h2>
           <p class="docs-cat-desc">${c.desc}</p>
         </div>
+        <span class="docs-cat-badge">${c.commands.length} commands</span>
       </div>
       <div class="docs-cmd-grid">
-        ${c.commands.map(cmd => `
-          <div class="docs-cmd" data-cmd="${cmd.name}">
-            <div class="docs-cmd-top">
-              <code class="docs-cmd-name">${cmd.name}</code>
-            </div>
-            <p class="docs-cmd-desc">${cmd.desc}</p>
-            <div class="docs-cmd-usage"><span class="docs-cmd-usage-label">Usage</span><code>${cmd.usage}</code></div>
-          </div>
-        `).join('')}
+        ${c.commands.map((cmd, i) => buildCommandCard(cmd, i)).join('')}
       </div>
     </section>
-  `).join('');
+  `;
 }
 
+/* ─── build command card ─── */
+function buildCommandCard(cmd, idx) {
+  const aliasHTML = cmd.aliases && cmd.aliases.length
+    ? `<div class="docs-cmd-aliases"><span class="docs-cmd-meta-label">Aliases</span>${cmd.aliases.map(a => `<code>${a}</code>`).join(' ')}</div>` : '';
+
+  const permHTML = cmd.perms && cmd.perms.length
+    ? `<div class="docs-cmd-perms">${cmd.perms.map(p => `<span class="docs-perm-badge">${p}</span>`).join('')}</div>` : '';
+
+  const slashBadge = cmd.slash ? '<span class="docs-slash-badge">/slash</span>' : '';
+
+  const paramsHTML = cmd.params && cmd.params.length
+    ? `<div class="docs-cmd-params">
+        <span class="docs-cmd-meta-label">Parameters</span>
+        <div class="docs-params-table">
+          ${cmd.params.map(p => `
+            <div class="docs-param-row">
+              <code class="docs-param-name">${p.n}</code>
+              <span class="docs-param-req">${p.r ? 'Required' : 'Optional'}</span>
+              <span class="docs-param-desc">${p.d}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>` : '';
+
+  const examplesHTML = cmd.examples && cmd.examples.length
+    ? `<div class="docs-cmd-examples">
+        <span class="docs-cmd-meta-label">Examples</span>
+        <div class="docs-examples-block">${cmd.examples.map(e => `<div class="docs-example-line"><code>${e}</code></div>`).join('')}</div>
+      </div>` : '';
+
+  const subcommandsHTML = cmd.subcommands && cmd.subcommands.length
+    ? `<div class="docs-cmd-subs">
+        <span class="docs-cmd-meta-label">Subcommands</span>
+        <div class="docs-subs-list">${cmd.subcommands.map(s => `<code class="docs-sub-chip">${s}</code>`).join('')}</div>
+      </div>` : '';
+
+  const modulesHTML = cmd.modules && cmd.modules.length
+    ? `<div class="docs-cmd-modules">
+        <span class="docs-cmd-meta-label">Modules</span>
+        <div class="docs-modules-list">${cmd.modules.map(m => `<span class="docs-module-chip">${m}</span>`).join('')}</div>
+      </div>` : '';
+
+  const punishmentsHTML = cmd.punishments && cmd.punishments.length
+    ? `<div class="docs-cmd-punishments">
+        <span class="docs-cmd-meta-label">Punishments</span>
+        <div class="docs-punishments-list">${cmd.punishments.map(p => `<span class="docs-punishment-chip">${p}</span>`).join('')}</div>
+      </div>` : '';
+
+  const placeholdersHTML = cmd.placeholders && cmd.placeholders.length
+    ? `<div class="docs-cmd-placeholders">
+        <span class="docs-cmd-meta-label">Placeholders</span>
+        <div class="docs-placeholders-list">${cmd.placeholders.map(p => `<code class="docs-placeholder-chip">${p}</code>`).join('')}</div>
+      </div>` : '';
+
+  const hasDetails = aliasHTML || paramsHTML || examplesHTML || subcommandsHTML || modulesHTML || punishmentsHTML || placeholdersHTML;
+
+  return `
+    <div class="docs-cmd docs-anim-card" data-cmd="${cmd.name}" style="--ci:${idx}">
+      <div class="docs-cmd-top">
+        <code class="docs-cmd-name">${cmd.name}</code>
+        ${slashBadge}
+        ${permHTML}
+      </div>
+      <p class="docs-cmd-desc">${cmd.desc}</p>
+      <div class="docs-cmd-usage"><span class="docs-cmd-usage-label">Usage</span><code>${cmd.usage}</code></div>
+      ${hasDetails ? `
+        <button class="docs-cmd-expand" aria-expanded="false">
+          <span>Show details</span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M3 4.5L6 7.5L9 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="docs-cmd-details">
+          ${aliasHTML}
+          ${paramsHTML}
+          ${subcommandsHTML}
+          ${modulesHTML}
+          ${punishmentsHTML}
+          ${placeholdersHTML}
+          ${examplesHTML}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+/* ─── animations ─── */
+function initDocsAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('docs-visible');
+        // stagger children
+        entry.target.querySelectorAll('.docs-anim-up, .docs-anim-card').forEach((el, i) => {
+          el.style.setProperty('--d', i);
+          el.classList.add('docs-visible');
+        });
+      }
+    });
+  }, { rootMargin: '0px 0px -60px 0px', threshold: 0.05 });
+
+  document.querySelectorAll('.docs-anim-fade, .docs-anim-slide, .docs-anim-section, .docs-anim-up, .docs-anim-card').forEach(el => {
+    observer.observe(el);
+  });
+}
+
+/* ─── search ─── */
 function initDocsSearch(categories) {
   const input = document.getElementById('docs-search');
   if (!input) return;
 
   input.addEventListener('input', () => {
     const q = input.value.toLowerCase().trim();
+
     document.querySelectorAll('.docs-cmd').forEach(el => {
       const name = el.dataset.cmd || '';
       const desc = (el.querySelector('.docs-cmd-desc')?.textContent || '').toLowerCase();
-      el.style.display = (!q || name.includes(q) || desc.includes(q)) ? '' : 'none';
+      const aliases = (el.querySelector('.docs-cmd-aliases')?.textContent || '').toLowerCase();
+      const match = !q || name.includes(q) || desc.includes(q) || aliases.includes(q);
+      el.style.display = match ? '' : 'none';
     });
-    // Hide empty categories
+
     document.querySelectorAll('.docs-category').forEach(cat => {
-      const visible = cat.querySelectorAll('.docs-cmd[style=""], .docs-cmd:not([style])');
-      const hasHidden = cat.querySelector('.docs-cmd[style*="none"]');
-      cat.style.display = (visible.length === 0 && hasHidden) ? 'none' : '';
+      const visibleCmds = cat.querySelectorAll('.docs-cmd:not([style*="display: none"])');
+      cat.style.display = (q && visibleCmds.length === 0) ? 'none' : '';
     });
+
+    // Show/hide non-command sections
+    const nonCmdSections = document.querySelectorAll('.docs-guides, .docs-modules-overview, .docs-callout');
+    nonCmdSections.forEach(s => { s.style.display = q ? 'none' : ''; });
   });
 }
 
+/* ─── keyboard shortcut ─── */
+function initDocsKeyboardSearch() {
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      const input = document.getElementById('docs-search');
+      if (input) { input.focus(); input.select(); }
+    }
+  });
+}
+
+/* ─── sidebar scroll spy ─── */
 function initDocsSidebarScroll() {
-  const sections = document.querySelectorAll('.docs-category');
+  const sections = document.querySelectorAll('.docs-category, #introduction, #getting-started');
   const tocItems = document.querySelectorAll('.docs-toc-item');
   if (!sections.length) return;
 
@@ -302,17 +586,18 @@ function initDocsSidebarScroll() {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         tocItems.forEach(t => t.classList.remove('active'));
-        const active = document.querySelector(`.docs-toc-item[data-section="${entry.target.id}"]`);
+        const id = entry.target.id;
+        const active = document.querySelector(`.docs-toc-item[data-section="${id}"]`);
         if (active) active.classList.add('active');
       }
     });
-  }, { rootMargin: '-80px 0px -60% 0px', threshold: 0.1 });
+  }, { rootMargin: '-80px 0px -60% 0px', threshold: 0.05 });
 
   sections.forEach(s => observer.observe(s));
 }
 
+/* ─── links / SPA nav ─── */
 function initDocsLinks() {
-  // SPA navigation for internal links
   document.querySelectorAll('.docs [data-link]').forEach(a => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
@@ -320,16 +605,33 @@ function initDocsLinks() {
     });
   });
 
-  // Smooth scroll for TOC anchors
-  document.querySelectorAll('.docs-toc-item').forEach(a => {
+  document.querySelectorAll('.docs-toc-item, .docs-module-card').forEach(a => {
     a.addEventListener('click', (e) => {
+      if (a.getAttribute('data-link')) return;
       e.preventDefault();
-      const target = document.querySelector(a.getAttribute('href'));
+      const href = a.getAttribute('href');
+      if (!href) return;
+      const target = document.querySelector(href);
       if (target) {
         const navH = document.querySelector('.lp-nav')?.offsetHeight || 0;
-        const y = target.getBoundingClientRect().top + window.scrollY - navH - 20;
+        const y = target.getBoundingClientRect().top + window.scrollY - navH - 24;
         window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
       }
+    });
+  });
+}
+
+/* ─── expandable command cards ─── */
+function initDocsExpandable() {
+  document.querySelectorAll('.docs-cmd-expand').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.docs-cmd');
+      const details = card.querySelector('.docs-cmd-details');
+      const isOpen = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !isOpen);
+      btn.querySelector('span').textContent = isOpen ? 'Show details' : 'Hide details';
+      details.classList.toggle('open', !isOpen);
+      card.classList.toggle('docs-cmd-expanded', !isOpen);
     });
   });
 }
