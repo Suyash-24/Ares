@@ -49,6 +49,7 @@ function renderLanding() {
           </div>
           <nav class="lp-nav-links">
             <a href="#features">Features</a>
+            <a href="/docs" data-link="/docs">Docs</a>
             <a href="https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener">Invite</a>
             <a href="#stats">Stats</a>
           </nav>
@@ -198,6 +199,7 @@ function renderLanding() {
   initFloatingIcons();
   initScrollReveal();
   initSmoothScroll();
+  initLandingSpaLinks();
 }
 
 // ── Floating icons canvas (Antigravity-style scattered items that react to cursor) ──
@@ -364,6 +366,27 @@ function initSmoothScroll() {
       window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
     };
 
+    a.addEventListener('click', handler);
+    handlers.push([a, handler]);
+  });
+
+  registerLandingCleanup(() => {
+    handlers.forEach(([a, handler]) => a.removeEventListener('click', handler));
+  });
+}
+
+// ── SPA links on landing (data-link attributes) ──
+function initLandingSpaLinks() {
+  const links = Array.from(document.querySelectorAll('.lp [data-link]'));
+  const handlers = [];
+
+  links.forEach(a => {
+    const handler = (e) => {
+      e.preventDefault();
+      const dest = a.getAttribute('data-link');
+      window.history.pushState({}, '', dest);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    };
     a.addEventListener('click', handler);
     handlers.push([a, handler]);
   });

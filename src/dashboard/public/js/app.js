@@ -9,7 +9,17 @@
   }
 
   if (!me?.user) {
-    renderLanding();
+    // Public routes
+    if (window.location.pathname === '/docs') {
+      renderDocs();
+    } else {
+      renderLanding();
+    }
+    // Listen for SPA nav on public pages
+    window.addEventListener('popstate', function publicNav() {
+      if (window.location.pathname === '/docs') { renderDocs(); }
+      else { renderLanding(); }
+    });
     return;
   }
 
