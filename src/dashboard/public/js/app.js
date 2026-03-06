@@ -10,14 +10,14 @@
 
   if (!me?.user) {
     // Public routes
-    if (window.location.pathname === '/docs') {
+    if (window.location.pathname.startsWith('/docs')) {
       renderDocs();
     } else {
       renderLanding();
     }
     // Listen for SPA nav on public pages
     window.addEventListener('popstate', function publicNav() {
-      if (window.location.pathname === '/docs') { renderDocs(); }
+      if (window.location.pathname.startsWith('/docs')) { renderDocs(); }
       else { renderLanding(); }
     });
     return;

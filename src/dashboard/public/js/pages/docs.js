@@ -262,64 +262,111 @@ function getDocsCategories() {
   ];
 }
 
-/* ─── main render ─── */
+/* ─── count helpers (includes subcommands) ─── */
+function getCmdCount(c) {
+  return c.commands.reduce((s, cmd) => s + 1 + (cmd.subcommands ? cmd.subcommands.length : 0), 0);
+}
+function getTotalCmds(categories) {
+  return categories.reduce((s, c) => s + getCmdCount(c), 0);
+}
+
+/* ─── shared navbar ─── */
+function docsNavbar() {
+  return `
+    <header class="lp-nav">
+      <div class="lp-nav-inner">
+        <a href="/" class="lp-nav-brand" data-link="/" style="text-decoration:none">
+          <span class="lp-nav-logo">⚡</span>
+          <span class="lp-nav-wordmark">Ares</span>
+        </a>
+        <nav class="lp-nav-links">
+          <a href="/" data-link="/">Home</a>
+          <a href="/docs" class="docs-nav-active" data-docs-link="/docs">Docs</a>
+          <a href="https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener">Invite</a>
+        </nav>
+        <a href="/auth/login" class="lp-nav-cta">Dashboard <span class="lp-arrow">↗</span></a>
+      </div>
+    </header>`;
+}
+
+/* ─── shared sidebar ─── */
+function docsSidebar(categories, activeId) {
+  return `
+    <aside class="docs-sidebar" id="docs-sidebar">
+      <div class="docs-sidebar-title">Navigation</div>
+      <div class="docs-search">
+        <svg class="docs-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="docs-search" class="docs-search-input" placeholder="Search modules..." autocomplete="off" />
+      </div>
+      <nav class="docs-toc">
+        <a class="docs-toc-item${!activeId ? ' active' : ''}" data-docs-link="/docs">
+          <span class="docs-toc-icon">📖</span><span>Overview</span>
+        </a>
+        <div class="docs-toc-divider"></div>
+        <div class="docs-toc-group-label">Modules</div>
+        ${categories.map(c => `
+          <a class="docs-toc-item${activeId === c.id ? ' active' : ''}" data-docs-link="/docs/${c.id}">
+            <span class="docs-toc-icon">${c.icon}</span>
+            <span>${c.title}</span>
+            <span class="docs-toc-count">${getCmdCount(c)}</span>
+          </a>
+        `).join('')}
+      </nav>
+    </aside>`;
+}
+
+/* ─── shared footer ─── */
+function docsFooter() {
+  return `
+    <footer class="docs-footer docs-anim-fade">
+      <p>Ares Bot Documentation &mdash; Built with ❤️</p>
+      <div class="docs-footer-links">
+        <a href="/" data-link="/">Home</a>
+        <a href="https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener">Invite Bot</a>
+        <a href="/auth/login">Dashboard</a>
+      </div>
+    </footer>`;
+}
+
+/* ─── docs SPA navigation ─── */
+function docsNavigate(path) {
+  window.history.pushState({}, '', path);
+  renderDocs();
+}
+
+/* ─── main render (routes /docs and /docs/:moduleId) ─── */
 function renderDocs() {
   document.getElementById('sidebar').style.display = 'none';
   document.getElementById('content').style.marginLeft = '0';
   document.getElementById('content').style.padding = '0';
 
   const categories = getDocsCategories();
-  const totalCmds = categories.reduce((s, c) => s + c.commands.length, 0);
+  const pathParts = window.location.pathname.replace(/\/+$/, '').split('/');
+  const moduleId = pathParts.length >= 3 ? pathParts[2] : null;
+
+  if (moduleId) {
+    const cat = categories.find(c => c.id === moduleId);
+    if (cat) {
+      renderDocsModule(categories, cat);
+    } else {
+      renderDocsHome(categories);
+    }
+  } else {
+    renderDocsHome(categories);
+  }
+}
+
+/* ─── home / overview page (/docs) ─── */
+function renderDocsHome(categories) {
+  const totalCmds = getTotalCmds(categories);
 
   document.getElementById('page-content').innerHTML = `
     <div class="docs">
-      <!-- Navbar -->
-      <header class="lp-nav">
-        <div class="lp-nav-inner">
-          <a href="/" class="lp-nav-brand" data-link="/" style="text-decoration:none">
-            <span class="lp-nav-logo">⚡</span>
-            <span class="lp-nav-wordmark">Ares</span>
-          </a>
-          <nav class="lp-nav-links">
-            <a href="/" data-link="/">Home</a>
-            <a href="/docs" class="docs-nav-active">Docs</a>
-            <a href="https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener">Invite</a>
-          </nav>
-          <a href="/auth/login" class="lp-nav-cta">Dashboard <span class="lp-arrow">↗</span></a>
-        </div>
-      </header>
-
+      ${docsNavbar()}
       <div class="docs-layout">
-        <!-- Sidebar -->
-        <aside class="docs-sidebar" id="docs-sidebar">
-          <div class="docs-sidebar-title">Navigation</div>
-          <div class="docs-search">
-            <svg class="docs-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="docs-search" class="docs-search-input" placeholder="Search commands..." autocomplete="off" />
-          </div>
-          <nav class="docs-toc">
-            <a href="#introduction" class="docs-toc-item active" data-section="introduction">
-              <span class="docs-toc-icon">📖</span><span>Introduction</span>
-            </a>
-            <a href="#getting-started" class="docs-toc-item" data-section="getting-started">
-              <span class="docs-toc-icon">🚀</span><span>Getting Started</span>
-            </a>
-            <div class="docs-toc-divider"></div>
-            <div class="docs-toc-group-label">Modules</div>
-            ${categories.map(c => `
-              <a href="#${c.id}" class="docs-toc-item" data-section="${c.id}">
-                <span class="docs-toc-icon">${c.icon}</span>
-                <span>${c.title}</span>
-                <span class="docs-toc-count">${c.commands.length}</span>
-              </a>
-            `).join('')}
-          </nav>
-        </aside>
-
-        <!-- Main content -->
+        ${docsSidebar(categories, null)}
         <main class="docs-main">
 
-          <!-- Hero -->
           <section class="docs-hero docs-anim-fade" id="introduction">
             <div class="docs-hero-badge">Documentation</div>
             <h1 class="docs-hero-title">Ares <span class="lp-gradient-text">Documentation</span></h1>
@@ -332,7 +379,6 @@ function renderDocs() {
             </div>
           </section>
 
-          <!-- Info callout -->
           <div class="docs-callout docs-callout-info docs-anim-slide" style="--d:0">
             <div class="docs-callout-icon">💡</div>
             <div>
@@ -340,7 +386,6 @@ function renderDocs() {
             </div>
           </div>
 
-          <!-- Guide cards -->
           <section class="docs-guides" id="getting-started">
             <h2 class="docs-section-title docs-anim-slide" style="--d:0">Getting Started</h2>
             <p class="docs-section-desc docs-anim-slide" style="--d:1">Set up Ares in your server in under 2 minutes.</p>
@@ -368,54 +413,103 @@ function renderDocs() {
             </div>
           </section>
 
-          <!-- Tip callout -->
           <div class="docs-callout docs-callout-tip docs-anim-slide" style="--d:0">
             <div class="docs-callout-icon">⚡</div>
             <div>
-              <strong>Pro tip:</strong> Use <code>.help &lt;command&gt;</code> in Discord for quick inline help, or search this page with <kbd>Ctrl+K</kbd> / the search bar.
+              <strong>Pro tip:</strong> Use <code>.help &lt;command&gt;</code> in Discord for quick inline help, or press <kbd>Ctrl+K</kbd> to search.
             </div>
           </div>
 
-          <!-- Module overview cards -->
           <section class="docs-modules-overview docs-anim-slide" style="--d:0">
-            <h2 class="docs-section-title">Modules Overview</h2>
-            <div class="docs-module-grid">
+            <h2 class="docs-section-title">All Modules</h2>
+            <p class="docs-section-desc">Click on a module to explore its commands in detail.</p>
+            <div class="docs-module-grid docs-module-grid-home">
               ${categories.map((c, i) => `
-                <a href="#${c.id}" class="docs-module-card docs-anim-up" style="--d:${i % 6};--accent-c:${c.color}">
+                <a class="docs-module-card docs-module-card-home docs-anim-up" data-docs-link="/docs/${c.id}" style="--d:${i % 6};--accent-c:${c.color}">
                   <span class="docs-module-card-icon">${c.icon}</span>
                   <span class="docs-module-card-title">${c.title}</span>
-                  <span class="docs-module-card-count">${c.commands.length} commands</span>
+                  <span class="docs-module-card-count">${getCmdCount(c)} commands</span>
+                  <p class="docs-module-card-desc">${c.desc}</p>
+                  <span class="docs-module-card-arrow">→</span>
                 </a>
               `).join('')}
             </div>
           </section>
 
-          <!-- Command sections -->
-          ${categories.map(c => buildCategorySection(c)).join('')}
-
-          <!-- Footer -->
-          <footer class="docs-footer docs-anim-fade">
-            <p>Ares Bot Documentation &mdash; Built with ❤️</p>
-            <div class="docs-footer-links">
-              <a href="/" data-link="/">Home</a>
-              <a href="https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands" target="_blank" rel="noopener">Invite Bot</a>
-              <a href="/auth/login">Dashboard</a>
-            </div>
-          </footer>
+          ${docsFooter()}
         </main>
       </div>
     </div>
   `;
 
   initDocsAnimations();
-  initDocsSearch(categories);
-  initDocsSidebarScroll();
-  initDocsLinks();
-  initDocsExpandable();
+  initDocsHomeSearch(categories);
+  initDocsNavLinks();
   initDocsKeyboardSearch();
 }
 
-/* ─── build category section ─── */
+/* ─── module sub-page (/docs/:moduleId) ─── */
+function renderDocsModule(categories, cat) {
+  const cmdCount = getCmdCount(cat);
+  const catIdx = categories.indexOf(cat);
+  const prev = catIdx > 0 ? categories[catIdx - 1] : null;
+  const next = catIdx < categories.length - 1 ? categories[catIdx + 1] : null;
+
+  document.getElementById('page-content').innerHTML = `
+    <div class="docs">
+      ${docsNavbar()}
+      <div class="docs-layout">
+        ${docsSidebar(categories, cat.id)}
+        <main class="docs-main">
+
+          <nav class="docs-breadcrumb docs-anim-slide" style="--d:0">
+            <a data-docs-link="/docs">Docs</a>
+            <span class="docs-breadcrumb-sep">›</span>
+            <span>${cat.title}</span>
+          </nav>
+
+          <section class="docs-module-hero docs-anim-fade" style="--accent-c:${cat.color}">
+            <div class="docs-module-hero-icon">${cat.icon}</div>
+            <div class="docs-module-hero-content">
+              <h1 class="docs-module-hero-title">${cat.title}</h1>
+              <p class="docs-module-hero-desc">${cat.desc}</p>
+              <div class="docs-module-hero-stats">
+                <span class="docs-module-hero-stat">${cmdCount} commands</span>
+                ${cat.commands.some(c => c.slash) ? '<span class="docs-module-hero-stat">Slash supported</span>' : ''}
+                ${cat.commands.some(c => c.subcommands?.length) ? `<span class="docs-module-hero-stat">${cat.commands.reduce((s, c) => s + (c.subcommands?.length || 0), 0)} subcommands</span>` : ''}
+              </div>
+            </div>
+          </section>
+
+          <div class="docs-search docs-module-search docs-anim-slide" style="--d:1">
+            <svg class="docs-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="docs-search-module" class="docs-search-input" placeholder="Search ${cat.title.toLowerCase()} commands..." autocomplete="off" />
+          </div>
+
+          <div class="docs-cmd-grid">
+            ${cat.commands.map((cmd, i) => buildCommandCard(cmd, i)).join('')}
+          </div>
+
+          <div class="docs-module-pager docs-anim-fade">
+            ${prev ? `<a class="docs-pager-link docs-pager-prev" data-docs-link="/docs/${prev.id}"><span class="docs-pager-dir">← Previous</span><span class="docs-pager-name">${prev.icon} ${prev.title}</span></a>` : '<span></span>'}
+            ${next ? `<a class="docs-pager-link docs-pager-next" data-docs-link="/docs/${next.id}"><span class="docs-pager-dir">Next →</span><span class="docs-pager-name">${next.icon} ${next.title}</span></a>` : '<span></span>'}
+          </div>
+
+          ${docsFooter()}
+        </main>
+      </div>
+    </div>
+  `;
+
+  initDocsAnimations();
+  initDocsModuleSearch(cat);
+  initDocsNavLinks();
+  initDocsExpandable();
+  initDocsKeyboardSearch();
+  window.scrollTo({ top: 0 });
+}
+
+/* ─── build category section (unused now but kept for compat) ─── */
 function buildCategorySection(c) {
   return `
     <section class="docs-category docs-anim-section" id="${c.id}">
@@ -425,7 +519,7 @@ function buildCategorySection(c) {
           <h2 class="docs-cat-title">${c.title}</h2>
           <p class="docs-cat-desc">${c.desc}</p>
         </div>
-        <span class="docs-cat-badge">${c.commands.length} commands</span>
+        <span class="docs-cat-badge">${getCmdCount(c)} commands</span>
       </div>
       <div class="docs-cmd-grid">
         ${c.commands.map((cmd, i) => buildCommandCard(cmd, i)).join('')}
@@ -524,7 +618,6 @@ function initDocsAnimations() {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('docs-visible');
-        // stagger children
         entry.target.querySelectorAll('.docs-anim-up, .docs-anim-card').forEach((el, i) => {
           el.style.setProperty('--d', i);
           el.classList.add('docs-visible');
@@ -538,85 +631,76 @@ function initDocsAnimations() {
   });
 }
 
-/* ─── search ─── */
-function initDocsSearch(categories) {
+/* ─── home page search (filter module cards) ─── */
+function initDocsHomeSearch(categories) {
   const input = document.getElementById('docs-search');
   if (!input) return;
-
   input.addEventListener('input', () => {
     const q = input.value.toLowerCase().trim();
+    document.querySelectorAll('.docs-module-card-home').forEach(card => {
+      const title = (card.querySelector('.docs-module-card-title')?.textContent || '').toLowerCase();
+      const desc = (card.querySelector('.docs-module-card-desc')?.textContent || '').toLowerCase();
+      card.style.display = (!q || title.includes(q) || desc.includes(q)) ? '' : 'none';
+    });
+  });
+}
 
+/* ─── module page search (filter command cards) ─── */
+function initDocsModuleSearch(cat) {
+  const input = document.getElementById('docs-search-module');
+  if (!input) return;
+  input.addEventListener('input', () => {
+    const q = input.value.toLowerCase().trim();
     document.querySelectorAll('.docs-cmd').forEach(el => {
       const name = el.dataset.cmd || '';
       const desc = (el.querySelector('.docs-cmd-desc')?.textContent || '').toLowerCase();
       const aliases = (el.querySelector('.docs-cmd-aliases')?.textContent || '').toLowerCase();
-      const match = !q || name.includes(q) || desc.includes(q) || aliases.includes(q);
+      const subs = (el.querySelector('.docs-cmd-subs')?.textContent || '').toLowerCase();
+      const match = !q || name.includes(q) || desc.includes(q) || aliases.includes(q) || subs.includes(q);
       el.style.display = match ? '' : 'none';
     });
-
-    document.querySelectorAll('.docs-category').forEach(cat => {
-      const visibleCmds = cat.querySelectorAll('.docs-cmd:not([style*="display: none"])');
-      cat.style.display = (q && visibleCmds.length === 0) ? 'none' : '';
-    });
-
-    // Show/hide non-command sections
-    const nonCmdSections = document.querySelectorAll('.docs-guides, .docs-modules-overview, .docs-callout');
-    nonCmdSections.forEach(s => { s.style.display = q ? 'none' : ''; });
   });
+
+  // Also wire up sidebar search to navigate
+  const sidebarInput = document.getElementById('docs-search');
+  if (sidebarInput) {
+    sidebarInput.addEventListener('input', () => {
+      const q = sidebarInput.value.toLowerCase().trim();
+      document.querySelectorAll('.docs-toc-item[data-docs-link]').forEach(item => {
+        if (!item.querySelector('.docs-toc-icon')) return;
+        const title = item.textContent.toLowerCase();
+        item.style.display = (!q || title.includes(q)) ? '' : 'none';
+      });
+    });
+  }
 }
 
 /* ─── keyboard shortcut ─── */
 function initDocsKeyboardSearch() {
-  document.addEventListener('keydown', (e) => {
+  // Remove old listener if attached
+  if (window._docsKBHandler) document.removeEventListener('keydown', window._docsKBHandler);
+  window._docsKBHandler = (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
       e.preventDefault();
-      const input = document.getElementById('docs-search');
+      const input = document.getElementById('docs-search-module') || document.getElementById('docs-search');
       if (input) { input.focus(); input.select(); }
     }
-  });
+  };
+  document.addEventListener('keydown', window._docsKBHandler);
 }
 
-/* ─── sidebar scroll spy ─── */
-function initDocsSidebarScroll() {
-  const sections = document.querySelectorAll('.docs-category, #introduction, #getting-started');
-  const tocItems = document.querySelectorAll('.docs-toc-item');
-  if (!sections.length) return;
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        tocItems.forEach(t => t.classList.remove('active'));
-        const id = entry.target.id;
-        const active = document.querySelector(`.docs-toc-item[data-section="${id}"]`);
-        if (active) active.classList.add('active');
-      }
+/* ─── SPA navigation links ─── */
+function initDocsNavLinks() {
+  document.querySelectorAll('[data-docs-link]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      docsNavigate(a.getAttribute('data-docs-link'));
     });
-  }, { rootMargin: '-80px 0px -60% 0px', threshold: 0.05 });
-
-  sections.forEach(s => observer.observe(s));
-}
-
-/* ─── links / SPA nav ─── */
-function initDocsLinks() {
+  });
   document.querySelectorAll('.docs [data-link]').forEach(a => {
     a.addEventListener('click', (e) => {
       e.preventDefault();
       router.navigate(a.getAttribute('data-link'));
-    });
-  });
-
-  document.querySelectorAll('.docs-toc-item, .docs-module-card').forEach(a => {
-    a.addEventListener('click', (e) => {
-      if (a.getAttribute('data-link')) return;
-      e.preventDefault();
-      const href = a.getAttribute('href');
-      if (!href) return;
-      const target = document.querySelector(href);
-      if (target) {
-        const navH = document.querySelector('.lp-nav')?.offsetHeight || 0;
-        const y = target.getBoundingClientRect().top + window.scrollY - navH - 24;
-        window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-      }
     });
   });
 }
