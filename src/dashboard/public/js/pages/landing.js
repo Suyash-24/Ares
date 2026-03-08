@@ -20,8 +20,8 @@ function renderLanding() {
   document.getElementById('content').style.padding = '0';
 
   const oauthUrl = 'https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands';
-  const partnerBrands = ['Vercel', 'loom', 'Cash App', 'Loops', 'zapier', 'ramp', 'Raycast'];
-  const partnerMarkup = partnerBrands.map((brand) => `<span>${brand}</span>`).join('');
+  const moduleNames = ['Moderation', 'Music', 'Leveling', 'Giveaways', 'Tickets', 'Anti-Nuke', 'Stats'];
+  const moduleMarkup = moduleNames.map((m) => `<span>${m}</span>`).join('');
 
   document.getElementById('page-content').innerHTML = `
     <div class="lp" id="top">
@@ -42,12 +42,10 @@ function renderLanding() {
                 <div class="lp-stage-menu-wrap">
                   <nav class="lp-stage-menu" aria-label="Primary navigation">
                     <a href="#top">Home</a>
-                    <a href="#features">DeFi App</a>
-                    <a href="#features">Assets</a>
                     <a href="#features">Features</a>
-                    <a href="#metrics">Pricing</a>
-                    <a href="/docs" data-link="/docs">FAQ</a>
-                    <span class="lp-protection-pill">Protection <span>7</span></span>
+                    <a href="#metrics">Stats</a>
+                    <a href="/docs" data-link="/docs">Docs</a>
+                    <span class="lp-protection-pill">Modules <span>22</span></span>
                   </nav>
                 </div>
 
@@ -69,11 +67,9 @@ function renderLanding() {
 
               <nav id="lp-mobile-drawer" class="lp-mobile-drawer" aria-label="Mobile navigation">
                 <a href="#top">Home</a>
-                <a href="#features">DeFi App</a>
-                <a href="#features">Assets</a>
                 <a href="#features">Features</a>
-                <a href="#metrics">Pricing</a>
-                <a href="/docs" data-link="/docs">FAQ</a>
+                <a href="#metrics">Stats</a>
+                <a href="/docs" data-link="/docs">Docs</a>
                 <div class="lp-mobile-drawer-actions">
                   <a href="/auth/login" class="lp-mobile-primary">Open Dashboard</a>
                   <a href="${oauthUrl}" target="_blank" rel="noopener" class="lp-mobile-ghost">Add to Server</a>
@@ -83,31 +79,31 @@ function renderLanding() {
               <div class="lp-route lp-route-left-top" aria-hidden="true">
                 <span class="lp-route-node"></span>
                 <div>
-                  <strong>Cortex</strong>
-                  <span>20.945</span>
+                  <strong>Moderation</strong>
+                  <span>75+ cmds</span>
                 </div>
               </div>
 
               <div class="lp-route lp-route-left-bottom" aria-hidden="true">
                 <span class="lp-route-node"></span>
                 <div>
-                  <strong>Aelf</strong>
-                  <span>18.346</span>
+                  <strong>Leveling</strong>
+                  <span>XP &amp; Ranks</span>
                 </div>
               </div>
 
               <div class="lp-route lp-route-right-top" aria-hidden="true">
                 <div>
-                  <strong>Quant</strong>
-                  <span>2.945</span>
+                  <strong>Music</strong>
+                  <span>Lavalink</span>
                 </div>
                 <span class="lp-route-node"></span>
               </div>
 
               <div class="lp-route lp-route-right-bottom" aria-hidden="true">
                 <div>
-                  <strong>Meeton</strong>
-                  <span>440</span>
+                  <strong>Security</strong>
+                  <span>Anti-Nuke</span>
                 </div>
                 <span class="lp-route-node"></span>
               </div>
@@ -115,17 +111,17 @@ function renderLanding() {
               <span class="lp-play-chip" aria-hidden="true">&#9658;</span>
 
               <div class="lp-stage-content">
-                <span class="lp-stage-badge" data-reveal="blur">Unlock Your Assets Spark</span>
+                <span class="lp-stage-badge" data-reveal="blur">200+ Commands · Free &amp; Open Source</span>
                 <h1 class="lp-stage-title" data-reveal="rise">
-                  One-click for Asset <span>Defense</span>
+                  The all-in-one <span>Discord bot</span>
                 </h1>
                 <p class="lp-stage-sub" data-reveal="blur">
-                  Dive into the art assets, where innovative blockchain technology meets financial expertise.
+                  Moderation, music, leveling, giveaways, tickets, anti-nuke and more — managed from one beautiful dashboard.
                 </p>
 
                 <div class="lp-stage-actions" data-reveal="zoom">
-                  <a href="/auth/login" class="lp-action lp-action-dark">Open App</a>
-                  <a href="#features" class="lp-action lp-action-light">Discover More</a>
+                  <a href="/auth/login" class="lp-action lp-action-dark">Open Dashboard</a>
+                  <a href="${oauthUrl}" target="_blank" rel="noopener" class="lp-action lp-action-light">Add to Server</a>
                 </div>
               </div>
 
@@ -141,7 +137,7 @@ function renderLanding() {
                   02/03 . Scroll down
                 </div>
                 <div class="lp-horizon-indicator">
-                  <span>DeFi horizons</span>
+                  <span>Explore modules</span>
                   <div class="lp-horizon-bars">
                     <i class="is-active"></i>
                     <i></i>
@@ -152,7 +148,7 @@ function renderLanding() {
             </div>
 
             <div class="lp-brand-row" data-reveal="blur">
-              ${partnerMarkup}
+              ${moduleMarkup}
             </div>
           </div>
         </div>
@@ -162,75 +158,75 @@ function renderLanding() {
         <div class="lp-shell lp-mosaic">
           <div class="lp-mosaic-left">
             <article class="lp-card lp-control-card" data-reveal="left">
-              <h2>Command Snapshot</h2>
-              <p>Mission control for moderation pressure, engagement surges, and policy drift in one compact board.</p>
+              <h2>Moderation Suite</h2>
+              <p>75+ commands including ban, kick, mute, warn, detention, anti-nuke, anti-raid, and comprehensive mod logging.</p>
 
               <div class="lp-control-grid">
                 <div class="lp-control-item">
-                  <span>Success transactions</span>
-                  <strong class="lp-metric-value" data-counter="98.2" data-suffix="%">0%</strong>
+                  <span>Mod commands</span>
+                  <strong class="lp-metric-value" data-counter="75" data-suffix="+">0+</strong>
                 </div>
                 <div class="lp-control-item">
-                  <span>Liquidity depth</span>
-                  <strong class="lp-metric-value" data-counter="92" data-suffix="%">0%</strong>
+                  <span>Automod accuracy</span>
+                  <strong class="lp-metric-value" data-counter="99" data-suffix="%">0%</strong>
                 </div>
                 <div class="lp-control-item">
-                  <span>Growth index</span>
-                  <strong class="lp-metric-value" data-counter="19.2" data-suffix="">0</strong>
+                  <span>Log channels</span>
+                  <strong class="lp-metric-value" data-counter="12" data-suffix="+">0+</strong>
                 </div>
                 <div class="lp-control-item">
-                  <span>Volume trend</span>
-                  <strong class="lp-metric-value" data-counter="24.6" data-suffix="">0</strong>
+                  <span>Response time</span>
+                  <strong class="lp-metric-value" data-counter="128" data-suffix="ms">0ms</strong>
                 </div>
               </div>
 
               <div class="lp-control-pills">
-                <span>Open for policy only</span>
-                <span>Assign issue reports</span>
-                <span>Auto-priority routing</span>
+                <span>Anti-Nuke</span>
+                <span>Anti-Raid</span>
+                <span>Automod Filters</span>
               </div>
             </article>
 
             <article class="lp-card lp-wallet-card" data-reveal="left">
-              <h2>DeFi Wallet</h2>
-              <p>Exploratory mission with DeFi horizon and low-friction workflows through the vast possibilities.</p>
+              <h2>Music &amp; Leveling</h2>
+              <p>Lavalink-powered playback from YouTube, Spotify, and SoundCloud — plus a full XP leveling system with rank cards and role rewards.</p>
 
               <div class="lp-wallet-layout">
                 <div class="lp-wallet-stat">
-                  <span>DeFi wallet system</span>
-                  <strong>+A3.7</strong>
+                  <span>Music sources supported</span>
+                  <strong>4+</strong>
                 </div>
 
                 <div class="lp-wallet-ring" aria-hidden="true">
-                  <div class="lp-wallet-ring-core">Step 01</div>
+                  <div class="lp-wallet-ring-core">24/7</div>
                 </div>
               </div>
 
               <div class="lp-wallet-list">
                 <div>
-                  <span>Sent</span>
-                  <strong>0.00019662</strong>
+                  <span>Playback</span>
+                  <strong>HD Audio</strong>
                 </div>
                 <div>
-                  <span>Received</span>
-                  <strong>1.030</strong>
+                  <span>XP Modes</span>
+                  <strong>Text + VC</strong>
                 </div>
                 <div>
-                  <span>Pending</span>
-                  <strong>4.94K</strong>
+                  <span>Rank Cards</span>
+                  <strong>Custom</strong>
                 </div>
               </div>
             </article>
           </div>
 
           <article class="lp-card lp-insight-card" data-reveal="right">
-            <h2>Meet Marvellous Insights</h2>
-            <p>Save your team's precious time. Config replaces the lengthy process of manual BPM work.</p>
+            <h2>Server Analytics</h2>
+            <p>Track messages, voice activity, invites, and engagement with detailed leaderboards and time-period breakdowns.</p>
 
             <div class="lp-insight-grid">
               <div class="lp-insight-box lp-insight-box-main">
-                <strong class="lp-metric-value" data-counter="98.2" data-suffix="%">0%</strong>
-                <p>Spots worldwide</p>
+                <strong class="lp-metric-value" data-counter="22" data-suffix="+">0+</strong>
+                <p>Tracking commands</p>
                 <div class="lp-line-chart" aria-hidden="true">
                   <span></span>
                   <span></span>
@@ -248,9 +244,9 @@ function renderLanding() {
               </div>
 
               <div class="lp-insight-box">
-                <small>Financial growth</small>
-                <strong class="lp-metric-value" data-counter="19.2" data-prefix="$" data-suffix="M">$0M</strong>
-                <p>Your palette financial opportunities.</p>
+                <small>Engagement metrics</small>
+                <strong>Daily / Weekly / Monthly</strong>
+                <p>Competitive leaderboards for all tracked stats.</p>
               </div>
 
               <div class="lp-insight-box lp-insight-box-chart" aria-hidden="true">
@@ -270,22 +266,22 @@ function renderLanding() {
       <section class="lp-section lp-section-metrics" id="metrics">
         <div class="lp-shell">
           <div class="lp-section-head lp-center">
-            <p class="lp-kicker" data-reveal="blur">Operational Scorecard</p>
-            <h2 data-reveal="rise">Measure every moderation decision like market data</h2>
+            <p class="lp-kicker" data-reveal="blur">Ares by the numbers</p>
+            <h2 data-reveal="rise">Built for servers that take community seriously</h2>
           </div>
 
           <div class="lp-metric-row">
             <article class="lp-metric-box" data-reveal="rise">
               <strong class="lp-metric-value" data-counter="200" data-suffix="+">0+</strong>
-              <span>Automatable commands</span>
+              <span>Total commands</span>
             </article>
             <article class="lp-metric-box" data-reveal="rise">
-              <strong class="lp-metric-value" data-counter="32" data-suffix="K">0K</strong>
-              <span>Policy checks per minute</span>
+              <strong class="lp-metric-value" data-counter="22" data-suffix="">0</strong>
+              <span>Feature modules</span>
             </article>
             <article class="lp-metric-box" data-reveal="rise">
               <strong class="lp-metric-value" data-counter="128" data-suffix="ms">0ms</strong>
-              <span>Median command latency</span>
+              <span>Avg response time</span>
             </article>
             <article class="lp-metric-box" data-reveal="rise">
               <strong class="lp-metric-value" data-counter="99.9" data-suffix="%">0%</strong>
@@ -307,9 +303,9 @@ function renderLanding() {
             <img src="/assets/ares-logo.svg" alt="Ares logo" class="lp-footer-logo">
           </a>
           <div class="lp-footer-links">
-            <a href="#features">Assets</a>
-            <a href="#metrics">Pricing</a>
-            <a href="/docs" data-link="/docs">FAQ</a>
+            <a href="#features">Features</a>
+            <a href="#metrics">Stats</a>
+            <a href="/docs" data-link="/docs">Docs</a>
           </div>
         </div>
       </footer>
