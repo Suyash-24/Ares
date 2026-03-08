@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 64" role="img" aria-label="Ares logo">
+  <defs>
+    <linearGradient id="aresWordGradient" x1="18" y1="6" x2="74" y2="58" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f5f8ff"/>
+      <stop offset="0.55" stop-color="#ccd7e6"/>
+      <stop offset="1" stop-color="#8aa1c4"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="18" fill="#060a12" stroke="rgba(205,218,236,0.35)" stroke-width="2"/>
+  <path d="M32 13L17 50H26L30 40H39L31 24H35L45 50H53L38 13H32Z" fill="url(#aresWordGradient)"/>
+  <path d="M33.3 26.5L27 38.5H35.4L33.3 26.5Z" fill="#060a12"/>
+  <circle cx="49" cy="15" r="3.2" fill="#e8efff"/>
+  <text x="78" y="41" fill="#edf3ff" font-family="Sora, Inter, sans-serif" font-size="32" font-weight="650" letter-spacing="0.2">Ares</text>
+</svg>
