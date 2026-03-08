@@ -33,6 +33,7 @@ function renderLanding() {
         <div class="lp-shell">
           <div class="lp-frame" data-reveal="zoom">
             <div class="lp-stage">
+              <canvas id="lp-dot-carpet" aria-hidden="true"></canvas>
               <div class="lp-stage-light lp-stage-light-a" aria-hidden="true"></div>
               <div class="lp-stage-light lp-stage-light-b" aria-hidden="true"></div>
 
@@ -319,6 +320,7 @@ function renderLanding() {
   `;
 
   initNetworkCanvas();
+  initDotCarpet();
   initHeroSpotlight();
   initScrollReveal();
   initSmoothScroll();
@@ -331,6 +333,111 @@ function renderLanding() {
   initTextScramble();
   initScrollProgress();
   initFloatingParticles();
+}
+
+function initDotCarpet() {
+  const canvas = document.getElementById('lp-dot-carpet');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  let cols = 0;
+  let rows = 0;
+  let rafId = 0;
+  const spacing = 30;
+  const pointer = { x: -9999, y: -9999 };
+  const radius = 160;
+  const pushStrength = 14;
+
+  // Each dot: { ox, oy, dx, dy } — origin + displacement
+  let dots = [];
+
+  function rebuild() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const stage = canvas.parentElement;
+    width = stage.offsetWidth;
+    height = stage.offsetHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    cols = Math.ceil(width / spacing) + 1;
+    rows = Math.ceil(height / spacing) + 1;
+    dots = [];
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        dots.push({ ox: c * spacing, oy: r * spacing, dx: 0, dy: 0 });
+      }
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, width, height);
+
+    for (let i = 0; i < dots.length; i++) {
+      const dot = dots[i];
+      const mx = pointer.x - dot.ox;
+      const my = pointer.y - dot.oy;
+      const dist = Math.sqrt(mx * mx + my * my);
+
+      if (dist < radius && dist > 0) {
+        const force = (1 - dist / radius);
+        const angle = Math.atan2(my, mx);
+        dot.dx = -Math.cos(angle) * force * pushStrength;
+        dot.dy = -Math.sin(angle) * force * pushStrength;
+      } else {
+        // ease back to origin
+        dot.dx *= 0.88;
+        dot.dy *= 0.88;
+      }
+
+      const x = dot.ox + dot.dx;
+      const y = dot.oy + dot.dy;
+      const displacement = Math.sqrt(dot.dx * dot.dx + dot.dy * dot.dy);
+      const alpha = 0.18 + Math.min(displacement / pushStrength, 1) * 0.52;
+      const size = 0.8 + Math.min(displacement / pushStrength, 1) * 0.6;
+
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(140, 174, 254, ${alpha})`;
+      ctx.fill();
+    }
+
+    rafId = requestAnimationFrame(draw);
+  }
+
+  const onResize = () => rebuild();
+  const onMove = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = e.clientX - rect.left;
+    pointer.y = e.clientY - rect.top;
+  };
+  const onLeave = () => {
+    pointer.x = -9999;
+    pointer.y = -9999;
+  };
+
+  rebuild();
+  rafId = requestAnimationFrame(draw);
+
+  window.addEventListener('resize', onResize);
+  canvas.parentElement.addEventListener('mousemove', onMove);
+  canvas.parentElement.addEventListener('mouseleave', onLeave);
+
+  registerLandingCleanup(() => {
+    window.removeEventListener('resize', onResize);
+    canvas.parentElement.removeEventListener('mousemove', onMove);
+    canvas.parentElement.removeEventListener('mouseleave', onLeave);
+    if (rafId) cancelAnimationFrame(rafId);
+  });
 }
 
 function initNetworkCanvas() {

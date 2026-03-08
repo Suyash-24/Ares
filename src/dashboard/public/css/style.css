@@ -473,9 +473,17 @@ tr:hover td { background: var(--bg-surface); }
   inset: 0;
   pointer-events: none;
   z-index: 1;
-  opacity: 0.2;
+  opacity: 0;
   background-image: radial-gradient(circle at 12% 24%, rgba(255, 255, 255, 0.35) 0 1px, transparent 1px);
   background-size: 30px 30px;
+}
+
+#lp-dot-carpet {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  border-radius: inherit;
 }
 
 .lp-stage-light {
@@ -2276,6 +2284,7 @@ tr:hover td { background: var(--bg-surface); }
 
 @media (prefers-reduced-motion: reduce) {
   #lp-canvas,
+  #lp-dot-carpet,
   .lp-stage-light,
   .lp-stage-beams span,
   .lp-aurora span,
