@@ -56,7 +56,7 @@ function renderLanding() {
                 </div>
 
                 <div class="lp-stage-account-wrap">
-                  <a href="/auth/login" class="lp-stage-account">Create Account</a>
+                  <a href="/auth/login" class="lp-stage-account">Open Dashboard</a>
                   <button
                     class="lp-mobile-menu-btn"
                     type="button"
@@ -359,7 +359,9 @@ function initNetworkCanvas() {
         vx: (Math.random() - 0.5) * 0.28,
         vy: (Math.random() - 0.5) * 0.28,
         radius: Math.random() * 1.6 + 0.8,
-        phase: Math.random() * Math.PI * 2
+        phase: Math.random() * Math.PI * 2,
+        orbitAngle: Math.random() * Math.PI * 2,
+        orbitSpeed: (0.008 + Math.random() * 0.012) * (Math.random() > 0.5 ? 1 : -1)
       });
     }
   }
@@ -390,10 +392,19 @@ function initNetworkCanvas() {
       const dy = pointer.y - node.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist < 180 && dist > 0) {
-        const force = (180 - dist) / 180;
-        node.x -= (dx / dist) * force * 0.5;
-        node.y -= (dy / dist) * force * 0.5;
+      if (dist < 260 && dist > 0) {
+        const influence = (260 - dist) / 260;
+        node.orbitAngle += node.orbitSpeed * (1 + influence * 3);
+
+        const targetDist = 60 + (1 - influence) * 160;
+        const targetX = pointer.x + Math.cos(node.orbitAngle) * targetDist;
+        const targetY = pointer.y + Math.sin(node.orbitAngle) * targetDist;
+
+        node.vx += (targetX - node.x) * 0.008 * influence;
+        node.vy += (targetY - node.y) * 0.008 * influence;
+
+        node.vx *= 0.96;
+        node.vy *= 0.96;
       }
 
       const glow = 0.22 + ((Math.sin(time * 0.001 + node.phase) + 1) * 0.5) * 0.3;
