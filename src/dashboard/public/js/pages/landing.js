@@ -26,6 +26,8 @@ function renderLanding() {
   document.getElementById('page-content').innerHTML = `
     <div class="lp" id="top">
       <canvas id="lp-canvas" aria-hidden="true"></canvas>
+      <div class="lp-particles" id="lp-particles" aria-hidden="true"></div>
+      <div class="lp-glow-cursor" id="lp-glow-cursor"></div>
 
       <section class="lp-hero" id="product">
         <div class="lp-shell">
@@ -33,6 +35,10 @@ function renderLanding() {
             <div class="lp-stage">
               <div class="lp-stage-light lp-stage-light-a" aria-hidden="true"></div>
               <div class="lp-stage-light lp-stage-light-b" aria-hidden="true"></div>
+
+              <div class="lp-aurora" aria-hidden="true">
+                <span></span><span></span><span></span>
+              </div>
 
               <header class="lp-stage-nav">
                 <a href="#top" class="lp-stage-brand" aria-label="Ares home">
@@ -319,6 +325,12 @@ function renderLanding() {
   initLandingSpaLinks();
   initMobileNavDrawer();
   initMetricCounters();
+  initCardTilt();
+  initMagneticButtons();
+  initGlowCursor();
+  initTextScramble();
+  initScrollProgress();
+  initFloatingParticles();
 }
 
 function initNetworkCanvas() {
@@ -336,17 +348,17 @@ function initNetworkCanvas() {
   const pointer = { x: -9999, y: -9999 };
 
   function seedNodes() {
-    const density = Math.floor((width * height) / 36000);
-    const count = Math.max(16, Math.min(40, density));
+    const density = Math.floor((width * height) / 26000);
+    const count = Math.max(22, Math.min(60, density));
     nodes = [];
 
     for (let i = 0; i < count; i++) {
       nodes.push({
         x: Math.random() * width,
         y: Math.random() * height,
-        vx: (Math.random() - 0.5) * 0.2,
-        vy: (Math.random() - 0.5) * 0.2,
-        radius: Math.random() * 1.2 + 0.8,
+        vx: (Math.random() - 0.5) * 0.28,
+        vy: (Math.random() - 0.5) * 0.28,
+        radius: Math.random() * 1.6 + 0.8,
         phase: Math.random() * Math.PI * 2
       });
     }
@@ -378,17 +390,24 @@ function initNetworkCanvas() {
       const dy = pointer.y - node.y;
       const dist = Math.hypot(dx, dy);
 
-      if (dist < 160 && dist > 0) {
-        const force = (160 - dist) / 160;
-        node.x -= (dx / dist) * force * 0.42;
-        node.y -= (dy / dist) * force * 0.42;
+      if (dist < 180 && dist > 0) {
+        const force = (180 - dist) / 180;
+        node.x -= (dx / dist) * force * 0.5;
+        node.y -= (dy / dist) * force * 0.5;
       }
 
-      const glow = 0.2 + ((Math.sin(time * 0.001 + node.phase) + 1) * 0.5) * 0.24;
+      const glow = 0.22 + ((Math.sin(time * 0.001 + node.phase) + 1) * 0.5) * 0.3;
       ctx.beginPath();
       ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(148, 163, 184, ${glow})`;
+      ctx.fillStyle = `rgba(140, 174, 254, ${glow})`;
       ctx.fill();
+
+      if (node.radius > 1.4) {
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.radius * 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(140, 174, 254, ${glow * 0.08})`;
+        ctx.fill();
+      }
     }
 
     for (let i = 0; i < nodes.length; i++) {
@@ -397,13 +416,13 @@ function initNetworkCanvas() {
         const b = nodes[j];
         const dist = Math.hypot(a.x - b.x, a.y - b.y);
 
-        if (dist < 120) {
-          const alpha = (1 - dist / 120) * 0.08;
+        if (dist < 150) {
+          const alpha = (1 - dist / 150) * 0.1;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = `rgba(148, 163, 184, ${alpha})`;
-          ctx.lineWidth = 0.7;
+          ctx.strokeStyle = `rgba(140, 174, 254, ${alpha})`;
+          ctx.lineWidth = 0.8;
           ctx.stroke();
         }
       }
@@ -677,4 +696,220 @@ function initMetricCounters() {
       cancelAnimationFrame(rafId);
     }
   });
+}
+
+function initCardTilt() {
+  const cards = Array.from(document.querySelectorAll('.lp-card'));
+  if (!cards.length || !matchMedia('(hover: hover)').matches) return;
+
+  const handlers = [];
+
+  cards.forEach((card) => {
+    const onMove = (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width;
+      const y = (e.clientY - rect.top) / rect.height;
+      const tiltX = (y - 0.5) * -8;
+      const tiltY = (x - 0.5) * 8;
+      card.style.transform = `perspective(800px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(0)`;
+      card.style.setProperty('--mouse-x', `${x * 100}%`);
+      card.style.setProperty('--mouse-y', `${y * 100}%`);
+    };
+
+    const onLeave = () => {
+      card.style.transform = '';
+    };
+
+    card.addEventListener('mousemove', onMove);
+    card.addEventListener('mouseleave', onLeave);
+    handlers.push([card, onMove, onLeave]);
+  });
+
+  registerLandingCleanup(() => {
+    handlers.forEach(([el, move, leave]) => {
+      el.removeEventListener('mousemove', move);
+      el.removeEventListener('mouseleave', leave);
+      el.style.transform = '';
+    });
+  });
+}
+
+function initMagneticButtons() {
+  const btns = Array.from(document.querySelectorAll('.lp-action, .lp-btn'));
+  if (!btns.length || !matchMedia('(hover: hover)').matches) return;
+
+  const handlers = [];
+
+  btns.forEach((btn) => {
+    const onMove = (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width / 2;
+      const y = e.clientY - rect.top - rect.height / 2;
+      btn.style.transform = `translate(${x * 0.18}px, ${y * 0.28}px)`;
+    };
+
+    const onLeave = () => {
+      btn.style.transform = '';
+    };
+
+    btn.addEventListener('mousemove', onMove);
+    btn.addEventListener('mouseleave', onLeave);
+    handlers.push([btn, onMove, onLeave]);
+  });
+
+  registerLandingCleanup(() => {
+    handlers.forEach(([el, move, leave]) => {
+      el.removeEventListener('mousemove', move);
+      el.removeEventListener('mouseleave', leave);
+      el.style.transform = '';
+    });
+  });
+}
+
+function initGlowCursor() {
+  const glow = document.getElementById('lp-glow-cursor');
+  if (!glow || !matchMedia('(hover: hover)').matches) return;
+
+  let rafId = 0;
+  let cx = -500;
+  let cy = -500;
+  let tx = -500;
+  let ty = -500;
+
+  const onMove = (e) => {
+    tx = e.clientX;
+    ty = e.clientY;
+    glow.classList.add('is-visible');
+  };
+
+  const onLeave = () => {
+    glow.classList.remove('is-visible');
+  };
+
+  const tick = () => {
+    cx += (tx - cx) * 0.1;
+    cy += (ty - cy) * 0.1;
+    glow.style.left = cx + 'px';
+    glow.style.top = cy + 'px';
+    rafId = requestAnimationFrame(tick);
+  };
+
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseleave', onLeave);
+  rafId = requestAnimationFrame(tick);
+
+  registerLandingCleanup(() => {
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('mouseleave', onLeave);
+    if (rafId) cancelAnimationFrame(rafId);
+    if (glow.parentNode) glow.remove();
+  });
+}
+
+function initTextScramble() {
+  const title = document.querySelector('.lp-stage-title');
+  if (!title) return;
+
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%&*';
+
+  function collectTextNodes(el) {
+    const result = [];
+    for (const child of el.childNodes) {
+      if (child.nodeType === Node.TEXT_NODE && child.textContent.trim()) {
+        result.push({ node: child, original: child.textContent });
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        result.push(...collectTextNodes(child));
+      }
+    }
+    return result;
+  }
+
+  const nodes = collectTextNodes(title);
+  if (!nodes.length) return;
+
+  const totalLen = nodes.reduce((s, n) => s + n.original.length, 0);
+
+  nodes.forEach((n) => {
+    n.node.textContent = n.original.split('').map((c) =>
+      c === ' ' ? ' ' : chars[Math.floor(Math.random() * chars.length)]
+    ).join('');
+  });
+
+  let iteration = 0;
+  const maxIterations = totalLen * 2;
+
+  const interval = setInterval(() => {
+    nodes.forEach((n) => {
+      const revealed = Math.floor((iteration / maxIterations) * n.original.length);
+      n.node.textContent = n.original.split('').map((c, i) => {
+        if (i < revealed || c === ' ') return c;
+        return chars[Math.floor(Math.random() * chars.length)];
+      }).join('');
+    });
+
+    iteration++;
+    if (iteration > maxIterations) {
+      nodes.forEach((n) => { n.node.textContent = n.original; });
+      clearInterval(interval);
+    }
+  }, 28);
+
+  registerLandingCleanup(() => clearInterval(interval));
+}
+
+function initScrollProgress() {
+  const bars = Array.from(document.querySelectorAll('.lp-horizon-bars i'));
+  if (bars.length < 3) return;
+
+  const sections = [
+    document.getElementById('top'),
+    document.getElementById('features'),
+    document.getElementById('metrics')
+  ].filter(Boolean);
+
+  if (sections.length < 3) return;
+
+  const onScroll = () => {
+    const scrollY = window.scrollY + window.innerHeight / 2;
+    let active = 0;
+    for (let i = sections.length - 1; i >= 0; i--) {
+      if (scrollY >= sections[i].offsetTop) {
+        active = i;
+        break;
+      }
+    }
+    bars.forEach((bar, i) => {
+      bar.classList.toggle('is-active', i <= active);
+    });
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  registerLandingCleanup(() => window.removeEventListener('scroll', onScroll));
+}
+
+function initFloatingParticles() {
+  const container = document.getElementById('lp-particles');
+  if (!container) return;
+
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduceMotion) return;
+
+  const count = matchMedia('(max-width: 760px)').matches ? 10 : 22;
+
+  for (let i = 0; i < count; i++) {
+    const p = document.createElement('span');
+    p.className = 'lp-particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.top = (60 + Math.random() * 40) + '%';
+    p.style.setProperty('--dur', (10 + Math.random() * 14) + 's');
+    p.style.animationDelay = -(Math.random() * 24) + 's';
+    const size = (1 + Math.random() * 2);
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+    container.appendChild(p);
+  }
+
+  registerLandingCleanup(() => { container.innerHTML = ''; });
 }
