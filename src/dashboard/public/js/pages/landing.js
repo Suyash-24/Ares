@@ -379,46 +379,83 @@ function initDotCarpet() {
     }
   }
 
+  // Pre-compute alpha-to-color lookup (avoid string alloc per dot per frame)
+  const colorCache = new Array(256);
+  for (let i = 0; i < 256; i++) {
+    const a = (i / 255).toFixed(3);
+    colorCache[i] = `rgba(140,174,254,${a})`;
+  }
+
+  let isIdle = true;
+  let idleFrames = 0;
+
   function draw() {
     ctx.clearRect(0, 0, width, height);
+
+    const pointerActive = pointer.x > -1000;
+    let anyMoving = false;
+
+    // Draw static dots in a single batch when idle
+    if (isIdle && !pointerActive) {
+      ctx.fillStyle = colorCache[46]; // 0.18 alpha
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i];
+        ctx.fillRect(dot.ox - 0.8, dot.oy - 0.8, 1.6, 1.6);
+      }
+      rafId = requestAnimationFrame(draw);
+      return;
+    }
 
     for (let i = 0; i < dots.length; i++) {
       const dot = dots[i];
       const mx = pointer.x - dot.ox;
       const my = pointer.y - dot.oy;
-      const dist = Math.sqrt(mx * mx + my * my);
+      const distSq = mx * mx + my * my;
+      const radiusSq = radius * radius;
 
-      if (dist < radius && dist > 0) {
+      if (distSq < radiusSq && distSq > 0) {
+        const dist = Math.sqrt(distSq);
         const force = (1 - dist / radius);
         const angle = Math.atan2(my, mx);
         dot.dx = -Math.cos(angle) * force * pushStrength;
         dot.dy = -Math.sin(angle) * force * pushStrength;
+        anyMoving = true;
       } else {
-        // ease back to origin
         dot.dx *= 0.88;
         dot.dy *= 0.88;
+        if (Math.abs(dot.dx) > 0.05 || Math.abs(dot.dy) > 0.05) anyMoving = true;
       }
 
       const x = dot.ox + dot.dx;
       const y = dot.oy + dot.dy;
-      const displacement = Math.sqrt(dot.dx * dot.dx + dot.dy * dot.dy);
-      const alpha = 0.18 + Math.min(displacement / pushStrength, 1) * 0.52;
-      const size = 0.8 + Math.min(displacement / pushStrength, 1) * 0.6;
+      const displacement = Math.abs(dot.dx) + Math.abs(dot.dy);
+      const t = Math.min(displacement / pushStrength, 1);
+      const alpha = 0.18 + t * 0.52;
+      const size = 0.8 + t * 0.6;
 
-      ctx.beginPath();
-      ctx.arc(x, y, size, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(140, 174, 254, ${alpha})`;
-      ctx.fill();
+      const ci = (alpha * 255 + 0.5) | 0;
+      ctx.fillStyle = colorCache[ci];
+      ctx.fillRect(x - size, y - size, size * 2, size * 2);
+    }
+
+    if (!anyMoving && !pointerActive) {
+      idleFrames++;
+      if (idleFrames > 30) isIdle = true;
+    } else {
+      idleFrames = 0;
+      isIdle = false;
     }
 
     rafId = requestAnimationFrame(draw);
   }
 
-  const onResize = () => rebuild();
+  const onResize = () => { rebuild(); isIdle = false; idleFrames = 0; };
   const onMove = (e) => {
     const rect = canvas.getBoundingClientRect();
     pointer.x = e.clientX - rect.left;
     pointer.y = e.clientY - rect.top;
+    isIdle = false;
+    idleFrames = 0;
   };
   const onLeave = () => {
     pointer.x = -9999;
@@ -485,8 +522,13 @@ function initNetworkCanvas() {
     seedNodes();
   }
 
+  const PI2 = Math.PI * 2;
+  const connectDist = 150;
+
   function draw(time) {
     ctx.clearRect(0, 0, width, height);
+
+    const sinT = Math.sin(time * 0.001);
 
     for (const node of nodes) {
       node.x += node.vx;
@@ -497,9 +539,10 @@ function initNetworkCanvas() {
 
       const dx = pointer.x - node.x;
       const dy = pointer.y - node.y;
-      const dist = Math.hypot(dx, dy);
+      const distSq = dx * dx + dy * dy;
 
-      if (dist < 260 && dist > 0) {
+      if (distSq < 67600 && distSq > 0) { // 260²
+        const dist = Math.sqrt(distSq);
         const influence = (260 - dist) / 260;
         node.orbitAngle += node.orbitSpeed * (1 + influence * 3);
 
@@ -514,33 +557,30 @@ function initNetworkCanvas() {
         node.vy *= 0.96;
       }
 
-      const glow = 0.22 + ((Math.sin(time * 0.001 + node.phase) + 1) * 0.5) * 0.3;
+      const glow = 0.22 + ((sinT * Math.cos(node.phase) + 1) * 0.5) * 0.3;
       ctx.beginPath();
-      ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(140, 174, 254, ${glow})`;
+      ctx.arc(node.x, node.y, node.radius, 0, PI2);
+      ctx.fillStyle = `rgba(140,174,254,${glow.toFixed(3)})`;
       ctx.fill();
-
-      if (node.radius > 1.4) {
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius * 3, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(140, 174, 254, ${glow * 0.08})`;
-        ctx.fill();
-      }
     }
 
+    // Batch lines with a single path + stroke
+    ctx.lineWidth = 0.8;
     for (let i = 0; i < nodes.length; i++) {
       for (let j = i + 1; j < nodes.length; j++) {
         const a = nodes[i];
         const b = nodes[j];
-        const dist = Math.hypot(a.x - b.x, a.y - b.y);
+        const ddx = a.x - b.x;
+        const ddy = a.y - b.y;
+        const distSq = ddx * ddx + ddy * ddy;
 
-        if (dist < 150) {
-          const alpha = (1 - dist / 150) * 0.1;
+        if (distSq < 22500) { // 150²
+          const dist = Math.sqrt(distSq);
+          const alpha = (1 - dist / connectDist) * 0.1;
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(b.x, b.y);
-          ctx.strokeStyle = `rgba(140, 174, 254, ${alpha})`;
-          ctx.lineWidth = 0.8;
+          ctx.strokeStyle = `rgba(140,174,254,${alpha.toFixed(3)})`;
           ctx.stroke();
         }
       }
@@ -589,11 +629,11 @@ function initHeroSpotlight() {
   let ty = 0;
 
   const animate = () => {
-    x += (tx - x) * 0.08;
-    y += (ty - y) * 0.08;
+    x += (tx - x) * 0.12;
+    y += (ty - y) * 0.12;
 
-    lightA.style.transform = `translate(${x * 24}px, ${y * 16}px)`;
-    lightB.style.transform = `translate(${x * -18}px, ${y * -12}px)`;
+    lightA.style.transform = `translate3d(${x * 24}px, ${y * 16}px, 0)`;
+    lightB.style.transform = `translate3d(${x * -18}px, ${y * -12}px, 0)`;
 
     rafId = requestAnimationFrame(animate);
   };
@@ -905,10 +945,9 @@ function initGlowCursor() {
   };
 
   const tick = () => {
-    cx += (tx - cx) * 0.1;
-    cy += (ty - cy) * 0.1;
-    glow.style.left = cx + 'px';
-    glow.style.top = cy + 'px';
+    cx += (tx - cx) * 0.14;
+    cy += (ty - cy) * 0.14;
+    glow.style.transform = `translate3d(${cx - 250}px, ${cy - 250}px, 0)`;
     rafId = requestAnimationFrame(tick);
   };
 

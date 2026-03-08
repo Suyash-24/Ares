@@ -32,7 +32,7 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { font-size: 15px; }
+html { font-size: 15px; scroll-behavior: smooth; }
 
 body {
   font-family: var(--font);
@@ -51,6 +51,8 @@ body {
 .orb {
   position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.4;
   animation: float 20s ease-in-out infinite;
+  will-change: transform;
+  contain: layout style;
 }
 .orb-1 {
   width: 600px; height: 600px; background: radial-gradient(circle, #6366f1 0%, transparent 70%);
@@ -484,6 +486,7 @@ tr:hover td { background: var(--bg-surface); }
   z-index: 1;
   pointer-events: none;
   border-radius: inherit;
+  will-change: contents;
 }
 
 .lp-stage-light {
@@ -1493,59 +1496,53 @@ tr:hover td { background: var(--bg-surface); }
 
 .lp [data-reveal] {
   --reveal-x: 0px;
-  --reveal-y: 20px;
-  --reveal-scale: 0.97;
+  --reveal-y: 16px;
+  --reveal-scale: 0.98;
   --reveal-rotate: 0deg;
-  --reveal-blur: 6px;
 
   opacity: 0;
-  filter: blur(var(--reveal-blur));
   transform: translate3d(var(--reveal-x), var(--reveal-y), 0) rotate(var(--reveal-rotate)) scale(var(--reveal-scale));
   transition:
-    opacity 620ms cubic-bezier(0.22, 1, 0.36, 1),
-    transform 780ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 780ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 480ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
   transition-delay: var(--reveal-delay, 0ms);
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 
 .lp [data-reveal="left"] {
-  --reveal-x: -30px;
-  --reveal-y: 12px;
-  --reveal-rotate: -1deg;
+  --reveal-x: -24px;
+  --reveal-y: 10px;
+  --reveal-rotate: -0.5deg;
 }
 
 .lp [data-reveal="right"] {
-  --reveal-x: 30px;
-  --reveal-y: 12px;
-  --reveal-rotate: 1deg;
+  --reveal-x: 24px;
+  --reveal-y: 10px;
+  --reveal-rotate: 0.5deg;
 }
 
 .lp [data-reveal="zoom"] {
-  --reveal-y: 16px;
-  --reveal-scale: 0.93;
-  --reveal-blur: 8px;
+  --reveal-y: 12px;
+  --reveal-scale: 0.95;
 }
 
 .lp [data-reveal="blur"] {
-  --reveal-y: 16px;
-  --reveal-scale: 0.98;
-  --reveal-blur: 9px;
+  --reveal-y: 12px;
+  --reveal-scale: 0.99;
 }
 
 .lp [data-reveal="rise"] {
-  --reveal-y: 26px;
-  --reveal-scale: 0.95;
+  --reveal-y: 20px;
+  --reveal-scale: 0.97;
 }
 
 .lp [data-reveal].revealed {
   opacity: 1;
-  filter: blur(0);
   transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
 }
 
 .lp .lp-card[data-reveal].revealed {
-  transition: transform 400ms cubic-bezier(0.03, 0.98, 0.52, 0.99), box-shadow 400ms ease, opacity 620ms ease, filter 620ms ease;
+  transition: transform 360ms cubic-bezier(0.03, 0.98, 0.52, 0.99), box-shadow 360ms ease, opacity 480ms ease;
   transition-delay: 0ms;
 }
 
@@ -1690,9 +1687,10 @@ tr:hover td { background: var(--bg-surface); }
 
 /* Card 3D tilt + glow cursor */
 .lp-card {
-  transition: transform 400ms cubic-bezier(0.03, 0.98, 0.52, 0.99), box-shadow 400ms ease;
+  transition: transform 300ms cubic-bezier(0.03, 0.98, 0.52, 0.99), box-shadow 300ms ease;
   will-change: transform;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
 
 .lp-card:hover {
@@ -1870,16 +1868,18 @@ tr:hover td { background: var(--bg-surface); }
 /* Glow cursor */
 .lp-glow-cursor {
   position: fixed;
+  top: 0;
+  left: 0;
   width: 500px;
   height: 500px;
   border-radius: 50%;
   pointer-events: none;
   z-index: 1;
   background: radial-gradient(circle, rgba(99, 102, 241, 0.045) 0%, transparent 70%);
-  transform: translate(-50%, -50%);
-  transition: opacity 400ms ease;
+  transition: opacity 300ms ease;
   opacity: 0;
-  will-change: left, top;
+  will-change: transform;
+  contain: layout style;
 }
 
 .lp-glow-cursor.is-visible {
