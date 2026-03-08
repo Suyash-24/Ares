@@ -954,7 +954,7 @@ function initTextScramble() {
   });
 
   let iteration = 0;
-  const maxIterations = totalLen * 2;
+  const maxIterations = Math.ceil(totalLen * 0.8);
 
   const interval = setInterval(() => {
     nodes.forEach((n) => {
@@ -970,7 +970,7 @@ function initTextScramble() {
       nodes.forEach((n) => { n.node.textContent = n.original; });
       clearInterval(interval);
     }
-  }, 28);
+  }, 22);
 
   registerLandingCleanup(() => clearInterval(interval));
 }
