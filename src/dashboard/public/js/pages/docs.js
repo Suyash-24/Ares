@@ -464,6 +464,7 @@ function renderDocsHome(categories, scrollTarget) {
 
   document.getElementById('page-content').innerHTML = `
     <div class="docs">
+      <div class="docs-aurora"><span></span><span></span><span></span></div>
       ${docsNavbar()}
       <div class="docs-layout">
         ${docsSidebar(categories, null)}
@@ -595,6 +596,7 @@ function renderDocsModule(categories, cat) {
 
   document.getElementById('page-content').innerHTML = `
     <div class="docs">
+      <div class="docs-aurora"><span></span><span></span><span></span></div>
       ${docsNavbar()}
       <div class="docs-layout">
         ${docsSidebar(categories, cat.id)}
