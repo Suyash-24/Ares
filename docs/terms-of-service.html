@@ -4,129 +4,592 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service - Ares Bot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --lp-text: #edf2ff;
+            --lp-text-soft: #a2adc8;
+            --lp-border: rgba(155, 171, 191, 0.22);
+            --lp-ink: #04070d;
+            --lp-blue: #8caefe;
+            --lp-silver: #e6edf7;
+            --lp-font-display: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --lp-font-body: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --accent: #818cf8;
+            --accent-soft: rgba(129, 140, 248, 0.15);
+            --success: #34d399;
+            --success-soft: rgba(52, 211, 153, 0.15);
+            --warning: #fbbf24;
+            --warning-soft: rgba(251, 191, 36, 0.15);
+            --danger: #f87171;
+            --danger-soft: rgba(248, 113, 113, 0.15);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { font-size: 15px; scroll-behavior: smooth; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e4e4e4;
+            font-family: var(--lp-font-body);
+            color: var(--lp-text);
             min-height: 100vh;
-            padding: 40px 20px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            background:
+                radial-gradient(900px 460px at 8% -4%, rgba(147, 176, 234, 0.14), transparent 70%),
+                radial-gradient(940px 420px at 92% 1%, rgba(226, 236, 244, 0.12), transparent 72%),
+                linear-gradient(180deg, #0e131d 0%, #0d1118 42%, #0c1016 100%);
+            background-attachment: fixed;
             line-height: 1.7;
         }
-        .container {
-            max-width: 800px;
+
+        /* Aurora background */
+        .aurora {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .aurora span {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            will-change: transform;
+        }
+
+        .aurora span:nth-child(1) {
+            width: 420px; height: 420px;
+            background: rgba(99, 102, 241, 0.25);
+            top: -10%; left: 15%;
+            animation: aurora1 8s ease-in-out infinite alternate;
+        }
+
+        .aurora span:nth-child(2) {
+            width: 360px; height: 360px;
+            background: rgba(139, 92, 246, 0.2);
+            top: 25%; right: -5%;
+            animation: aurora2 12s ease-in-out infinite alternate;
+        }
+
+        .aurora span:nth-child(3) {
+            width: 300px; height: 300px;
+            background: rgba(59, 130, 246, 0.25);
+            bottom: -5%; left: 35%;
+            animation: aurora3 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora1 {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            100% { transform: translate(60px, 40px) scale(1.15); opacity: 1; }
+        }
+        @keyframes aurora2 {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(-40px, 30px) scale(1.1); opacity: 0.6; }
+        }
+        @keyframes aurora3 {
+            0% { transform: translate(0, 0) scale(0.95); opacity: 0.7; }
+            100% { transform: translate(30px, -25px) scale(1.1); opacity: 1; }
+        }
+
+        /* Shell */
+        .shell {
+            position: relative;
+            z-index: 1;
+            width: min(880px, calc(100% - 48px));
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 40px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px 0 40px;
         }
-        h1 {
-            color: #5865F2;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+
+        /* Top navigation */
+        .doc-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(205, 216, 228, 0.2);
+            background: rgba(9, 12, 19, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .doc-nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--lp-text);
+        }
+
+        .doc-nav-brand-icon {
+            font-size: 1.3rem;
+        }
+
+        .doc-nav-brand-text {
+            font-family: var(--lp-font-display);
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .doc-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .doc-nav-links a {
+            color: #c3ccdf;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 640;
+            letter-spacing: 0.02em;
+            transition: color 200ms ease;
+            position: relative;
+        }
+
+        .doc-nav-links a:hover {
+            color: #f2f8ff;
+        }
+
+        .doc-nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 100%;
+            height: 1px;
+            background: rgba(140, 174, 254, 0.6);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .doc-nav-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .doc-nav-links a.active {
+            color: #f2f8ff;
+        }
+
+        /* Frame container */
+        .doc-frame {
+            position: relative;
+            border-radius: 28px;
+            border: 1px solid rgba(170, 184, 204, 0.18);
+            background: linear-gradient(180deg, rgba(5, 8, 13, 0.9), rgba(4, 6, 10, 0.94));
+            box-shadow: 0 42px 90px rgba(0, 0, 0, 0.56);
+            padding: 2px;
+            overflow: hidden;
+        }
+
+        /* Animated border */
+        @property --border-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        .doc-frame::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: conic-gradient(
+                from var(--border-angle),
+                transparent 20%,
+                rgba(139, 92, 246, 0.5) 35%,
+                rgba(99, 102, 241, 0.6) 50%,
+                rgba(59, 130, 246, 0.5) 65%,
+                transparent 80%
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderSpin 4s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes borderSpin {
+            to { --border-angle: 360deg; }
+        }
+
+        .doc-inner {
+            position: relative;
+            border-radius: 26px;
+            border: 1px solid var(--lp-border);
+            background:
+                radial-gradient(860px 420px at 82% 8%, rgba(236, 244, 248, 0.07), transparent 72%),
+                linear-gradient(180deg, #05080e 0%, #04070d 100%);
+            padding: 48px 52px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .doc-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(480px 260px at 9% 88%, rgba(243, 251, 255, 0.08), transparent 72%),
+                radial-gradient(620px 320px at 88% 14%, rgba(231, 241, 245, 0.1), transparent 72%);
+            z-index: 0;
+        }
+
+        .doc-inner > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .doc-header {
             text-align: center;
+            margin-bottom: 36px;
         }
-        .last-updated {
-            text-align: center;
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
+
+        .doc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 30px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(212, 222, 232, 0.22);
+            background: rgba(212, 222, 232, 0.08);
+            color: #d4deea;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 16px;
+            overflow: hidden;
+            position: relative;
         }
+
+        .doc-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 3.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { left: -60%; }
+            50% { left: 160%; }
+        }
+
+        .doc-title {
+            font-family: var(--lp-font-display);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 650;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            color: #eff4ff;
+            margin-bottom: 8px;
+            animation: titleGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 60px rgba(140, 174, 254, 0), 0 0 120px rgba(99, 102, 241, 0); }
+            50% { text-shadow: 0 0 60px rgba(140, 174, 254, 0.15), 0 0 120px rgba(99, 102, 241, 0.06); }
+        }
+
+        .doc-updated {
+            color: #808ba4;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Highlight callouts */
+        .callout {
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(16, 22, 36, 0.62);
+            margin: 24px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .callout::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .callout-info {
+            border-color: rgba(140, 174, 254, 0.25);
+        }
+
+        .callout-info::before {
+            background: var(--lp-blue);
+        }
+
+        .callout p {
+            color: #bcc8dd;
+            font-size: 0.86rem;
+            line-height: 1.65;
+        }
+
+        .callout strong {
+            color: #eef4ff;
+        }
+
+        /* Section headings */
         h2 {
-            color: #7289da;
-            margin: 30px 0 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #5865F2;
+            font-family: var(--lp-font-display);
+            font-size: clamp(1.2rem, 2vw, 1.55rem);
+            font-weight: 650;
+            letter-spacing: -0.03em;
+            color: #eff4ff;
+            margin: 36px 0 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
         }
-        p { margin-bottom: 15px; }
+
+        p {
+            color: #9aa5bc;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
         ul {
-            margin: 15px 0 15px 25px;
+            margin: 12px 0 16px 22px;
         }
-        li { margin-bottom: 8px; }
-        .highlight {
-            background: rgba(88, 101, 242, 0.2);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #5865F2;
-            margin: 20px 0;
+
+        li {
+            color: #9aa5bc;
+            font-size: 0.86rem;
+            margin-bottom: 8px;
+            line-height: 1.6;
         }
-        a { color: #5865F2; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .footer {
-            text-align: center;
+
+        li strong {
+            color: #d4deea;
+        }
+
+        a {
+            color: var(--lp-blue);
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #f2f8ff;
+        }
+
+        /* Footer */
+        .doc-footer {
             margin-top: 40px;
             padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #888;
+            border-top: 1px solid rgba(148, 163, 184, 0.16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doc-footer p {
+            color: #808ba4;
+            font-size: 0.76rem;
+            margin: 0;
+        }
+
+        .doc-footer a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 0 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            background: rgba(148, 163, 184, 0.09);
+            color: #d3dced;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+        }
+
+        .doc-footer a:hover {
+            transform: translateY(-1px);
+            border-color: rgba(140, 174, 254, 0.4);
+            box-shadow: 0 0 20px rgba(140, 174, 254, 0.12);
+            color: #f2f8ff;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .doc-header { animation: fadeUp 0.5s ease-out; }
+        .doc-inner > *:nth-child(2) { animation: fadeUp 0.5s ease-out 0.1s both; }
+        .doc-inner > *:nth-child(3) { animation: fadeUp 0.5s ease-out 0.15s both; }
+
+        /* Responsive */
+        @media (max-width: 760px) {
+            .shell {
+                width: calc(100% - 24px);
+                padding: 16px 0 32px;
+            }
+
+            .doc-frame {
+                border-radius: 20px;
+            }
+
+            .doc-inner {
+                border-radius: 18px;
+                padding: 28px 20px;
+            }
+
+            .doc-nav {
+                padding: 8px 14px;
+                gap: 8px;
+            }
+
+            .doc-nav-links {
+                gap: 10px;
+            }
+
+            .doc-footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .shell {
+                width: calc(100% - 16px);
+            }
+
+            .doc-frame {
+                border-radius: 16px;
+            }
+
+            .doc-inner {
+                border-radius: 14px;
+                padding: 22px 16px;
+            }
+
+            .doc-nav-links a:nth-child(3) {
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📜 Terms of Service</h1>
-        <p class="last-updated">Last Updated: January 10, 2026</p>
+    <div class="aurora" aria-hidden="true">
+        <span></span><span></span><span></span>
+    </div>
 
-        <div class="highlight">
-            By using Ares Bot, you agree to these Terms of Service. Please read them carefully.
-        </div>
+    <div class="shell">
+        <nav class="doc-nav">
+            <a href="/" class="doc-nav-brand">
+                <span class="doc-nav-brand-icon">⚡</span>
+                <span class="doc-nav-brand-text">Ares</span>
+            </a>
+            <div class="doc-nav-links">
+                <a href="/">Home</a>
+                <a href="privacy-policy.html">Privacy</a>
+                <a href="terms-of-service.html" class="active">Terms</a>
+            </div>
+        </nav>
 
-        <h2>1. Acceptance of Terms</h2>
-        <p>By inviting Ares Bot to your Discord server or using any of its features, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the bot.</p>
+        <div class="doc-frame">
+            <div class="doc-inner">
+                <div class="doc-header">
+                    <div class="doc-badge">📜 Legal Document</div>
+                    <h1 class="doc-title">Terms of Service</h1>
+                    <p class="doc-updated">Last Updated: January 10, 2026</p>
+                </div>
 
-        <h2>2. Description of Service</h2>
-        <p>Ares Bot provides various features for Discord servers including but not limited to:</p>
-        <ul>
-            <li>Moderation tools (ban, kick, mute, warn, etc.)</li>
-            <li>Welcome and goodbye messages</li>
-            <li>Leveling and XP system</li>
-            <li>Music playback</li>
-            <li>Server statistics and logging</li>
-            <li>Utility commands</li>
-            <li>Fun commands and games</li>
-        </ul>
+                <div class="callout callout-info">
+                    <p>By using Ares Bot, you agree to these Terms of Service. Please read them carefully.</p>
+                </div>
 
-        <h2>3. User Responsibilities</h2>
-        <p>As a user of Ares Bot, you agree to:</p>
-        <ul>
-            <li>Not use the bot for any illegal activities</li>
-            <li>Not attempt to exploit, abuse, or manipulate the bot's features</li>
-            <li>Not use the bot to harass, spam, or harm other users</li>
-            <li>Comply with Discord's Terms of Service and Community Guidelines</li>
-            <li>Not attempt to reverse engineer or modify the bot</li>
-        </ul>
+                <h2>1. Acceptance of Terms</h2>
+                <p>By inviting Ares Bot to your Discord server or using any of its features, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use the bot.</p>
 
-        <h2>4. Bot Permissions</h2>
-        <p>Ares Bot requires certain permissions to function properly. By inviting the bot, you authorize it to:</p>
-        <ul>
-            <li>Read and send messages in channels it has access to</li>
-            <li>Manage roles, channels, and members (for moderation)</li>
-            <li>View server insights and member information</li>
-            <li>Connect to and speak in voice channels (for music)</li>
-        </ul>
+                <h2>2. Description of Service</h2>
+                <p>Ares Bot provides various features for Discord servers including but not limited to:</p>
+                <ul>
+                    <li>Moderation tools (ban, kick, mute, warn, etc.)</li>
+                    <li>Welcome and goodbye messages</li>
+                    <li>Leveling and XP system</li>
+                    <li>Music playback</li>
+                    <li>Server statistics and logging</li>
+                    <li>Utility commands</li>
+                    <li>Fun commands and games</li>
+                </ul>
 
-        <h2>5. Data Collection</h2>
-        <p>For information about what data we collect and how we use it, please refer to our <a href="privacy-policy.html">Privacy Policy</a>.</p>
+                <h2>3. User Responsibilities</h2>
+                <p>As a user of Ares Bot, you agree to:</p>
+                <ul>
+                    <li>Not use the bot for any illegal activities</li>
+                    <li>Not attempt to exploit, abuse, or manipulate the bot's features</li>
+                    <li>Not use the bot to harass, spam, or harm other users</li>
+                    <li>Comply with Discord's Terms of Service and Community Guidelines</li>
+                    <li>Not attempt to reverse engineer or modify the bot</li>
+                </ul>
 
-        <h2>6. Service Availability</h2>
-        <p>We strive to keep Ares Bot online and functional at all times. However, we do not guarantee uninterrupted service and are not liable for any downtime, data loss, or service interruptions.</p>
+                <h2>4. Bot Permissions</h2>
+                <p>Ares Bot requires certain permissions to function properly. By inviting the bot, you authorize it to:</p>
+                <ul>
+                    <li>Read and send messages in channels it has access to</li>
+                    <li>Manage roles, channels, and members (for moderation)</li>
+                    <li>View server insights and member information</li>
+                    <li>Connect to and speak in voice channels (for music)</li>
+                </ul>
 
-        <h2>7. Modifications to Service</h2>
-        <p>We reserve the right to modify, suspend, or discontinue any feature of the bot at any time without prior notice. We may also update these Terms of Service, and continued use constitutes acceptance of any changes.</p>
+                <h2>5. Data Collection</h2>
+                <p>For information about what data we collect and how we use it, please refer to our <a href="privacy-policy.html">Privacy Policy</a>.</p>
 
-        <h2>8. Termination</h2>
-        <p>We reserve the right to terminate or restrict access to Ares Bot for any user or server that violates these terms or Discord's Terms of Service.</p>
+                <h2>6. Service Availability</h2>
+                <p>We strive to keep Ares Bot online and functional at all times. However, we do not guarantee uninterrupted service and are not liable for any downtime, data loss, or service interruptions.</p>
 
-        <h2>9. Limitation of Liability</h2>
-        <p>Ares Bot is provided "as is" without warranties of any kind. We are not liable for any damages arising from the use or inability to use the bot.</p>
+                <h2>7. Modifications to Service</h2>
+                <p>We reserve the right to modify, suspend, or discontinue any feature of the bot at any time without prior notice. We may also update these Terms of Service, and continued use constitutes acceptance of any changes.</p>
 
-        <h2>10. Contact</h2>
-        <p>For questions about these terms or to report issues, join our support server or contact the bot developers.</p>
+                <h2>8. Termination</h2>
+                <p>We reserve the right to terminate or restrict access to Ares Bot for any user or server that violates these terms or Discord's Terms of Service.</p>
 
-        <div class="footer">
-            <p>© 2026 Ares Bot. All rights reserved.</p>
+                <h2>9. Limitation of Liability</h2>
+                <p>Ares Bot is provided "as is" without warranties of any kind. We are not liable for any damages arising from the use or inability to use the bot.</p>
+
+                <h2>10. Contact</h2>
+                <p>For questions about these terms or to report issues, join our support server or contact the bot developers.</p>
+
+                <div class="doc-footer">
+                    <p>&copy; 2026 Ares Bot. All rights reserved.</p>
+                    <a href="privacy-policy.html">&larr; Privacy Policy</a>
+                </div>
+            </div>
         </div>
     </div>
 </body>

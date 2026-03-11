@@ -4,212 +4,740 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy - Ares Bot</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --lp-text: #edf2ff;
+            --lp-text-soft: #a2adc8;
+            --lp-border: rgba(155, 171, 191, 0.22);
+            --lp-ink: #04070d;
+            --lp-blue: #8caefe;
+            --lp-silver: #e6edf7;
+            --lp-font-display: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --lp-font-body: 'Manrope', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --accent: #818cf8;
+            --accent-soft: rgba(129, 140, 248, 0.15);
+            --success: #34d399;
+            --success-soft: rgba(52, 211, 153, 0.15);
+            --warning: #fbbf24;
+            --warning-soft: rgba(251, 191, 36, 0.15);
+            --danger: #f87171;
+            --danger-soft: rgba(248, 113, 113, 0.15);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { font-size: 15px; scroll-behavior: smooth; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: #e4e4e4;
+            font-family: var(--lp-font-body);
+            color: var(--lp-text);
             min-height: 100vh;
-            padding: 40px 20px;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            background:
+                radial-gradient(900px 460px at 8% -4%, rgba(147, 176, 234, 0.14), transparent 70%),
+                radial-gradient(940px 420px at 92% 1%, rgba(226, 236, 244, 0.12), transparent 72%),
+                linear-gradient(180deg, #0e131d 0%, #0d1118 42%, #0c1016 100%);
+            background-attachment: fixed;
             line-height: 1.7;
         }
-        .container {
-            max-width: 800px;
+
+        /* Aurora background */
+        .aurora {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 0.3;
+        }
+
+        .aurora span {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            will-change: transform;
+        }
+
+        .aurora span:nth-child(1) {
+            width: 420px; height: 420px;
+            background: rgba(99, 102, 241, 0.25);
+            top: -10%; left: 15%;
+            animation: aurora1 8s ease-in-out infinite alternate;
+        }
+
+        .aurora span:nth-child(2) {
+            width: 360px; height: 360px;
+            background: rgba(139, 92, 246, 0.2);
+            top: 25%; right: -5%;
+            animation: aurora2 12s ease-in-out infinite alternate;
+        }
+
+        .aurora span:nth-child(3) {
+            width: 300px; height: 300px;
+            background: rgba(59, 130, 246, 0.25);
+            bottom: -5%; left: 35%;
+            animation: aurora3 10s ease-in-out infinite alternate;
+        }
+
+        @keyframes aurora1 {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.6; }
+            100% { transform: translate(60px, 40px) scale(1.15); opacity: 1; }
+        }
+        @keyframes aurora2 {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(-40px, 30px) scale(1.1); opacity: 0.6; }
+        }
+        @keyframes aurora3 {
+            0% { transform: translate(0, 0) scale(0.95); opacity: 0.7; }
+            100% { transform: translate(30px, -25px) scale(1.1); opacity: 1; }
+        }
+
+        /* Shell */
+        .shell {
+            position: relative;
+            z-index: 1;
+            width: min(880px, calc(100% - 48px));
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 40px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 28px 0 40px;
         }
-        h1 {
-            color: #5865F2;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
+
+        /* Top navigation */
+        .doc-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 32px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(205, 216, 228, 0.2);
+            background: rgba(9, 12, 19, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .doc-nav-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--lp-text);
+        }
+
+        .doc-nav-brand-icon {
+            font-size: 1.3rem;
+        }
+
+        .doc-nav-brand-text {
+            font-family: var(--lp-font-display);
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #818cf8, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .doc-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .doc-nav-links a {
+            color: #c3ccdf;
+            text-decoration: none;
+            font-size: 0.72rem;
+            font-weight: 640;
+            letter-spacing: 0.02em;
+            transition: color 200ms ease;
+            position: relative;
+        }
+
+        .doc-nav-links a:hover {
+            color: #f2f8ff;
+        }
+
+        .doc-nav-links a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: -3px;
+            width: 100%;
+            height: 1px;
+            background: rgba(140, 174, 254, 0.6);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        .doc-nav-links a:hover::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+
+        .doc-nav-links a.active {
+            color: #f2f8ff;
+        }
+
+        /* Frame container */
+        .doc-frame {
+            position: relative;
+            border-radius: 28px;
+            border: 1px solid rgba(170, 184, 204, 0.18);
+            background: linear-gradient(180deg, rgba(5, 8, 13, 0.9), rgba(4, 6, 10, 0.94));
+            box-shadow: 0 42px 90px rgba(0, 0, 0, 0.56);
+            padding: 2px;
+            overflow: hidden;
+        }
+
+        /* Animated border */
+        @property --border-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        .doc-frame::before {
+            content: '';
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            padding: 1px;
+            background: conic-gradient(
+                from var(--border-angle),
+                transparent 20%,
+                rgba(139, 92, 246, 0.5) 35%,
+                rgba(99, 102, 241, 0.6) 50%,
+                rgba(59, 130, 246, 0.5) 65%,
+                transparent 80%
+            );
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: borderSpin 4s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes borderSpin {
+            to { --border-angle: 360deg; }
+        }
+
+        .doc-inner {
+            position: relative;
+            border-radius: 26px;
+            border: 1px solid var(--lp-border);
+            background:
+                radial-gradient(860px 420px at 82% 8%, rgba(236, 244, 248, 0.07), transparent 72%),
+                linear-gradient(180deg, #05080e 0%, #04070d 100%);
+            padding: 48px 52px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        }
+
+        .doc-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(480px 260px at 9% 88%, rgba(243, 251, 255, 0.08), transparent 72%),
+                radial-gradient(620px 320px at 88% 14%, rgba(231, 241, 245, 0.1), transparent 72%);
+            z-index: 0;
+        }
+
+        .doc-inner > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .doc-header {
             text-align: center;
+            margin-bottom: 36px;
         }
-        .last-updated {
-            text-align: center;
-            color: #888;
-            margin-bottom: 30px;
-            font-size: 0.9rem;
+
+        .doc-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 30px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 1px solid rgba(212, 222, 232, 0.22);
+            background: rgba(212, 222, 232, 0.08);
+            color: #d4deea;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 16px;
+            overflow: hidden;
+            position: relative;
         }
+
+        .doc-badge::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+            animation: shimmer 3.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { left: -60%; }
+            50% { left: 160%; }
+        }
+
+        .doc-title {
+            font-family: var(--lp-font-display);
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 650;
+            letter-spacing: -0.04em;
+            line-height: 1.1;
+            color: #eff4ff;
+            margin-bottom: 8px;
+            animation: titleGlow 5s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 60px rgba(140, 174, 254, 0), 0 0 120px rgba(99, 102, 241, 0); }
+            50% { text-shadow: 0 0 60px rgba(140, 174, 254, 0.15), 0 0 120px rgba(99, 102, 241, 0.06); }
+        }
+
+        .doc-updated {
+            color: #808ba4;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Highlight callouts */
+        .callout {
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(16, 22, 36, 0.62);
+            margin: 24px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .callout::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 3px 0 0 3px;
+        }
+
+        .callout-info {
+            border-color: rgba(140, 174, 254, 0.25);
+        }
+
+        .callout-info::before {
+            background: var(--lp-blue);
+        }
+
+        .callout-success {
+            border-color: rgba(52, 211, 153, 0.25);
+        }
+
+        .callout-success::before {
+            background: var(--success);
+        }
+
+        .callout-warning {
+            border-color: rgba(251, 191, 36, 0.25);
+        }
+
+        .callout-warning::before {
+            background: var(--warning);
+        }
+
+        .callout p {
+            color: #bcc8dd;
+            font-size: 0.86rem;
+            line-height: 1.65;
+        }
+
+        .callout strong {
+            color: #eef4ff;
+        }
+
+        .callout ul {
+            margin: 10px 0 0 20px;
+        }
+
+        .callout li {
+            color: #bcc8dd;
+            font-size: 0.84rem;
+            margin-bottom: 4px;
+        }
+
+        /* Section headings */
         h2 {
-            color: #7289da;
-            margin: 30px 0 15px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #5865F2;
+            font-family: var(--lp-font-display);
+            font-size: clamp(1.2rem, 2vw, 1.55rem);
+            font-weight: 650;
+            letter-spacing: -0.03em;
+            color: #eff4ff;
+            margin: 36px 0 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
         }
+
         h3 {
-            color: #99aab5;
-            margin: 20px 0 10px;
+            font-family: var(--lp-font-display);
+            font-size: 1.05rem;
+            font-weight: 650;
+            color: #d4deea;
+            margin: 22px 0 10px;
+            letter-spacing: -0.02em;
         }
-        p { margin-bottom: 15px; }
+
+        p {
+            color: #9aa5bc;
+            font-size: 0.88rem;
+            line-height: 1.7;
+            margin-bottom: 14px;
+        }
+
         ul {
-            margin: 15px 0 15px 25px;
+            margin: 12px 0 16px 22px;
         }
-        li { margin-bottom: 8px; }
-        .highlight {
-            background: rgba(88, 101, 242, 0.2);
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #5865F2;
+
+        li {
+            color: #9aa5bc;
+            font-size: 0.86rem;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        li strong {
+            color: #d4deea;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.82rem;
+            padding: 2px 7px;
+            background: rgba(148, 163, 184, 0.12);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 6px;
+            color: var(--lp-blue);
+        }
+
+        a {
+            color: var(--lp-blue);
+            text-decoration: none;
+            transition: color 200ms ease;
+        }
+
+        a:hover {
+            color: #f2f8ff;
+        }
+
+        /* Table */
+        .table-wrap {
             margin: 20px 0;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            overflow: hidden;
+            background: rgba(10, 14, 24, 0.6);
         }
-        .warning {
-            background: rgba(237, 66, 69, 0.2);
-            border-left-color: #ED4245;
-        }
-        .success {
-            background: rgba(87, 242, 135, 0.2);
-            border-left-color: #57F287;
-        }
-        a { color: #5865F2; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: #888;
-        }
+
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
+
         th {
-            background: rgba(88, 101, 242, 0.3);
-            color: #fff;
+            text-align: left;
+            padding: 12px 16px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #808ba4;
+            background: rgba(148, 163, 184, 0.08);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        td {
+            padding: 12px 16px;
+            font-size: 0.86rem;
+            color: #9aa5bc;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(148, 163, 184, 0.04);
+        }
+
+        /* Footer */
+        .doc-footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(148, 163, 184, 0.16);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .doc-footer p {
+            color: #808ba4;
+            font-size: 0.76rem;
+            margin: 0;
+        }
+
+        .doc-footer a {
+            display: inline-flex;
+            align-items: center;
+            min-height: 34px;
+            padding: 0 16px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            background: rgba(148, 163, 184, 0.09);
+            color: #d3dced;
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+        }
+
+        .doc-footer a:hover {
+            transform: translateY(-1px);
+            border-color: rgba(140, 174, 254, 0.4);
+            box-shadow: 0 0 20px rgba(140, 174, 254, 0.12);
+            color: #f2f8ff;
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .doc-header { animation: fadeUp 0.5s ease-out; }
+        .doc-inner > *:nth-child(2) { animation: fadeUp 0.5s ease-out 0.1s both; }
+        .doc-inner > *:nth-child(3) { animation: fadeUp 0.5s ease-out 0.15s both; }
+
+        /* Responsive */
+        @media (max-width: 760px) {
+            .shell {
+                width: calc(100% - 24px);
+                padding: 16px 0 32px;
+            }
+
+            .doc-frame {
+                border-radius: 20px;
+            }
+
+            .doc-inner {
+                border-radius: 18px;
+                padding: 28px 20px;
+            }
+
+            .doc-nav {
+                padding: 8px 14px;
+                gap: 8px;
+            }
+
+            .doc-nav-links {
+                gap: 10px;
+            }
+
+            .doc-footer {
+                flex-direction: column;
+                gap: 12px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .shell {
+                width: calc(100% - 16px);
+            }
+
+            .doc-frame {
+                border-radius: 16px;
+            }
+
+            .doc-inner {
+                border-radius: 14px;
+                padding: 22px 16px;
+            }
+
+            .doc-nav-links a:nth-child(3) {
+                display: none;
+            }
+
+            .table-wrap {
+                border-radius: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔒 Privacy Policy</h1>
-        <p class="last-updated">Last Updated: January 10, 2026</p>
+    <div class="aurora" aria-hidden="true">
+        <span></span><span></span><span></span>
+    </div>
 
-        <div class="highlight">
-            Your privacy is important to us. This policy explains what data Ares Bot collects, how it's used, and your rights.
-        </div>
+    <div class="shell">
+        <nav class="doc-nav">
+            <a href="/" class="doc-nav-brand">
+                <span class="doc-nav-brand-icon">⚡</span>
+                <span class="doc-nav-brand-text">Ares</span>
+            </a>
+            <div class="doc-nav-links">
+                <a href="/">Home</a>
+                <a href="privacy-policy.html" class="active">Privacy</a>
+                <a href="terms-of-service.html">Terms</a>
+            </div>
+        </nav>
 
-        <h2>1. Information We Collect</h2>
-        <p>Ares Bot collects and stores limited data necessary for its functionality:</p>
+        <div class="doc-frame">
+            <div class="doc-inner">
+                <div class="doc-header">
+                    <div class="doc-badge">🔒 Legal Document</div>
+                    <h1 class="doc-title">Privacy Policy</h1>
+                    <p class="doc-updated">Last Updated: January 10, 2026</p>
+                </div>
 
-        <h3>Server Data</h3>
-        <ul>
-            <li><strong>Server ID:</strong> To identify and store server-specific configurations</li>
-            <li><strong>Channel IDs:</strong> For features like welcome messages, logging, and starboard</li>
-            <li><strong>Role IDs:</strong> For moderation, leveling rewards, and permission systems</li>
-            <li><strong>Server settings:</strong> Custom prefix, enabled features, and configurations</li>
-        </ul>
+                <div class="callout callout-info">
+                    <p>Your privacy is important to us. This policy explains what data Ares Bot collects, how it's used, and your rights.</p>
+                </div>
 
-        <h3>User Data</h3>
-        <ul>
-            <li><strong>User ID:</strong> To track XP/levels, warnings, and user-specific settings</li>
-            <li><strong>Message counts:</strong> For leveling and statistics (not message content)</li>
-            <li><strong>Voice time:</strong> Duration spent in voice channels for leveling</li>
-            <li><strong>Moderation history:</strong> Warnings, mutes, and other moderation actions</li>
-        </ul>
+                <h2>1. Information We Collect</h2>
+                <p>Ares Bot collects and stores limited data necessary for its functionality:</p>
 
-        <div class="highlight success">
-            <strong>✅ What We DON'T Collect:</strong>
-            <ul style="margin-top: 10px;">
-                <li>Message content (except for logged mod actions)</li>
-                <li>Personal information (email, real name, etc.)</li>
-                <li>Private/DM messages</li>
-                <li>Voice conversations or recordings</li>
-            </ul>
-        </div>
+                <h3>Server Data</h3>
+                <ul>
+                    <li><strong>Server ID:</strong> To identify and store server-specific configurations</li>
+                    <li><strong>Channel IDs:</strong> For features like welcome messages, logging, and starboard</li>
+                    <li><strong>Role IDs:</strong> For moderation, leveling rewards, and permission systems</li>
+                    <li><strong>Server settings:</strong> Custom prefix, enabled features, and configurations</li>
+                </ul>
 
-        <h2>2. How We Use Your Data</h2>
-        <table>
-            <tr>
-                <th>Data Type</th>
-                <th>Purpose</th>
-            </tr>
-            <tr>
-                <td>Server ID & Settings</td>
-                <td>Store and apply server-specific configurations</td>
-            </tr>
-            <tr>
-                <td>User ID & XP Data</td>
-                <td>Track levels, leaderboards, and reward roles</td>
-            </tr>
-            <tr>
-                <td>Moderation Logs</td>
-                <td>Keep record of warnings, bans, and mod actions</td>
-            </tr>
-            <tr>
-                <td>Statistics</td>
-                <td>Message counts and voice time for server analytics</td>
-            </tr>
-        </table>
+                <h3>User Data</h3>
+                <ul>
+                    <li><strong>User ID:</strong> To track XP/levels, warnings, and user-specific settings</li>
+                    <li><strong>Message counts:</strong> For leveling and statistics (not message content)</li>
+                    <li><strong>Voice time:</strong> Duration spent in voice channels for leveling</li>
+                    <li><strong>Moderation history:</strong> Warnings, mutes, and other moderation actions</li>
+                </ul>
 
-        <h2>3. Data Storage & Security</h2>
-        <p>All data is stored securely in our database with the following measures:</p>
-        <ul>
-            <li>Data is stored on secure, access-controlled servers</li>
-            <li>Only essential data required for bot functionality is stored</li>
-            <li>Data is not sold, shared, or transferred to third parties</li>
-            <li>Regular security updates and monitoring are performed</li>
-        </ul>
+                <div class="callout callout-success">
+                    <p><strong>✅ What We DON'T Collect:</strong></p>
+                    <ul>
+                        <li>Message content (except for logged mod actions)</li>
+                        <li>Personal information (email, real name, etc.)</li>
+                        <li>Private/DM messages</li>
+                        <li>Voice conversations or recordings</li>
+                    </ul>
+                </div>
 
-        <h2>4. Data Retention</h2>
-        <p>We retain data as follows:</p>
-        <ul>
-            <li><strong>Server data:</strong> Retained while the bot is in your server. Deleted upon bot removal (may take up to 30 days)</li>
-            <li><strong>User data:</strong> Retained while you are in servers using the bot. Can be deleted upon request</li>
-            <li><strong>Moderation logs:</strong> Retained as long as the server configuration specifies</li>
-        </ul>
+                <h2>2. How We Use Your Data</h2>
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>Data Type</th>
+                            <th>Purpose</th>
+                        </tr>
+                        <tr>
+                            <td>Server ID &amp; Settings</td>
+                            <td>Store and apply server-specific configurations</td>
+                        </tr>
+                        <tr>
+                            <td>User ID &amp; XP Data</td>
+                            <td>Track levels, leaderboards, and reward roles</td>
+                        </tr>
+                        <tr>
+                            <td>Moderation Logs</td>
+                            <td>Keep record of warnings, bans, and mod actions</td>
+                        </tr>
+                        <tr>
+                            <td>Statistics</td>
+                            <td>Message counts and voice time for server analytics</td>
+                        </tr>
+                    </table>
+                </div>
 
-        <h2>5. Your Rights</h2>
-        <p>You have the following rights regarding your data:</p>
+                <h2>3. Data Storage &amp; Security</h2>
+                <p>All data is stored securely in our database with the following measures:</p>
+                <ul>
+                    <li>Data is stored on secure, access-controlled servers</li>
+                    <li>Only essential data required for bot functionality is stored</li>
+                    <li>Data is not sold, shared, or transferred to third parties</li>
+                    <li>Regular security updates and monitoring are performed</li>
+                </ul>
 
-        <h3>Right to Access</h3>
-        <p>You can request a copy of your data by contacting us.</p>
+                <h2>4. Data Retention</h2>
+                <p>We retain data as follows:</p>
+                <ul>
+                    <li><strong>Server data:</strong> Retained while the bot is in your server. Deleted upon bot removal (may take up to 30 days)</li>
+                    <li><strong>User data:</strong> Retained while you are in servers using the bot. Can be deleted upon request</li>
+                    <li><strong>Moderation logs:</strong> Retained as long as the server configuration specifies</li>
+                </ul>
 
-        <h3>Right to Deletion</h3>
-        <p>You can request deletion of your data. Server owners can also reset all data using <code>.reset</code> commands.</p>
+                <h2>5. Your Rights</h2>
+                <p>You have the following rights regarding your data:</p>
 
-        <h3>Right to Opt-Out</h3>
-        <p>Server owners can disable data-collecting features (leveling, statistics, etc.) at any time.</p>
+                <h3>Right to Access</h3>
+                <p>You can request a copy of your data by contacting us.</p>
 
-        <div class="highlight warning">
-            <strong>⚠️ To Request Data Deletion:</strong>
-            <p style="margin-top: 10px;">Join our support server and open a ticket, or contact the bot developers directly. Include your User ID or Server ID.</p>
-        </div>
+                <h3>Right to Deletion</h3>
+                <p>You can request deletion of your data. Server owners can also reset all data using <code>.reset</code> commands.</p>
 
-        <h2>6. Third-Party Services</h2>
-        <p>Ares Bot may use the following third-party services:</p>
-        <ul>
-            <li><strong>Discord API:</strong> Required for bot functionality</li>
-            <li><strong>Lavalink:</strong> For music playback (no user data stored)</li>
-            <li><strong>Database hosting:</strong> For secure data storage</li>
-        </ul>
+                <h3>Right to Opt-Out</h3>
+                <p>Server owners can disable data-collecting features (leveling, statistics, etc.) at any time.</p>
 
-        <h2>7. Children's Privacy</h2>
-        <p>Ares Bot is not intended for users under 13 years of age, in accordance with Discord's Terms of Service. We do not knowingly collect data from children under 13.</p>
+                <div class="callout callout-warning">
+                    <p><strong>⚠️ To Request Data Deletion:</strong></p>
+                    <p>Join our support server and open a ticket, or contact the bot developers directly. Include your User ID or Server ID.</p>
+                </div>
 
-        <h2>8. Changes to This Policy</h2>
-        <p>We may update this Privacy Policy from time to time. Significant changes will be announced in our support server. Continued use of the bot after changes constitutes acceptance.</p>
+                <h2>6. Third-Party Services</h2>
+                <p>Ares Bot may use the following third-party services:</p>
+                <ul>
+                    <li><strong>Discord API:</strong> Required for bot functionality</li>
+                    <li><strong>Lavalink:</strong> For music playback (no user data stored)</li>
+                    <li><strong>Database hosting:</strong> For secure data storage</li>
+                </ul>
 
-        <h2>9. Contact Us</h2>
-        <p>For privacy concerns, data requests, or questions about this policy:</p>
-        <ul>
-            <li>Join our support server</li>
-            <li>Contact the bot developers</li>
-        </ul>
+                <h2>7. Children's Privacy</h2>
+                <p>Ares Bot is not intended for users under 13 years of age, in accordance with Discord's Terms of Service. We do not knowingly collect data from children under 13.</p>
 
-        <div class="footer">
-            <p>© 2026 Ares Bot. All rights reserved.</p>
-            <p style="margin-top: 10px;"><a href="terms-of-service.html">Terms of Service</a></p>
+                <h2>8. Changes to This Policy</h2>
+                <p>We may update this Privacy Policy from time to time. Significant changes will be announced in our support server. Continued use of the bot after changes constitutes acceptance.</p>
+
+                <h2>9. Contact Us</h2>
+                <p>For privacy concerns, data requests, or questions about this policy:</p>
+                <ul>
+                    <li>Join our support server</li>
+                    <li>Contact the bot developers</li>
+                </ul>
+
+                <div class="doc-footer">
+                    <p>&copy; 2026 Ares Bot. All rights reserved.</p>
+                    <a href="terms-of-service.html">Terms of Service &rarr;</a>
+                </div>
+            </div>
         </div>
     </div>
 </body>
