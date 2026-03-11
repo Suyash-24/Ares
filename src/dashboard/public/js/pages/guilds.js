@@ -18,11 +18,11 @@ async function renderGuilds() {
     `;
 
     if (botGuilds.length) {
-      html += `<div class="grid grid-3" style="margin-bottom: 28px;">`;
+      html += `<div class="grid grid-3" style="margin-bottom: 32px;">`;
       botGuilds.forEach((g, i) => {
         const iconUrl = guildIcon(g.id, g.icon);
         html += `
-          <div class="card guild-card" style="animation-delay: ${i * 0.04}s" onclick="router.navigate('/guilds/${escapeHtml(g.id)}/overview')">
+          <div class="card card-3d guild-card" style="animation-delay: ${i * 0.05}s" onclick="router.navigate('/guilds/${escapeHtml(g.id)}/overview')">
             <div class="guild-icon">
               ${iconUrl ? `<img src="${escapeHtml(iconUrl)}" alt="">` : escapeHtml(g.name.charAt(0))}
             </div>
@@ -38,12 +38,12 @@ async function renderGuilds() {
     }
 
     if (otherGuilds.length) {
-      html += `<p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 12px;">Servers without Ares</p>`;
+      html += `<p style="color: var(--text-muted); font-size: 0.82rem; margin-bottom: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">Servers without Ares</p>`;
       html += `<div class="grid grid-3">`;
       otherGuilds.forEach((g, i) => {
         const iconUrl = guildIcon(g.id, g.icon);
         html += `
-          <div class="card guild-card" style="opacity: 0.5; animation-delay: ${i * 0.04}s; cursor: default;">
+          <div class="card guild-card" style="opacity: 0.45; animation-delay: ${i * 0.04}s; cursor: default;">
             <div class="guild-icon">
               ${iconUrl ? `<img src="${escapeHtml(iconUrl)}" alt="">` : escapeHtml(g.name.charAt(0))}
             </div>
@@ -62,6 +62,7 @@ async function renderGuilds() {
     }
 
     document.getElementById('page-content').innerHTML = html;
+    init3DTilt('.guild-card.card-3d');
   } catch (err) {
     toast(err.message, 'error');
   } finally {

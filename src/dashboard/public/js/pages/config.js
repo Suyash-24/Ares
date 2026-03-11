@@ -33,7 +33,7 @@ async function renderConfig({ guildId }) {
       const isEnabled = !!modConfig.enabled;
 
       html += `
-        <div class="card module-card" style="animation-delay: ${i * 0.04}s">
+        <div class="card card-3d module-card" style="animation-delay: ${i * 0.04}s">
           <div class="module-card-head">
             <span class="module-name"><span>${mod.icon}</span> ${mod.name}</span>
             <label class="toggle">
@@ -48,6 +48,7 @@ async function renderConfig({ guildId }) {
 
     html += `</div>`;
     document.getElementById('page-content').innerHTML = html;
+    init3DTilt('.module-card.card-3d');
   } catch (err) {
     toast(err.message, 'error');
   } finally {

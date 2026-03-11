@@ -35,7 +35,7 @@ async function updateMusicUI(guildId, silent = false) {
 
     if (!data.active) {
       html += `
-        <div class="card">
+        <div class="card card-3d">
           <div class="empty-state">
             <div class="icon">🎵</div>
             <div class="title">No active player</div>
@@ -46,14 +46,14 @@ async function updateMusicUI(guildId, silent = false) {
     } else {
       const current = data.current;
       html += `
-        <div class="card player-card" style="margin-bottom: 24px; animation: fadeUp 0.4s ease-out;">
+        <div class="card card-3d player-card" style="margin-bottom: 24px; animation: card3DIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);">
           <div class="player-art">
             ${current?.artwork ? `<img src="${escapeHtml(current.artwork)}" alt="">` : '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem;">🎵</div>'}
           </div>
           <div class="player-info">
             <div class="player-title">${current ? escapeHtml(current.title) : 'Nothing playing'}</div>
             <div class="player-author">${current ? escapeHtml(current.author || 'Unknown') : ''}</div>
-            ${current?.duration ? `<div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">${formatDuration(current.duration)}</div>` : ''}
+            ${current?.duration ? `<div style="font-size:0.76rem;color:var(--text-muted);margin-top:4px;font-family:var(--font-mono);">${formatDuration(current.duration)}</div>` : ''}
           </div>
           <div class="player-controls">
             <button class="player-btn ${data.paused ? '' : 'active'}" onclick="musicAction('${guildId}', '${data.paused ? 'resume' : 'pause'}')">
@@ -64,7 +64,7 @@ async function updateMusicUI(guildId, silent = false) {
         </div>
 
         <!-- Queue -->
-        <div class="card" style="animation: fadeUp 0.4s ease-out 0.05s both;">
+        <div class="card card-3d" style="animation: card3DIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;">
           <div class="card-header">
             <span class="card-title"><span class="icon">📜</span> Queue (${data.queueSize})</span>
           </div>
@@ -84,12 +84,13 @@ async function updateMusicUI(guildId, silent = false) {
                 </tbody>
               </table>
             </div>
-          ` : '<p style="color:var(--text-dim); font-size: 0.88rem; padding: 8px 0;">Queue is empty</p>'}
+          ` : '<p style="color:var(--text-dim); font-size: 0.86rem; padding: 8px 0;">Queue is empty</p>'}
         </div>
       `;
     }
 
     document.getElementById('page-content').innerHTML = html;
+    init3DTilt('.card-3d');
   } catch (err) {
     if (!silent) toast(err.message, 'error');
   }

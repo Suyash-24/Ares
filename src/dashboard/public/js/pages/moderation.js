@@ -14,11 +14,11 @@ async function renderModeration({ guildId }) {
       </div>
 
       <!-- Quick actions -->
-      <div class="card" style="margin-bottom: 24px; animation: fadeUp 0.4s ease-out">
+      <div class="card card-3d" style="margin-bottom: 24px; animation: card3DIn 0.5s cubic-bezier(0.22, 1, 0.36, 1)">
         <div class="card-header">
           <span class="card-title"><span class="icon">⚡</span> Quick Actions</span>
         </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
           <button class="btn btn-ghost btn-sm" onclick="showModModal('${guildId}', 'kick')">👢 Kick</button>
           <button class="btn btn-ghost btn-sm" onclick="showModModal('${guildId}', 'ban')">🔨 Ban</button>
           <button class="btn btn-ghost btn-sm" onclick="showModModal('${guildId}', 'unban')">🔓 Unban</button>
@@ -27,7 +27,7 @@ async function renderModeration({ guildId }) {
       </div>
 
       <!-- Cases table -->
-      <div class="card" style="animation: fadeUp 0.4s ease-out 0.05s both">
+      <div class="card card-3d" style="animation: card3DIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both">
         <div class="card-header">
           <span class="card-title"><span class="icon">📋</span> Recent Cases (${data.total})</span>
         </div>
@@ -56,6 +56,7 @@ async function renderModeration({ guildId }) {
     `;
 
     document.getElementById('page-content').innerHTML = html;
+    init3DTilt('.card-3d');
   } catch (err) {
     toast(err.message, 'error');
   } finally {
@@ -79,11 +80,11 @@ function showModModal(guildId, action) {
 
   const overlay = document.createElement('div');
   overlay.className = 'mod-modal-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);backdrop-filter:blur(12px);z-index:1000;display:flex;align-items:center;justify-content:center;';
   overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
 
   overlay.innerHTML = `
-    <div class="card" style="width: 420px; max-width: 90vw; animation: fadeUp 0.3s ease-out;">
+    <div class="card" style="width: 440px; max-width: 90vw; animation: card3DIn 0.4s cubic-bezier(0.22, 1, 0.36, 1); box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(129,140,248,0.08);">
       <div class="card-header">
         <span class="card-title">${labels[action] || action}</span>
         <button class="btn btn-ghost btn-sm" onclick="this.closest('.mod-modal-overlay').remove()">✕</button>
