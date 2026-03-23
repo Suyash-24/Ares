@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ares | Server Settings</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ba9eff",
+              "outline-variant": "#45484f",
+              "on-error": "#490013",
+              "on-primary-fixed": "#000000",
+              "on-secondary": "#004b58",
+              "error": "#ff6e84",
+              "primary-container": "#ae8dff",
+              "on-secondary-container": "#ecfaff",
+              "inverse-on-surface": "#52555c",
+              "on-background": "#ecedf6",
+              "background": "#0b0e14",
+              "inverse-surface": "#f9f9ff",
+              "surface-container-lowest": "#000000",
+              "on-primary-container": "#2b006e",
+              "on-primary-fixed-variant": "#370086",
+              "surface-variant": "#22262f",
+              "tertiary-container": "#de4bf4",
+              "primary-dim": "#8455ef",
+              "on-tertiary-fixed": "#300038",
+              "outline": "#73757d",
+              "surface-container-highest": "#22262f",
+              "error-dim": "#d73357",
+              "secondary-dim": "#40ceed",
+              "surface-container-high": "#1c2028",
+              "tertiary-dim": "#ec63ff",
+              "surface-tint": "#ba9eff",
+              "on-tertiary": "#3d0047",
+              "primary-fixed-dim": "#a27cff",
+              "on-primary": "#39008c",
+              "on-surface": "#ecedf6",
+              "surface-dim": "#0b0e14",
+              "secondary-fixed": "#65e1ff",
+              "on-surface-variant": "#a9abb3",
+              "surface-container-low": "#10131a",
+              "secondary": "#53ddfc",
+              "surface": "#0b0e14",
+              "on-tertiary-container": "#19001e",
+              "tertiary-fixed": "#f487ff",
+              "primary-fixed": "#ae8dff",
+              "on-tertiary-fixed-variant": "#660075",
+              "on-secondary-fixed": "#003a45",
+              "on-secondary-fixed-variant": "#005969",
+              "inverse-primary": "#6e3bd7",
+              "surface-container": "#161a21",
+              "surface-bright": "#282c36",
+              "secondary-container": "#00687a",
+              "tertiary-fixed-dim": "#ef6eff",
+              "secondary-fixed-dim": "#48d4f3",
+              "tertiary": "#ec63ff",
+              "error-container": "#a70138",
+              "on-error-container": "#ffb2b9"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+        }
+        .glass-panel {
+            background: rgba(16, 19, 26, 0.7);
+            backdrop-filter: blur(24px);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(132, 85, 239, 0.2);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0e14; }
+        ::-webkit-scrollbar-thumb { background: #22262f; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #45484f; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-64 border-r border-white/5 bg-slate-950/70 backdrop-blur-xl shadow-[0_0_20px_rgba(139,92,246,0.1)] flex flex-col h-full py-8 z-50">
+<div class="px-6 mb-10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<h1 class="text-2xl font-bold bg-gradient-to-br from-violet-400 to-fuchsia-500 bg-clip-text text-transparent font-['Space_Grotesk'] tracking-tight">Ares</h1>
+<p class="text-[10px] text-slate-400 uppercase tracking-[0.2em]">Celestial Command</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Home</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined">terminal</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Commands</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined">dns</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Servers</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors group" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Analytics</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-violet-400 bg-violet-500/10 shadow-[inset_0_0_12px_rgba(139,92,246,0.2)] rounded-r-full group" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="p-4 rounded-xl bg-surface-container-high border border-white/5">
+<p class="text-xs text-on-surface-variant mb-2">System Status</p>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-secondary animate-pulse"></div>
+<span class="text-xs font-medium text-secondary">All Systems Nominal</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-slate-950/40 backdrop-blur-md backdrop-saturate-150 flex justify-between items-center px-8 z-40">
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-container-lowest border-none rounded-md pl-10 pr-4 py-1.5 text-sm w-64 focus:ring-1 focus:ring-primary focus:bg-surface-container-low transition-all" placeholder="Search parameters..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="text-slate-300 hover:text-white transition-opacity"><span class="material-symbols-outlined">notifications</span></button>
+<button class="text-slate-300 hover:text-white transition-opacity"><span class="material-symbols-outlined">bolt</span></button>
+</div>
+<div class="h-8 w-px bg-white/10"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="font-['Space_Grotesk'] text-sm font-medium text-on-surface">Ares Dashboard</p>
+<p class="text-[10px] text-on-surface-variant leading-none">Administrator</p>
+</div>
+<img alt="User Discord Avatar" class="w-8 h-8 rounded-full border border-primary/20" data-alt="Abstract vibrant geometric avatar pattern" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDih2NqtwRQ065CtosyO2m2T5U4WvWohTYKjYVdbVB2dQiXRkXhFCXnoBXfFHrqouSnXDylkfn4PseARgTSANp3Nnv9OFR6wHscL86OpHre7NGl7BWBeYh-0yt4CiAWzXln7xQqfhaMVIOkXGFAoiV804HM9yKu4qkbkdHf2DvQYZCfJNgGg8IeLR2A6AoXK8zwkWTk5Gv5nGN_HDdqSQQMaQllsrHZ7YVKO7S8hgS0PFegBlDGRxqy3bonzzAq-gdRXXAmjjJ3IBHX"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-64 pt-24 px-12 pb-12 min-h-screen relative overflow-hidden">
+<!-- Background Ambient Glows -->
+<div class="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full -z-10"></div>
+<div class="absolute bottom-[-10%] left-[5%] w-[400px] h-[400px] bg-secondary/5 blur-[100px] rounded-full -z-10"></div>
+<!-- Header Section -->
+<section class="mb-12">
+<h2 class="font-headline text-5xl font-extrabold tracking-tight text-on-surface mb-2">Server Settings</h2>
+<p class="text-on-surface-variant text-lg max-w-2xl">Configure your celestial domain with granular moderation controls, automated welcome protocols, and deep system logging.</p>
+</section>
+<!-- Settings Grid -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Moderation Core (Bento Card Large) -->
+<div class="col-span-12 lg:col-span-8 glass-panel rounded-xl p-8 border border-white/5 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-3xl -z-10"></div>
+<div class="flex items-center justify-between mb-8">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-3xl">gavel</span>
+<h3 class="font-headline text-2xl font-bold">Moderation Core</h3>
+</div>
+<span class="px-3 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-widest">Active Security</span>
+</div>
+<div class="space-y-6">
+<!-- Feature Toggle -->
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors">
+<div>
+<p class="font-medium text-on-surface">Auto-Mod Protocol</p>
+<p class="text-xs text-on-surface-variant">Automatically filter malicious links and spam patterns.</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Channel Selection -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Log Channel</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
+<option>#mod-logs</option>
+<option>#admin-only</option>
+<option>#security-feed</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Alert Destination</label>
+<div class="relative">
+<select class="w-full bg-surface-container-lowest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-primary appearance-none cursor-pointer">
+<option>#high-priority</option>
+<option>#system-alerts</option>
+<option>#general</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+</div>
+</div>
+</div>
+<!-- Technical Inputs -->
+<div class="space-y-2">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest px-1">Blacklisted Keywords</label>
+<textarea class="w-full bg-surface-container-lowest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-primary placeholder:text-on-surface-variant/30" placeholder="Enter terms separated by commas..." rows="3"></textarea>
+</div>
+</div>
+</div>
+<!-- Stats (Asymmetric Component) -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+<div class="bg-surface-container-high rounded-xl p-8 border border-white/5 relative overflow-hidden rounded-tr-xl lg:rounded-tr-[3rem]">
+<p class="text-[10px] font-bold text-primary uppercase tracking-[0.2em] mb-4">Engagement Index</p>
+<div class="flex items-baseline gap-2 mb-2">
+<span class="font-headline text-5xl font-bold">12.4k</span>
+<span class="text-secondary text-sm font-medium">▲ 14%</span>
+</div>
+<p class="text-on-surface-variant text-sm">Active commands processed this cycle.</p>
+</div>
+<div class="bg-surface-container-high rounded-xl p-8 border border-white/5 relative overflow-hidden">
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-secondary">verified_user</span>
+<h4 class="font-headline text-xl font-bold">System Integrity</h4>
+</div>
+<div class="space-y-4">
+<div class="w-full bg-surface-container-lowest h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[94%]" style="box-shadow: 0 0 10px rgba(186, 158, 255, 0.5);"></div>
+</div>
+<div class="flex justify-between text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+<span>Security Mesh</span>
+<span>94%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Welcome Protocol (Bento Card Small) -->
+<div class="col-span-12 lg:col-span-6 glass-panel rounded-xl p-8 border border-white/5">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-tertiary text-3xl">rocket_launch</span>
+<h3 class="font-headline text-2xl font-bold">Welcome Protocol</h3>
+</div>
+<div class="space-y-6">
+<div class="flex items-center justify-between p-4 rounded-lg bg-surface-container-low border border-white/5">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-on-surface-variant">chat_bubble</span>
+<div>
+<p class="font-medium text-on-surface">Enable Welcome Message</p>
+<p class="text-[10px] text-on-surface-variant">Send a personalized greet to new explorers.</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-tertiary"></div>
+</label>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-end mb-1 px-1">
+<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">Greeting Script</label>
+<span class="text-[10px] text-primary">Variables: {user}, {server}</span>
+</div>
+<textarea class="w-full bg-surface-container-lowest border-none rounded-md px-4 py-3 text-sm focus:ring-1 focus:ring-tertiary placeholder:text-on-surface-variant/30" placeholder="Welcome {user} to the celestial expanse of {server}..." rows="4">Welcome {user} to the celestial expanse of {server}! Prepare for orbital insertion.</textarea>
+</div>
+<div class="flex gap-4">
+<button class="flex-1 py-3 px-6 rounded-md bg-surface-container-highest text-on-surface font-headline font-bold text-sm hover:bg-surface-bright transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">preview</span>
+                            Preview
+                        </button>
+<button class="flex-[2] py-3 px-6 rounded-md bg-gradient-to-r from-primary-dim to-primary text-on-primary-fixed font-headline font-bold text-sm glow-hover transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">save</span>
+                            Commit Changes
+                        </button>
+</div>
+</div>
+</div>
+<!-- Activity Logging (Bento Card Small) -->
+<div class="col-span-12 lg:col-span-6 glass-panel rounded-xl p-8 border border-white/5 relative">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-secondary text-3xl">list_alt</span>
+<h3 class="font-headline text-2xl font-bold">Event Logging</h3>
+</div>
+<div class="space-y-4">
+<!-- Toggle List -->
+<div class="space-y-2">
+<div class="flex items-center justify-between py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">edit_square</span>
+<span class="text-sm font-medium">Message Edits</span>
+</div>
+<input checked="" class="rounded border-outline bg-transparent text-secondary focus:ring-secondary" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">delete</span>
+<span class="text-sm font-medium">Message Deletions</span>
+</div>
+<input checked="" class="rounded border-outline bg-transparent text-secondary focus:ring-secondary" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">person_add</span>
+<span class="text-sm font-medium">Member Joins/Leaves</span>
+</div>
+<input checked="" class="rounded border-outline bg-transparent text-secondary focus:ring-secondary" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">shield</span>
+<span class="text-sm font-medium">Role Modifications</span>
+</div>
+<input class="rounded border-outline bg-transparent text-secondary focus:ring-secondary" type="checkbox"/>
+</div>
+<div class="flex items-center justify-between py-3 px-4 rounded-lg hover:bg-white/5 transition-colors cursor-pointer group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-secondary">campaign</span>
+<span class="text-sm font-medium">Voice Channel Activity</span>
+</div>
+<input class="rounded border-outline bg-transparent text-secondary focus:ring-secondary" type="checkbox"/>
+</div>
+</div>
+<div class="pt-4 mt-4 border-t border-white/5">
+<div class="flex items-center justify-between">
+<p class="text-xs text-on-surface-variant">Log Persistence</p>
+<span class="text-xs font-bold text-on-surface">30 Earth Days</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Danger Zone -->
+<footer class="mt-16 flex flex-col md:flex-row items-center justify-between gap-8 pt-8 border-t border-white/5">
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="text-sm">© 2024 Ares Command Shell</span>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<a class="text-sm hover:text-primary transition-colors" href="#">Documentation</a>
+<span class="w-1 h-1 rounded-full bg-outline"></span>
+<a class="text-sm hover:text-primary transition-colors" href="#">Terms of Service</a>
+</div>
+<button class="px-6 py-2.5 rounded-md border border-error-dim/30 text-error-dim hover:bg-error-container hover:text-white transition-all text-sm font-bold flex items-center gap-2 group">
+<span class="material-symbols-outlined text-lg group-hover:rotate-12 transition-transform">dangerous</span>
+                De-authorize Ares Bot
+            </button>
+</footer>
+</main>
+<!-- Contextual FAB (Hidden on Settings as per mandate, but adding placeholder logic) -->
+<!-- The FAB is suppressed on Settings screens per instructions. -->
+</body></html>

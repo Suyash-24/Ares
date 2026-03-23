@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ares | Command Manager</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#ba9eff",
+              "outline-variant": "#45484f",
+              "on-error": "#490013",
+              "on-primary-fixed": "#000000",
+              "on-secondary": "#004b58",
+              "error": "#ff6e84",
+              "primary-container": "#ae8dff",
+              "on-secondary-container": "#ecfaff",
+              "inverse-on-surface": "#52555c",
+              "on-background": "#ecedf6",
+              "background": "#0b0e14",
+              "inverse-surface": "#f9f9ff",
+              "surface-container-lowest": "#000000",
+              "on-primary-container": "#2b006e",
+              "on-primary-fixed-variant": "#370086",
+              "surface-variant": "#22262f",
+              "tertiary-container": "#de4bf4",
+              "primary-dim": "#8455ef",
+              "on-tertiary-fixed": "#300038",
+              "outline": "#73757d",
+              "surface-container-highest": "#22262f",
+              "error-dim": "#d73357",
+              "secondary-dim": "#40ceed",
+              "surface-container-high": "#1c2028",
+              "tertiary-dim": "#ec63ff",
+              "surface-tint": "#ba9eff",
+              "on-tertiary": "#3d0047",
+              "primary-fixed-dim": "#a27cff",
+              "on-primary": "#39008c",
+              "on-surface": "#ecedf6",
+              "surface-dim": "#0b0e14",
+              "secondary-fixed": "#65e1ff",
+              "on-surface-variant": "#a9abb3",
+              "surface-container-low": "#10131a",
+              "secondary": "#53ddfc",
+              "surface": "#0b0e14",
+              "on-tertiary-container": "#19001e",
+              "tertiary-fixed": "#f487ff",
+              "primary-fixed": "#ae8dff",
+              "on-tertiary-fixed-variant": "#660075",
+              "on-secondary-fixed": "#003a45",
+              "on-secondary-fixed-variant": "#005969",
+              "inverse-primary": "#6e3bd7",
+              "surface-container": "#161a21",
+              "surface-bright": "#282c36",
+              "secondary-container": "#00687a",
+              "tertiary-fixed-dim": "#ef6eff",
+              "secondary-fixed-dim": "#48d4f3",
+              "tertiary": "#ec63ff",
+              "error-container": "#a70138",
+              "on-error-container": "#ffb2b9"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(22, 26, 33, 0.6);
+            backdrop-filter: blur(12px);
+        }
+        .glow-hover:hover {
+            box-shadow: 0 0 20px rgba(186, 158, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body selection:bg-primary/30 min-h-screen">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-0 h-screen w-64 border-r border-white/5 bg-slate-950/70 backdrop-blur-xl shadow-[0_0_20px_rgba(139,92,246,0.1)] flex flex-col py-8 z-50">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-violet-400 to-fuchsia-500 flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="rocket_launch">rocket_launch</span>
+</div>
+<div>
+<h1 class="text-2xl font-bold bg-gradient-to-br from-violet-400 to-fuchsia-500 bg-clip-text text-transparent font-['Space_Grotesk'] tracking-tight">Ares</h1>
+<p class="text-[10px] uppercase tracking-[0.2em] text-slate-500 font-medium">Celestial Command</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Home</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-violet-400 bg-violet-500/10 shadow-[inset_0_0_12px_rgba(139,92,246,0.2)] rounded-r-full font-['Space_Grotesk'] tracking-tight" href="#">
+<span class="material-symbols-outlined" data-icon="terminal">terminal</span>
+<span>Commands</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="dns">dns</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Servers</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="insights">insights</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Analytics</span>
+</a>
+<a class="flex items-center gap-4 px-6 py-3 text-slate-400 hover:text-slate-200 transition-colors hover:bg-white/5 transition-all duration-300 mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-['Space_Grotesk'] tracking-tight">Settings</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 min-h-screen">
+<!-- Top Navigation -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 border-b border-white/5 bg-slate-950/40 backdrop-blur-md backdrop-saturate-150 flex justify-between items-center px-8 z-40">
+<div class="flex items-center gap-4 w-1/3">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm" data-icon="search">search</span>
+<input class="w-full bg-white/5 border-none rounded-md pl-10 pr-4 py-2 text-sm focus:ring-1 focus:ring-primary/50 text-slate-200 placeholder:text-slate-500 font-['Space_Grotesk']" placeholder="Search for commands..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4 text-slate-300">
+<button class="hover:text-white transition-opacity"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="hover:text-white transition-opacity"><span class="material-symbols-outlined" data-icon="bolt">bolt</span></button>
+</div>
+<div class="h-8 w-px bg-white/10 mx-2"></div>
+<div class="flex items-center gap-3">
+<span class="text-sm font-medium font-['Space_Grotesk'] text-slate-200">Ares Dashboard</span>
+<div class="w-8 h-8 rounded-full bg-surface-container overflow-hidden">
+<img alt="User Discord Avatar" class="w-full h-full object-cover" data-alt="Discord user profile avatar placeholder" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD5Xhzm8jm2y4WS0NtzBjd7Snz3bwP6n6aIVKUv1oGRoEcupNc9pA6kSp_U5nYOZWAkvM50M3q1dpaR-f00K6duF1nlbVw-0cG_1olC6BQu7sye8JgSoSrfHs_qMOW32sJqGCjvtisVCqvQ5bS9lMeaTn6boLnQAcmz6sZ3lu36kl4EBD4_23gyoxOA9mnIImnsYeBKL9LQupSleL1PSW3yESzpx93qwfBEMi0tE5ps4s__66xjzNIKXh-0Moacr4iluiK6_eft2O_v"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="pt-24 px-12 pb-12">
+<!-- Hero Stats / Header Section -->
+<div class="flex justify-between items-end mb-12">
+<div>
+<h2 class="text-5xl font-headline font-bold tracking-tighter text-on-surface mb-2">Command Manager</h2>
+<p class="text-on-surface-variant font-body max-w-lg">Configure and toggle Ares' celestial powers across your server ecosystem. Real-time updates active.</p>
+</div>
+<div class="flex gap-4">
+<div class="bg-surface-container-high rounded-xl p-6 border-t-2 border-primary/20 min-w-[180px] shadow-lg">
+<span class="text-[10px] font-label uppercase tracking-widest text-primary block mb-1">Active Commands</span>
+<span class="text-3xl font-headline font-bold">142</span>
+</div>
+<div class="bg-surface-container-high rounded-xl p-6 border-t-2 border-secondary/20 min-w-[180px] shadow-lg">
+<span class="text-[10px] font-label uppercase tracking-widest text-secondary block mb-1">Total Usage</span>
+<span class="text-3xl font-headline font-bold">4.2k</span>
+</div>
+</div>
+</div>
+<!-- Bento Grid of Commands -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Category: Moderation -->
+<section class="col-span-12 lg:col-span-8 space-y-6">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error" data-icon="gavel">gavel</span>
+<h3 class="text-xl font-headline font-semibold">Moderation</h3>
+</div>
+<div class="h-px flex-1 bg-gradient-to-r from-error/20 to-transparent mx-6"></div>
+<span class="text-xs font-label text-on-surface-variant">8 Commands</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Command Card 1 -->
+<div class="glass-card p-5 rounded-lg border border-white/5 glow-hover transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline font-bold text-lg">/ban</h4>
+<p class="text-xs text-on-surface-variant mt-1">Permanently remove users from the server.</p>
+</div>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shadow-[0_0_10px_rgba(186,158,255,0.3)] transition-colors">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-error/10 text-error border border-error/20">ADMIN_ONLY</span>
+<span class="px-2 py-0.5 rounded text-[10px] bg-white/5 text-on-surface-variant">Logs Enabled</span>
+</div>
+</div>
+<!-- Command Card 2 -->
+<div class="glass-card p-5 rounded-lg border border-white/5 glow-hover transition-all group">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-headline font-bold text-lg">/timeout</h4>
+<p class="text-xs text-on-surface-variant mt-1">Temporarily restrict user communication.</p>
+</div>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary shadow-[0_0_10px_rgba(186,158,255,0.3)] transition-colors">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 rounded text-[10px] bg-secondary/10 text-secondary border border-secondary/20">MOD_ONLY</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Category: Music (Sidebar Bento) -->
+<aside class="col-span-12 lg:col-span-4 space-y-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="music_note">music_note</span>
+<h3 class="text-xl font-headline font-semibold">Music</h3>
+</div>
+<div class="space-y-4">
+<div class="bg-surface-container-high rounded-xl p-5 border border-white/5 hover:border-tertiary/30 transition-colors">
+<div class="flex items-center justify-between mb-3">
+<span class="font-headline font-bold text-lg">/play</span>
+<button class="relative inline-flex h-5 w-9 items-center rounded-full bg-slate-700 transition-colors">
+<span class="inline-block h-3 w-3 translate-x-1 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Streams audio from YouTube or Spotify directly to voice.</p>
+</div>
+<div class="bg-surface-container-high rounded-xl p-5 border border-white/5 hover:border-tertiary/30 transition-colors">
+<div class="flex items-center justify-between mb-3">
+<span class="font-headline font-bold text-lg">/lyrics</span>
+<button class="relative inline-flex h-5 w-9 items-center rounded-full bg-primary shadow-[0_0_10px_rgba(186,158,255,0.3)] transition-colors">
+<span class="inline-block h-3 w-3 translate-x-5 transform rounded-full bg-white transition-transform"></span>
+</button>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Fetches lyrics for the currently playing track.</p>
+</div>
+</div>
+<!-- Promo / Status Card -->
+<div class="bg-gradient-to-br from-primary-dim to-primary rounded-xl p-6 text-on-primary-fixed shadow-2xl relative overflow-hidden group">
+<div class="absolute -right-4 -bottom-4 opacity-20 group-hover:scale-110 transition-transform duration-700">
+<span class="material-symbols-outlined text-[120px]" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<h4 class="font-headline font-extrabold text-2xl mb-2 italic">Ares Premium</h4>
+<p class="text-sm font-medium mb-4 opacity-90">Unlock ultra-high bitrate 384kbps audio and custom soundboards.</p>
+<button class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-full text-xs font-bold uppercase tracking-widest border border-white/30 hover:bg-white hover:text-primary transition-all">Upgrade Now</button>
+</div>
+</aside>
+<!-- Category: Fun & Utility -->
+<section class="col-span-12 space-y-6">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="rocket">rocket</span>
+<h3 class="text-xl font-headline font-semibold">Utility &amp; Fun</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
+<!-- Fun Card 1 -->
+<div class="surface-container-low p-6 rounded-xl border-l-4 border-secondary/40 flex flex-col justify-between h-40">
+<div class="flex justify-between">
+<span class="material-symbols-outlined text-secondary text-4xl opacity-50" data-icon="casino">casino</span>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white"></span>
+</button>
+</div>
+<div>
+<h4 class="font-headline font-bold">/roll</h4>
+<p class="text-[11px] text-on-surface-variant">Generate random numbers for games.</p>
+</div>
+</div>
+<!-- Fun Card 2 -->
+<div class="surface-container-low p-6 rounded-xl border-l-4 border-secondary/40 flex flex-col justify-between h-40">
+<div class="flex justify-between">
+<span class="material-symbols-outlined text-secondary text-4xl opacity-50" data-icon="translate">translate</span>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white"></span>
+</button>
+</div>
+<div>
+<h4 class="font-headline font-bold">/translate</h4>
+<p class="text-[11px] text-on-surface-variant">Real-time message translation.</p>
+</div>
+</div>
+<!-- Fun Card 3 -->
+<div class="surface-container-low p-6 rounded-xl border-l-4 border-secondary/40 flex flex-col justify-between h-40">
+<div class="flex justify-between">
+<span class="material-symbols-outlined text-secondary text-4xl opacity-50" data-icon="database">database</span>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-primary">
+<span class="inline-block h-4 w-4 translate-x-6 transform rounded-full bg-white"></span>
+</button>
+</div>
+<div>
+<h4 class="font-headline font-bold">/serverinfo</h4>
+<p class="text-[11px] text-on-surface-variant">Detailed technical stats of server.</p>
+</div>
+</div>
+<!-- Fun Card 4 -->
+<div class="surface-container-low p-6 rounded-xl border-l-4 border-secondary/40 flex flex-col justify-between h-40">
+<div class="flex justify-between">
+<span class="material-symbols-outlined text-secondary text-4xl opacity-50" data-icon="celebration">celebration</span>
+<button class="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-700">
+<span class="inline-block h-4 w-4 translate-x-1 transform rounded-full bg-white"></span>
+</button>
+</div>
+<div>
+<h4 class="font-headline font-bold">/giveaway</h4>
+<p class="text-[11px] text-on-surface-variant">Manage server-wide contests.</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Footer Notification Area -->
+<footer class="fixed bottom-6 right-6 z-50">
+<div class="bg-surface-container-highest border border-white/10 rounded-full px-6 py-3 flex items-center gap-4 shadow-2xl backdrop-blur-xl">
+<div class="flex -space-x-2">
+<img alt="Bot Active Instance" class="w-6 h-6 rounded-full border-2 border-background" data-alt="Small bot status indicator icon 1" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLMW18PmZRIB1j9YkdOD0cUVZN8nFRxJ-eNFXahz1LXjxdWumur3tMO0wQaTfg5F1o7pzSgs9hlf4S6KXdNlA4j8gOXcj1OQkJKqKEfq4Ud4rzHq2fIrS0BSULHgOxKxYGySVG8QPXwfUjERTQuviPvdT7t_Rt9DhoUREpUHTG1VNOlopGFnNzAhuIvXeUY_BDF8Sv8Oalz3qISG_Hki_4oo0X-iFfPXAvr50q79pzVpHB1Py5vReordKVeYKjkPb9yqZE3kAg83VD"/>
+<img alt="Bot Active Instance" class="w-6 h-6 rounded-full border-2 border-background" data-alt="Small bot status indicator icon 2" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6YsX-QP9ipaM3_4ixvnaK19uelGfKVf9AYfitJX5Y10bAub6Nw53funv2RsdX1UWyMCQXaJreCMQFQXzirHb1NInghSkLYveo_QvfjWswE85Kvd4bg5fifSIbUeQN28Ewvkd8hKKn4QpONUF9HKxAynCt83_R6oYazmc96PjjfzKrELTAx9gO-OQcW55Tn9wTMzgNQsbZm29u3__UNpLEDjtPtPWRIkP4QzJdiRZ65BuC0VSuuyUVaAZfHBsQOP6CBrSy4fsNnQBc"/>
+</div>
+<span class="text-xs font-label text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                    Syncing with Shard #04
+                </span>
+<button class="bg-primary text-on-primary-fixed px-4 py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95">Save Changes</button>
+</div>
+</footer>
+</main>
+<!-- Background Decorative Elements -->
+<div class="fixed top-0 left-0 w-full h-full pointer-events-none -z-10 overflow-hidden">
+<div class="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-primary-dim/10 rounded-full blur-[120px]"></div>
+<div class="absolute bottom-[-10%] left-[-5%] w-[500px] h-[500px] bg-secondary-dim/5 rounded-full blur-[100px]"></div>
+</div>
+</body></html>

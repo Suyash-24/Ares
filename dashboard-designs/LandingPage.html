@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Ares | The Celestial Command</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Space+Grotesk:wght@300;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#1c2028",
+              "on-primary-container": "#2b006e",
+              "secondary-dim": "#40ceed",
+              "tertiary-fixed": "#f487ff",
+              "on-primary-fixed-variant": "#370086",
+              "error-dim": "#d73357",
+              "surface-tint": "#ba9eff",
+              "surface-container": "#161a21",
+              "primary-container": "#ae8dff",
+              "inverse-on-surface": "#52555c",
+              "on-tertiary-fixed-variant": "#660075",
+              "secondary-fixed-dim": "#48d4f3",
+              "tertiary-fixed-dim": "#ef6eff",
+              "on-secondary": "#004b58",
+              "on-surface-variant": "#a9abb3",
+              "on-secondary-container": "#ecfaff",
+              "primary-fixed-dim": "#a27cff",
+              "secondary-fixed": "#65e1ff",
+              "on-primary-fixed": "#000000",
+              "on-primary": "#39008c",
+              "surface-bright": "#282c36",
+              "inverse-primary": "#6e3bd7",
+              "error": "#ff6e84",
+              "background": "#0b0e14",
+              "on-secondary-fixed": "#003a45",
+              "surface-container-highest": "#22262f",
+              "primary": "#ba9eff",
+              "surface-container-low": "#10131a",
+              "tertiary-container": "#de4bf4",
+              "primary-dim": "#8455ef",
+              "on-error": "#490013",
+              "on-tertiary-fixed": "#300038",
+              "secondary": "#53ddfc",
+              "tertiary": "#ec63ff",
+              "surface-container-lowest": "#000000",
+              "outline": "#73757d",
+              "surface": "#0b0e14",
+              "on-tertiary": "#3d0047",
+              "error-container": "#a70138",
+              "on-error-container": "#ffb2b9",
+              "secondary-container": "#00687a",
+              "on-secondary-fixed-variant": "#005969",
+              "surface-variant": "#22262f",
+              "surface-dim": "#0b0e14",
+              "primary-fixed": "#ae8dff",
+              "on-tertiary-container": "#19001e",
+              "on-surface": "#ecedf6",
+              "inverse-surface": "#f9f9ff",
+              "on-background": "#ecedf6",
+              "outline-variant": "#45484f",
+              "tertiary-dim": "#ec63ff"
+            },
+            fontFamily: {
+              "headline": ["Space Grotesk"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #0b0e14;
+            color: #ecedf6;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+        .hero-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(132, 85, 239, 0.15) 0%, rgba(11, 14, 20, 0) 70%);
+        }
+        .glass-card {
+            background: rgba(22, 26, 33, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .asymmetric-corner {
+            border-top-right-radius: 3rem;
+        }
+    </style>
+</head>
+<body class="selection:bg-primary/30 selection:text-primary">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-slate-950/70 backdrop-blur-2xl no-border shadow-[0_0_32px_rgba(132,85,239,0.08)]">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-violet-400 to-fuchsia-500 font-['Space_Grotesk']">
+                Ares
+            </div>
+<div class="hidden md:flex items-center gap-8 font-['Space_Grotesk'] tracking-tight">
+<a class="text-slate-400 hover:text-slate-100 transition-colors" href="#">Features</a>
+<a class="text-slate-400 hover:text-slate-100 transition-colors" href="#">Commands</a>
+<a class="text-slate-400 hover:text-slate-100 transition-colors" href="#">Servers</a>
+<a class="text-slate-400 hover:text-slate-100 transition-colors" href="#">Docs</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2 text-sm font-bold text-slate-100 hover:text-fuchsia-400 transition-colors">Support</button>
+<button class="bg-gradient-to-br from-primary-dim to-primary text-on-primary-fixed px-6 py-2.5 rounded font-bold hover:shadow-[0_0_20px_rgba(186,158,255,0.4)] transition-all active:scale-95 duration-200">
+                    Invite Bot
+                </button>
+</div>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center pt-20 hero-glow">
+<div class="absolute inset-0 z-0 overflow-hidden">
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-secondary-dim opacity-5 blur-[120px] rounded-full"></div>
+<div class="absolute bottom-1/4 -right-20 w-[500px] h-[500px] bg-primary-dim opacity-10 blur-[150px] rounded-full"></div>
+</div>
+<div class="relative z-10 max-w-7xl mx-auto px-8 text-center">
+<span class="inline-block py-1 px-3 mb-6 rounded-full bg-surface-container-highest border border-outline-variant/20 text-xs font-bold tracking-widest text-primary uppercase">
+                    Version 4.0 Stable
+                </span>
+<h1 class="text-6xl md:text-8xl font-headline font-bold tracking-tighter text-on-surface mb-8 leading-[0.9]">
+                    The Celestial <br/> <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-tertiary">Command</span>
+</h1>
+<p class="max-w-2xl mx-auto text-lg md:text-xl text-on-surface-variant font-body leading-relaxed mb-12">
+                    Empower your Discord domain with Ares' modular moderation and advanced system logging. Built for the monolith, engineered for scale.
+                </p>
+<div class="flex flex-col md:flex-row items-center justify-center gap-6">
+<button class="w-full md:w-auto px-10 py-5 bg-gradient-to-br from-primary-dim to-primary text-on-primary-fixed font-bold rounded shadow-[0_0_32px_rgba(132,85,239,0.3)] hover:shadow-[0_0_50px_rgba(186,158,255,0.5)] transition-all duration-300 flex items-center justify-center gap-3 active:scale-95">
+<span class="material-symbols-outlined" data-icon="rocket_launch">rocket_launch</span>
+                        Invite Bot
+                    </button>
+<button class="w-full md:w-auto px-10 py-5 border border-outline-variant/30 hover:bg-surface-container-highest transition-all duration-300 rounded font-bold flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" data-icon="hub">hub</span>
+                        Join Support
+                    </button>
+</div>
+<div class="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
+<div class="text-center">
+<div class="text-3xl font-headline font-bold text-on-surface">14k+</div>
+<div class="text-xs font-label text-primary uppercase tracking-widest mt-1">Servers</div>
+</div>
+<div class="text-center">
+<div class="text-3xl font-headline font-bold text-on-surface">1.2M</div>
+<div class="text-xs font-label text-primary uppercase tracking-widest mt-1">Daily Events</div>
+</div>
+<div class="text-center">
+<div class="text-3xl font-headline font-bold text-on-surface">99.9%</div>
+<div class="text-xs font-label text-primary uppercase tracking-widest mt-1">Uptime</div>
+</div>
+<div class="text-center">
+<div class="text-3xl font-headline font-bold text-on-surface">24/7</div>
+<div class="text-xs font-label text-primary uppercase tracking-widest mt-1">Active Support</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Features Bento Grid -->
+<section class="py-32 px-8 max-w-7xl mx-auto">
+<div class="mb-20 space-y-4">
+<h2 class="text-4xl md:text-5xl font-headline font-bold text-on-surface tracking-tight">Engineered Power.</h2>
+<div class="w-24 h-1 bg-gradient-to-r from-primary to-transparent"></div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 h-full">
+<!-- Large Feature Card -->
+<div class="md:col-span-8 glass-card asymmetric-corner p-10 flex flex-col justify-between group hover:bg-surface-container-high transition-colors border border-outline-variant/10">
+<div class="max-w-md">
+<span class="material-symbols-outlined text-4xl text-primary mb-6" data-icon="gavel">gavel</span>
+<h3 class="text-3xl font-headline font-bold mb-4">Modular Moderation</h3>
+<p class="text-on-surface-variant font-body">Customizable strike systems, automated temp-bans, and intelligent word filtering. Ares adapts to your community's unique culture without the overhead.</p>
+</div>
+<div class="mt-12 flex flex-wrap gap-3">
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-label text-on-surface-variant">Auto-Mod</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-label text-on-surface-variant">Custom Actions</span>
+<span class="px-4 py-2 bg-surface-container-highest rounded-full text-xs font-label text-on-surface-variant">Shadow Ban</span>
+</div>
+</div>
+<!-- Small Feature Card 1 -->
+<div class="md:col-span-4 glass-card p-10 border border-outline-variant/10 hover:shadow-[0_0_32px_rgba(64,206,237,0.05)] transition-all">
+<span class="material-symbols-outlined text-4xl text-secondary mb-6" data-icon="monitoring">monitoring</span>
+<h3 class="text-2xl font-headline font-bold mb-4">System Logging</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Granular event tracking. Every message edit, voice state change, and member update recorded in ultra-high fidelity for your audit trails.</p>
+</div>
+<!-- Small Feature Card 2 -->
+<div class="md:col-span-4 glass-card p-10 border border-outline-variant/10 hover:shadow-[0_0_32px_rgba(236,99,255,0.05)] transition-all">
+<span class="material-symbols-outlined text-4xl text-tertiary mb-6" data-icon="graphic_eq">graphic_eq</span>
+<h3 class="text-2xl font-headline font-bold mb-4">High-Fidelity Audio</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Experience 384kbps lossless audio streaming. Crystal clear music playback with integrated lyrics and cross-platform playlist support.</p>
+</div>
+<!-- Medium Visual Feature Card -->
+<div class="md:col-span-8 glass-card p-10 border border-outline-variant/10 relative overflow-hidden flex flex-col md:flex-row items-center gap-8">
+<div class="flex-1">
+<h3 class="text-2xl font-headline font-bold mb-4">Advanced Dashboard</h3>
+<p class="text-on-surface-variant font-body text-sm leading-relaxed">Manage everything from a sleek, neon-infused web interface. No more fighting with complex text commands.</p>
+<button class="mt-6 text-primary font-bold flex items-center gap-2 group">
+                            Access Dashboard 
+                            <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<div class="flex-1 w-full bg-surface-container-highest rounded-lg h-48 border border-outline-variant/20 relative">
+<div class="absolute inset-4 space-y-3">
+<div class="h-2 w-3/4 bg-primary/20 rounded"></div>
+<div class="h-2 w-1/2 bg-secondary/20 rounded"></div>
+<div class="grid grid-cols-3 gap-2 mt-8">
+<div class="h-12 bg-surface-container rounded border border-primary/10"></div>
+<div class="h-12 bg-surface-container rounded border border-primary/10"></div>
+<div class="h-12 bg-surface-container rounded border border-primary/10"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Counter Section -->
+<section class="py-24 bg-surface-container-low relative">
+<div class="max-w-7xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+<div>
+<h2 class="text-4xl md:text-5xl font-headline font-bold text-on-surface mb-6">Built for the Monolith.</h2>
+<p class="text-on-surface-variant text-lg mb-8">Scale with confidence. Ares is designed to handle massive communities without breaking a sweat, providing the reliability of a custom-built infrastructure.</p>
+<div class="flex items-center gap-4 p-6 bg-surface-container rounded-xl border border-outline-variant/20 max-w-md">
+<div class="w-12 h-12 rounded-full bg-primary-dim/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary" data-icon="database">database</span>
+</div>
+<div>
+<div class="text-on-surface font-bold">1.2M daily events</div>
+<div class="text-xs text-on-surface-variant font-label uppercase tracking-widest">Global process capacity</div>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+<div class="bg-surface-container-high p-8 asymmetric-corner border border-outline-variant/10">
+<div class="text-4xl font-headline font-bold text-primary mb-2">14,281</div>
+<div class="text-xs font-label text-on-surface-variant uppercase tracking-tighter">Active Nodes</div>
+</div>
+<div class="bg-surface-container-high p-8 asymmetric-corner border border-outline-variant/10 mt-8 sm:mt-0">
+<div class="text-4xl font-headline font-bold text-secondary mb-2">9ms</div>
+<div class="text-xs font-label text-on-surface-variant uppercase tracking-tighter">Avg Latency</div>
+</div>
+<div class="bg-surface-container-high p-8 asymmetric-corner border border-outline-variant/10">
+<div class="text-4xl font-headline font-bold text-tertiary mb-2">4.8/5</div>
+<div class="text-xs font-label text-on-surface-variant uppercase tracking-tighter">User Rating</div>
+</div>
+<div class="bg-surface-container-high p-8 asymmetric-corner border border-outline-variant/10 mt-8 sm:mt-0">
+<div class="text-4xl font-headline font-bold text-on-surface mb-2">Open</div>
+<div class="text-xs font-label text-on-surface-variant uppercase tracking-tighter">API Access</div>
+</div>
+</div>
+</div>
+</section>
+<!-- CTA Section -->
+<section class="py-32 px-8 text-center relative overflow-hidden">
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-primary/10 blur-[120px] rounded-full"></div>
+<div class="relative z-10 max-w-4xl mx-auto glass-card p-16 border border-outline-variant/20 rounded-lg">
+<h2 class="text-4xl md:text-6xl font-headline font-bold mb-8">Ascend Beyond <br/> the Ordinary.</h2>
+<p class="text-on-surface-variant mb-12 text-lg">Your server deserves more than just a bot. It deserves a command deck. Secure your domain today.</p>
+<div class="flex flex-col sm:flex-row gap-6 justify-center">
+<button class="bg-gradient-to-br from-primary-dim to-primary text-on-primary-fixed px-12 py-5 rounded-full font-bold text-lg hover:shadow-[0_0_40px_rgba(186,158,255,0.5)] transition-all">Invite Now</button>
+<button class="px-12 py-5 rounded-full font-bold text-lg border border-outline text-on-surface hover:bg-surface-container-highest transition-all">View Commands</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-950 border-t border-slate-800/30 w-full py-12 px-8">
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 max-w-7xl mx-auto">
+<div class="text-xl font-black text-slate-100 font-headline uppercase tracking-widest">
+                Ares Cybernetic
+            </div>
+<div class="flex gap-8 font-['Inter'] text-sm tracking-wide">
+<a class="text-slate-500 hover:text-fuchsia-400 transition-colors" href="#">Terms of Service</a>
+<a class="text-slate-500 hover:text-fuchsia-400 transition-colors" href="#">Privacy Policy</a>
+<a class="text-slate-500 hover:text-fuchsia-400 transition-colors" href="#">Status</a>
+<a class="text-slate-500 hover:text-fuchsia-400 transition-colors" href="#">Contact</a>
+</div>
+<div class="text-slate-500 text-sm font-['Inter']">
+                © 2024 Ares Cybernetic. Built for the Monolith.
+            </div>
+</div>
+</footer>
+</body></html>

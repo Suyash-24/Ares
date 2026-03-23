@@ -130,63 +130,14 @@
       }
     </script>
 </head>
-<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
-
-    <!-- Cosmic Atmosphere -->
-    <div class="fixed top-[-15%] right-[-10%] w-[600px] h-[600px] bg-primary-dim/5 blur-[150px] rounded-full pointer-events-none z-[-1] animate-float"></div>
-    <div class="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-secondary/5 blur-[120px] rounded-full pointer-events-none z-[-1]"></div>
-    <div class="fixed top-[40%] left-[30%] w-[400px] h-[400px] bg-tertiary-container/3 blur-[180px] rounded-full pointer-events-none z-[-1]"></div>
-
-    <div id="app">
-        <!-- SideNavBar Shell -->
-        <aside id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low/90 backdrop-blur-2xl flex flex-col pt-8 pb-8 z-50 font-headline tracking-tight" style="display: none;">
-            <div class="px-8 mb-12 flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-tertiary-container flex items-center justify-center glow-sm cursor-pointer" onclick="router.navigate('/')">
-                    <span class="material-symbols-outlined text-white text-xl" data-icon="rocket_launch">rocket_launch</span>
-                </div>
-                <div class="cursor-pointer" onclick="router.navigate('/')">
-                    <h1 class="text-xl font-extrabold bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent">Ares</h1>
-                    <p class="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] font-label">Celestial Command</p>
-                </div>
-            </div>
-            
-            <nav id="sidebar-nav" class="flex-1 space-y-1 px-4"></nav>
-            
-            <div id="sidebar-user" class="px-6 mt-auto"></div>
-        </aside>
-
-        <!-- TopNavBar Shell -->
-        <header id="topbar" class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-8 z-40" style="display: none;">
-            <div class="flex items-center bg-surface-container px-4 py-2.5 rounded-full w-96 ghost-border">
-                <span class="material-symbols-outlined text-outline text-sm mr-3" data-icon="search">search</span>
-                <input class="bg-transparent border-none text-sm text-on-surface focus:ring-0 w-full font-body placeholder:text-outline/40 outline-none" placeholder="Search across Ares command center..." type="text"/>
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="flex items-center gap-4">
-                    <button class="relative text-on-surface-variant hover:text-on-surface transition-colors">
-                        <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
-                        <span class="absolute top-0 right-0 w-2 h-2 bg-secondary rounded-full animate-cosmic-pulse"></span>
-                    </button>
-                    <button class="text-on-surface-variant hover:text-on-surface transition-colors">
-                        <span class="material-symbols-outlined" data-icon="bolt">bolt</span>
-                    </button>
-                </div>
-                <div class="h-8 w-[1px] bg-outline-variant/20"></div>
-                <div id="topbar-user" class="flex items-center gap-3"></div>
-            </div>
-        </header>
-
-        <!-- Main Content -->
-        <main id="content" class="min-h-screen transition-all duration-300">
-            <div id="page-loading" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] hidden items-center justify-center">
-                <div class="flex flex-col items-center gap-4">
-                    <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
-                    <span class="text-xs text-on-surface-variant font-label tracking-widest uppercase">Loading</span>
-                </div>
-            </div>
-            <div id="page-content" class="h-full"></div>
-        </main>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container min-h-screen overflow-x-hidden">
+    <div id="page-loading" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] hidden items-center justify-center">
+        <div class="flex flex-col items-center gap-4">
+            <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+            <span class="text-xs text-on-surface-variant font-label tracking-widest uppercase">Loading</span>
+        </div>
     </div>
+    <div id="page-content" class="min-h-screen w-full relative"></div>
 
     <script src="/js/api.js"></script>
     <script src="/js/router.js"></script>
