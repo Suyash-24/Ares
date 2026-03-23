@@ -437,9 +437,7 @@ function docsNavigate(path, scrollTarget) {
 
 /* ─── main render (routes /docs and /docs/:moduleId) ─── */
 function renderDocs(scrollTarget) {
-  document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('content').style.marginLeft = '0';
-  document.getElementById('content').style.padding = '0';
+  // Page content is rendered directly into #page-content
 
   const categories = getDocsCategories();
   const pathParts = window.location.pathname.replace(/\/+$/, '').split('/');
