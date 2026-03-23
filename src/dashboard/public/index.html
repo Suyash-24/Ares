@@ -1,52 +1,203 @@
 <!DOCTYPE html>
-<html lang="en">
+<html class="dark" lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ares Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Ares | Celestial Command Dashboard</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0e14;
+        }
+        .font-headline {
+            font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
+        }
+        .font-label {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Cosmic scrollbar */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(208, 188, 255, 0.15); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(208, 188, 255, 0.3); }
+        
+        /* Cosmic Glass Systems */
+        .cosmic-card {
+            background: rgba(25, 28, 34, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(73, 68, 84, 0.15);
+            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .cosmic-card:hover {
+            background: rgba(39, 42, 49, 0.8);
+            box-shadow: 0 0 30px rgba(132, 85, 239, 0.08);
+        }
+        .glass-panel {
+            backdrop-filter: blur(24px);
+            background: rgba(29, 32, 38, 0.7);
+            border: 1px solid rgba(73, 68, 84, 0.12);
+        }
+        .glass-card {
+            background: rgba(25, 28, 34, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(73, 68, 84, 0.12);
+        }
+
+        /* Glow effects */
+        .glow-sm { box-shadow: 0 0 15px rgba(208, 188, 255, 0.1); }
+        .glow-primary { box-shadow: 0 0 32px rgba(132, 85, 239, 0.2); }
+        .glow-hover:hover { box-shadow: 0 0 20px rgba(208, 188, 255, 0.12); }
+        .neon-glow-primary { box-shadow: 0 0 24px rgba(208, 188, 255, 0.1); }
+        .signature-glow { box-shadow: 0 0 15px rgba(132, 85, 239, 0.2); }
+
+        /* Ambient shadow for floating elements */
+        .ambient-shadow { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+
+        /* Ghost border */
+        .ghost-border { border: 1px solid rgba(73, 68, 84, 0.15); }
+
+        /* Gradient edge accent */
+        .gradient-edge-left { border-left: 2px solid transparent; border-image: linear-gradient(to bottom, #d0bcff, transparent) 1; }
+        .gradient-edge-top { border-top: 2px solid transparent; border-image: linear-gradient(to right, #d0bcff, transparent) 1; }
+        
+        /* Animations */
+        @keyframes cosmic-pulse {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        @keyframes float-gentle {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-cosmic-pulse { animation: cosmic-pulse 3s ease-in-out infinite; }
+        .animate-shimmer { animation: shimmer 3s infinite; }
+        .animate-float { animation: float-gentle 6s ease-in-out infinite; }
+    </style>
+    
+    <script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#d0bcff", "primary-dim": "#8455ef", "primary-container": "#7f65c1",
+              "primary-fixed": "#e9ddff", "primary-fixed-dim": "#d0bcff",
+              "on-primary": "#391b77", "on-primary-container": "#fffcff",
+              "on-primary-fixed": "#23005c", "on-primary-fixed-variant": "#50358f",
+              "secondary": "#4bd7f6", "secondary-dim": "#40ceed", "secondary-container": "#00b5d3",
+              "secondary-fixed": "#abedff", "secondary-fixed-dim": "#4bd7f6",
+              "on-secondary": "#003640", "on-secondary-container": "#00424e",
+              "on-secondary-fixed": "#001f26", "on-secondary-fixed-variant": "#004e5c",
+              "tertiary": "#d0bcff", "tertiary-dim": "#ec63ff", "tertiary-container": "#8455ef",
+              "tertiary-fixed": "#e9ddff", "tertiary-fixed-dim": "#d0bcff",
+              "on-tertiary": "#3b0091", "on-tertiary-container": "#fffcff",
+              "on-tertiary-fixed": "#23005c", "on-tertiary-fixed-variant": "#5516be",
+              "error": "#ffb4ab", "error-dim": "#d73357", "error-container": "#93000a",
+              "on-error": "#690005", "on-error-container": "#ffdad6",
+              "background": "#0b0e14", "on-background": "#e1e2eb",
+              "surface": "#10131a", "surface-dim": "#10131a", "surface-bright": "#363940",
+              "surface-variant": "#32353c", "surface-tint": "#d0bcff",
+              "surface-container-lowest": "#0b0e14", "surface-container-low": "#191c22",
+              "surface-container": "#1d2026", "surface-container-high": "#272a31",
+              "surface-container-highest": "#32353c",
+              "on-surface": "#e1e2eb", "on-surface-variant": "#cbc3d7",
+              "outline": "#958ea0", "outline-variant": "#494454",
+              "inverse-surface": "#e1e2eb", "inverse-on-surface": "#2e3037",
+              "inverse-primary": "#684ea8"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans", "Space Grotesk", "sans-serif"],
+              "body": ["Inter", "sans-serif"],
+              "label": ["Space Grotesk", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"}
+          }
+        }
+      }
+    </script>
 </head>
-<body>
-  <div id="bg-effects">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-  </div>
+<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container">
 
-  <div id="app">
-    <!-- Sidebar -->
-    <nav id="sidebar" class="glass">
-      <div class="sidebar-brand">
-        <span class="brand-icon">⚡</span>
-        <span class="brand-text">Ares</span>
-      </div>
-      <div id="sidebar-nav"></div>
-      <div id="sidebar-user" class="sidebar-user"></div>
-    </nav>
+    <!-- Cosmic Atmosphere -->
+    <div class="fixed top-[-15%] right-[-10%] w-[600px] h-[600px] bg-primary-dim/5 blur-[150px] rounded-full pointer-events-none z-[-1] animate-float"></div>
+    <div class="fixed bottom-[-10%] left-[-10%] w-[500px] h-[500px] bg-secondary/5 blur-[120px] rounded-full pointer-events-none z-[-1]"></div>
+    <div class="fixed top-[40%] left-[30%] w-[400px] h-[400px] bg-tertiary-container/3 blur-[180px] rounded-full pointer-events-none z-[-1]"></div>
 
-    <!-- Main content -->
-    <main id="content">
-      <div id="page-loading" class="page-loading">
-        <div class="spinner"></div>
-      </div>
-      <div id="page-content"></div>
-    </main>
-  </div>
+    <div id="app">
+        <!-- SideNavBar Shell -->
+        <aside id="sidebar" class="fixed left-0 top-0 h-screen w-64 bg-surface-container-low/90 backdrop-blur-2xl flex flex-col pt-8 pb-8 z-50 font-headline tracking-tight" style="display: none;">
+            <div class="px-8 mb-12 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-tertiary-container flex items-center justify-center glow-sm cursor-pointer" onclick="router.navigate('/')">
+                    <span class="material-symbols-outlined text-white text-xl" data-icon="rocket_launch">rocket_launch</span>
+                </div>
+                <div class="cursor-pointer" onclick="router.navigate('/')">
+                    <h1 class="text-xl font-extrabold bg-gradient-to-br from-primary to-secondary bg-clip-text text-transparent">Ares</h1>
+                    <p class="text-[9px] text-on-surface-variant uppercase tracking-[0.2em] font-label">Celestial Command</p>
+                </div>
+            </div>
+            
+            <nav id="sidebar-nav" class="flex-1 space-y-1 px-4"></nav>
+            
+            <div id="sidebar-user" class="px-6 mt-auto"></div>
+        </aside>
 
-  <script src="/js/api.js"></script>
-  <script src="/js/router.js"></script>
-  <script src="/js/pages/landing.js"></script>
-  <script src="/js/pages/docs.js"></script>
-  <script src="/js/pages/guilds.js"></script>
-  <script src="/js/pages/overview.js"></script>
-  <script src="/js/pages/config.js"></script>
-  <script src="/js/pages/moderation.js"></script>
-  <script src="/js/pages/music.js"></script>
-  <script src="/js/pages/stats.js"></script>
-  <script src="/js/app.js"></script>
+        <!-- TopNavBar Shell -->
+        <header id="topbar" class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-8 z-40" style="display: none;">
+            <div class="flex items-center bg-surface-container px-4 py-2.5 rounded-full w-96 ghost-border">
+                <span class="material-symbols-outlined text-outline text-sm mr-3" data-icon="search">search</span>
+                <input class="bg-transparent border-none text-sm text-on-surface focus:ring-0 w-full font-body placeholder:text-outline/40 outline-none" placeholder="Search across Ares command center..." type="text"/>
+            </div>
+            <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4">
+                    <button class="relative text-on-surface-variant hover:text-on-surface transition-colors">
+                        <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-secondary rounded-full animate-cosmic-pulse"></span>
+                    </button>
+                    <button class="text-on-surface-variant hover:text-on-surface transition-colors">
+                        <span class="material-symbols-outlined" data-icon="bolt">bolt</span>
+                    </button>
+                </div>
+                <div class="h-8 w-[1px] bg-outline-variant/20"></div>
+                <div id="topbar-user" class="flex items-center gap-3"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main id="content" class="min-h-screen transition-all duration-300">
+            <div id="page-loading" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] hidden items-center justify-center">
+                <div class="flex flex-col items-center gap-4">
+                    <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
+                    <span class="text-xs text-on-surface-variant font-label tracking-widest uppercase">Loading</span>
+                </div>
+            </div>
+            <div id="page-content" class="h-full"></div>
+        </main>
+    </div>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/router.js"></script>
+    <script src="/js/pages/landing.js"></script>
+    <script src="/js/pages/docs.js"></script>
+    <script src="/js/pages/guilds.js"></script>
+    <script src="/js/pages/overview.js"></script>
+    <script src="/js/pages/config.js"></script>
+    <script src="/js/pages/moderation.js"></script>
+    <script src="/js/pages/music.js"></script>
+    <script src="/js/pages/stats.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>

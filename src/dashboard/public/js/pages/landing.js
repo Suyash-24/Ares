@@ -16,8 +16,12 @@ function renderLanding() {
   }
 
   document.getElementById('sidebar').style.display = 'none';
-  document.getElementById('content').style.marginLeft = '0';
-  document.getElementById('content').style.padding = '0';
+  const topbar = document.getElementById('topbar');
+  if (topbar) topbar.style.display = 'none';
+  const content = document.getElementById('content');
+  content.className = 'min-h-screen transition-all duration-300';
+  content.style.marginLeft = '0';
+  content.style.padding = '0';
 
   const oauthUrl = 'https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands';
   const moduleNames = ['Moderation', 'Music', 'Leveling', 'Giveaways', 'Tickets', 'Anti-Nuke', 'Stats'];
@@ -123,7 +127,7 @@ function renderLanding() {
                   The all-in-one <span>Discord bot</span>
                 </h1>
                 <p class="lp-stage-sub" data-reveal="blur">
-                  Moderation, music, leveling, giveaways, tickets, anti-nuke and more — managed from one beautiful dashboard.
+                  Elevate your community with elite moderation, seamless music streaming, dynamic leveling systems, and high-speed giveaways. Built for scale, designed for cosmic precision.
                 </p>
 
                 <div class="lp-stage-actions" data-reveal="zoom">
@@ -228,7 +232,7 @@ function renderLanding() {
 
           <article class="lp-card lp-insight-card" data-reveal="right">
             <h2>Server Analytics</h2>
-            <p>Track messages, voice activity, invites, and engagement with detailed leaderboards and time-period breakdowns.</p>
+            <p>Deep insights into your community growth, message frequency, and active peak hours with beautiful visualization.</p>
 
             <div class="lp-insight-grid">
               <div class="lp-insight-box lp-insight-box-main">
@@ -314,6 +318,7 @@ function renderLanding() {
             <a href="#metrics">Stats</a>
             <a href="/docs" data-link="/docs">Docs</a>
           </div>
+          <p class="lp-footer-copy">© 2024 Ares Cosmic Systems. Crafted for the void.</p>
         </div>
       </footer>
     </div>
