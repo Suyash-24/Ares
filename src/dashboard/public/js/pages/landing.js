@@ -4,37 +4,55 @@ function renderLanding() {
 
   document.getElementById('page-content').innerHTML = `
     <div class="landing-v3">
-      <div class="landing-v3-bg-orb orb-a"></div>
-      <div class="landing-v3-bg-orb orb-b"></div>
+      <div class="landing-v3-ambient"></div>
 
-      <header class="landing-v3-nav-wrap">
-        <div class="landing-v3-nav">
-          <a class="landing-v3-logo" href="/" data-link="/">ARES</a>
-          <nav class="landing-v3-links">
-            <a href="/docs" data-link="/docs">Docs</a>
-            <a href="#support">Support</a>
-            <a href="#servers">Servers</a>
-          </nav>
-          <div class="landing-v3-nav-actions">
-            <a class="landing-v3-dash" href="/auth/login">Dashboard</a>
-          </div>
+      <nav class="landing-v3-nav">
+        <a class="landing-v3-logo" href="/" data-link="/">ARES</a>
+        <div class="landing-v3-links">
+          <a href="#features">Features</a>
+          <a href="#usecases">Use Cases</a>
+          <a href="/docs" data-link="/docs">Docs</a>
         </div>
-      </header>
+        <div class="landing-v3-actions">
+          <a class="landing-v3-dash" href="/auth/login">Open Dashboard</a>
+        </div>
+      </nav>
 
-      <main class="landing-v3-shell">
+      <div class="landing-v3-shell">
         <section class="landing-v3-hero">
-          <div class="landing-v3-badge">Now powered by Ares AI 2.0</div>
-          <h1>
-            The Ultimate Discord
-            <span>Command Center.</span>
-          </h1>
+          <div class="landing-v3-badge">Ops-grade security + engagement</div>
+          <h1>Secure, automate, and grow your Discord server.</h1>
           <p>
-            Elevate your community with military-grade moderation, high-fidelity music, and intelligent automation.
-            Ares is the only bot your server will ever need.
+            Ares merges anti-nuke, automod, tickets, music, giveaways, and logging into one control plane so staff move faster, stay safe, and keep members active.
           </p>
           <div class="landing-v3-hero-actions">
-            <a href="${oauthUrl}" target="_blank" rel="noopener" class="landing-v3-btn primary">Add to Discord</a>
-            <a href="/docs" data-link="/docs" class="landing-v3-btn ghost">View Features</a>
+            <a class="landing-v3-btn primary" href="${oauthUrl}" target="_blank" rel="noopener">Add to Discord</a>
+            <a class="landing-v3-btn ghost" href="/docs" data-link="/docs">View Documentation</a>
+          </div>
+
+          <div class="landing-v3-trust">
+            <div class="landing-v3-metric"><strong>6,800+</strong><span>Servers protected</span></div>
+            <div class="landing-v3-metric"><strong>99.9%</strong><span>Operational uptime</span></div>
+            <div class="landing-v3-metric"><strong>2.4M</strong><span>Incidents mitigated</span></div>
+          </div>
+
+          <div class="landing-v3-marquee">
+            <div class="landing-v3-marquee-track">
+              <span class="landing-v3-chip">League Arena · 390k</span>
+              <span class="landing-v3-chip">Creator Hub · 180k</span>
+              <span class="landing-v3-chip">Esports Central · 250k</span>
+              <span class="landing-v3-chip">Support Desk · 120k</span>
+              <span class="landing-v3-chip">Music Lounge · 95k</span>
+              <span class="landing-v3-chip">Study Space · 80k</span>
+              <span class="landing-v3-chip">Event Ops · 210k</span>
+              <span class="landing-v3-chip">League Arena · 390k</span>
+              <span class="landing-v3-chip">Creator Hub · 180k</span>
+              <span class="landing-v3-chip">Esports Central · 250k</span>
+              <span class="landing-v3-chip">Support Desk · 120k</span>
+              <span class="landing-v3-chip">Music Lounge · 95k</span>
+              <span class="landing-v3-chip">Study Space · 80k</span>
+              <span class="landing-v3-chip">Event Ops · 210k</span>
+            </div>
           </div>
         </section>
 
@@ -48,7 +66,7 @@ function renderLanding() {
               <div class="landing-v3-showcase-glow"></div>
               <h3>Run moderation, security, and engagement from one surface.</h3>
               <p>
-                Ares unifies anti-nuke, automod, ticketing, music, giveaways, and logs in a single workflow so your team can move fast without chaos.
+                Anti-nuke, automod, ticketing, music, giveaways, and logs ship with sane defaults so you can flip them on in minutes and trust they will hold under load.
               </p>
               <div class="landing-v3-showcase-rail">
                 <div class="landing-v3-rail-row"><span>Threat Detection</span><b>Active</b></div>
@@ -74,107 +92,126 @@ function renderLanding() {
           </div>
         </section>
 
-        <section class="landing-v3-stats" id="servers">
-          <article><strong>5,000+</strong><span>Global Servers</span></article>
-          <article><strong>2M+</strong><span>Active Users</span></article>
-          <article><strong>99.9%</strong><span>Network Uptime</span></article>
-        </section>
-
-        <section class="landing-v3-capabilities">
+        <section class="landing-v3-capabilities" id="features">
           <div class="landing-v3-headline">
-            <h2>Real Ares Modules</h2>
-            <p>Purpose-built systems designed for security, clarity, and daily server growth.</p>
+            <h2>Operations-grade modules</h2>
+            <p>Each system ships with defaults that protect, then scales with granular rules, audit trails, and docs you can hand to staff.</p>
           </div>
           <div class="landing-v3-grid">
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-shield"></div>
               <h3>Anti-Nuke Protection</h3>
-              <p>Stops destructive actions like mass bans, role hijacks, and channel wipes before they escalate.</p>
+              <p>Blocks mass bans, role hijacks, and channel wipes instantly, with rollback and lockdown options ready.</p>
               <div class="landing-v3-card-meter"><span style="--w:92%"></span></div>
+              <a class="landing-v3-doc-link" href="/docs" data-link="/docs">See setup guide</a>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-filter"></div>
               <h3>Automod Filters</h3>
-              <p>Keeps chats clean by handling spam, invite links, abusive patterns, and noisy message floods.</p>
+              <p>Regex filters, invite blocking, flood controls, and penalty escalation built to be transparent to staff.</p>
               <div class="landing-v3-card-meter"><span style="--w:86%"></span></div>
+              <a class="landing-v3-doc-link" href="/docs" data-link="/docs">View rules examples</a>
+            </article>
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-ticket"></div>
+              <h3>Support Tickets</h3>
+              <p>Structured routing with assignment, context retention, and transcript export for compliance-ready support.</p>
+              <div class="landing-v3-card-meter"><span style="--w:84%"></span></div>
+              <a class="landing-v3-doc-link" href="/docs" data-link="/docs">Configure workflows</a>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-wave"></div>
               <h3>Music System</h3>
-              <p>Delivers stable queue-based playback for YouTube, Spotify, and SoundCloud with smooth controls.</p>
+              <p>Stable queue-based playback with Spotify, YouTube, and SoundCloud integration plus in-channel controls.</p>
               <div class="landing-v3-card-meter"><span style="--w:79%"></span></div>
-            </article>
-            <article class="landing-v3-card square">
-              <div class="landing-v3-module-visual v-ticket"></div>
-              <h3>Ticket Support</h3>
-              <p>Creates structured support channels with assignment flow, context retention, and transcript readiness.</p>
-              <div class="landing-v3-card-meter"><span style="--w:84%"></span></div>
+              <a class="landing-v3-doc-link" href="/docs" data-link="/docs">See music commands</a>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-growth"></div>
               <h3>Giveaways + Leveling</h3>
-              <p>Boosts member activity through XP progression, role rewards, and repeatable giveaway campaigns.</p>
+              <p>Member progression, XP boosts, and campaigns to keep participation loops running every week.</p>
               <div class="landing-v3-card-meter"><span style="--w:88%"></span></div>
+              <a class="landing-v3-doc-link" href="/docs" data-link="/docs">Launch a campaign</a>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-logs"></div>
               <h3>Logging Setup</h3>
-              <p>Gives admins a clear audit trail for moderation and server events in dedicated log channels.</p>
+              <p>Clear audit trails for moderation and server events with channel-specific routing and retention.</p>
               <div class="landing-v3-card-meter"><span style="--w:95%"></span></div>
+              <a class="landing-v3-doc-link" href="/docs" data-link="/docs">Open log presets</a>
             </article>
           </div>
         </section>
 
-        <section class="landing-v3-testimonials" id="support">
-          <h2>Built for Real Community Use Cases</h2>
+        <section class="landing-v3-testimonials" id="usecases">
+          <h2>Built for real community models</h2>
           <div class="landing-v3-rollout-grid">
             <article class="landing-v3-rollout-card">
-              <span class="landing-v3-rollout-step">Gaming Communities</span>
+              <span class="landing-v3-rollout-step">Gaming Events</span>
               <h4>Protect high-traffic chats without slowing conversation.</h4>
-              <p>Anti-raid, automod, and role controls keep match-day or event spikes manageable for staff.</p>
+              <div class="landing-v3-checklist">
+                <span>Anti-raid + anti-nuke pre-armed</span>
+                <span>Voice and text leveling during events</span>
+                <span>Live logs for staff coordination</span>
+              </div>
             </article>
             <article class="landing-v3-rollout-card">
               <span class="landing-v3-rollout-step">Creator Servers</span>
               <h4>Keep fan servers organized with lightweight ops.</h4>
-              <p>Tickets, announcements, and moderation presets reduce manual overhead for creator teams.</p>
+              <div class="landing-v3-checklist">
+                <span>Ticket routing with assignments</span>
+                <span>Announcement-ready automations</span>
+                <span>Role-based access for VIP areas</span>
+              </div>
             </article>
             <article class="landing-v3-rollout-card">
-              <span class="landing-v3-rollout-step">Support-Heavy Hubs</span>
-              <h4>Handle member issues faster with structured support flow.</h4>
-              <p>Ticket routing and log history make handoffs clean between moderators across time zones.</p>
+              <span class="landing-v3-rollout-step">Support Hubs</span>
+              <h4>Handle issues faster with structured support flow.</h4>
+              <div class="landing-v3-checklist">
+                <span>Transcript exports for every ticket</span>
+                <span>Logging that ties actions to staff</span>
+                <span>Queue visibility across time zones</span>
+              </div>
             </article>
             <article class="landing-v3-rollout-card">
               <span class="landing-v3-rollout-step">Growth Servers</span>
               <h4>Drive retention through progression and events.</h4>
-              <p>Leveling, giveaways, and voice/music tools create repeat participation loops for members.</p>
+              <div class="landing-v3-checklist">
+                <span>XP boosts on schedules and channels</span>
+                <span>Giveaways that recycle engaged members</span>
+                <span>Music sessions with queue control</span>
+              </div>
             </article>
             <article class="landing-v3-rollout-card landing-v3-rollout-card-wide">
               <h4>Launch with confidence in minutes</h4>
-              <p>Open docs for complete module setup guides, permission requirements, and production-ready defaults.</p>
+              <p>Open docs for module setup guides, permission requirements, and production-ready defaults.</p>
               <a href="/docs" data-link="/docs">Explore Documentation</a>
             </article>
           </div>
         </section>
 
-        <section class="landing-v3-cta">
-          <h2>Ready to command the void?</h2>
-          <p>Join thousands of top-tier servers using Ares today.</p>
-          <a href="${oauthUrl}" target="_blank" rel="noopener" class="landing-v3-btn primary">Get Started Free</a>
+        <section class="landing-v3-cta" id="pro">
+          <h2>Ready to lock down and grow?</h2>
+          <p>Join thousands of communities running Ares with enterprise-grade reliability.</p>
+          <div class="landing-v3-hero-actions">
+            <a class="landing-v3-btn primary" href="${oauthUrl}" target="_blank" rel="noopener">Invite Ares</a>
+            <a class="landing-v3-btn ghost" href="/docs" data-link="/docs">Browse docs</a>
+          </div>
         </section>
-      </main>
 
-      <footer class="landing-v3-footer">
-        <div class="landing-v3-footer-left">
-          <strong>ARES</strong>
-          <span>Built for the void.</span>
-        </div>
-        <div class="landing-v3-footer-links">
-          <a href="/docs" data-link="/docs">Docs</a>
-          <a href="/docs" data-link="/docs">Terms</a>
-          <a href="/docs" data-link="/docs">Privacy</a>
-          <a href="/docs" data-link="/docs">Status</a>
-        </div>
-      </footer>
+        <footer class="landing-v3-footer">
+          <div class="landing-v3-footer-left">
+            <strong>ARES</strong>
+            <span>Discord operations, simplified.</span>
+          </div>
+          <div class="landing-v3-footer-links">
+            <a href="/docs" data-link="/docs">Docs</a>
+            <a href="/auth/login">Dashboard</a>
+            <a href="/">Status</a>
+            <a href="/">Support</a>
+          </div>
+        </footer>
+      </div>
     </div>
   `;
 }
