@@ -41,33 +41,34 @@ function renderLanding() {
         <section class="landing-v3-preview">
           <div class="landing-v3-preview-top">
             <div class="landing-v3-window-dots"><span></span><span></span><span></span></div>
-            <div class="landing-v3-preview-label">Ares Control Surface</div>
+            <div class="landing-v3-preview-label">Ares Live Command Hub</div>
           </div>
           <div class="landing-v3-preview-body landing-v3-showcase-layout">
             <div class="landing-v3-showcase-main">
               <div class="landing-v3-showcase-glow"></div>
-              <h3>Everything your server needs, in one command center.</h3>
+              <h3>Run moderation, security, and engagement from one surface.</h3>
               <p>
-                Ares combines protection, moderation, support tooling, music, and engagement systems into one polished workflow.
-                No plugin chaos, no scattered setup.
+                Ares unifies anti-nuke, automod, ticketing, music, giveaways, and logs in a single workflow so your team can move fast without chaos.
               </p>
-              <div class="landing-v3-showcase-chips">
-                <span>Anti-Nuke</span>
-                <span>Automod</span>
-                <span>Tickets</span>
-                <span>Giveaways</span>
-                <span>Leveling</span>
-                <span>Logs</span>
+              <div class="landing-v3-showcase-rail">
+                <div class="landing-v3-rail-row"><span>Threat Detection</span><b>Active</b></div>
+                <div class="landing-v3-rail-row"><span>Automod Filters</span><b>24 rules running</b></div>
+                <div class="landing-v3-rail-row"><span>Support Tickets</span><b>12 open</b></div>
+                <div class="landing-v3-rail-row"><span>Server Logs</span><b>Live stream</b></div>
               </div>
             </div>
             <div class="landing-v3-showcase-side">
               <article>
-                <strong>Protection Layer</strong>
-                <span>Mass-action defenses, smart filtering, instant logging.</span>
+                <strong>Response Time</strong>
+                <span>Most moderation actions execute in milliseconds for high-volume communities.</span>
               </article>
               <article>
-                <strong>Engagement Layer</strong>
-                <span>Music, leveling, and event tools that keep communities active.</span>
+                <strong>Scalable Setup</strong>
+                <span>From small private groups to large public servers, modules stay consistent and easy to tune.</span>
+              </article>
+              <article>
+                <strong>Unified Dashboard</strong>
+                <span>Configure and monitor all core systems without jumping between disconnected bots.</span>
               </article>
             </div>
           </div>
@@ -82,69 +83,75 @@ function renderLanding() {
         <section class="landing-v3-capabilities">
           <div class="landing-v3-headline">
             <h2>Real Ares Modules</h2>
-            <p>Each module below has a specific purpose, clear impact, and production-ready behavior.</p>
+            <p>Purpose-built systems designed for security, clarity, and daily server growth.</p>
           </div>
           <div class="landing-v3-grid">
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-shield"></div>
               <h3>Anti-Nuke Protection</h3>
               <p>Stops destructive actions like mass bans, role hijacks, and channel wipes before they escalate.</p>
+              <div class="landing-v3-card-meter"><span style="--w:92%"></span></div>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-filter"></div>
               <h3>Automod Filters</h3>
               <p>Keeps chats clean by handling spam, invite links, abusive patterns, and noisy message floods.</p>
+              <div class="landing-v3-card-meter"><span style="--w:86%"></span></div>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-wave"></div>
               <h3>Music System</h3>
               <p>Delivers stable queue-based playback for YouTube, Spotify, and SoundCloud with smooth controls.</p>
+              <div class="landing-v3-card-meter"><span style="--w:79%"></span></div>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-ticket"></div>
               <h3>Ticket Support</h3>
               <p>Creates structured support channels with assignment flow, context retention, and transcript readiness.</p>
+              <div class="landing-v3-card-meter"><span style="--w:84%"></span></div>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-growth"></div>
               <h3>Giveaways + Leveling</h3>
               <p>Boosts member activity through XP progression, role rewards, and repeatable giveaway campaigns.</p>
+              <div class="landing-v3-card-meter"><span style="--w:88%"></span></div>
             </article>
             <article class="landing-v3-card square">
               <div class="landing-v3-module-visual v-logs"></div>
               <h3>Logging Setup</h3>
               <p>Gives admins a clear audit trail for moderation and server events in dedicated log channels.</p>
+              <div class="landing-v3-card-meter"><span style="--w:95%"></span></div>
             </article>
           </div>
         </section>
 
         <section class="landing-v3-testimonials" id="support">
-          <h2>How Teams Use Ares</h2>
+          <h2>Built for Real Community Use Cases</h2>
           <div class="landing-v3-rollout-grid">
             <article class="landing-v3-rollout-card">
-              <span class="landing-v3-rollout-step">01</span>
-              <h4>Harden the Server</h4>
-              <p>Enable anti-raid and anti-nuke safeguards first so destructive actions are blocked from day one.</p>
+              <span class="landing-v3-rollout-step">Gaming Communities</span>
+              <h4>Protect high-traffic chats without slowing conversation.</h4>
+              <p>Anti-raid, automod, and role controls keep match-day or event spikes manageable for staff.</p>
             </article>
             <article class="landing-v3-rollout-card">
-              <span class="landing-v3-rollout-step">02</span>
-              <h4>Configure Day-to-Day Moderation</h4>
-              <p>Set automod rules and moderation flows so your team can respond quickly and consistently.</p>
+              <span class="landing-v3-rollout-step">Creator Servers</span>
+              <h4>Keep fan servers organized with lightweight ops.</h4>
+              <p>Tickets, announcements, and moderation presets reduce manual overhead for creator teams.</p>
             </article>
             <article class="landing-v3-rollout-card">
-              <span class="landing-v3-rollout-step">03</span>
-              <h4>Add Member Experience Systems</h4>
-              <p>Turn on leveling, music, and giveaways to keep members engaged and active over time.</p>
+              <span class="landing-v3-rollout-step">Support-Heavy Hubs</span>
+              <h4>Handle member issues faster with structured support flow.</h4>
+              <p>Ticket routing and log history make handoffs clean between moderators across time zones.</p>
             </article>
             <article class="landing-v3-rollout-card">
-              <span class="landing-v3-rollout-step">04</span>
-              <h4>Scale with Visibility</h4>
-              <p>Use logging, stats, and dashboards to monitor growth and keep operational clarity as the server expands.</p>
+              <span class="landing-v3-rollout-step">Growth Servers</span>
+              <h4>Drive retention through progression and events.</h4>
+              <p>Leveling, giveaways, and voice/music tools create repeat participation loops for members.</p>
             </article>
             <article class="landing-v3-rollout-card landing-v3-rollout-card-wide">
-              <h4>Need exact setup details?</h4>
-              <p>Use the complete command documentation for step-by-step module configuration and examples.</p>
-              <a href="/docs" data-link="/docs">Open Documentation</a>
+              <h4>Launch with confidence in minutes</h4>
+              <p>Open docs for complete module setup guides, permission requirements, and production-ready defaults.</p>
+              <a href="/docs" data-link="/docs">Explore Documentation</a>
             </article>
           </div>
         </section>

@@ -902,29 +902,34 @@ body::after {
 .landing-v3-showcase-main p {
   margin: 0;
   color: #a9b6cf;
-  font-size: 0.9rem;
-  line-height: 1.7;
+  font-size: 0.92rem;
+  line-height: 1.72;
   max-width: 620px;
 }
 
-.landing-v3-showcase-chips {
-  margin-top: 16px;
-  display: flex;
-  flex-wrap: wrap;
+.landing-v3-showcase-rail {
+  margin-top: 18px;
+  display: grid;
   gap: 8px;
 }
 
-.landing-v3-showcase-chips span {
-  min-height: 28px;
-  padding: 0 10px;
-  display: inline-flex;
+.landing-v3-rail-row {
+  min-height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(143, 166, 205, 0.24);
+  background: linear-gradient(90deg, rgba(13, 22, 38, 0.92), rgba(16, 24, 37, 0.78));
+  display: flex;
   align-items: center;
-  border-radius: 999px;
-  border: 1px solid rgba(143, 166, 205, 0.28);
-  background: rgba(12, 20, 36, 0.84);
+  justify-content: space-between;
+  padding: 0 12px;
   color: #b4c5e6;
+  font-size: 0.78rem;
+}
+
+.landing-v3-rail-row b {
+  color: #d8e5ff;
   font-size: 0.72rem;
-  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
 .landing-v3-showcase-side {
@@ -936,11 +941,11 @@ body::after {
   border-radius: 12px;
   border: 1px solid rgba(144, 163, 196, 0.22);
   background: linear-gradient(180deg, rgba(17, 24, 38, 0.9), rgba(12, 18, 30, 0.94));
-  min-height: 104px;
+  min-height: 98px;
   display: grid;
   align-content: center;
-  gap: 4px;
-  padding: 0 12px;
+  gap: 5px;
+  padding: 0 14px;
 }
 
 .landing-v3-showcase-side strong {
@@ -1017,9 +1022,9 @@ body::after {
   border: 1px solid rgba(140, 160, 193, 0.2);
   background: linear-gradient(180deg, rgba(20, 27, 41, 0.9), rgba(12, 17, 28, 0.95));
   padding: 18px;
-  min-height: 280px;
+  min-height: 300px;
   display: grid;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto 1fr auto;
 }
 
 .landing-v3-card h3 {
@@ -1033,6 +1038,23 @@ body::after {
   color: #a4b0cb;
   font-size: 0.92rem;
   line-height: 1.62;
+}
+
+.landing-v3-card-meter {
+  margin-top: 14px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(118, 139, 176, 0.2);
+  overflow: hidden;
+}
+
+.landing-v3-card-meter span {
+  --w: 80%;
+  display: block;
+  width: var(--w);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #8ab7ff, #9de0ff);
 }
 
 .landing-v3-card.square {
@@ -1109,13 +1131,13 @@ body::after {
   display: inline-flex;
   align-items: center;
   min-height: 24px;
-  padding: 0 8px;
+  padding: 0 9px;
   border-radius: 999px;
   border: 1px solid rgba(141, 163, 205, 0.34);
   background: rgba(15, 24, 41, 0.82);
-  color: #a9c9ff;
+  color: #d1def7;
   font-size: 0.66rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   font-weight: 700;
 }
 
@@ -1123,7 +1145,8 @@ body::after {
   margin: 0 0 8px;
   margin-top: 10px;
   color: #f3f7ff;
-  font-size: 1.08rem;
+  font-size: 1.04rem;
+  line-height: 1.45;
 }
 
 .landing-v3-rollout-card p {
