@@ -41,26 +41,34 @@ function renderLanding() {
         <section class="landing-v3-preview">
           <div class="landing-v3-preview-top">
             <div class="landing-v3-window-dots"><span></span><span></span><span></span></div>
-            <div class="landing-v3-preview-label">Ares Operations Console</div>
+            <div class="landing-v3-preview-label">Ares Control Surface</div>
           </div>
-          <div class="landing-v3-preview-body landing-v3-ops-layout">
-            <div class="landing-v3-terminal">
-              <div class="landing-v3-terminal-head">
-                <span>Live Commands</span>
-                <span class="landing-v3-terminal-status">connected</span>
+          <div class="landing-v3-preview-body landing-v3-showcase-layout">
+            <div class="landing-v3-showcase-main">
+              <div class="landing-v3-showcase-glow"></div>
+              <h3>Everything your server needs, in one command center.</h3>
+              <p>
+                Ares combines protection, moderation, support tooling, music, and engagement systems into one polished workflow.
+                No plugin chaos, no scattered setup.
+              </p>
+              <div class="landing-v3-showcase-chips">
+                <span>Anti-Nuke</span>
+                <span>Automod</span>
+                <span>Tickets</span>
+                <span>Giveaways</span>
+                <span>Leveling</span>
+                <span>Logs</span>
               </div>
-              <pre><code>.antinuke wizard
-.automod preset moderate
-.play Never Gonna Give You Up
-.ticket new
-.giveaway start Nitro Classic 1d 2
-.leveling enable
-.logsetup</code></pre>
             </div>
-            <div class="landing-v3-ops-stack">
-              <article><strong>Security</strong><span>Anti-Nuke + Automod active</span></article>
-              <article><strong>Engagement</strong><span>Leveling and giveaways enabled</span></article>
-              <article><strong>Support</strong><span>Ticket panels and logs ready</span></article>
+            <div class="landing-v3-showcase-side">
+              <article>
+                <strong>Protection Layer</strong>
+                <span>Mass-action defenses, smart filtering, instant logging.</span>
+              </article>
+              <article>
+                <strong>Engagement Layer</strong>
+                <span>Music, leveling, and event tools that keep communities active.</span>
+              </article>
             </div>
           </div>
         </section>
@@ -74,60 +82,69 @@ function renderLanding() {
         <section class="landing-v3-capabilities">
           <div class="landing-v3-headline">
             <h2>Real Ares Modules</h2>
-            <p>Everything below maps to actual commands available in Ares today.</p>
+            <p>Each module below has a specific purpose, clear impact, and production-ready behavior.</p>
           </div>
           <div class="landing-v3-grid">
-            <article class="landing-v3-card">
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-shield"></div>
               <h3>Anti-Nuke Protection</h3>
-              <p>Protect against mass bans, role abuse, and channel nukes with policy presets.</p>
-              <code>.antinuke wizard</code>
+              <p>Stops destructive actions like mass bans, role hijacks, and channel wipes before they escalate.</p>
             </article>
-            <article class="landing-v3-card">
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-filter"></div>
               <h3>Automod Filters</h3>
-              <p>Spam, invite, bad-word, and mention controls with instant enforcement.</p>
-              <code>.automod preset moderate</code>
+              <p>Keeps chats clean by handling spam, invite links, abusive patterns, and noisy message floods.</p>
             </article>
-            <article class="landing-v3-card">
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-wave"></div>
               <h3>Music System</h3>
-              <p>YouTube, Spotify, and SoundCloud queue playback with slash and prefix support.</p>
-              <code>.play &lt;query or URL&gt;</code>
+              <p>Delivers stable queue-based playback for YouTube, Spotify, and SoundCloud with smooth controls.</p>
             </article>
-            <article class="landing-v3-card">
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-ticket"></div>
               <h3>Ticket Support</h3>
-              <p>Panel-based ticketing with staff assignment and transcript tools.</p>
-              <code>.ticket new</code>
+              <p>Creates structured support channels with assignment flow, context retention, and transcript readiness.</p>
             </article>
-            <article class="landing-v3-card">
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-growth"></div>
               <h3>Giveaways + Leveling</h3>
-              <p>Run timed giveaways and unlock progression through XP and leaderboards.</p>
-              <code>.giveaway start Nitro Classic 1d 2</code>
+              <p>Boosts member activity through XP progression, role rewards, and repeatable giveaway campaigns.</p>
             </article>
-            <article class="landing-v3-card">
+            <article class="landing-v3-card square">
+              <div class="landing-v3-module-visual v-logs"></div>
               <h3>Logging Setup</h3>
-              <p>Wire moderation and server event logs to dedicated channels in seconds.</p>
-              <code>.logsetup</code>
+              <p>Gives admins a clear audit trail for moderation and server events in dedicated log channels.</p>
             </article>
           </div>
         </section>
 
         <section class="landing-v3-testimonials" id="support">
-          <h2>Real Workflows and Resources</h2>
-          <div class="landing-v3-workflow-grid">
-            <article class="landing-v3-workflow-card">
-              <h4>Secure a New Server</h4>
-              <p><code>.antinuke wizard</code> then <code>.automod preset moderate</code> to bring core protection online quickly.</p>
+          <h2>How Teams Use Ares</h2>
+          <div class="landing-v3-rollout-grid">
+            <article class="landing-v3-rollout-card">
+              <span class="landing-v3-rollout-step">01</span>
+              <h4>Harden the Server</h4>
+              <p>Enable anti-raid and anti-nuke safeguards first so destructive actions are blocked from day one.</p>
             </article>
-            <article class="landing-v3-workflow-card">
-              <h4>Set Up Member Progression</h4>
-              <p>Use <code>.leveling enable</code> and configure announcements to make activity visible and rewarding.</p>
+            <article class="landing-v3-rollout-card">
+              <span class="landing-v3-rollout-step">02</span>
+              <h4>Configure Day-to-Day Moderation</h4>
+              <p>Set automod rules and moderation flows so your team can respond quickly and consistently.</p>
             </article>
-            <article class="landing-v3-workflow-card">
-              <h4>Run Support + Events</h4>
-              <p>Launch <code>.ticket new</code> for help desks and <code>.giveaway start Nitro Classic 1d 2</code> for engagement.</p>
+            <article class="landing-v3-rollout-card">
+              <span class="landing-v3-rollout-step">03</span>
+              <h4>Add Member Experience Systems</h4>
+              <p>Turn on leveling, music, and giveaways to keep members engaged and active over time.</p>
             </article>
-            <article class="landing-v3-workflow-card">
-              <h4>Need Full Command Reference?</h4>
-              <p>Browse the full module docs and examples in <a href="/docs" data-link="/docs">documentation</a>.</p>
+            <article class="landing-v3-rollout-card">
+              <span class="landing-v3-rollout-step">04</span>
+              <h4>Scale with Visibility</h4>
+              <p>Use logging, stats, and dashboards to monitor growth and keep operational clarity as the server expands.</p>
+            </article>
+            <article class="landing-v3-rollout-card landing-v3-rollout-card-wide">
+              <h4>Need exact setup details?</h4>
+              <p>Use the complete command documentation for step-by-step module configuration and examples.</p>
+              <a href="/docs" data-link="/docs">Open Documentation</a>
             </article>
           </div>
         </section>
