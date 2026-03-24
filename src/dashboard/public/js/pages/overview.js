@@ -4,9 +4,9 @@ async function renderOverview({ guildId }) {
 
   try {
     const [guild, stats, config] = await Promise.all([
-      API.get(\`/api/guilds/\${guildId}\`),
-      API.get(\`/api/guilds/\${guildId}/stats\`),
-      API.get(\`/api/guilds/\${guildId}/config\`)
+      API.get(`/api/guilds/${guildId}`),
+      API.get(`/api/guilds/${guildId}/stats`),
+      API.get(`/api/guilds/${guildId}/config`)
     ]);
     if (!guild) return;
 
@@ -15,20 +15,20 @@ async function renderOverview({ guildId }) {
     const user = window.currentUser;
     if (user) {
       userAvatar = discordAvatar(user.id, user.avatar, 64);
-      userHtml = \`
+      userHtml = `
         <button class="w-9 h-9 rounded-full overflow-hidden border border-white/10 hover:border-primary/50 transition-colors" onclick="logout()">
-          <img src="\${escapeHtml(userAvatar)}" alt="" class="w-full h-full object-cover">
+          <img src="${escapeHtml(userAvatar)}" alt="" class="w-full h-full object-cover">
         </button>
-      \`;
+      `;
     } else {
-      userHtml = \`
+      userHtml = `
         <button class="p-2 rounded-full hover:bg-white/5 transition-all duration-300 text-purple-300 dark:text-purple-200" onclick="logout()">
           <span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
         </button>
-      \`;
+      `;
     }
 
-    const html = \`
+    const html = `
       <!-- TopAppBar -->
       <header class="fixed top-4 left-1/2 -translate-x-1/2 w-[95%] rounded-2xl border border-white/5 bg-slate-950/40 backdrop-blur-xl z-50 shadow-2xl shadow-purple-900/20 tonal-shift shadow-[0_0_20px_rgba(132,85,239,0.15)]">
         <div class="flex justify-between items-center px-8 py-3 max-w-7xl mx-auto">
@@ -47,7 +47,7 @@ async function renderOverview({ guildId }) {
               <button class="p-2 rounded-full hover:bg-white/5 transition-all duration-300 text-purple-300 dark:text-purple-200">
                 <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
               </button>
-              \${userHtml}
+              ${userHtml}
             </div>
           </div>
         </div>
@@ -58,7 +58,7 @@ async function renderOverview({ guildId }) {
         <section class="mb-16 relative">
           <div class="flex flex-col md:flex-row md:items-end justify-between gap-8">
             <div>
-              <span class="font-label text-secondary text-sm font-bold tracking-[0.3em] uppercase mb-4 block">\${escapeHtml(guild.name)} | Active Connection</span>
+              <span class="font-label text-secondary text-sm font-bold tracking-[0.3em] uppercase mb-4 block">${escapeHtml(guild.name)} | Active Connection</span>
               <h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tight text-white leading-none">
                 ARES <span class="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">DASHBOARD</span>
               </h1>
@@ -107,12 +107,12 @@ async function renderOverview({ guildId }) {
             <div class="glass-panel rounded-3xl p-6 border-l-2 border-l-primary shadow-xl shadow-purple-900/10">
               <span class="material-symbols-outlined text-primary mb-4" data-icon="rocket_launch">rocket_launch</span>
               <p class="font-label text-xs text-slate-400 tracking-widest uppercase mb-1">Total Signals (Members)</p>
-              <h3 class="font-headline text-3xl font-bold text-white">\${formatNumber(guild.memberCount)}</h3>
+              <h3 class="font-headline text-3xl font-bold text-white">${formatNumber(guild.memberCount)}</h3>
             </div>
             <div class="glass-panel rounded-3xl p-6 border-l-2 border-l-secondary shadow-xl shadow-cyan-900/10">
               <span class="material-symbols-outlined text-secondary mb-4" data-icon="sensors">sensors</span>
               <p class="font-label text-xs text-slate-400 tracking-widest uppercase mb-1">Signals Processed (Msgs)</p>
-              <h3 class="font-headline text-3xl font-bold text-white">\${formatNumber(stats.totalMessages || 0)}</h3>
+              <h3 class="font-headline text-3xl font-bold text-white">${formatNumber(stats.totalMessages || 0)}</h3>
             </div>
           </div>
 
@@ -122,13 +122,13 @@ async function renderOverview({ guildId }) {
             <div class="p-8">
               <h3 class="font-headline text-xl font-bold text-white mb-4">Command Protocols</h3>
               <div class="space-y-4">
-                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest border border-white/5 cursor-pointer" onclick="router.navigate('/guilds/\${guildId}/config')">
-                  <span class="text-sm text-on-surface-variant font-medium">Configure \${escapeHtml(guild.name)} Modules</span>
+                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest border border-white/5 cursor-pointer" onclick="router.navigate('/guilds/${guildId}/config')">
+                  <span class="text-sm text-on-surface-variant font-medium">Configure ${escapeHtml(guild.name)} Modules</span>
                   <div class="w-10 h-5 bg-primary/20 rounded-full relative p-1">
                     <div class="w-3 h-3 bg-primary rounded-full ml-auto shadow-[0_0_8px_rgba(208,188,255,0.8)]"></div>
                   </div>
                 </div>
-                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest border border-white/5 cursor-pointer" onclick="router.navigate('/guilds/\${guildId}/stats')">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest border border-white/5 cursor-pointer" onclick="router.navigate('/guilds/${guildId}/stats')">
                   <span class="text-sm text-on-surface-variant font-medium">View Detailed Statistics</span>
                   <div class="w-10 h-5 bg-white/10 rounded-full relative p-1">
                     <div class="w-3 h-3 bg-secondary rounded-full ml-auto shadow-[0_0_8px_rgba(75,215,246,0.8)]"></div>
@@ -154,7 +154,7 @@ async function renderOverview({ guildId }) {
                 </div>
                 <div class="flex justify-between mt-2">
                   <span class="text-[10px] text-slate-500">OPTIMAL</span>
-                  <span class="text-[10px] text-primary">\${guild.channels} CHANNELS</span>
+                  <span class="text-[10px] text-primary">${guild.channels} CHANNELS</span>
                 </div>
               </div>
             </div>
@@ -172,8 +172,8 @@ async function renderOverview({ guildId }) {
                   <div class="bg-secondary h-full w-[92%]"></div>
                 </div>
                 <div class="flex justify-between mt-2">
-                  <span class="text-[10px] text-slate-500">TIER \${guild.boostLevel}</span>
-                  <span class="text-[10px] text-secondary">\${guild.boostCount} BOOSTS</span>
+                  <span class="text-[10px] text-slate-500">TIER ${guild.boostLevel}</span>
+                  <span class="text-[10px] text-secondary">${guild.boostCount} BOOSTS</span>
                 </div>
               </div>
             </div>
@@ -185,9 +185,9 @@ async function renderOverview({ guildId }) {
               </div>
               <div>
                 <h4 class="font-headline text-lg font-bold text-white">Security Modules</h4>
-                <p class="text-sm text-slate-400">Automod: \${config.automod?.enabled ? 'Active' : 'Offline'} • AntiNuke: \${config.antinuke?.enabled ? 'Active' : 'Offline'}</p>
+                <p class="text-sm text-slate-400">Automod: ${config.automod?.enabled ? 'Active' : 'Offline'} • AntiNuke: ${config.antinuke?.enabled ? 'Active' : 'Offline'}</p>
               </div>
-              <button class="ml-auto bg-white/5 hover:bg-white/10 text-white font-label text-xs uppercase tracking-widest px-6 py-3 rounded-xl transition-all" onclick="router.navigate('/guilds/\${guildId}/config')">
+              <button class="ml-auto bg-white/5 hover:bg-white/10 text-white font-label text-xs uppercase tracking-widest px-6 py-3 rounded-xl transition-all" onclick="router.navigate('/guilds/${guildId}/config')">
                 Configure
               </button>
             </div>
@@ -206,7 +206,7 @@ async function renderOverview({ guildId }) {
       <!-- Floating Decor -->
       <div class="fixed top-[15%] left-[-5%] w-32 h-32 bg-secondary/20 rounded-full blur-3xl opacity-30 select-none pointer-events-none"></div>
       <div class="fixed bottom-[20%] right-[-5%] w-48 h-48 bg-primary/20 rounded-full blur-3xl opacity-30 select-none pointer-events-none"></div>
-    \`;
+    `;
 
     document.getElementById('page-content').innerHTML = html;
   } catch (err) {
