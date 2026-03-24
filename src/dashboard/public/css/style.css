@@ -868,60 +868,72 @@ body::after {
   padding: 26px;
 }
 
-.landing-v3-chart-card {
-  position: relative;
-  min-height: 250px;
-  border-radius: 14px;
-  border: 1px solid rgba(155, 175, 207, 0.2);
-  background: linear-gradient(180deg, #12203a 0%, #0f1a2e 100%);
+.landing-v3-ops-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  gap: 14px;
+}
+
+.landing-v3-terminal {
+  border-radius: 12px;
+  border: 1px solid rgba(146, 168, 206, 0.25);
+  background: linear-gradient(180deg, rgba(8, 12, 21, 0.96), rgba(7, 10, 17, 0.98));
   overflow: hidden;
 }
 
-.landing-v3-chart-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(140, 164, 201, 0.16) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(140, 164, 201, 0.16) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.landing-v3-chart-lines {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  bottom: 24px;
+.landing-v3-terminal-head {
+  min-height: 38px;
+  border-bottom: 1px solid rgba(146, 168, 206, 0.2);
   display: flex;
-  align-items: end;
-  gap: 12px;
-  height: 74%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  color: #a8b5ce;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
-.landing-v3-chart-lines i {
-  display: block;
-  flex: 1;
-  height: var(--h);
-  border-radius: 8px 8px 2px 2px;
-  background: linear-gradient(180deg, rgba(109, 226, 255, 0.9), rgba(94, 133, 255, 0.32));
-  box-shadow: 0 0 22px rgba(89, 164, 255, 0.22);
+.landing-v3-terminal-status {
+  color: #6cf0b2;
 }
 
-.landing-v3-preview-copy {
-  text-align: center;
-  padding: 18px 0 2px;
-}
-
-.landing-v3-preview-copy h3 {
+.landing-v3-terminal pre {
   margin: 0;
-  font-size: 2rem;
-  letter-spacing: -0.03em;
+  padding: 14px;
+  font-family: var(--font-mono);
+  color: #8dd2ff;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  overflow-x: auto;
 }
 
-.landing-v3-preview-copy p {
-  margin: 8px 0 0;
-  color: #9faec9;
-  font-size: 0.88rem;
+.landing-v3-ops-stack {
+  display: grid;
+  gap: 10px;
 }
+
+.landing-v3-ops-stack article {
+  border-radius: 12px;
+  border: 1px solid rgba(144, 163, 196, 0.22);
+  background: linear-gradient(180deg, rgba(17, 24, 38, 0.9), rgba(12, 18, 30, 0.94));
+  min-height: 82px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  padding: 0 12px;
+}
+
+.landing-v3-ops-stack strong {
+  font-size: 0.86rem;
+}
+
+.landing-v3-ops-stack span {
+  color: #9eabc6;
+  font-size: 0.74rem;
+}
+
 
 .landing-v3-stats {
   margin: 14px auto 62px;
@@ -1001,49 +1013,16 @@ body::after {
   line-height: 1.55;
 }
 
-.landing-v3-card.wide {
-  grid-column: span 2;
-  min-height: 220px;
-}
-
-.landing-v3-card.tall {
-  grid-row: span 2;
-}
-
-.landing-v3-card-visual.ring {
-  margin-top: 16px;
-  height: 70px;
-  border-radius: 10px;
-  background:
-    radial-gradient(circle at 40% 50%, rgba(116, 233, 255, 0.5), rgba(90, 102, 255, 0.28) 50%, transparent 52%),
-    linear-gradient(90deg, rgba(26, 39, 62, 0.7), rgba(16, 24, 39, 0.7));
-}
-
-.landing-v3-card-visual.bars {
-  margin-top: 16px;
-  height: 84px;
-  display: flex;
-  align-items: end;
-  gap: 7px;
-}
-
-.landing-v3-card-visual.bars span {
-  flex: 1;
-  border-radius: 8px 8px 3px 3px;
-  background: linear-gradient(180deg, rgba(117, 232, 255, 0.9), rgba(117, 140, 255, 0.3));
-}
-
-.landing-v3-card-visual.bars span:nth-child(1) { height: 34%; }
-.landing-v3-card-visual.bars span:nth-child(2) { height: 72%; }
-.landing-v3-card-visual.bars span:nth-child(3) { height: 52%; }
-.landing-v3-card-visual.bars span:nth-child(4) { height: 86%; }
-
-.landing-v3-card.code pre {
-  margin: 0;
-  color: #9ce4ff;
-  font-size: 0.75rem;
-  line-height: 1.5;
+.landing-v3-card code {
+  display: inline-flex;
+  margin-top: 12px;
+  border-radius: 7px;
+  border: 1px solid rgba(135, 160, 203, 0.25);
+  background: rgba(8, 13, 23, 0.85);
+  color: #9dd8ff;
+  font-size: 0.72rem;
   font-family: var(--font-mono);
+  padding: 5px 8px;
 }
 
 .landing-v3-testimonials {
@@ -1056,29 +1035,46 @@ body::after {
   font-size: 1.75rem;
 }
 
-.landing-v3-quote-grid {
+.landing-v3-workflow-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
-.landing-v3-quote-grid blockquote {
-  margin: 0;
+.landing-v3-workflow-card {
   border-radius: 12px;
   border: 1px solid rgba(137, 158, 195, 0.2);
   background: rgba(15, 21, 34, 0.8);
   padding: 14px;
   color: #c8d0e1;
+}
+
+.landing-v3-workflow-card h4 {
+  margin: 0 0 8px;
+  color: #f3f7ff;
+  font-size: 1rem;
+}
+
+.landing-v3-workflow-card p {
+  margin: 0;
+  color: #c8d0e1;
   font-size: 0.83rem;
   line-height: 1.6;
 }
 
-.landing-v3-quote-grid cite {
-  display: block;
-  margin-top: 10px;
-  color: #99a9c9;
-  font-size: 0.72rem;
-  font-style: normal;
+.landing-v3-workflow-card code {
+  color: #93d8ff;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.landing-v3-workflow-card a {
+  color: #9ab7ff;
+  text-decoration: none;
+}
+
+.landing-v3-workflow-card a:hover {
+  text-decoration: underline;
 }
 
 .landing-v3-cta {
@@ -1152,8 +1148,8 @@ body::after {
     padding: 16px;
   }
 
-  .landing-v3-preview-copy h3 {
-    font-size: 1.45rem;
+  .landing-v3-ops-layout {
+    grid-template-columns: 1fr;
   }
 
   .landing-v3-stats {
@@ -1165,13 +1161,7 @@ body::after {
     grid-template-columns: 1fr;
   }
 
-  .landing-v3-card.wide,
-  .landing-v3-card.tall {
-    grid-column: auto;
-    grid-row: auto;
-  }
-
-  .landing-v3-quote-grid {
+  .landing-v3-workflow-grid {
     grid-template-columns: 1fr;
   }
 

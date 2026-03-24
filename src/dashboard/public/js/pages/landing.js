@@ -41,23 +41,26 @@ function renderLanding() {
         <section class="landing-v3-preview">
           <div class="landing-v3-preview-top">
             <div class="landing-v3-window-dots"><span></span><span></span><span></span></div>
-            <div class="landing-v3-preview-label">Live Discord Analytics</div>
+            <div class="landing-v3-preview-label">Ares Operations Console</div>
           </div>
-          <div class="landing-v3-preview-body">
-            <div class="landing-v3-chart-card">
-              <div class="landing-v3-chart-grid"></div>
-              <div class="landing-v3-chart-lines">
-                <i style="--h:42%; --x:0"></i>
-                <i style="--h:62%; --x:16"></i>
-                <i style="--h:38%; --x:32"></i>
-                <i style="--h:78%; --x:48"></i>
-                <i style="--h:66%; --x:64"></i>
-                <i style="--h:88%; --x:80"></i>
+          <div class="landing-v3-preview-body landing-v3-ops-layout">
+            <div class="landing-v3-terminal">
+              <div class="landing-v3-terminal-head">
+                <span>Live Commands</span>
+                <span class="landing-v3-terminal-status">connected</span>
               </div>
+              <pre><code>.antinuke wizard
+.automod preset moderate
+.play Never Gonna Give You Up
+.ticket new
+.giveaway start Nitro Classic 1d 2
+.leveling enable
+.logsetup</code></pre>
             </div>
-            <div class="landing-v3-preview-copy">
-              <h3>Discord Preview</h3>
-              <p>Watch activity, moderation events, and music queues in one compact command view.</p>
+            <div class="landing-v3-ops-stack">
+              <article><strong>Security</strong><span>Anti-Nuke + Automod active</span></article>
+              <article><strong>Engagement</strong><span>Leveling and giveaways enabled</span></article>
+              <article><strong>Support</strong><span>Ticket panels and logs ready</span></article>
             </div>
           </div>
         </section>
@@ -70,52 +73,62 @@ function renderLanding() {
 
         <section class="landing-v3-capabilities">
           <div class="landing-v3-headline">
-            <h2>Supreme Capabilities</h2>
-            <p>Engineered for performance. Built for the void. Our features set the standard for modern Discord management.</p>
+            <h2>Real Ares Modules</h2>
+            <p>Everything below maps to actual commands available in Ares today.</p>
           </div>
           <div class="landing-v3-grid">
-            <article class="landing-v3-card wide">
-              <h3>Moderation</h3>
-              <p>Advanced auto-mod systems with customizable filters, warning thresholds, and automated temporary bans.</p>
-              <div class="landing-v3-card-visual ring"></div>
-            </article>
-            <article class="landing-v3-card tall">
-              <h3>Music</h3>
-              <p>Lossless audio streaming with YouTube, Spotify, and SoundCloud integration. Crystal clear sound, zero lag.</p>
-              <div class="landing-v3-card-visual bars"><span></span><span></span><span></span><span></span></div>
+            <article class="landing-v3-card">
+              <h3>Anti-Nuke Protection</h3>
+              <p>Protect against mass bans, role abuse, and channel nukes with policy presets.</p>
+              <code>.antinuke wizard</code>
             </article>
             <article class="landing-v3-card">
-              <h3>AI Intelligence</h3>
-              <p>Smart sentiment analysis and automated response systems powered by the latest LLMs.</p>
+              <h3>Automod Filters</h3>
+              <p>Spam, invite, bad-word, and mention controls with instant enforcement.</p>
+              <code>.automod preset moderate</code>
             </article>
             <article class="landing-v3-card">
-              <h3>Automations</h3>
-              <p>Custom welcome messages, auto-roles, and scheduled announcements. Set it and forget it.</p>
+              <h3>Music System</h3>
+              <p>YouTube, Spotify, and SoundCloud queue playback with slash and prefix support.</p>
+              <code>.play &lt;query or URL&gt;</code>
             </article>
-            <article class="landing-v3-card code">
-              <pre>// user joins
-if (safeJoin("Core")) {
-  send("Welcome to the void.");
-}</pre>
+            <article class="landing-v3-card">
+              <h3>Ticket Support</h3>
+              <p>Panel-based ticketing with staff assignment and transcript tools.</p>
+              <code>.ticket new</code>
+            </article>
+            <article class="landing-v3-card">
+              <h3>Giveaways + Leveling</h3>
+              <p>Run timed giveaways and unlock progression through XP and leaderboards.</p>
+              <code>.giveaway start Nitro Classic 1d 2</code>
+            </article>
+            <article class="landing-v3-card">
+              <h3>Logging Setup</h3>
+              <p>Wire moderation and server event logs to dedicated channels in seconds.</p>
+              <code>.logsetup</code>
             </article>
           </div>
         </section>
 
         <section class="landing-v3-testimonials" id="support">
-          <h2>Trusted by the best communities</h2>
-          <div class="landing-v3-quote-grid">
-            <blockquote>
-              "Ares completely changed how we manage our 50k member community. The auto-mod is terrifyingly efficient."
-              <cite>Alex Rivers, TechHub</cite>
-            </blockquote>
-            <blockquote>
-              "The music quality is unmatched. We tried every other bot, and nothing comes close to Ares lossless streaming."
-              <cite>Sarah Chen, LoFi Vibes</cite>
-            </blockquote>
-            <blockquote>
-              "Documentation is top-tier. We had our entire server automated in less than an hour. Highly recommended."
-              <cite>Marcus Thorne, CodeGuild</cite>
-            </blockquote>
+          <h2>Real Workflows and Resources</h2>
+          <div class="landing-v3-workflow-grid">
+            <article class="landing-v3-workflow-card">
+              <h4>Secure a New Server</h4>
+              <p><code>.antinuke wizard</code> then <code>.automod preset moderate</code> to bring core protection online quickly.</p>
+            </article>
+            <article class="landing-v3-workflow-card">
+              <h4>Set Up Member Progression</h4>
+              <p>Use <code>.leveling enable</code> and configure announcements to make activity visible and rewarding.</p>
+            </article>
+            <article class="landing-v3-workflow-card">
+              <h4>Run Support + Events</h4>
+              <p>Launch <code>.ticket new</code> for help desks and <code>.giveaway start Nitro Classic 1d 2</code> for engagement.</p>
+            </article>
+            <article class="landing-v3-workflow-card">
+              <h4>Need Full Command Reference?</h4>
+              <p>Browse the full module docs and examples in <a href="/docs" data-link="/docs">documentation</a>.</p>
+            </article>
           </div>
         </section>
 
