@@ -341,7 +341,7 @@ async function renderLanding() {
         const el = document.getElementById(id);
         if (el) el.textContent = val;
       };
-      update('landing-ping-term', \`\${stats.ping}ms\`);
+      update('landing-ping-term', `${stats.ping}ms`);
       update('landing-guilds-term', typeof formatNumber === 'function' ? formatNumber(stats.guilds) : stats.guilds.toLocaleString());
       update('landing-users-term', typeof formatNumber === 'function' ? formatNumber(stats.users) : stats.users.toLocaleString());
       // For big numbers, we can use formatNumber, which is presumed to exist in scope or we fallback to string formatting
