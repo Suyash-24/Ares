@@ -4,17 +4,20 @@ function renderLanding() {
 
   document.getElementById('page-content').innerHTML = `
 <!-- Pure Black Base -->
-<div class="fixed inset-0 bg-black pointer-events-none z-0"></div>
+<div class="fixed inset-0 bg-[#020202] pointer-events-none z-0"></div>
+
+<!-- Custom Aesthetic Dot Pattern grid to fix plainness -->
+<div class="fixed inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px); background-size: 32px 32px; -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 90%); mask-image: radial-gradient(circle at center, black 30%, transparent 90%);"></div>
 
 <!-- Ambient Glowing Orbs -->
 <div class="fixed inset-0 overflow-hidden pointer-events-none z-0 mix-blend-screen">
-  <div class="absolute -top-[10%] left-[20%] w-[50vw] h-[50vw] glow-orb-primary opacity-50"></div>
-  <div class="absolute top-[40%] right-[10%] w-[40vw] h-[40vw] glow-orb-secondary opacity-40"></div>
+  <div class="absolute -top-[10%] left-[10%] w-[60vw] h-[60vw] glow-orb-primary opacity-50"></div>
+  <div class="absolute top-[30%] right-[5%] w-[50vw] h-[50vw] glow-orb-secondary opacity-40"></div>
 </div>
 
-<!-- Exact Floating Navbar -->
-<header class="fixed top-8 left-1/2 -translate-x-1/2 w-[90%] max-w-5xl z-[100]">
-  <div class="glass-nav px-6 py-3 flex justify-between items-center">
+<!-- Exact Floating Navbar - Full Width -->
+<header class="fixed top-0 left-0 w-full z-[100] border-b border-white/10 bg-black/40 backdrop-blur-xl">
+  <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-5 flex justify-between items-center">
     <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
       <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black">
         <span class="material-symbols-outlined text-lg">bolt</span>
@@ -49,8 +52,8 @@ function renderLanding() {
     </a>
 
     <!-- Massive Exact Headline -->
-    <h1 class="font-headline font-black text-6xl md:text-[5.5rem] lg:text-[7rem] mb-6 tracking-tighter leading-[0.95] text-white select-none">
-      The standard for <br class="hidden md:block" /> <span class="text-gradient-primary">discord bots.</span>
+    <h1 class="font-headline font-black text-5xl md:text-7xl lg:text-[6rem] mb-6 tracking-tighter leading-[1.05] text-white select-none">
+      Next-generation <br class="hidden md:block" /> <span class="text-gradient-primary">community management.</span>
     </h1>
     
     <p class="font-headline text-white/60 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
