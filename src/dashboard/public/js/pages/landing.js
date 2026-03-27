@@ -15,9 +15,9 @@ function renderLanding() {
   <div class="absolute top-[30%] right-[5%] w-[50vw] h-[50vw] glow-orb-secondary opacity-40"></div>
 </div>
 
-<!-- Exact Floating Navbar - Full Width -->
-<header class="fixed top-0 left-0 w-full z-[100] border-b border-white/10 bg-black/40 backdrop-blur-xl">
-  <div class="max-w-[1400px] mx-auto px-6 md:px-10 py-5 flex justify-between items-center">
+<!-- Exact Floating Navbar - Full Width Pill -->
+<header class="fixed top-4 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[96%] md:max-w-[1400px] z-[100] border border-white/10 bg-white/[0.02] backdrop-blur-2xl rounded-full">
+  <div class="px-6 md:px-8 py-4 flex justify-between items-center">
     <div class="flex items-center gap-2 cursor-pointer" onclick="window.scrollTo({top:0, behavior:'smooth'})">
       <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black">
         <span class="material-symbols-outlined text-lg">bolt</span>
@@ -26,14 +26,14 @@ function renderLanding() {
     </div>
     
     <nav class="hidden md:flex justify-center items-center gap-8">
-      <a class="text-sm font-headline font-medium text-white/60 hover:text-white transition-colors" href="#features">Features</a>
-      <a class="text-sm font-headline font-medium text-white/60 hover:text-white transition-colors" href="/docs" data-link="/docs">Documentation</a>
-      <a class="text-sm font-headline font-medium text-white/60 hover:text-white transition-colors" href="#">Premium</a>
+      <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="#features">Features</a>
+      <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="/docs" data-link="/docs">Documentation</a>
+      <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="#">Premium</a>
     </nav>
     
     <div class="flex items-center gap-4">
-      <a href="/auth/login" class="text-sm font-headline font-medium text-white/60 hover:text-white transition-colors hidden sm:block">Dashboard</a>
-      <a href="\${oauthUrl}" target="_blank" rel="noopener" class="btn-primary-exact px-5 py-2 text-sm">
+      <a href="/auth/login" class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors hidden sm:block">Dashboard</a>
+      <a href="\${oauthUrl}" target="_blank" rel="noopener" class="btn-primary-exact px-6 py-2.5 text-sm">
         Add to Discord
       </a>
     </div>
@@ -225,46 +225,58 @@ function renderLanding() {
 </main>
 
 <!-- Exact Minimal Footer -->
-<footer class="border-t border-white/10 bg-[#000000] relative z-20">
-  <div class="max-w-6xl mx-auto px-6 py-16">
-    <div class="flex flex-col md:flex-row justify-between gap-10 mb-16">
+<footer class="border-t border-white/10 bg-[#020202] relative z-20 overflow-hidden">
+  <!-- Subtle top glow for the footer -->
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+  
+  <div class="max-w-[1200px] mx-auto px-6 py-20">
+    <div class="flex flex-col md:flex-row justify-between gap-12 mb-20">
       
-      <div class="md:w-1/3">
-        <div class="flex items-center gap-2 mb-4">
-          <div class="w-6 h-6 rounded-full bg-white flex items-center justify-center text-black"><span class="material-symbols-outlined text-[14px]">bolt</span></div>
-          <span class="text-lg font-headline font-bold text-white tracking-tight">Ares</span>
+      <div class="md:w-5/12">
+        <div class="flex items-center gap-3 mb-6">
+          <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center text-black"><span class="material-symbols-outlined text-lg">bolt</span></div>
+          <span class="text-2xl font-headline font-black text-white tracking-tight">Ares</span>
         </div>
-        <p class="font-headline text-sm text-white/40 leading-relaxed mb-6">
-          The finest infrastructure for your Discord community. Built for scale, designed for aesthetics.
+        <p class="font-headline text-base text-white/60 leading-relaxed mb-8 max-w-sm">
+          The finest infrastructure for your Discord community. Built for massive scale and designed for perfection.
         </p>
+        <div class="flex gap-4">
+          <a href="#" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">open_in_new</span>
+          </a>
+          <a href="/docs" data-link="/docs" class="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/5 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">menu_book</span>
+          </a>
+        </div>
       </div>
       
-      <div class="flex gap-16 md:justify-end md:w-2/3">
+      <div class="flex flex-wrap gap-12 md:gap-24 md:justify-end md:w-7/12">
         <div>
-          <h4 class="font-headline font-semibold text-sm text-white mb-4">Product</h4>
-          <ul class="space-y-3 font-headline text-sm text-white/50">
-            <li><a href="/docs" data-link="/docs" class="hover:text-white transition-colors">Documentation</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Premium</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Commands</a></li>
+          <h4 class="font-headline font-bold text-sm text-white mb-6 uppercase tracking-widest">Product</h4>
+          <ul class="space-y-4 font-headline text-sm text-white/60">
+            <li><a href="/docs" data-link="/docs" class="hover:text-primary transition-colors">Documentation</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Premium Plans</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Commands List</a></li>
+            <li><a href="/auth/login" class="hover:text-primary transition-colors">Dashboard</a></li>
           </ul>
         </div>
         <div>
-          <h4 class="font-headline font-semibold text-sm text-white mb-4">Legal</h4>
-          <ul class="space-y-3 font-headline text-sm text-white/50">
+          <h4 class="font-headline font-bold text-sm text-white mb-6 uppercase tracking-widest">Legal</h4>
+          <ul class="space-y-4 font-headline text-sm text-white/60">
             <li><a href="#" class="hover:text-white transition-colors">Terms of Service</a></li>
             <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
-            <li><a href="#" class="hover:text-white transition-colors">Refunds</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Refund Policy</a></li>
           </ul>
         </div>
       </div>
 
     </div>
     
-    <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-8 border-t border-white/10">
-      <span class="font-headline text-xs text-white/40">© 2024 Ares Intelligence Systems.</span>
-      <div class="flex items-center gap-2 font-headline text-xs text-white/40">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
-        All Systems Operational
+    <div class="flex flex-col md:flex-row justify-between items-center gap-4 pt-10 border-t border-white/[0.05]">
+      <span class="font-headline text-sm text-white/40">© 2024 Ares Intelligence Systems. All rights reserved.</span>
+      <div class="flex items-center gap-2 font-headline text-sm text-white/50">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]"></span>
+        <span class="font-medium tracking-wide">All Systems Operational</span>
       </div>
     </div>
   </div>
