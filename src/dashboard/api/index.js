@@ -9,7 +9,22 @@ import { createStatsRouter } from './stats.js';
 export function createApiRouter(client) {
 	const router = Router();
 
-	// All API routes require authentication
+	// Unprotected API routes
+	router.get('/public/stats', (req, res) => {
+		try {
+			res.json({
+				ping: client.ws.ping || 0,
+				guilds: client.guilds.cache.size || 0,
+				users: client.guilds.cache.reduce((acc, guild) => acc + (guild.memberCount || 0), 0),
+				channels: client.channels.cache.size || 0
+			});
+		} catch (error) {
+			console.error('Error fetching public stats:', error);
+			res.status(500).json({ error: 'Internal server error' });
+		}
+	});
+
+	// All other API routes require authentication
 	router.use(requireAuth);
 
 	// Guild list

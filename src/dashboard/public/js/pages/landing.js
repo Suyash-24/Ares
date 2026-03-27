@@ -1,5 +1,5 @@
 // Landing page (unauthenticated) - Exact Replication
-function renderLanding() {
+async function renderLanding() {
   const oauthUrl = 'https://discord.com/oauth2/authorize?client_id=1434107390856401049&permissions=8&scope=bot%20applications.commands';
 
   document.getElementById('page-content').innerHTML = `
@@ -79,9 +79,9 @@ function renderLanding() {
         <!-- Mock Nav -->
         <div class="absolute top-0 w-full h-10 border-b border-white/5 flex items-center px-4 gap-3 bg-white/[0.02]">
           <div class="flex gap-2">
-            <div class="w-3 h-3 rounded-full bg-white/10 hover:bg-red-500 transition-colors"></div>
-            <div class="w-3 h-3 rounded-full bg-white/10 hover:bg-yellow-500 transition-colors"></div>
-            <div class="w-3 h-3 rounded-full bg-white/10 hover:bg-green-500 transition-colors"></div>
+            <div class="w-3 h-3 rounded-full bg-[#FF5F56] hover:brightness-110 transition-all"></div>
+            <div class="w-3 h-3 rounded-full bg-[#FFBD2E] hover:brightness-110 transition-all"></div>
+            <div class="w-3 h-3 rounded-full bg-[#27C93F] hover:brightness-110 transition-all"></div>
           </div>
           <div class="flex-1 flex justify-center">
             <div class="font-mono text-[10px] text-white/30 tracking-widest uppercase bg-white/5 px-4 py-1 rounded w-max select-none border border-white/5">ares_dashboard ~ system_online</div>
@@ -120,17 +120,17 @@ function renderLanding() {
                  <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
                  <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Latency</span>
                  <span class="text-xl sm:text-2xl font-headline font-bold text-emerald-400 z-10 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)] flex items-center gap-2">
-                   12ms <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 relative top-0.5 animate-pulse"></span>
+                   <span id="landing-ping-term">...</span> <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 relative top-0.5 animate-pulse"></span>
                  </span>
                </div>
                <div class="glass-exact p-4 md:p-5 flex flex-col justify-center relative overflow-hidden">
-                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Uptime</span>
-                 <span class="text-xl sm:text-2xl font-headline font-bold text-white z-10">99.99%</span>
+                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Servers</span>
+                 <span id="landing-guilds-term" class="text-xl sm:text-2xl font-headline font-bold text-white z-10">...</span>
                </div>
                <div class="glass-exact p-4 md:p-5 flex flex-col justify-center relative overflow-hidden">
                  <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-primary/20 rounded-full blur-xl"></div>
-                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Queries/s</span>
-                 <span class="text-xl sm:text-2xl font-headline font-bold text-primary z-10 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]">14,392</span>
+                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Users</span>
+                 <span id="landing-users-term" class="text-xl sm:text-2xl font-headline font-bold text-primary z-10 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]">...</span>
                </div>
             </div>
             
@@ -234,16 +234,16 @@ function renderLanding() {
   <section class="mb-40 py-16 border-y border-white/10 relative overflow-hidden bg-white/[0.01]">
     <div class="flex flex-wrap justify-evenly items-center gap-10 relative z-10 max-w-4xl mx-auto">
       <div class="text-center group">
-        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors">12K+</div>
+        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors"><span id="landing-guilds-big">...</span></div>
         <div class="font-headline text-sm text-white/50 mt-1">Servers Secured</div>
       </div>
       <div class="text-center group">
-        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors">5.2M+</div>
+        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors"><span id="landing-users-big">...</span></div>
         <div class="font-headline text-sm text-white/50 mt-1">Total Users</div>
       </div>
       <div class="text-center group">
-        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors">99.9%</div>
-        <div class="font-headline text-sm text-white/50 mt-1">Global Uptime</div>
+        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors"><span id="landing-channels-big">...</span></div>
+        <div class="font-headline text-sm text-white/50 mt-1">Global Channels</div>
       </div>
     </div>
   </section>
@@ -332,4 +332,24 @@ function renderLanding() {
       }
     });
   });
+
+  // Fetch real values dynamically
+  try {
+    const stats = await API.get('/api/public/stats');
+    if (stats) {
+      const update = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = val;
+      };
+      update('landing-ping-term', \`\${stats.ping}ms\`);
+      update('landing-guilds-term', typeof formatNumber === 'function' ? formatNumber(stats.guilds) : stats.guilds.toLocaleString());
+      update('landing-users-term', typeof formatNumber === 'function' ? formatNumber(stats.users) : stats.users.toLocaleString());
+      // For big numbers, we can use formatNumber, which is presumed to exist in scope or we fallback to string formatting
+      update('landing-guilds-big', typeof formatNumber === 'function' ? formatNumber(stats.guilds) : stats.guilds.toLocaleString());
+      update('landing-users-big', typeof formatNumber === 'function' ? formatNumber(stats.users) : stats.users.toLocaleString());
+      update('landing-channels-big', typeof formatNumber === 'function' ? formatNumber(stats.channels) : stats.channels.toLocaleString());
+    }
+  } catch (err) {
+    console.error('Failed to load real landing stats:', err);
+  }
 }
