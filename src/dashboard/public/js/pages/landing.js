@@ -74,44 +74,79 @@ function renderLanding() {
 
   <!-- Dashboard Mockup (Exact styling) -->
   <section class="relative w-full max-w-5xl mx-auto mb-40">
-    <div class="glass-exact p-2 md:p-4 bg-black/40 shadow-2xl">
-      <div class="w-full h-[400px] md:h-[600px] rounded-[1rem] bg-[#050505] overflow-hidden border border-white/5 relative">
+    <div class="glass-exact p-1 md:p-3 bg-white/[0.01] shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+      <div class="w-full h-[400px] md:h-[550px] rounded-[1rem] bg-[#020202] overflow-hidden border border-white/5 relative shadow-inner">
         <!-- Mock Nav -->
-        <div class="absolute top-0 w-full h-12 border-b border-white/5 flex items-center px-4 gap-3 bg-white/[0.01]">
-          <div class="flex gap-1.5">
-            <div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>
-            <div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>
-            <div class="w-2.5 h-2.5 rounded-full bg-white/10"></div>
+        <div class="absolute top-0 w-full h-10 border-b border-white/5 flex items-center px-4 gap-3 bg-white/[0.02]">
+          <div class="flex gap-2">
+            <div class="w-3 h-3 rounded-full bg-white/10 hover:bg-red-500 transition-colors"></div>
+            <div class="w-3 h-3 rounded-full bg-white/10 hover:bg-yellow-500 transition-colors"></div>
+            <div class="w-3 h-3 rounded-full bg-white/10 hover:bg-green-500 transition-colors"></div>
           </div>
-          <div class="flex-1"></div>
-          <div class="h-5 w-48 bg-white/5 rounded-md"></div>
-          <div class="flex-1"></div>
+          <div class="flex-1 flex justify-center">
+            <div class="font-mono text-[10px] text-white/30 tracking-widest uppercase bg-white/5 px-4 py-1 rounded w-max select-none border border-white/5">ares_dashboard ~ system_online</div>
+          </div>
         </div>
         <!-- Mock Body Grid -->
-        <div class="absolute top-12 w-full h-[calc(100%-3rem)] p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="absolute top-10 w-full h-[calc(100%-2.5rem)] p-6 grid grid-cols-1 md:grid-cols-4 gap-6">
           <!-- Sidebar -->
-          <div class="hidden md:flex flex-col gap-2">
-            <div class="h-8 w-full bg-white/5 rounded-lg mb-4"></div>
-            <div class="h-6 w-full bg-white/5 rounded-md"></div>
-            <div class="h-6 w-3/4 bg-white/5 rounded-md"></div>
-            <div class="h-6 w-5/6 bg-white/5 rounded-md"></div>
+          <div class="hidden md:flex flex-col gap-3 border-r border-white/5 pr-6">
+            <div class="flex items-center gap-3 w-full bg-white/5 p-3 rounded-lg border border-white/10">
+              <span class="material-symbols-outlined text-white text-lg">dashboard</span>
+              <span class="text-sm font-headline text-white font-medium">Overview</span>
+            </div>
+            <div class="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-white/5 transition-colors cursor-default group">
+              <span class="material-symbols-outlined text-white/40 text-lg group-hover:text-white transition-colors">shield_person</span>
+              <span class="text-sm font-headline text-white/40 group-hover:text-white transition-colors">Automod</span>
+            </div>
+            <div class="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-white/5 transition-colors cursor-default group">
+              <span class="material-symbols-outlined text-white/40 text-lg group-hover:text-white transition-colors">graphic_eq</span>
+              <span class="text-sm font-headline text-white/40 group-hover:text-white transition-colors">Audio Modules</span>
+            </div>
+            <div class="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-white/5 transition-colors cursor-default group">
+              <span class="material-symbols-outlined text-white/40 text-lg group-hover:text-white transition-colors">settings</span>
+              <span class="text-sm font-headline text-white/40 group-hover:text-white transition-colors">Configuration</span>
+            </div>
+            <div class="mt-auto p-4 rounded-xl bg-primary/10 border border-primary/20 flex flex-col gap-1 shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+              <span class="text-xs font-headline font-bold text-primary uppercase tracking-wider">Ares Premium</span>
+              <span class="text-xs text-primary/70">Enterprise Tier Active</span>
+            </div>
           </div>
           <!-- Main Content -->
-          <div class="col-span-1 md:col-span-3 grid grid-cols-2 gap-4">
-            <div class="col-span-2 h-32 rounded-xl bg-white/[0.02] border border-white/5 p-4 flex gap-4 items-center">
-               <div class="w-16 h-16 rounded-full bg-primary/20"></div>
-               <div class="flex-1 space-y-2">
-                 <div class="h-4 w-1/3 bg-white/10 rounded"></div>
-                 <div class="h-3 w-1/4 bg-white/5 rounded"></div>
+          <div class="col-span-1 md:col-span-3 flex flex-col gap-6">
+            <!-- Top Stats Row -->
+            <div class="grid grid-cols-3 gap-4">
+               <div class="glass-exact p-4 md:p-5 flex flex-col justify-center relative overflow-hidden">
+                 <div class="absolute -right-4 -top-4 w-16 h-16 bg-emerald-500/10 rounded-full blur-xl"></div>
+                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Latency</span>
+                 <span class="text-xl sm:text-2xl font-headline font-bold text-emerald-400 z-10 drop-shadow-[0_0_8px_rgba(52,211,153,0.4)] flex items-center gap-2">
+                   12ms <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 relative top-0.5 animate-pulse"></span>
+                 </span>
+               </div>
+               <div class="glass-exact p-4 md:p-5 flex flex-col justify-center relative overflow-hidden">
+                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Uptime</span>
+                 <span class="text-xl sm:text-2xl font-headline font-bold text-white z-10">99.99%</span>
+               </div>
+               <div class="glass-exact p-4 md:p-5 flex flex-col justify-center relative overflow-hidden">
+                 <div class="absolute -right-4 -bottom-4 w-16 h-16 bg-primary/20 rounded-full blur-xl"></div>
+                 <span class="text-[10px] sm:text-xs font-headline text-white/40 mb-1 uppercase tracking-widest z-10">Queries/s</span>
+                 <span class="text-xl sm:text-2xl font-headline font-bold text-primary z-10 drop-shadow-[0_0_8px_rgba(59,130,246,0.4)]">14,392</span>
                </div>
             </div>
-            <div class="h-48 rounded-xl bg-white/[0.02] border border-white/5 p-4 relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-primary/10 to-transparent"></div>
-                <div class="h-4 w-1/2 bg-white/10 rounded mb-auto"></div>
-            </div>
-            <div class="h-48 rounded-xl bg-white/[0.02] border border-white/5 p-4 relative overflow-hidden">
-                <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-secondary/10 to-transparent"></div>
-                <div class="h-4 w-1/2 bg-white/10 rounded mb-auto"></div>
+            
+            <!-- Terminal / Logs Window -->
+            <div class="flex-1 rounded-xl bg-[#080808] border border-white/5 overflow-hidden flex flex-col relative shadow-inner">
+               <div class="w-full h-8 bg-white/[0.02] border-b border-white/5 flex items-center px-4">
+                 <span class="font-mono text-[10px] text-white/40 flex items-center gap-2"><span class="material-symbols-outlined text-[12px] text-primary">terminal</span> live-events.log</span>
+               </div>
+               <div class="p-4 font-mono text-[10px] sm:text-xs lg:text-sm space-y-3 sm:space-y-4 text-white/50 absolute inset-0 top-8 overflow-hidden select-none">
+                 <div class="flex gap-3 sm:gap-4"><span class="text-white/20">10:45:01</span><span class="text-primary w-20 shrink-0 font-bold">[SYSTEM]</span><span class="text-white/80">Shard 0 established connection to Gateway.</span></div>
+                 <div class="flex gap-3 sm:gap-4"><span class="text-white/20">10:45:02</span><span class="text-emerald-400 w-20 shrink-0 font-bold">[SYNC]</span><span class="text-white/80">Successfully synchronized 452 guild rulesets.</span></div>
+                 <div class="flex gap-3 sm:gap-4"><span class="text-white/20">10:45:05</span><span class="text-yellow-400 w-20 shrink-0 font-bold">[WARN]</span><span class="text-white/80">Rate limit approach on /users/@me, backing off...</span></div>
+                 <div class="flex gap-3 sm:gap-4"><span class="text-white/20">10:45:07</span><span class="text-red-400 w-20 shrink-0 font-bold drop-shadow-[0_0_5px_rgba(248,113,113,0.5)]">[AUTOMOD]</span><span class="text-white/90">Intercepted 5 malicious payload links. Action: <span class="text-red-400 font-bold bg-red-400/10 px-1 rounded">BANNED</span></span></div>
+                 <div class="flex gap-3 sm:gap-4"><span class="text-white/20">10:45:10</span><span class="text-secondary w-20 shrink-0 font-bold">[MUSIC]</span><span class="text-white/80">Lavalink node 'USEast-1' responding at 15ms ping.</span></div>
+                 <div class="flex gap-3 sm:gap-4 opacity-70"><span class="text-white/20">10:45:12</span><span class="text-white/30 w-20 shrink-0 font-bold">[IDLE]</span><span class="text-white/40 flex gap-1">Awaiting events<span class="animate-pulse">...</span></span></div>
+               </div>
             </div>
           </div>
         </div>
