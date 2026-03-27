@@ -17,10 +17,13 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0b0e14;
+            background-color: #030303;
+            /* Optional noise overlay for premium feel */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
         }
         .font-headline {
             font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
+            letter-spacing: -0.04em; /* Tighter tracking for modern aesthetic */
         }
         .font-label {
             font-family: 'Space Grotesk', sans-serif;
@@ -28,75 +31,87 @@
         /* Cosmic scrollbar */
         ::-webkit-scrollbar { width: 5px; height: 5px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(208, 188, 255, 0.15); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(208, 188, 255, 0.3); }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
         
-        /* Cosmic Glass Systems */
-        .cosmic-card {
-            background: rgba(25, 28, 34, 0.7);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(73, 68, 84, 0.15);
-            transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+        /* Premium Glass Systems */
+        .glass-premium {
+            background: linear-gradient(145deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        .cosmic-card:hover {
-            background: rgba(39, 42, 49, 0.8);
-            box-shadow: 0 0 30px rgba(132, 85, 239, 0.08);
+        .glass-premium:hover {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(132, 85, 239, 0.1);
         }
         .glass-panel {
             backdrop-filter: blur(24px);
-            background: rgba(29, 32, 38, 0.7);
-            border: 1px solid rgba(73, 68, 84, 0.12);
+            background: rgba(15, 15, 15, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.06);
         }
-        .glass-card {
-            background: rgba(25, 28, 34, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(73, 68, 84, 0.12);
-        }
-        .nebula-glow {
-            background: radial-gradient(circle at center, rgba(132, 85, 239, 0.15) 0%, transparent 70%);
-        }
-        .cyan-pulse {
-            box-shadow: 0 0 20px rgba(75, 215, 246, 0.2);
-        }
-        .tonal-shift {
-            transition: background-color 0.3s ease;
-        }
-        .no-border {
-            border: none;
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        /* Glow effects */
-        .glow-sm { box-shadow: 0 0 15px rgba(208, 188, 255, 0.1); }
-        .glow-primary { box-shadow: 0 0 32px rgba(132, 85, 239, 0.2); }
-        .glow-hover:hover { box-shadow: 0 0 20px rgba(208, 188, 255, 0.12); }
-        .neon-glow-primary { box-shadow: 0 0 24px rgba(208, 188, 255, 0.1); }
-        .signature-glow { box-shadow: 0 0 15px rgba(132, 85, 239, 0.2); }
+        /* Ambient Glow Blurs (Noctaly/Bleed style) */
+        .ambient-blur-primary {
+            background: radial-gradient(circle at center, rgba(132, 85, 239, 0.15) 0%, transparent 60%);
+            filter: blur(60px);
+        }
+        .ambient-blur-secondary {
+            background: radial-gradient(circle at center, rgba(75, 215, 246, 0.12) 0%, transparent 60%);
+            filter: blur(60px);
+        }
 
-        /* Ambient shadow for floating elements */
-        .ambient-shadow { box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); }
+        /* Button Glows */
+        .btn-glow {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+        }
 
-        .ghost-border { border: 1px solid rgba(73, 68, 84, 0.15); }
+        /* Text Gradients */
+        .text-gradient-premium {
+            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .text-gradient-primary {
+            background: linear-gradient(135deg, #d0bcff 0%, #8455ef 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-        /* Gradient edge accent */
-        .gradient-edge-left { border-left: 2px solid transparent; border-image: linear-gradient(to bottom, #d0bcff, transparent) 1; }
-        .gradient-edge-top { border-top: 2px solid transparent; border-image: linear-gradient(to right, #d0bcff, transparent) 1; }
-        
         /* Animations */
-        @keyframes cosmic-pulse {
-            0%, 100% { opacity: 0.6; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(1deg); }
         }
-        @keyframes shimmer {
-            0% { background-position: -200% 0; }
-            100% { background-position: 200% 0; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(132, 85, 239, 0.5); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(132, 85, 239, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(132, 85, 239, 0); }
         }
-        @keyframes float-gentle {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-8px); }
+        .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
+        .animate-pulse-ring { animation: pulse-ring 3s infinite; }
+        
+        /* Grid background pattern */
+        .bg-grid-pattern {
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
         }
-        .animate-cosmic-pulse { animation: cosmic-pulse 3s ease-in-out infinite; }
-        .animate-shimmer { animation: shimmer 3s infinite; }
-        .animate-float { animation: float-gentle 6s ease-in-out infinite; }
     </style>
     
     <script id="tailwind-config">
@@ -106,42 +121,26 @@
           extend: {
             colors: {
               "primary": "#d0bcff", "primary-dim": "#8455ef", "primary-container": "#7f65c1",
-              "primary-fixed": "#e9ddff", "primary-fixed-dim": "#d0bcff",
-              "on-primary": "#391b77", "on-primary-container": "#fffcff",
-              "on-primary-fixed": "#23005c", "on-primary-fixed-variant": "#50358f",
               "secondary": "#4bd7f6", "secondary-dim": "#40ceed", "secondary-container": "#00b5d3",
-              "secondary-fixed": "#abedff", "secondary-fixed-dim": "#4bd7f6",
-              "on-secondary": "#003640", "on-secondary-container": "#00424e",
-              "on-secondary-fixed": "#001f26", "on-secondary-fixed-variant": "#004e5c",
-              "tertiary": "#d0bcff", "tertiary-dim": "#ec63ff", "tertiary-container": "#8455ef",
-              "tertiary-fixed": "#e9ddff", "tertiary-fixed-dim": "#d0bcff",
-              "on-tertiary": "#3b0091", "on-tertiary-container": "#fffcff",
-              "on-tertiary-fixed": "#23005c", "on-tertiary-fixed-variant": "#5516be",
-              "error": "#ffb4ab", "error-dim": "#d73357", "error-container": "#93000a",
-              "on-error": "#690005", "on-error-container": "#ffdad6",
-              "background": "#0b0e14", "on-background": "#e1e2eb",
-              "surface": "#10131a", "surface-dim": "#10131a", "surface-bright": "#363940",
-              "surface-variant": "#32353c", "surface-tint": "#d0bcff",
-              "surface-container-lowest": "#0b0e14", "surface-container-low": "#191c22",
-              "surface-container": "#1d2026", "surface-container-high": "#272a31",
-              "surface-container-highest": "#32353c",
-              "on-surface": "#e1e2eb", "on-surface-variant": "#cbc3d7",
-              "outline": "#958ea0", "outline-variant": "#494454",
-              "inverse-surface": "#e1e2eb", "inverse-on-surface": "#2e3037",
-              "inverse-primary": "#684ea8"
+              "background": "#030303", "on-background": "#ffffff",
+              "surface": "#0a0a0a", "surface-bright": "#141414",
+              "surface-variant": "#1c1c1c", "on-surface": "#ffffff", "on-surface-variant": "#a1a1aa",
+              "border-dim": "rgba(255,255,255,0.05)", "border-light": "rgba(255,255,255,0.1)"
             },
             fontFamily: {
-              "headline": ["Plus Jakarta Sans", "Space Grotesk", "sans-serif"],
+              "headline": ["Plus Jakarta Sans", "Inter", "sans-serif"],
               "body": ["Inter", "sans-serif"],
               "label": ["Space Grotesk", "sans-serif"]
             },
-            borderRadius: {"DEFAULT": "0.75rem", "lg": "1rem", "xl": "1.5rem", "2xl": "2rem", "full": "9999px"}
+            animation: {
+                "spin-slow": "spin 8s linear infinite",
+            }
           }
         }
       }
     </script>
 </head>
-<body class="bg-background text-on-background selection:bg-primary-container selection:text-on-primary-container min-h-screen overflow-x-hidden">
+<body class="bg-background text-on-background selection:bg-primary/30 selection:text-white min-h-screen overflow-x-hidden antialiased">
     <div id="page-loading" class="fixed inset-0 bg-background/80 backdrop-blur-sm z-[100] hidden items-center justify-center">
         <div class="flex flex-col items-center gap-4">
             <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin"></div>
