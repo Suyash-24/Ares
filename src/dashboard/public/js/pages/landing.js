@@ -29,10 +29,10 @@ async function renderLanding() {
       <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="#features">Features</a>
       <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="/docs" data-link="/docs">Documentation</a>
       <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="#">Premium</a>
+      <a class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors" href="/auth/login">Dashboard</a>
     </nav>
     
     <div class="flex items-center gap-4">
-      <a href="/auth/login" class="text-sm font-headline font-medium text-white/70 hover:text-white transition-colors hidden sm:block">Dashboard</a>
       <a href="\${oauthUrl}" target="_blank" rel="noopener" class="btn-primary-exact px-6 py-2.5 text-sm">
         Add to Discord
       </a>
