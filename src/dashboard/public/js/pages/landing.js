@@ -264,7 +264,7 @@ async function renderLanding() {
   <!-- Subtle top glow for the footer -->
   <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
   
-  <div class="max-w-[1200px] mx-auto px-6 py-20">
+  <div class="w-[96%] max-w-[1500px] mx-auto px-4 md:px-8 py-20">
     <div class="flex flex-col md:flex-row justify-between gap-12 mb-20">
       
       <div class="md:w-5/12">
