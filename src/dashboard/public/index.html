@@ -17,13 +17,11 @@
         }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #030303;
-            /* Optional noise overlay for premium feel */
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.03'/%3E%3C/svg%3E");
+            background-color: #000000;
         }
         .font-headline {
-            font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
-            letter-spacing: -0.04em; /* Tighter tracking for modern aesthetic */
+            font-family: 'Inter', 'Geist', sans-serif;
+            letter-spacing: -0.05em; /* Tighter tracking for modern aesthetic */
         }
         .font-label {
             font-family: 'Space Grotesk', sans-serif;
@@ -34,83 +32,77 @@
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
         
-        /* Premium Glass Systems */
-        .glass-premium {
-            background: linear-gradient(145deg, rgba(20,20,20,0.6) 0%, rgba(10,10,10,0.8) 100%);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .glass-premium:hover {
+        /* Exact Glass Panels (Bleed/Noctaly Style) */
+        .glass-exact {
+            background-color: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(132, 85, 239, 0.1);
+            border-radius: 1.5rem; /* rounded-3xl */
+            transition: all 0.2s ease-in-out;
         }
-        .glass-panel {
+        .glass-exact:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        
+        /* Floating Nav */
+        .glass-nav {
+            background-color: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(24px);
-            background: rgba(15, 15, 15, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-        .glass-pill {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px; /* rounded-full */
         }
 
-        /* Ambient Glow Blurs (Noctaly/Bleed style) */
-        .ambient-blur-primary {
-            background: radial-gradient(circle at center, rgba(132, 85, 239, 0.15) 0%, transparent 60%);
-            filter: blur(60px);
+        /* Abstract Glow Blurs (Noctaly/Bleed style) */
+        .glow-orb-primary {
+            background: radial-gradient(circle at center, rgba(37, 99, 235, 0.25) 0%, transparent 60%);
+            filter: blur(120px);
         }
-        .ambient-blur-secondary {
-            background: radial-gradient(circle at center, rgba(75, 215, 246, 0.12) 0%, transparent 60%);
-            filter: blur(60px);
+        .glow-orb-secondary {
+            background: radial-gradient(circle at center, rgba(139, 92, 246, 0.25) 0%, transparent 60%);
+            filter: blur(120px);
         }
 
-        /* Button Glows */
-        .btn-glow {
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2);
-            transition: all 0.3s ease;
+        /* Button exact */
+        .btn-primary-exact {
+            background-color: #ffffff;
+            color: #000000;
+            border-radius: 9999px; /* rounded-full */
+            font-weight: 700;
+            transition: all 0.2s ease;
         }
-        .btn-glow:hover {
-            box-shadow: 0 0 30px rgba(255, 255, 255, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+        .btn-primary-exact:hover {
+            opacity: 0.9;
+            transform: scale(1.02);
+            box-shadow: 0 0 20px rgba(255,255,255,0.2);
+        }
+        .btn-secondary-exact {
+            background-color: rgba(255, 255, 255, 0.05);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 9999px; /* rounded-full */
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        .btn-secondary-exact:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: scale(1.02);
         }
 
         /* Text Gradients */
         .text-gradient-premium {
-            background: linear-gradient(135deg, #ffffff 0%, #a1a1aa 100%);
+            background: linear-gradient(180deg, #ffffff 0%, #a1a1aa 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .text-gradient-primary {
-            background: linear-gradient(135deg, #d0bcff 0%, #8455ef 100%);
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-
-        /* Animations */
-        @keyframes float-slow {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(1deg); }
-        }
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(132, 85, 239, 0.5); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(132, 85, 239, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(132, 85, 239, 0); }
-        }
-        .animate-float-slow { animation: float-slow 8s ease-in-out infinite; }
-        .animate-pulse-ring { animation: pulse-ring 3s infinite; }
-        
-        /* Grid background pattern */
-        .bg-grid-pattern {
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                              linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
-            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
         }
     </style>
     
@@ -120,20 +112,17 @@
         theme: {
           extend: {
             colors: {
-              "primary": "#d0bcff", "primary-dim": "#8455ef", "primary-container": "#7f65c1",
-              "secondary": "#4bd7f6", "secondary-dim": "#40ceed", "secondary-container": "#00b5d3",
-              "background": "#030303", "on-background": "#ffffff",
-              "surface": "#0a0a0a", "surface-bright": "#141414",
-              "surface-variant": "#1c1c1c", "on-surface": "#ffffff", "on-surface-variant": "#a1a1aa",
+              "primary": "#3b82f6", "primary-dim": "#2563eb",
+              "secondary": "#8b5cf6", "secondary-dim": "#7c3aed",
+              "background": "#000000", "on-background": "#ffffff",
+              "surface": "#050505", "surface-bright": "#0a0a0a",
+              "surface-variant": "#121212", "on-surface": "#ffffff", "on-surface-variant": "#a1a1aa",
               "border-dim": "rgba(255,255,255,0.05)", "border-light": "rgba(255,255,255,0.1)"
             },
             fontFamily: {
-              "headline": ["Plus Jakarta Sans", "Inter", "sans-serif"],
+              "headline": ["Inter", "Geist", "sans-serif"],
               "body": ["Inter", "sans-serif"],
               "label": ["Space Grotesk", "sans-serif"]
-            },
-            animation: {
-                "spin-slow": "spin 8s linear infinite",
             }
           }
         }
