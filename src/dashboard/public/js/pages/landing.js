@@ -183,17 +183,16 @@ async function renderLanding() {
           </p>
         </div>
         
-        <!-- Mini shield animation -->
+        <!-- Module tags -->
         <div class="mt-auto pt-6 flex items-center gap-4">
-          <div class="flex gap-2 items-center">
+          <div class="flex flex-wrap gap-2 items-center">
             <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-headline font-semibold tracking-wider uppercase">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Active
             </span>
             <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Anti-Spam</span>
             <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Anti-Link</span>
-            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] font-headline font-semibold tracking-wider uppercase">
-              <span class="material-symbols-outlined text-[12px]">block</span>12 Blocked
-            </span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Anti-Invite</span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Auto-Warn</span>
           </div>
         </div>
       </div>
@@ -238,25 +237,15 @@ async function renderLanding() {
           <p class="font-headline text-white/50 text-sm leading-relaxed">Reward your community with an aesthetic, highly customizable leveling system.</p>
         </div>
         
-        <!-- XP Progress mock -->
+        <!-- Visual XP bar (decorative only) -->
         <div class="mt-auto pt-5 space-y-3 relative z-10">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-headline font-semibold text-emerald-400 uppercase tracking-widest">Level 24</span>
-            <span class="text-[11px] font-headline text-white/30">8,420 / 10,000 XP</span>
-          </div>
           <div class="w-full h-2.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-            <div class="h-full rounded-full shadow-[0_0_12px_rgba(16,185,129,0.4)]" style="width: 84%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+            <div class="h-full rounded-full shadow-[0_0_12px_rgba(16,185,129,0.4)]" style="width: 72%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
           </div>
-          <div class="flex gap-2">
-            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.3)]">
-              <span class="text-[8px] font-bold text-black">1</span>
-            </div>
-            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center">
-              <span class="text-[8px] font-bold text-black">2</span>
-            </div>
-            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
-              <span class="text-[8px] font-bold text-black">3</span>
-            </div>
+          <div class="flex flex-wrap gap-2">
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Leaderboards</span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Role Rewards</span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">XP Tracking</span>
           </div>
         </div>
       </div>
