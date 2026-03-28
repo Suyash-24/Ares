@@ -15,6 +15,9 @@ async function renderLanding() {
   <div class="absolute top-[30%] right-[5%] w-[50vw] h-[50vw] glow-orb-secondary opacity-40"></div>
 </div>
 
+<!-- Film grain noise overlay for depth -->
+<div class="noise-overlay"></div>
+
 <!-- Exact Floating Navbar - Full Width Pill -->
 <header class="fixed top-4 left-4 right-4 md:left-1/2 md:right-auto md:-translate-x-1/2 md:w-[96%] md:max-w-[1400px] z-[100] border border-white/10 bg-white/[0.02] backdrop-blur-2xl rounded-full">
   <div class="px-6 md:px-8 py-4 flex justify-between items-center">
@@ -33,7 +36,7 @@ async function renderLanding() {
     </nav>
     
     <div class="flex items-center gap-4">
-      <a href="\${oauthUrl}" target="_blank" rel="noopener" class="btn-primary-exact px-6 py-2.5 text-sm">
+      <a href="\${oauthUrl}" target="_blank" rel="noopener" class="btn-primary-exact px-6 py-2.5 text-sm tracking-tight">
         Add to Discord
       </a>
     </div>
@@ -43,24 +46,27 @@ async function renderLanding() {
 <main class="relative z-10 pt-48 pb-32 px-6 max-w-6xl mx-auto overflow-hidden">
   
   <!-- Minimalist Hero Section -->
-  <section class="flex flex-col items-center text-center mb-32 pt-10">
+  <section class="flex flex-col items-center text-center mb-32 pt-10 relative">
     
-    <!-- Exact Status Pill -->
-    <a href="/docs" data-link="/docs" class="glass-exact px-4 py-1.5 rounded-full inline-flex items-center gap-2 mb-8 cursor-pointer group">
+    <!-- Spotlight beam behind hero text -->
+    <div class="hero-spotlight"></div>
+    
+    <!-- Exact Status Pill with shimmer -->
+    <a href="/docs" data-link="/docs" class="glass-exact shimmer-badge px-4 py-1.5 rounded-full inline-flex items-center gap-2 mb-8 cursor-pointer group animate-fade-in-up relative z-10">
       <span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
       <span class="text-xs font-headline text-white/70 font-medium group-hover:text-white transition-colors">Ares v2.0 is live. Read the docs →</span>
     </a>
 
     <!-- Massive Exact Headline -->
-    <h1 class="font-headline font-black text-5xl md:text-7xl lg:text-[6rem] mb-6 tracking-tighter leading-[1.05] text-white select-none">
+    <h1 class="font-headline font-black text-5xl md:text-7xl lg:text-[6rem] mb-6 tracking-tighter leading-[1.05] text-white select-none animate-fade-in-up delay-100 relative z-10">
       Next-generation <br class="hidden md:block" /> <span class="text-gradient-primary">community management.</span>
     </h1>
     
-    <p class="font-headline text-white/60 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
+    <p class="font-headline text-white/60 text-lg md:text-xl max-w-2xl mb-12 leading-relaxed animate-fade-in-up delay-200 relative z-10">
       Ares provides industry-leading moderation, lossless audio streaming, and deep analytics. Built for communities that demand perfection.
     </p>
     
-    <div class="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto">
+    <div class="flex flex-col sm:flex-row justify-center gap-4 w-full sm:w-auto animate-fade-in-up delay-300 relative z-10">
       <a href="\${oauthUrl}" target="_blank" rel="noopener" class="btn-primary-exact flex items-center justify-center gap-2 px-8 py-3.5 text-base">
         <span class="material-symbols-outlined text-[20px]">add</span>
         Invite Ares
