@@ -162,67 +162,144 @@ async function renderLanding() {
     </div>
 
     <!-- Bento Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 auto-rows-[300px]">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 auto-rows-[320px]">
       
-      <!-- Box 1: Moderation -->
-      <div class="md:col-span-2 glass-exact p-8 flex flex-col justify-between group relative overflow-hidden hover:bg-white/[0.05] cursor-default">
-        <div class="absolute top-0 right-0 w-64 h-64 glow-orb-primary opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+      <!-- Box 1: Automod (Blue accent) -->
+      <div class="md:col-span-2 glass-exact p-8 flex flex-col justify-between group relative overflow-hidden cursor-default" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <!-- Gradient border glow on hover -->
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(59,130,246,0.15), transparent 50%);"></div>
+        <!-- Floating particles -->
+        <div class="absolute top-8 right-12 w-2 h-2 rounded-full bg-blue-500/30 group-hover:bg-blue-400/60 transition-all duration-1000 group-hover:translate-y-[-8px]"></div>
+        <div class="absolute top-20 right-24 w-1.5 h-1.5 rounded-full bg-blue-400/20 group-hover:bg-blue-300/50 transition-all duration-1000 delay-150 group-hover:translate-y-[-12px]"></div>
+        <div class="absolute top-14 right-40 w-1 h-1 rounded-full bg-blue-300/20 group-hover:bg-blue-200/40 transition-all duration-1000 delay-300 group-hover:translate-y-[-6px]"></div>
+        
         <div class="relative z-10">
-          <div class="w-12 h-12 rounded-xl glass-exact flex items-center justify-center mb-6 text-white text-opacity-80">
-            <span class="material-symbols-outlined">shield_person</span>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-blue-500/10 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-shadow duration-500">
+            <span class="material-symbols-outlined text-blue-400 text-[26px]">shield_person</span>
           </div>
-          <h3 class="font-headline text-2xl font-bold mb-2 text-white tracking-tight">Advanced Automod</h3>
+          <h3 class="font-headline text-2xl font-bold mb-3 text-white tracking-tight">Advanced Automod</h3>
           <p class="font-headline text-white/50 max-w-md text-sm leading-relaxed">
             Protect your server instantly with highly configurable, zero-latency filters against spam, links, and malicious users.
           </p>
         </div>
+        
+        <!-- Mini shield animation -->
+        <div class="mt-auto pt-6 flex items-center gap-4">
+          <div class="flex gap-2 items-center">
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-headline font-semibold tracking-wider uppercase">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Active
+            </span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Anti-Spam</span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[11px] font-headline font-semibold tracking-wider uppercase">Anti-Link</span>
+            <span class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 text-[11px] font-headline font-semibold tracking-wider uppercase">
+              <span class="material-symbols-outlined text-[12px]">block</span>12 Blocked
+            </span>
+          </div>
+        </div>
       </div>
 
-      <!-- Box 2: Audio -->
-      <div class="col-span-1 glass-exact p-8 flex flex-col group relative overflow-hidden hover:bg-white/[0.05] cursor-default">
-         <div class="relative z-10">
-          <div class="w-10 h-10 rounded-xl glass-exact flex items-center justify-center mb-4 text-white text-opacity-80">
-            <span class="material-symbols-outlined text-[20px]">headphones</span>
+      <!-- Box 2: Audio (Violet accent) -->
+      <div class="col-span-1 glass-exact p-8 flex flex-col group relative overflow-hidden cursor-default" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(139,92,246,0.15), transparent 50%);"></div>
+        
+        <div class="relative z-10">
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 bg-violet-500/10 border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.15)] group-hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-shadow duration-500">
+            <span class="material-symbols-outlined text-violet-400 text-[22px]">headphones</span>
           </div>
           <h3 class="font-headline text-xl font-bold mb-2 text-white tracking-tight">Pristine Audio</h3>
-          <p class="font-headline text-white/50 text-sm">Experience zero-latency, high-fidelity music streaming across global voice channels.</p>
+          <p class="font-headline text-white/50 text-sm leading-relaxed">Zero-latency, high-fidelity music streaming across global voice channels.</p>
         </div>
-        <div class="mt-auto w-full pt-4 border-t border-white/5 flex gap-1 items-end h-8">
-          <div class="w-full bg-white/20 h-[30%] rounded-sm"></div>
-          <div class="w-full bg-white/40 h-[60%] rounded-sm"></div>
-          <div class="w-full bg-primary/80 h-[100%] rounded-sm shadow-[0_0_10px_#3b82f6]"></div>
-          <div class="w-full bg-white/20 h-[40%] rounded-sm"></div>
-          <div class="w-full bg-white/10 h-[20%] rounded-sm"></div>
+        
+        <!-- Animated equalizer bars -->
+        <div class="mt-auto w-full pt-5 flex gap-[3px] items-end h-16 relative">
+          <div class="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-violet-500/5 to-transparent rounded-xl pointer-events-none"></div>
+          <div class="flex-1 bg-violet-500/30 rounded-t-sm group-hover:bg-violet-400/50 transition-all duration-300" style="height: 25%; animation: eq1 1.2s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/40 rounded-t-sm group-hover:bg-violet-400/60 transition-all duration-300" style="height: 55%; animation: eq2 0.9s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/60 rounded-t-sm group-hover:bg-violet-400/80 transition-all duration-300" style="height: 85%; animation: eq3 1.1s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/80 rounded-t-sm shadow-[0_0_12px_rgba(139,92,246,0.5)] group-hover:bg-violet-400 transition-all duration-300" style="height: 100%; animation: eq4 0.8s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/60 rounded-t-sm group-hover:bg-violet-400/80 transition-all duration-300" style="height: 70%; animation: eq5 1.3s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/40 rounded-t-sm group-hover:bg-violet-400/60 transition-all duration-300" style="height: 45%; animation: eq2 1s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/30 rounded-t-sm group-hover:bg-violet-400/50 transition-all duration-300" style="height: 30%; animation: eq1 1.4s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/50 rounded-t-sm group-hover:bg-violet-400/70 transition-all duration-300" style="height: 60%; animation: eq3 0.7s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/30 rounded-t-sm group-hover:bg-violet-400/50 transition-all duration-300" style="height: 35%; animation: eq5 1.1s ease-in-out infinite alternate;"></div>
+          <div class="flex-1 bg-violet-500/20 rounded-t-sm group-hover:bg-violet-400/40 transition-all duration-300" style="height: 20%; animation: eq1 0.9s ease-in-out infinite alternate;"></div>
         </div>
       </div>
 
-      <!-- Box 3: Leveling -->
-      <div class="col-span-1 glass-exact p-8 flex flex-col group relative overflow-hidden hover:bg-white/[0.05] cursor-default">
+      <!-- Box 3: Leveling (Emerald accent) -->
+      <div class="col-span-1 glass-exact p-8 flex flex-col group relative overflow-hidden cursor-default" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(16,185,129,0.15), transparent 50%);"></div>
+        
         <div class="relative z-10">
-          <div class="w-10 h-10 rounded-xl glass-exact flex items-center justify-center mb-4 text-white text-opacity-80">
-            <span class="material-symbols-outlined text-[20px]">deployed_code</span>
+          <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-5 bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.15)] group-hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-shadow duration-500">
+            <span class="material-symbols-outlined text-emerald-400 text-[22px]">trending_up</span>
           </div>
           <h3 class="font-headline text-xl font-bold mb-2 text-white tracking-tight">Engagement</h3>
-          <p class="font-headline text-white/50 text-sm">Reward your community with an aesthetic, highly customizable leveling system.</p>
+          <p class="font-headline text-white/50 text-sm leading-relaxed">Reward your community with an aesthetic, highly customizable leveling system.</p>
+        </div>
+        
+        <!-- XP Progress mock -->
+        <div class="mt-auto pt-5 space-y-3 relative z-10">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-headline font-semibold text-emerald-400 uppercase tracking-widest">Level 24</span>
+            <span class="text-[11px] font-headline text-white/30">8,420 / 10,000 XP</span>
+          </div>
+          <div class="w-full h-2.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
+            <div class="h-full rounded-full shadow-[0_0_12px_rgba(16,185,129,0.4)]" style="width: 84%; background: linear-gradient(90deg, #10b981, #34d399);"></div>
+          </div>
+          <div class="flex gap-2">
+            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-[0_0_10px_rgba(245,158,11,0.3)]">
+              <span class="text-[8px] font-bold text-black">1</span>
+            </div>
+            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-slate-300 to-slate-500 flex items-center justify-center">
+              <span class="text-[8px] font-bold text-black">2</span>
+            </div>
+            <div class="w-6 h-6 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
+              <span class="text-[8px] font-bold text-black">3</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Box 4: Analytics -->
-      <div class="md:col-span-2 glass-exact p-8 flex justify-between items-center group relative overflow-hidden hover:bg-white/[0.05] cursor-default">
+      <!-- Box 4: Analytics (Amber/Blue accent) -->
+      <div class="md:col-span-2 glass-exact p-8 flex justify-between items-center group relative overflow-hidden cursor-default" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(-45deg, rgba(59,130,246,0.1), transparent 50%);"></div>
+        
         <div class="relative z-10 max-w-xs">
-          <div class="w-12 h-12 rounded-xl glass-exact flex items-center justify-center mb-6 text-white text-opacity-80">
-            <span class="material-symbols-outlined">insights</span>
+          <div class="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 bg-blue-500/10 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-shadow duration-500">
+            <span class="material-symbols-outlined text-blue-400 text-[26px]">insights</span>
           </div>
-          <h3 class="font-headline text-2xl font-bold mb-2 text-white tracking-tight">Deep Analytics</h3>
+          <h3 class="font-headline text-2xl font-bold mb-3 text-white tracking-tight">Deep Analytics</h3>
           <p class="font-headline text-white/50 text-sm leading-relaxed">
             Monitor growth, message volume, and member retention through a beautifully designed, real-time dashboard.
           </p>
         </div>
-        <div class="hidden sm:block w-48 h-full relative">
-           <!-- Line graph mock -->
-           <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-             <path d="M0,80 Q20,60 40,70 T80,30 L100,50 L100,100 L0,100 Z" fill="rgba(59, 130, 246, 0.1)"></path>
-             <path d="M0,80 Q20,60 40,70 T80,30 L100,50" fill="none" stroke="#3b82f6" stroke-width="2"></path>
+        
+        <!-- Richer chart visualization -->
+        <div class="hidden sm:block w-56 h-full relative">
+           <svg class="absolute inset-0 w-full h-full" viewBox="0 0 200 120" preserveAspectRatio="none">
+             <!-- Grid lines -->
+             <line x1="0" y1="30" x2="200" y2="30" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+             <line x1="0" y1="60" x2="200" y2="60" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+             <line x1="0" y1="90" x2="200" y2="90" stroke="rgba(255,255,255,0.03)" stroke-width="0.5"/>
+             <!-- Gradient fill under curve -->
+             <defs>
+               <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                 <stop offset="0%" stop-color="rgba(59,130,246,0.25)"/>
+                 <stop offset="100%" stop-color="rgba(59,130,246,0)"/>
+               </linearGradient>
+             </defs>
+             <path d="M0,100 C20,90 40,85 60,70 C80,55 90,65 110,45 C130,25 150,35 170,20 C185,12 195,15 200,10 L200,120 L0,120 Z" fill="url(#chartGrad)"/>
+             <path d="M0,100 C20,90 40,85 60,70 C80,55 90,65 110,45 C130,25 150,35 170,20 C185,12 195,15 200,10" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round"/>
+             <!-- Glow dot at peak -->
+             <circle cx="200" cy="10" r="4" fill="#3b82f6" opacity="0.8">
+               <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite"/>
+               <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+             </circle>
+             <circle cx="200" cy="10" r="8" fill="none" stroke="#3b82f6" stroke-width="1" opacity="0.3">
+               <animate attributeName="r" values="6;12;6" dur="2s" repeatCount="indefinite"/>
+               <animate attributeName="opacity" values="0.3;0;0.3" dur="2s" repeatCount="indefinite"/>
+             </circle>
            </svg>
         </div>
       </div>
