@@ -57,12 +57,6 @@ async function renderLanding() {
       <!-- Left Side: Text Content -->
       <div class="lg:w-7/12 text-center lg:text-left">
         
-        <!-- Trust badge (Xieron style) -->
-        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/[0.08] bg-white/[0.03] mb-8 animate-fade-in-up">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-[11px] font-headline text-white/50 font-semibold uppercase tracking-widest">Trusted by servers worldwide</span>
-        </div>
-        
         <!-- Main Headline (Bleed style - big, bold, left-aligned) -->
         <h1 class="font-headline font-black text-5xl md:text-6xl lg:text-[4.5rem] mb-6 tracking-[-0.04em] leading-[1.08] text-white select-none animate-fade-in-up delay-100">
           Ares is your server's<br class="hidden md:block" />
@@ -84,21 +78,7 @@ async function renderLanding() {
           </a>
         </div>
         
-        <!-- Trust indicators (Xieron style) -->
-        <div class="flex flex-wrap items-center gap-6 mt-10 animate-fade-in-up delay-400 justify-center lg:justify-start">
-          <div class="flex items-center gap-2 text-white/35 text-[12px] font-headline font-medium">
-            <span class="material-symbols-outlined text-emerald-400 text-[16px]">verified</span>
-            99.9% Uptime
-          </div>
-          <div class="flex items-center gap-2 text-white/35 text-[12px] font-headline font-medium">
-            <span class="material-symbols-outlined text-blue-400 text-[16px]">bolt</span>
-            Blazing Fast
-          </div>
-          <div class="flex items-center gap-2 text-white/35 text-[12px] font-headline font-medium">
-            <span class="material-symbols-outlined text-violet-400 text-[16px]">shield</span>
-            Enterprise Security
-          </div>
-        </div>
+
       </div>
       
       <!-- Right Side: Floating Feature Tags (Bleed style) + Dashboard Preview -->
