@@ -9,12 +9,15 @@ async function renderLanding() {
 <!-- Dot Pattern Grid -->
 <div class="fixed inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 40px 40px; -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 80%); mask-image: radial-gradient(circle at center, black 20%, transparent 80%);"></div>
 
-<!-- Ambient Glow Orbs -->
+<!-- Ambient Glow Orbs (breathing) -->
 <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
-  <div class="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw]" style="background: radial-gradient(circle at center, rgba(59,130,246,0.12) 0%, transparent 60%); filter: blur(80px);"></div>
-  <div class="absolute top-[20%] -right-[15%] w-[60vw] h-[60vw]" style="background: radial-gradient(circle at center, rgba(139,92,246,0.1) 0%, transparent 60%); filter: blur(80px);"></div>
-  <div class="absolute -bottom-[20%] left-[30%] w-[50vw] h-[50vw]" style="background: radial-gradient(circle at center, rgba(16,185,129,0.06) 0%, transparent 60%); filter: blur(100px);"></div>
+  <div class="absolute -top-[20%] -left-[10%] w-[70vw] h-[70vw] breathe-orb" style="background: radial-gradient(circle at center, rgba(59,130,246,0.12) 0%, transparent 60%); filter: blur(80px);"></div>
+  <div class="absolute top-[20%] -right-[15%] w-[60vw] h-[60vw] breathe-orb" style="background: radial-gradient(circle at center, rgba(139,92,246,0.1) 0%, transparent 60%); filter: blur(80px); animation-delay: 2s;"></div>
+  <div class="absolute -bottom-[20%] left-[30%] w-[50vw] h-[50vw] breathe-orb" style="background: radial-gradient(circle at center, rgba(16,185,129,0.06) 0%, transparent 60%); filter: blur(100px); animation-delay: 4s;"></div>
 </div>
+
+<!-- Floating Particles Container -->
+<div id="particles-container" class="fixed inset-0 pointer-events-none z-[1] overflow-hidden"></div>
 
 <!-- Film grain -->
 <div class="noise-overlay"></div>
@@ -60,7 +63,7 @@ async function renderLanding() {
         <!-- Main Headline (Bleed style - big, bold, left-aligned) -->
         <h1 class="font-headline font-black text-5xl md:text-6xl lg:text-[4.5rem] mb-6 tracking-[-0.04em] leading-[1.08] text-white select-none animate-fade-in-up delay-100">
           Ares is your server's<br class="hidden md:block" />
-          <span class="text-gradient-primary">ultimate command center.</span>
+          <span class="text-gradient-animated">ultimate command center.</span>
         </h1>
         
         <p class="font-headline text-white/45 text-base md:text-lg max-w-xl mb-10 leading-relaxed animate-fade-in-up delay-200 lg:pr-8">
@@ -82,7 +85,7 @@ async function renderLanding() {
       </div>
       
       <!-- Right Side: Floating Feature Tags (Bleed style) + Dashboard Preview -->
-      <div class="lg:w-5/12 relative flex justify-center lg:justify-end animate-fade-in-up delay-300">
+      <div class="lg:w-5/12 relative flex justify-center lg:justify-end animate-fade-in-up delay-300" id="hero-preview">
         
         <!-- Dashboard Preview Card -->
         <div class="w-full max-w-md border border-white/[0.08] bg-white/[0.02] backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_20px_60px_-12px_rgba(0,0,0,0.8)]">
@@ -133,16 +136,16 @@ async function renderLanding() {
           </div>
         </div>
         
-        <!-- Floating Feature Tags (Bleed-style) -->
-        <div class="absolute -right-4 top-16 hidden lg:flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] bg-black/60 backdrop-blur-xl rounded-xl shadow-lg animate-fade-in-up delay-400" style="animation-delay: 0.6s;">
+        <!-- Floating Feature Tags (Bleed-style, animated float) -->
+        <div class="absolute -right-4 top-16 hidden lg:flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] bg-black/60 backdrop-blur-xl rounded-xl shadow-lg animate-fade-in-up float-tag" style="animation-delay: 0.6s;">
           <span class="material-symbols-outlined text-blue-400 text-[18px]">shield</span>
           <span class="text-[13px] font-headline text-white/70 font-medium">anti-nuke</span>
         </div>
-        <div class="absolute -left-8 top-48 hidden lg:flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] bg-black/60 backdrop-blur-xl rounded-xl shadow-lg animate-fade-in-up" style="animation-delay: 0.8s;">
+        <div class="absolute -left-8 top-48 hidden lg:flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] bg-black/60 backdrop-blur-xl rounded-xl shadow-lg animate-fade-in-up float-tag float-tag-delay1" style="animation-delay: 0.8s;">
           <span class="material-symbols-outlined text-violet-400 text-[18px]">music_note</span>
           <span class="text-[13px] font-headline text-white/70 font-medium">music player</span>
         </div>
-        <div class="absolute -right-2 bottom-24 hidden lg:flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] bg-black/60 backdrop-blur-xl rounded-xl shadow-lg animate-fade-in-up" style="animation-delay: 1s;">
+        <div class="absolute -right-2 bottom-24 hidden lg:flex items-center gap-2 px-4 py-2.5 border border-white/[0.08] bg-black/60 backdrop-blur-xl rounded-xl shadow-lg animate-fade-in-up float-tag float-tag-delay2" style="animation-delay: 1s;">
           <span class="material-symbols-outlined text-emerald-400 text-[18px]">trending_up</span>
           <span class="text-[13px] font-headline text-white/70 font-medium">leveling</span>
         </div>
@@ -156,7 +159,7 @@ async function renderLanding() {
 <section id="features" class="py-32 relative">
   <div class="max-w-[1400px] mx-auto px-6 md:px-12">
     
-    <div class="text-center mb-20">
+    <div class="text-center mb-20 reveal-blur">
       <span class="inline-block text-[11px] font-headline font-bold text-blue-400 uppercase tracking-[0.2em] mb-4">Features</span>
       <h2 class="font-headline text-3xl md:text-5xl font-black tracking-[-0.03em] mb-5 text-white">Everything your server needs.</h2>
       <p class="font-headline text-white/40 max-w-lg mx-auto text-base">Powerful modules, seamlessly integrated. No more juggling multiple bots.</p>
@@ -166,7 +169,7 @@ async function renderLanding() {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
       
       <!-- Feature 1: Moderation (Large) -->
-      <div class="md:col-span-2 group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 md:p-10 flex flex-col justify-between min-h-[340px] hover:border-white/[0.15] transition-all duration-500 cursor-default">
+      <div class="md:col-span-2 group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 md:p-10 flex flex-col justify-between min-h-[340px] hover:border-white/[0.15] transition-all duration-500 cursor-default animated-border tilt-card reveal" style="transition-delay: 0.1s;">
         <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(59,130,246,0.08), transparent 50%);"></div>
         <div>
           <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-blue-500/10 border border-blue-500/15">
@@ -187,7 +190,7 @@ async function renderLanding() {
       </div>
 
       <!-- Feature 2: Music -->
-      <div class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 flex flex-col min-h-[340px] hover:border-white/[0.15] transition-all duration-500 cursor-default">
+      <div class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 flex flex-col min-h-[340px] hover:border-white/[0.15] transition-all duration-500 cursor-default animated-border tilt-card reveal" style="transition-delay: 0.2s;">
         <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(139,92,246,0.08), transparent 50%);"></div>
         <div>
           <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-violet-500/10 border border-violet-500/15">
@@ -213,7 +216,7 @@ async function renderLanding() {
       </div>
 
       <!-- Feature 3: Leveling -->
-      <div class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 flex flex-col min-h-[300px] hover:border-white/[0.15] transition-all duration-500 cursor-default">
+      <div class="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 flex flex-col min-h-[300px] hover:border-white/[0.15] transition-all duration-500 cursor-default animated-border tilt-card reveal" style="transition-delay: 0.15s;">
         <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(16,185,129,0.08), transparent 50%);"></div>
         <div>
           <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-emerald-500/10 border border-emerald-500/15">
@@ -234,7 +237,7 @@ async function renderLanding() {
       </div>
 
       <!-- Feature 4: Analytics (Large) -->
-      <div class="md:col-span-2 group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 md:p-10 flex flex-col md:flex-row justify-between items-center min-h-[300px] hover:border-white/[0.15] transition-all duration-500 cursor-default">
+      <div class="md:col-span-2 group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 md:p-10 flex flex-col md:flex-row justify-between items-center min-h-[300px] hover:border-white/[0.15] transition-all duration-500 cursor-default animated-border tilt-card reveal" style="transition-delay: 0.25s;">
         <div class="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(-45deg, rgba(59,130,246,0.06), transparent 50%);"></div>
         <div class="relative z-10 max-w-sm">
           <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 bg-blue-500/10 border border-blue-500/15">
@@ -277,7 +280,7 @@ async function renderLanding() {
   <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1/2 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent"></div>
   
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 max-w-3xl mx-auto px-6 relative z-10">
-    <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center group hover:border-white/[0.15] transition-all duration-500">
+    <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center group hover:border-white/[0.15] transition-all duration-500 pulse-glow reveal-scale" style="transition-delay: 0.1s;">
       <div class="w-10 h-10 rounded-xl mx-auto mb-4 flex items-center justify-center bg-blue-500/10 border border-blue-500/15">
         <span class="material-symbols-outlined text-blue-400 text-[20px]">dns</span>
       </div>
@@ -286,7 +289,7 @@ async function renderLanding() {
       </div>
       <span class="font-headline text-[11px] text-white/30 uppercase tracking-[0.15em] font-semibold">Servers</span>
     </div>
-    <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center group hover:border-white/[0.15] transition-all duration-500">
+    <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center group hover:border-white/[0.15] transition-all duration-500 pulse-glow reveal-scale" style="transition-delay: 0.2s;">
       <div class="w-10 h-10 rounded-xl mx-auto mb-4 flex items-center justify-center bg-violet-500/10 border border-violet-500/15">
         <span class="material-symbols-outlined text-violet-400 text-[20px]">group</span>
       </div>
@@ -295,7 +298,7 @@ async function renderLanding() {
       </div>
       <span class="font-headline text-[11px] text-white/30 uppercase tracking-[0.15em] font-semibold">Users</span>
     </div>
-    <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center group hover:border-white/[0.15] transition-all duration-500">
+    <div class="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-8 text-center group hover:border-white/[0.15] transition-all duration-500 pulse-glow reveal-scale" style="transition-delay: 0.3s;">
       <div class="w-10 h-10 rounded-xl mx-auto mb-4 flex items-center justify-center bg-emerald-500/10 border border-emerald-500/15">
         <span class="material-symbols-outlined text-emerald-400 text-[20px]">tag</span>
       </div>
@@ -311,7 +314,7 @@ async function renderLanding() {
 <section class="py-32 relative overflow-hidden">
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full opacity-10 pointer-events-none" style="background: radial-gradient(circle, rgba(139,92,246,0.3), transparent 60%);"></div>
   
-  <div class="text-center max-w-2xl mx-auto px-6 relative z-10">
+  <div class="text-center max-w-2xl mx-auto px-6 relative z-10 reveal-blur">
     <span class="inline-block text-[11px] font-headline font-bold text-violet-400 uppercase tracking-[0.2em] mb-4">Get Started</span>
     <h2 class="font-headline text-3xl md:text-5xl font-black tracking-[-0.03em] mb-5 text-white">Elevate your community's<br/>experience today.</h2>
     <p class="font-headline text-white/40 text-base mb-10 max-w-md mx-auto">Get Ares in your server and unlock powerful moderation, engagement, and management tools in seconds.</p>
@@ -396,7 +399,54 @@ async function renderLanding() {
 </footer>
   `;
 
-  // Attach smooth scrolling logic for hash links
+  // ═══════════════════ ANIMATION ENGINE ═══════════════════
+
+  // 1. Scroll-triggered reveal (IntersectionObserver)
+  const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-blur');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -50px 0px' });
+  revealEls.forEach(el => revealObserver.observe(el));
+
+  // 2. Floating Particles
+  const particleContainer = document.getElementById('particles-container');
+  if (particleContainer) {
+    function spawnParticle() {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const x = Math.random() * 100;
+      const size = Math.random() * 2 + 1;
+      const duration = Math.random() * 15 + 12;
+      const delay = Math.random() * 5;
+      p.style.cssText = `left:${x}%;width:${size}px;height:${size}px;bottom:-10px;opacity:0;animation:floatUp ${duration}s ${delay}s linear infinite;`;
+      particleContainer.appendChild(p);
+    }
+    for (let i = 0; i < 25; i++) spawnParticle();
+  }
+
+  // 3. Magnetic Tilt on Feature Cards
+  document.querySelectorAll('.tilt-card').forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      const rotateX = ((y - centerY) / centerY) * -4;
+      const rotateY = ((x - centerX) / centerX) * 4;
+      card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
+    });
+  });
+
+  // 4. Smooth scrolling for hash links
   const hashLinks = document.querySelectorAll('a[href^="#"]');
   hashLinks.forEach(link => {
     link.addEventListener('click', (e) => {
@@ -411,22 +461,99 @@ async function renderLanding() {
     });
   });
 
-  // Fetch real values dynamically
+  // 5. Animated number counter
+  function animateCounter(el, target, suffix = '') {
+    const duration = 1500;
+    const start = performance.now();
+    const isFloat = typeof target === 'string' && target.includes('.');
+    el.classList.add('counter-number');
+    
+    function tick(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+      
+      if (typeof target === 'number') {
+        el.textContent = Math.round(target * eased).toLocaleString() + suffix;
+      } else {
+        el.textContent = target;
+      }
+      
+      if (progress < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        el.classList.remove('counting');
+      }
+    }
+    
+    el.classList.add('counting');
+    requestAnimationFrame(tick);
+  }
+
+  // 6. Fetch real values dynamically with counter animation
   try {
     const stats = await API.get('/api/public/stats');
     if (stats) {
-      const update = (id, val) => {
+      const updateWithAnim = (id, rawVal, formatted) => {
         const el = document.getElementById(id);
-        if (el) el.textContent = val;
+        if (el) {
+          if (typeof rawVal === 'number') {
+            animateCounter(el, rawVal);
+            setTimeout(() => { el.textContent = formatted; }, 1600);
+          } else {
+            el.textContent = formatted;
+          }
+        }
       };
-      update('landing-ping-term', `${stats.ping}ms`);
-      update('landing-guilds-term', typeof formatNumber === 'function' ? formatNumber(stats.guilds) : stats.guilds.toLocaleString());
-      update('landing-users-term', typeof formatNumber === 'function' ? formatNumber(stats.users) : stats.users.toLocaleString());
-      update('landing-guilds-big', typeof formatNumber === 'function' ? formatNumber(stats.guilds) : stats.guilds.toLocaleString());
-      update('landing-users-big', typeof formatNumber === 'function' ? formatNumber(stats.users) : stats.users.toLocaleString());
-      update('landing-channels-big', typeof formatNumber === 'function' ? formatNumber(stats.channels) : stats.channels.toLocaleString());
+      
+      const fmtGuilds = typeof formatNumber === 'function' ? formatNumber(stats.guilds) : stats.guilds.toLocaleString();
+      const fmtUsers = typeof formatNumber === 'function' ? formatNumber(stats.users) : stats.users.toLocaleString();
+      const fmtChannels = typeof formatNumber === 'function' ? formatNumber(stats.channels) : stats.channels.toLocaleString();
+      
+      // Terminal stats (no counter anim, direct update)
+      const updateDirect = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      updateDirect('landing-ping-term', `${stats.ping}ms`);
+      updateDirect('landing-guilds-term', fmtGuilds);
+      updateDirect('landing-users-term', fmtUsers);
+      
+      // Big stats with counter animation
+      updateWithAnim('landing-guilds-big', stats.guilds, fmtGuilds);
+      updateWithAnim('landing-users-big', stats.users, fmtUsers);
+      updateWithAnim('landing-channels-big', stats.channels, fmtChannels);
     }
   } catch (err) {
     console.error('Failed to load real landing stats:', err);
+  }
+
+  // 7. Sequential terminal log typing effect
+  const logContainer = document.querySelector('.font-mono.space-y-2\\.5');
+  if (logContainer) {
+    const logLines = logContainer.children;
+    Array.from(logLines).forEach((line, i) => {
+      line.style.opacity = '0';
+      line.style.transform = 'translateX(-10px)';
+      line.style.transition = 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+      setTimeout(() => {
+        line.style.opacity = line.classList.contains('opacity-50') ? '0.5' : '1';
+        line.style.transform = 'translateX(0)';
+      }, 800 + i * 300);
+    });
+  }
+
+  // 8. Navbar scroll effect (subtle shrink + more blur)
+  let lastScroll = 0;
+  const navbar = document.querySelector('header');
+  if (navbar) {
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+      if (scrollY > 100) {
+        navbar.style.background = 'rgba(0,0,0,0.6)';
+        navbar.style.borderColor = 'rgba(255,255,255,0.12)';
+      } else {
+        navbar.style.background = 'rgba(0,0,0,0.4)';
+        navbar.style.borderColor = 'rgba(255,255,255,0.08)';
+      }
+      lastScroll = scrollY;
+    }, { passive: true });
   }
 }
