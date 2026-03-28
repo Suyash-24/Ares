@@ -296,21 +296,53 @@ async function renderLanding() {
     </div>
   </section>
 
-  <!-- Big Exact Stats Strip -->
-  <section class="mb-40 py-16 border-y border-white/10 relative overflow-hidden bg-white/[0.01]">
-    <div class="flex flex-wrap justify-evenly items-center gap-10 relative z-10 max-w-4xl mx-auto">
-      <div class="text-center group">
-        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors"><span id="landing-guilds-big">...</span></div>
-        <div class="font-headline text-sm text-white/50 mt-1">Servers Secured</div>
+  <!-- Big Stats Strip (Premium) -->
+  <section class="mb-40 py-20 relative overflow-hidden">
+    <!-- Ambient center glow -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] rounded-full opacity-20 pointer-events-none" style="background: radial-gradient(circle, rgba(59,130,246,0.3), transparent 70%);"></div>
+    
+    <!-- Top/bottom subtle border lines with gradient fade -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-2/3 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+    <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-2/3 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent"></div>
+    
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 max-w-4xl mx-auto px-6">
+      
+      <!-- Servers -->
+      <div class="glass-exact p-8 text-center group relative overflow-hidden" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(59,130,246,0.1), transparent 50%);"></div>
+        <div class="w-12 h-12 rounded-2xl mx-auto mb-5 flex items-center justify-center bg-blue-500/10 border border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.15)] group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)] transition-shadow duration-500">
+          <span class="material-symbols-outlined text-blue-400 text-[22px]">dns</span>
+        </div>
+        <div class="font-headline text-4xl md:text-5xl font-black tracking-tighter mb-2 relative z-10">
+          <span id="landing-guilds-big" class="bg-gradient-to-b from-white to-white/60 bg-clip-text" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent;">...</span>
+        </div>
+        <div class="font-headline text-sm text-white/40 uppercase tracking-widest font-semibold">Servers</div>
       </div>
-      <div class="text-center group">
-        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors"><span id="landing-users-big">...</span></div>
-        <div class="font-headline text-sm text-white/50 mt-1">Total Users</div>
+      
+      <!-- Users -->
+      <div class="glass-exact p-8 text-center group relative overflow-hidden" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(139,92,246,0.1), transparent 50%);"></div>
+        <div class="w-12 h-12 rounded-2xl mx-auto mb-5 flex items-center justify-center bg-violet-500/10 border border-violet-500/20 shadow-[0_0_20px_rgba(139,92,246,0.15)] group-hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-shadow duration-500">
+          <span class="material-symbols-outlined text-violet-400 text-[22px]">group</span>
+        </div>
+        <div class="font-headline text-4xl md:text-5xl font-black tracking-tighter mb-2 relative z-10">
+          <span id="landing-users-big" class="bg-gradient-to-b from-white to-white/60 bg-clip-text" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent;">...</span>
+        </div>
+        <div class="font-headline text-sm text-white/40 uppercase tracking-widest font-semibold">Users</div>
       </div>
-      <div class="text-center group">
-        <div class="font-headline text-4xl md:text-5xl font-black text-white tracking-tighter transition-colors"><span id="landing-channels-big">...</span></div>
-        <div class="font-headline text-sm text-white/50 mt-1">Global Channels</div>
+      
+      <!-- Channels -->
+      <div class="glass-exact p-8 text-center group relative overflow-hidden" style="transition: all 0.4s cubic-bezier(0.4,0,0.2,1);">
+        <div class="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" style="background: linear-gradient(135deg, rgba(16,185,129,0.1), transparent 50%);"></div>
+        <div class="w-12 h-12 rounded-2xl mx-auto mb-5 flex items-center justify-center bg-emerald-500/10 border border-emerald-500/20 shadow-[0_0_20px_rgba(16,185,129,0.15)] group-hover:shadow-[0_0_30px_rgba(16,185,129,0.3)] transition-shadow duration-500">
+          <span class="material-symbols-outlined text-emerald-400 text-[22px]">tag</span>
+        </div>
+        <div class="font-headline text-4xl md:text-5xl font-black tracking-tighter mb-2 relative z-10">
+          <span id="landing-channels-big" class="bg-gradient-to-b from-white to-white/60 bg-clip-text" style="-webkit-background-clip: text; -webkit-text-fill-color: transparent;">...</span>
+        </div>
+        <div class="font-headline text-sm text-white/40 uppercase tracking-widest font-semibold">Channels</div>
       </div>
+      
     </div>
   </section>
 
