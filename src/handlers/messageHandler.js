@@ -395,6 +395,10 @@ export default function registerMessageHandler(discordClient) {
 				}
 			}
 
+			if (command.prefixOnly && !startsWithPrefix && !startsWithMention) {
+				return;
+			}
+
 			const commandArgs = args.slice(consumedArgs);
 			await command.execute(message, commandArgs, discordClient);
 		} catch (error) {

@@ -275,6 +275,7 @@ export default {
   description: 'Configure the welcome message system with multi-channel support.',
   usage: 'welcome <add|remove|list|config|toggle|test|reset|show> [channel] [options]',
   category: 'Welcome',
+  prefixOnly: true,
 
   async execute(message, args, client) {
     if (!message.guild) return message.reply({ components: [buildNotice(`# ${EMOJIS.error} Guild Only`, 'This command can only be used in a server.')], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
