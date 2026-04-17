@@ -7,11 +7,15 @@ const expiredRecommendations = new Set();
 
 export function initializeShoukaku(client, config) {
 
-	const nodes = resolveNodes(config);
+	const allNodes = resolveNodes(config);
+
+	// Only connect to the first (primary) node on startup.
+	// Additional nodes are stored as failover candidates and added only if the primary fails.
+	const primaryNode = [allNodes[0]];
 
 	const shoukaku = new Shoukaku(
 		new Connectors.DiscordJS(client),
-		nodes,
+		primaryNode,
 		{
 			resume: true,
 			resumeTimeout: 30,
@@ -25,12 +29,14 @@ export function initializeShoukaku(client, config) {
 	);
 
 	// Store all resolved nodes for failover
-	shoukaku._aresNodes = nodes;
+	shoukaku._aresNodes = allNodes;
 	shoukaku._aresNodeIndex = 0;
 	shoukaku._aresFailoverAttempts = 0;
-	shoukaku._aresMaxFailoverCycles = nodes.length; // 1 cycle = exhaust retries on one node
+	shoukaku._aresMaxFailoverCycles = allNodes.length; // 1 cycle = exhaust retries on one node
 
 	registerNodeEvents(shoukaku, client, config);
+
+	console.log(`🎵 [Lavalink] Starting with "${allNodes[0].name}", ${allNodes.length - 1} fallback node(s) available.`);
 
 	return shoukaku;
 }
