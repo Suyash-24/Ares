@@ -21,10 +21,10 @@
     "nodes": [
       {
         "identifier": "Primary",
-        "host": "188.245.207.225",
-        "port": 2333,
-        "password": "youshallnotpass",
-        "secure": false,
+        "host": "lava-v4.ajieblogs.eu.org",
+        "port": 443,
+        "password": "https://dsc.gg/ajidevserver",
+        "secure": true,
         "retryAmount": 5,
         "retryDelay": 5000
       },
