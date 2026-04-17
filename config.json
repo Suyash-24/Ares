@@ -21,19 +21,19 @@
     "nodes": [
       {
         "identifier": "Primary",
-        "host": "lavalinkv4.serenetia.com",
-        "port": 443,
-        "password": "https://dsc.gg/ajidevserver",
-        "secure": true,
+        "host": "188.245.207.225",
+        "port": 2333,
+        "password": "youshallnotpass",
+        "secure": false,
         "retryAmount": 5,
         "retryDelay": 5000
       },
       {
         "identifier": "Fallback",
-        "host": "de-01.strixnodes.com",
-        "port": 2010,
-        "password": "glace",
-        "secure": false,
+        "host": "lavalinkv4.serenetia.com",
+        "port": 443,
+        "password": "https://dsc.gg/ajidevserver",
+        "secure": true,
         "retryAmount": 5,
         "retryDelay": 5000
       }
