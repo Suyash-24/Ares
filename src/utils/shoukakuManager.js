@@ -1,4 +1,4 @@
-﻿import { Shoukaku, Connectors } from 'shoukaku';
+import { Shoukaku, Connectors } from 'shoukaku';
 import { ContainerBuilder, MessageFlags, SeparatorSpacingSize, StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import EMOJIS from '../utils/emojis.js';
 
@@ -15,7 +15,7 @@ export function initializeShoukaku(client, config) {
 		{
 			resume: true,
 			resumeTimeout: 30,
-			reconnectTries: 3,
+			reconnectTries: 5,
 			reconnectInterval: 5,
 			restTimeout: 60,
 			moveOnDisconnect: true,
@@ -24,7 +24,13 @@ export function initializeShoukaku(client, config) {
 		}
 	);
 
-	registerNodeEvents(shoukaku);
+	// Store all resolved nodes for failover
+	shoukaku._aresNodes = nodes;
+	shoukaku._aresNodeIndex = 0;
+	shoukaku._aresFailoverAttempts = 0;
+	shoukaku._aresMaxFailoverCycles = nodes.length; // 1 cycle = exhaust retries on one node
+
+	registerNodeEvents(shoukaku, client, config);
 
 	return shoukaku;
 }
@@ -106,10 +112,12 @@ function normalizeNode(node, index) {
 	return null;
 }
 
-function registerNodeEvents(shoukaku) {
+function registerNodeEvents(shoukaku, client, config) {
 	shoukaku.on('ready', (name, lavalinkResume, libraryResume) => {
 		const resumed = lavalinkResume || libraryResume;
 		console.log(`✅ [Lavalink] Connected to ${name}${resumed ? ' (resumed session)' : ''}`);
+		// Reset failover counter on successful connection
+		shoukaku._aresFailoverAttempts = 0;
 	});
 
 	shoukaku.on('reconnecting', (name, reconnectsLeft, reconnectInterval) => {
@@ -118,10 +126,11 @@ function registerNodeEvents(shoukaku) {
 
 	shoukaku.on('disconnect', (name, players) => {
 		console.warn(`⚠️ [Lavalink] Disconnected from ${name}, affected ${players} player(s)`);
+		attemptNodeFailover(shoukaku, name, client, config);
 	});
 
 	shoukaku.on('close', (name, code, reason) => {
-		console.warn(`� [Lavalink] Connection to ${name} closed (code ${code}, reason: ${reason || 'unknown'})`);
+		console.warn(`🔌 [Lavalink] Connection to ${name} closed (code ${code}, reason: ${reason || 'unknown'})`);
 	});
 
 	shoukaku.on('error', (name, error) => {
@@ -134,6 +143,54 @@ function registerNodeEvents(shoukaku) {
 		}
 		console.debug(`🛠️ [Lavalink:${name}] ${info}`);
 	});
+}
+
+/**
+ * Attempts to failover to the next Lavalink node when the current one is exhausted.
+ * Each node gets 5 reconnect attempts (handled by Shoukaku's built-in reconnectTries).
+ * After those 5 attempts fail, this function switches to the next node.
+ * With 2 nodes × 5 retries each = 10 total attempts before giving up.
+ */
+function attemptNodeFailover(shoukaku, disconnectedName, client, config) {
+	const allNodes = shoukaku._aresNodes;
+	if (!allNodes || allNodes.length <= 1) {
+		console.warn(`⚠️ [Lavalink] No fallback nodes available.`);
+		return;
+	}
+
+	shoukaku._aresFailoverAttempts++;
+
+	if (shoukaku._aresFailoverAttempts > shoukaku._aresMaxFailoverCycles) {
+		console.error(`❌ [Lavalink] All ${shoukaku._aresFailoverAttempts} failover attempts exhausted. No nodes available.`);
+		return;
+	}
+
+	// Move to the next node in the list
+	shoukaku._aresNodeIndex = (shoukaku._aresNodeIndex + 1) % allNodes.length;
+	const nextNode = allNodes[shoukaku._aresNodeIndex];
+
+	console.log(`🔄 [Lavalink] Node "${disconnectedName}" failed. Attempting failover to "${nextNode.name}" (failover ${shoukaku._aresFailoverAttempts}/${shoukaku._aresMaxFailoverCycles})...`);
+
+	// Remove the disconnected node if it still exists in Shoukaku's internal map
+	try {
+		if (shoukaku.nodes.has(disconnectedName)) {
+			shoukaku.removeNode(disconnectedName);
+		}
+	} catch (err) {
+		console.debug(`[Lavalink] Could not remove node "${disconnectedName}":`, err?.message);
+	}
+
+	// Add the next node (Shoukaku will attempt to connect with its own reconnectTries)
+	try {
+		if (!shoukaku.nodes.has(nextNode.name)) {
+			shoukaku.addNode(nextNode);
+			console.log(`✅ [Lavalink] Added fallback node "${nextNode.name}" (${nextNode.url})`);
+		} else {
+			console.log(`ℹ️ [Lavalink] Node "${nextNode.name}" already in pool, Shoukaku will reconnect automatically.`);
+		}
+	} catch (err) {
+		console.error(`❌ [Lavalink] Failed to add fallback node "${nextNode.name}":`, err?.message);
+	}
 }
 
 const PLAYER_EVENT_KEY = Symbol('aresPlayerEventHandlers');

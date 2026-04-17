@@ -27,6 +27,15 @@
         "secure": false,
         "retryAmount": 5,
         "retryDelay": 5000
+      },
+      {
+        "identifier": "Fallback",
+        "host": "lavalinkv4.serenetia.com",
+        "port": 443,
+        "password": "https://dsc.gg/ajidevserver",
+        "secure": true,
+        "retryAmount": 5,
+        "retryDelay": 5000
       }
     ],
     "defaultSearchPlatform": "youtube music",
