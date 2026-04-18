@@ -20,38 +20,11 @@
   "lavalink": {
     "nodes": [
       {
-        "identifier": "Prime-DE",
-        "host": "de-01.strixnodes.com",
-        "port": 2010,
-        "password": "glace",
+        "identifier": "Localhost",
+        "host": "127.0.0.1",
+        "port": 2333,
+        "password": "youshallnotpass",
         "secure": false,
-        "retryAmount": 5,
-        "retryDelay": 5000
-      },
-      {
-        "identifier": "Prime-US",
-        "host": "us-01.strixnodes.com",
-        "port": 8003,
-        "password": "glace",
-        "secure": false,
-        "retryAmount": 5,
-        "retryDelay": 5000
-      },
-      {
-        "identifier": "Legacy-1",
-        "host": "lava-v4.ajieblogs.eu.org",
-        "port": 443,
-        "password": "https://dsc.gg/ajidevserver",
-        "secure": true,
-        "retryAmount": 5,
-        "retryDelay": 5000
-      },
-      {
-        "identifier": "Legacy-2",
-        "host": "lavalinkv4.serenetia.com",
-        "port": 443,
-        "password": "https://dsc.gg/ajidevserver",
-        "secure": true,
         "retryAmount": 5,
         "retryDelay": 5000
       }

@@ -39,22 +39,46 @@ class DatabaseManager {
 
 	async initializePostgres() {
 		try {
-			const hasExplicitPostgresConfig = Boolean(
-				process.env.DATABASE_URL ||
+			const disabledByEnv = String(process.env.DISABLE_POSTGRES || '').toLowerCase() === 'true';
+			if (disabledByEnv) {
+				return false;
+			}
+
+			const connectionString = process.env.DATABASE_URL?.trim();
+			const hasPartialDiscreteConfig = Boolean(
 				process.env.DB_HOST ||
 				process.env.DB_NAME ||
 				process.env.DB_USER ||
 				process.env.DB_PASSWORD
 			);
+			const providerHint = String(process.env.DB_PROVIDER || process.env.DB_TYPE || '').toLowerCase();
+			const enabledByProvider = providerHint === 'postgres' || String(process.env.DB_ENABLE_POSTGRES || '').toLowerCase() === 'true';
 
-			if (!hasExplicitPostgresConfig) {
+			if (!connectionString && !hasPartialDiscreteConfig && !enabledByProvider) {
+				return false;
+			}
+
+			if (connectionString) {
+				try {
+					const parsed = new URL(connectionString);
+					if (!parsed.password) {
+						console.warn('⚠️ PostgreSQL DATABASE_URL has no password; skipping PostgreSQL initialization.');
+						return false;
+					}
+				} catch {
+					console.warn('⚠️ PostgreSQL DATABASE_URL is invalid; skipping PostgreSQL initialization.');
+					return false;
+				}
+			}
+
+			if (!connectionString && !process.env.DB_PASSWORD) {
+				console.warn('⚠️ PostgreSQL config detected without DB_PASSWORD; skipping PostgreSQL initialization.');
 				return false;
 			}
 
 			const pg = await import('pg');
 			const { Client } = pg.default;
 
-			const connectionString = process.env.DATABASE_URL;
 			const clientConfig = connectionString
 				? { connectionString }
 				: {
@@ -62,7 +86,7 @@ class DatabaseManager {
 					port: Number(process.env.DB_PORT) || 5432,
 					database: process.env.DB_NAME || 'ares_bot',
 					user: process.env.DB_USER || 'postgres',
-					password: process.env.DB_PASSWORD ?? '',
+					password: process.env.DB_PASSWORD,
 					ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : false
 				};
 

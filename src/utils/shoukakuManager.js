@@ -5,6 +5,15 @@ import EMOJIS from '../utils/emojis.js';
 const recommendationCache = new Map();
 const expiredRecommendations = new Set();
 const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|No Lavalink node is currently connected|WebSocket is not open|connection refused/i;
+const LOCALHOST_FALLBACK_NODES = [
+	{
+		name: 'Localhost',
+		host: '127.0.0.1',
+		port: 2333,
+		password: 'youshallnotpass',
+		secure: false
+	}
+];
 const PRIME_MUSIC_PUBLIC_NODES = [
 	{
 		name: 'Prime-DE',
@@ -82,13 +91,22 @@ function resolveNodes(config) {
 	const envNodes = resolveNodesFromEnvironment();
 	const configured = Array.isArray(config?.lavalink?.nodes) ? config.lavalink.nodes : [];
 	const normalizedConfig = normalizeNodes(configured);
+	const explicitNodes = dedupeNodes([
+		...envNodes,
+		...normalizedConfig
+	]);
+
+	if (explicitNodes.length) {
+		return explicitNodes;
+	}
+
+	const localhostFallback = normalizeNodes(LOCALHOST_FALLBACK_NODES);
 	const primeFallback = normalizeNodes(PRIME_MUSIC_PUBLIC_NODES);
 	const legacyFallback = normalizeNodes(ARES_LEGACY_FALLBACK_NODES);
 
 	const combined = dedupeNodes([
+		...localhostFallback,
 		...primeFallback,
-		...envNodes,
-		...normalizedConfig,
 		...legacyFallback
 	]);
 
