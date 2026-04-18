@@ -91,17 +91,25 @@ function resolveNodes(config) {
 	const envNodes = resolveNodesFromEnvironment();
 	const configured = Array.isArray(config?.lavalink?.nodes) ? config.lavalink.nodes : [];
 	const normalizedConfig = normalizeNodes(configured);
-	const explicitNodes = dedupeNodes([
+	const allExplicitNodes = dedupeNodes([
 		...envNodes,
 		...normalizedConfig
 	]);
+	const allowLocalhostNodes = shouldAllowLocalhostNodes();
+	const explicitNodes = allowLocalhostNodes
+		? allExplicitNodes
+		: allExplicitNodes.filter((node) => !isLocalNode(node));
 	const allowPublicFallback = shouldUsePublicFallback();
+
+	if (!allowLocalhostNodes && allExplicitNodes.length !== explicitNodes.length) {
+		console.warn('Ignoring localhost Lavalink node(s). Set LAVALINK_ALLOW_LOCALHOST=true to enable local nodes.');
+	}
 
 	if (explicitNodes.length && !allowPublicFallback) {
 		return explicitNodes;
 	}
 
-	const localhostFallback = normalizeNodes(LOCALHOST_FALLBACK_NODES);
+	const localhostFallback = allowLocalhostNodes ? normalizeNodes(LOCALHOST_FALLBACK_NODES) : [];
 	const primeFallback = allowPublicFallback ? normalizeNodes(PRIME_MUSIC_PUBLIC_NODES) : [];
 	const legacyFallback = allowPublicFallback ? normalizeNodes(ARES_LEGACY_FALLBACK_NODES) : [];
 
@@ -122,6 +130,31 @@ function resolveNodes(config) {
 function shouldUsePublicFallback() {
 	const value = String(process.env.LAVALINK_PUBLIC_FALLBACK ?? 'true').toLowerCase();
 	return !['0', 'false', 'no', 'off'].includes(value);
+}
+
+function shouldAllowLocalhostNodes() {
+	const value = String(process.env.LAVALINK_ALLOW_LOCALHOST ?? 'false').toLowerCase();
+	return !['0', 'false', 'no', 'off'].includes(value);
+}
+
+function isLocalNode(node) {
+	if (!node?.url || typeof node.url !== 'string') {
+		return false;
+	}
+
+	let host = node.url;
+	if (host.includes('://')) {
+		try {
+			host = new URL(host).hostname;
+		} catch {
+			return false;
+		}
+	} else {
+		host = host.split(':')[0];
+	}
+
+	const normalizedHost = host.toLowerCase();
+	return normalizedHost === '127.0.0.1' || normalizedHost === 'localhost' || normalizedHost === '::1';
 }
 
 function resolveNodesFromEnvironment() {

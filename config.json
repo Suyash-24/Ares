@@ -20,10 +20,19 @@
   "lavalink": {
     "nodes": [
       {
-        "identifier": "Localhost",
-        "host": "127.0.0.1",
-        "port": 2333,
-        "password": "youshallnotpass",
+        "identifier": "Prime-DE",
+        "host": "de-01.strixnodes.com",
+        "port": 2010,
+        "password": "glace",
+        "secure": false,
+        "retryAmount": 5,
+        "retryDelay": 5000
+      },
+      {
+        "identifier": "Prime-US",
+        "host": "us-01.strixnodes.com",
+        "port": 8003,
+        "password": "glace",
         "secure": false,
         "retryAmount": 5,
         "retryDelay": 5000
