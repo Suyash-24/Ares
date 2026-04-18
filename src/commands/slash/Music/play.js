@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, MessageFlags, ContainerBuilder, SeparatorSpacingSize } from 'discord.js';
+import { SlashCommandBuilder, MessageFlags, ContainerBuilder, SeparatorSpacingSize, PermissionFlagsBits } from 'discord.js';
 import { Queue } from '../../../utils/Queue.js';
 import EMOJIS from '../../../utils/emojis.js';
 
@@ -20,9 +20,19 @@ export default {
 			});
 		}
 
-		if (!interaction.guild.members.me?.permissions.has('Connect')) {
+		const botMember = interaction.guild.members.me;
+		const botPermissions = interaction.member.voice.channel.permissionsFor(botMember);
+
+		if (!botPermissions?.has(PermissionFlagsBits.Connect)) {
 			return interaction.reply({
 				content: '❌ I don\'t have permission to connect to your voice channel.',
+				ephemeral: true
+			});
+		}
+
+		if (!botPermissions?.has(PermissionFlagsBits.Speak)) {
+			return interaction.reply({
+				content: '❌ I can join that voice channel, but I do not have permission to speak there.',
 				ephemeral: true
 			});
 		}
@@ -168,19 +178,40 @@ export default {
 			}
 
 			const isIdle = !queue.player?.track && !queue.paused;
-			let shouldStart = queue.stopped || isIdle;
+			const shouldStart = queue.stopped || isIdle;
 
 			if (shouldStart) {
-				await queue.play();
+				try {
+					await queue.play();
+				} catch (playError) {
+					console.error('Failed to start playback:', playError);
+					await interaction.followUp({
+						content: isMusicBackendUnavailable(playError)
+							? '⚠️ The track was added to queue, but playback could not start because Lavalink is offline.'
+							: '⚠️ The track was added to queue, but playback could not start right now.',
+						ephemeral: true
+					}).catch(() => {});
+				}
 			}
 		} catch (error) {
 			console.error('Error in play command:', error);
 			interaction.editReply({
-				content: '❌ An error occurred while searching for the track.',
+				content: isMusicBackendUnavailable(error)
+					? '❌ Music backend is offline. Please check your Lavalink node and try again.'
+					: '❌ An error occurred while searching for the track.',
 			});
 		}
 	}
 };
+
+function isMusicBackendUnavailable(error) {
+	const message = error?.message ?? '';
+	if (error?.code === 'LAVALINK_UNAVAILABLE') {
+		return true;
+	}
+
+	return /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No Lavalink node is currently connected|Music backend is currently unavailable|WebSocket is not open|connection refused/i.test(message);
+}
 
 function formatTime(ms) {
 	if (!ms || ms < 0) return '0:00';

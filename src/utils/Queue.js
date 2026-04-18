@@ -1,6 +1,22 @@
 import Denque from 'denque';
 import { attachPlayerEvents, detachPlayerEvents } from './shoukakuManager.js';
 
+const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|WebSocket is not open|socket hang up|connection refused/i;
+
+function createQueueError(code, message, cause) {
+	const error = new Error(message);
+	error.code = code;
+	if (cause) {
+		error.cause = cause;
+	}
+	return error;
+}
+
+function isBackendUnavailableError(error) {
+	const message = error?.message ?? '';
+	return BACKEND_UNAVAILABLE_PATTERN.test(message);
+}
+
 export class Queue {
 
 	constructor(options) {
@@ -23,10 +39,16 @@ export class Queue {
 
 	async connect() {
 		try {
+			const node = this.client?.shoukaku?.getIdealNode();
+			if (!node) {
+				throw createQueueError('LAVALINK_UNAVAILABLE', 'No Lavalink node is currently connected.');
+			}
+
 			const player = await this.client.shoukaku.joinVoiceChannel({
 				guildId: this.guild.id,
 				channelId: this.voiceChannel.id,
-				shardId: this.guild.shardId ?? 0
+				shardId: this.guild.shardId ?? 0,
+				deaf: true
 			});
 
 			this.player = player;
@@ -35,6 +57,9 @@ export class Queue {
 			attachPlayerEvents(this.player, this);
 			console.log(`✅ Connected to ${this.voiceChannel.name} in ${this.guild.name}`);
 		} catch (error) {
+			if (isBackendUnavailableError(error)) {
+				throw createQueueError('LAVALINK_UNAVAILABLE', 'Music backend is currently unavailable.', error);
+			}
 			console.error('Failed to connect to voice channel:', error);
 			throw error;
 		}
@@ -108,6 +133,9 @@ export class Queue {
 			this.paused = false;
 			await this.player.playTrack({ track: { encoded: track.encoded } });
 		} catch (error) {
+			if (isBackendUnavailableError(error)) {
+				throw createQueueError('LAVALINK_UNAVAILABLE', 'Music backend is currently unavailable.', error);
+			}
 			console.error('Failed to play track:', error);
 			this.tracks.removeOne(0);
 			await this.play();

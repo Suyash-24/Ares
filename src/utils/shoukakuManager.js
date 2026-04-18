@@ -4,6 +4,16 @@ import EMOJIS from '../utils/emojis.js';
 
 const recommendationCache = new Map();
 const expiredRecommendations = new Set();
+const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|No Lavalink node is currently connected|WebSocket is not open|connection refused/i;
+
+function isBackendUnavailableError(error) {
+	const message = error?.message ?? '';
+	if (error?.code === 'LAVALINK_UNAVAILABLE') {
+		return true;
+	}
+
+	return BACKEND_UNAVAILABLE_PATTERN.test(message);
+}
 
 export function initializeShoukaku(client, config) {
 
@@ -465,15 +475,18 @@ async function onTrackException(player, queue, event) {
 	playNext(player, queue);
 }
 
-function onWebsocketClosed(player, queue, event) {
+async function onWebsocketClosed(player, queue, event) {
 	console.warn(`⚠️ Websocket closed on ${queue.guild.name}: code=${event.code}, reason=${event.reason}`);
 
 	// Codes that mean the voice connection is truly dead and unrecoverable:
 	// 4014 = Disconnected (channel deleted, kicked, or bot moved while not in VC)
 	// 4004 = Authentication failed
 	// 4009 = Session timed out
-	// 4006 = Session no longer valid (sometimes recoverable by Lavalink reconnect)
 	const fatalCodes = [4014, 4004, 4009];
+
+	// 4006 = Session no longer valid — Discord killed the voice session.
+	// Lavalink won't auto-recover; we must rejoin to get a new session.
+	const reconnectCodes = [4006];
 
 	if (fatalCodes.includes(event.code)) {
 		if (queue.messageChannel) {
@@ -482,10 +495,56 @@ function onWebsocketClosed(player, queue, event) {
 				.catch(() => null);
 		}
 		queue.disconnect();
+	} else if (reconnectCodes.includes(event.code)) {
+		console.log(`🔄 [Voice] Session invalid (code=${event.code}) on ${queue.guild.name}, attempting to rejoin...`);
+		try {
+			// Save current state
+			const voiceChannel = queue.voiceChannel;
+			const tracks = queue.tracks;
+			const wasPlaying = !!player.track;
+
+			if (voiceChannel && queue.client?.shoukaku) {
+				// Leave and rejoin to get a fresh voice session
+				try {
+					queue.client.shoukaku.leaveVoiceChannel(queue.guild.id);
+				} catch {}
+
+				// Small delay to let Discord clean up the old session
+				await new Promise(r => setTimeout(r, 1500));
+
+				const newPlayer = await queue.client.shoukaku.joinVoiceChannel({
+					guildId: queue.guild.id,
+					channelId: voiceChannel.id,
+					shardId: queue.guild.shardId ?? 0
+				});
+
+				queue.player = newPlayer;
+				attachPlayerEvents(newPlayer, queue);
+
+				console.log(`✅ [Voice] Rejoined ${voiceChannel.name} on ${queue.guild.name}`);
+
+				// Resume playback if there's a track
+				const currentTrack = tracks.peekAt(0);
+				if (currentTrack && wasPlaying) {
+					await newPlayer.playTrack({ track: { encoded: currentTrack.encoded } });
+					console.log(`▶️ [Voice] Resumed playback: ${currentTrack.info?.title}`);
+				}
+			} else {
+				console.warn(`⚠️ [Voice] Cannot rejoin — no voice channel reference`);
+				queue.disconnect();
+			}
+		} catch (err) {
+			console.error(`❌ [Voice] Failed to rejoin on ${queue.guild.name}:`, err?.message);
+			if (queue.messageChannel) {
+				queue.messageChannel
+					.send('⚠️ Lost voice connection and failed to reconnect')
+					.catch(() => null);
+			}
+			queue.disconnect();
+		}
 	} else {
-		// Non-fatal codes (1006, 4006, etc.) — Lavalink/Shoukaku may auto-recover.
-		// We only log and let Shoukaku handle the reconnection.
-		console.log(`🔄 [Voice] Non-fatal websocket close (code=${event.code}) on ${queue.guild.name}, waiting for recovery...`);
+		// Truly non-fatal codes (1006 network blip, etc.) — Shoukaku handles reconnection.
+		console.log(`🔄 [Voice] Non-fatal websocket close (code=${event.code}) on ${queue.guild.name}, waiting for auto-recovery...`);
 	}
 }
 
@@ -591,6 +650,16 @@ async function playNext(player, queue) {
 		await player.playTrack({ track: { encoded: nextTrack.encoded } });
 	} catch (error) {
 		console.error('Failed to play next track:', error.message);
+
+		if (isBackendUnavailableError(error)) {
+			if (queue.messageChannel) {
+				queue.messageChannel
+					.send('⚠️ Lavalink disconnected while starting the next track. Queue is preserved; retry when backend is online.')
+					.catch(() => null);
+			}
+			return;
+		}
+
 		queue.tracks.removeOne(0);
 		playNext(player, queue);
 	}
