@@ -48,7 +48,7 @@ export default {
 
 			const result = await node.rest.resolve(query);
 
-			if (!result?.data || result.data.length === 0) {
+			if (!result?.data || (Array.isArray(result.data) && result.data.length === 0) || result.loadType === 'empty' || result.loadType === 'error') {
 				return interaction.editReply({
 					content: '❌ No results found for: **' + searchQuery + '**',
 				});
@@ -74,7 +74,7 @@ export default {
 				}
 			}
 
-			if (result.loadType === 'PLAYLIST') {
+			if (result.loadType === 'playlist') {
 				const userTracks = result.data.map(track => ({
 					...track,
 					userId: interaction.user.id
@@ -93,7 +93,7 @@ export default {
 
 				await interaction.editReply({ content: null, components: [container], flags: MessageFlags.IsComponentsV2 });
 			} else {
-				const track = result.data[0];
+				const track = result.loadType === 'track' ? result.data : result.data[0];
 
 				if (!track || !track.info) {
 					return interaction.editReply({

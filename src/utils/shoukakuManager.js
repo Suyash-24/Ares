@@ -468,13 +468,25 @@ async function onTrackException(player, queue, event) {
 function onWebsocketClosed(player, queue, event) {
 	console.warn(`⚠️ Websocket closed on ${queue.guild.name}: code=${event.code}, reason=${event.reason}`);
 
-	if (queue.messageChannel) {
-		queue.messageChannel
-			.send('⚠️ Voice connection was closed unexpectedly')
-			.catch(() => null);
-	}
+	// Codes that mean the voice connection is truly dead and unrecoverable:
+	// 4014 = Disconnected (channel deleted, kicked, or bot moved while not in VC)
+	// 4004 = Authentication failed
+	// 4009 = Session timed out
+	// 4006 = Session no longer valid (sometimes recoverable by Lavalink reconnect)
+	const fatalCodes = [4014, 4004, 4009];
 
-	queue.disconnect();
+	if (fatalCodes.includes(event.code)) {
+		if (queue.messageChannel) {
+			queue.messageChannel
+				.send('⚠️ Voice connection was closed unexpectedly')
+				.catch(() => null);
+		}
+		queue.disconnect();
+	} else {
+		// Non-fatal codes (1006, 4006, etc.) — Lavalink/Shoukaku may auto-recover.
+		// We only log and let Shoukaku handle the reconnection.
+		console.log(`🔄 [Voice] Non-fatal websocket close (code=${event.code}) on ${queue.guild.name}, waiting for recovery...`);
+	}
 }
 
 async function tryAlternateSources(queue, track) {
@@ -782,7 +794,7 @@ async function fetchAutoplayPlaylist(trackInfo, node, history, currentTrackUri) 
 					const searchQuery = `ytsearch:${trackTitle}`;
 					const result = await node.rest.resolve(searchQuery);
 
-					if (result?.loadType === 'SEARCH' && result?.data?.length > 0) {
+					if ((result?.loadType === 'search' || result?.loadType === 'SEARCH') && result?.data?.length > 0) {
 
 						const youtubeTrack = result.data[0];
 						if (youtubeTrack) {

@@ -57,6 +57,11 @@ export class Queue {
 			this.player = null;
 			this.paused = false;
 
+			// Clean up from client queue map
+			if (this.client.queue) {
+				this.client.queue.delete(this.guild.id);
+			}
+
 			console.log(`✅ Disconnected from ${this.guild.name}`);
 		} catch (error) {
 			console.error('Failed to disconnect:', error);
