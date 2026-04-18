@@ -5,6 +5,36 @@ import EMOJIS from '../utils/emojis.js';
 const recommendationCache = new Map();
 const expiredRecommendations = new Set();
 const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|No Lavalink node is currently connected|WebSocket is not open|connection refused/i;
+const PRIME_MUSIC_PUBLIC_NODES = [
+	{
+		name: 'Prime-DE',
+		host: 'de-01.strixnodes.com',
+		port: 2010,
+		password: 'glace',
+		secure: false
+	},
+	{
+		name: 'Prime-US',
+		host: 'us-01.strixnodes.com',
+		port: 8003,
+		password: 'glace',
+		secure: false
+	}
+];
+const ARES_LEGACY_FALLBACK_NODES = [
+	{
+		name: 'Legacy-1',
+		url: 'lava-v4.ajieblogs.eu.org:443',
+		auth: 'https://dsc.gg/ajidevserver',
+		secure: true
+	},
+	{
+		name: 'Legacy-2',
+		url: 'lavalinkv4.serenetia.com:443',
+		auth: 'https://dsc.gg/ajidevserver',
+		secure: true
+	}
+];
 
 function isBackendUnavailableError(error) {
 	const message = error?.message ?? '';
@@ -18,14 +48,11 @@ function isBackendUnavailableError(error) {
 export function initializeShoukaku(client, config) {
 
 	const allNodes = resolveNodes(config);
-
-	// Only connect to the first (primary) node on startup.
-	// Additional nodes are stored as failover candidates and added only if the primary fails.
-	const primaryNode = [allNodes[0]];
+	const startupNodes = allNodes;
 
 	const shoukaku = new Shoukaku(
 		new Connectors.DiscordJS(client),
-		primaryNode,
+		startupNodes,
 		{
 			resume: true,
 			resumeTimeout: 30,
@@ -46,44 +73,65 @@ export function initializeShoukaku(client, config) {
 
 	registerNodeEvents(shoukaku, client, config);
 
-	console.log(`🎵 [Lavalink] Starting with "${allNodes[0].name}", ${allNodes.length - 1} fallback node(s) available.`);
+	console.log(`🎵 [Lavalink] Starting with ${allNodes.length} node(s): ${allNodes.map((node) => node.name).join(', ')}`);
 
 	return shoukaku;
 }
 
 function resolveNodes(config) {
+	const envNodes = resolveNodesFromEnvironment();
 	const configured = Array.isArray(config?.lavalink?.nodes) ? config.lavalink.nodes : [];
 	const normalizedConfig = normalizeNodes(configured);
-	if (normalizedConfig.length) {
-		return normalizedConfig;
-	}
+	const primeFallback = normalizeNodes(PRIME_MUSIC_PUBLIC_NODES);
+	const legacyFallback = normalizeNodes(ARES_LEGACY_FALLBACK_NODES);
 
-	if (process.env.LAVALINK_NODES) {
-		try {
-			const parsed = JSON.parse(process.env.LAVALINK_NODES);
-			const normalizedEnv = normalizeNodes(Array.isArray(parsed) ? parsed : [parsed]);
-			if (normalizedEnv.length) {
-				return normalizedEnv;
-			}
-		} catch (error) {
-			console.warn('Failed to parse LAVALINK_NODES environment variable:', error);
-		}
-	}
-
-	const fallback = normalizeNodes([
-		{
-			name: 'Default',
-			url: 'lava-v4.ajieblogs.eu.org:443',
-			auth: 'https://dsc.gg/ajidevserver',
-			secure: true
-		}
+	const combined = dedupeNodes([
+		...primeFallback,
+		...envNodes,
+		...normalizedConfig,
+		...legacyFallback
 	]);
 
-	if (fallback.length) {
-		return fallback;
+	if (combined.length) {
+		return combined;
 	}
 
 	throw new Error('No valid Lavalink nodes found. Please configure at least one node in config.json or the LAVALINK_NODES environment variable.');
+}
+
+function resolveNodesFromEnvironment() {
+	if (!process.env.LAVALINK_NODES) {
+		return [];
+	}
+
+	try {
+		const parsed = JSON.parse(process.env.LAVALINK_NODES);
+		return normalizeNodes(Array.isArray(parsed) ? parsed : [parsed]);
+	} catch (error) {
+		console.warn('Failed to parse LAVALINK_NODES environment variable:', error);
+		return [];
+	}
+}
+
+function dedupeNodes(nodes) {
+	const seen = new Set();
+	const result = [];
+
+	for (const node of nodes) {
+		if (!node) {
+			continue;
+		}
+
+		const key = `${node.url}|${node.auth}|${node.secure ? '1' : '0'}`;
+		if (seen.has(key)) {
+			continue;
+		}
+
+		seen.add(key);
+		result.push(node);
+	}
+
+	return result;
 }
 
 function normalizeNodes(nodes) {

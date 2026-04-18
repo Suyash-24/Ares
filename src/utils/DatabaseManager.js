@@ -39,6 +39,18 @@ class DatabaseManager {
 
 	async initializePostgres() {
 		try {
+			const hasExplicitPostgresConfig = Boolean(
+				process.env.DATABASE_URL ||
+				process.env.DB_HOST ||
+				process.env.DB_NAME ||
+				process.env.DB_USER ||
+				process.env.DB_PASSWORD
+			);
+
+			if (!hasExplicitPostgresConfig) {
+				return false;
+			}
+
 			const pg = await import('pg');
 			const { Client } = pg.default;
 
@@ -47,7 +59,7 @@ class DatabaseManager {
 				? { connectionString }
 				: {
 					host: process.env.DB_HOST || 'localhost',
-					port: process.env.DB_PORT || 5432,
+					port: Number(process.env.DB_PORT) || 5432,
 					database: process.env.DB_NAME || 'ares_bot',
 					user: process.env.DB_USER || 'postgres',
 					password: process.env.DB_PASSWORD ?? '',
