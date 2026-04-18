@@ -8,6 +8,7 @@ const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No node
 const VOICE_STATUS_FALLBACK_PREFIX = '🎵 ';
 const VOICE_STATUS_PREFIX = `${String(EMOJIS?.ytmusic || EMOJIS?.nowplaying || '').trim() || VOICE_STATUS_FALLBACK_PREFIX.trim()} `;
 const VOICE_STATUS_MAX_LENGTH = 120;
+const IDLE_VOICE_STATUS_TEXT = '.play <song name /url> to play song';
 const LOCALHOST_FALLBACK_NODES = [
 	{
 		name: 'Localhost',
@@ -90,18 +91,30 @@ function buildVoiceStatusTextWithFallback(title) {
 	return { primary: emojiStatus, fallback };
 }
 
+function buildPlainVoiceStatusText(text) {
+	if (!text || typeof text !== 'string') {
+		return null;
+	}
+
+	const normalized = text.replace(/\s+/g, ' ').trim();
+	if (!normalized.length) {
+		return null;
+	}
+
+	return normalized.slice(0, VOICE_STATUS_MAX_LENGTH).trim();
+}
+
 function getQueueVoiceChannelId(queue) {
 	return queue?.voiceChannel?.id ?? queue?.player?.voiceChannel ?? null;
 }
 
-export async function setQueueVoiceStatus(queue, title) {
+async function updateQueueVoiceStatus(queue, statusText, fallbackStatusText = null) {
 	if (!queue || queue.voiceStatusUnavailable) {
 		return false;
 	}
 
 	const client = queue.client;
 	const channelId = getQueueVoiceChannelId(queue);
-	const { primary: statusText, fallback: fallbackStatusText } = buildVoiceStatusTextWithFallback(title);
 
 	if (!client?.rest || !channelId || !statusText) {
 		return false;
@@ -129,6 +142,16 @@ export async function setQueueVoiceStatus(queue, title) {
 		console.warn(`⚠️ [VoiceStatus] Failed to set voice status in guild ${queue.guild?.id}: ${error?.message ?? 'Unknown error'}`);
 		return false;
 	}
+}
+
+export async function setQueueVoiceStatus(queue, title) {
+	const { primary: statusText, fallback: fallbackStatusText } = buildVoiceStatusTextWithFallback(title);
+	return updateQueueVoiceStatus(queue, statusText, fallbackStatusText);
+}
+
+export async function setQueueIdleVoiceStatus(queue) {
+	const idleText = buildPlainVoiceStatusText(IDLE_VOICE_STATUS_TEXT);
+	return updateQueueVoiceStatus(queue, idleText);
 }
 
 export async function clearQueueVoiceStatus(queue) {
@@ -841,7 +864,11 @@ async function playNext(player, queue) {
 
 	if (!nextTrack) {
 		console.log(`✅ Queue finished on ${queue.guild.name}`);
-		await clearQueueVoiceStatus(queue);
+		if (!queue.paused) {
+			await setQueueIdleVoiceStatus(queue);
+		} else {
+			await clearQueueVoiceStatus(queue);
+		}
 
 		if (queue.currentRecommendationId) {
 			expiredRecommendations.add(queue.currentRecommendationId);
