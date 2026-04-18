@@ -50,7 +50,11 @@ export default {
 
 		try {
 
-			const node = client.shoukaku.getIdealNode();
+			let node = client.shoukaku.getIdealNode();
+			if (!node) {
+				node = await waitForAvailableNode(client.shoukaku);
+			}
+
 			if (!node) {
 				return loading.edit({
 					content: '❌ No Lavalink nodes available. Try again later.',
@@ -223,7 +227,25 @@ function isMusicBackendUnavailable(error) {
 		return true;
 	}
 
-	return /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No Lavalink node is currently connected|Music backend is currently unavailable|WebSocket is not open|connection refused/i.test(message);
+	return /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No Lavalink nodes available|No Lavalink node is currently connected|Music backend is currently unavailable|WebSocket is not open|connection refused/i.test(message);
+}
+
+async function waitForAvailableNode(shoukaku, timeoutMs = 12000, intervalMs = 500) {
+	if (!shoukaku || typeof shoukaku.getIdealNode !== 'function') {
+		return null;
+	}
+
+	const deadline = Date.now() + timeoutMs;
+	while (Date.now() < deadline) {
+		const node = shoukaku.getIdealNode();
+		if (node) {
+			return node;
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, intervalMs));
+	}
+
+	return null;
 }
 
 function formatTime(ms) {

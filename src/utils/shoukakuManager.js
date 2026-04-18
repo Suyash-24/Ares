@@ -95,16 +95,18 @@ function resolveNodes(config) {
 		...envNodes,
 		...normalizedConfig
 	]);
+	const allowPublicFallback = shouldUsePublicFallback();
 
-	if (explicitNodes.length) {
+	if (explicitNodes.length && !allowPublicFallback) {
 		return explicitNodes;
 	}
 
 	const localhostFallback = normalizeNodes(LOCALHOST_FALLBACK_NODES);
-	const primeFallback = normalizeNodes(PRIME_MUSIC_PUBLIC_NODES);
-	const legacyFallback = normalizeNodes(ARES_LEGACY_FALLBACK_NODES);
+	const primeFallback = allowPublicFallback ? normalizeNodes(PRIME_MUSIC_PUBLIC_NODES) : [];
+	const legacyFallback = allowPublicFallback ? normalizeNodes(ARES_LEGACY_FALLBACK_NODES) : [];
 
 	const combined = dedupeNodes([
+		...explicitNodes,
 		...localhostFallback,
 		...primeFallback,
 		...legacyFallback
@@ -115,6 +117,11 @@ function resolveNodes(config) {
 	}
 
 	throw new Error('No valid Lavalink nodes found. Please configure at least one node in config.json or the LAVALINK_NODES environment variable.');
+}
+
+function shouldUsePublicFallback() {
+	const value = String(process.env.LAVALINK_PUBLIC_FALLBACK ?? 'true').toLowerCase();
+	return !['0', 'false', 'no', 'off'].includes(value);
 }
 
 function resolveNodesFromEnvironment() {

@@ -17,6 +17,24 @@ function isBackendUnavailableError(error) {
 	return BACKEND_UNAVAILABLE_PATTERN.test(message);
 }
 
+async function waitForAvailableNode(shoukaku, timeoutMs = 12000, intervalMs = 500) {
+	if (!shoukaku || typeof shoukaku.getIdealNode !== 'function') {
+		return null;
+	}
+
+	const deadline = Date.now() + timeoutMs;
+	while (Date.now() < deadline) {
+		const node = shoukaku.getIdealNode();
+		if (node) {
+			return node;
+		}
+
+		await new Promise((resolve) => setTimeout(resolve, intervalMs));
+	}
+
+	return null;
+}
+
 export class Queue {
 
 	constructor(options) {
@@ -39,7 +57,11 @@ export class Queue {
 
 	async connect() {
 		try {
-			const node = this.client?.shoukaku?.getIdealNode();
+			let node = this.client?.shoukaku?.getIdealNode();
+			if (!node) {
+				node = await waitForAvailableNode(this.client?.shoukaku);
+			}
+
 			if (!node) {
 				throw createQueueError('LAVALINK_UNAVAILABLE', 'No Lavalink node is currently connected.');
 			}
