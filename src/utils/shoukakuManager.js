@@ -5,6 +5,8 @@ import EMOJIS from '../utils/emojis.js';
 const recommendationCache = new Map();
 const expiredRecommendations = new Set();
 const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|No Lavalink node is currently connected|WebSocket is not open|connection refused/i;
+const VOICE_STATUS_PREFIX = '🎵 ';
+const VOICE_STATUS_MAX_LENGTH = 120;
 const LOCALHOST_FALLBACK_NODES = [
 	{
 		name: 'Localhost',
@@ -52,6 +54,89 @@ function isBackendUnavailableError(error) {
 	}
 
 	return BACKEND_UNAVAILABLE_PATTERN.test(message);
+}
+
+function buildVoiceStatusText(title) {
+	if (!title || typeof title !== 'string') {
+		return null;
+	}
+
+	const normalized = title.replace(/\s+/g, ' ').trim();
+	if (!normalized.length) {
+		return null;
+	}
+
+	const maxTitleLength = Math.max(1, VOICE_STATUS_MAX_LENGTH - VOICE_STATUS_PREFIX.length);
+	const trimmed = normalized.slice(0, maxTitleLength).trim();
+	if (!trimmed.length) {
+		return null;
+	}
+
+	return `${VOICE_STATUS_PREFIX}${trimmed}`;
+}
+
+function getQueueVoiceChannelId(queue) {
+	return queue?.voiceChannel?.id ?? queue?.player?.voiceChannel ?? null;
+}
+
+export async function setQueueVoiceStatus(queue, title) {
+	if (!queue || queue.voiceStatusUnavailable) {
+		return false;
+	}
+
+	const client = queue.client;
+	const channelId = getQueueVoiceChannelId(queue);
+	const statusText = buildVoiceStatusText(title);
+
+	if (!client?.rest || !channelId || !statusText) {
+		return false;
+	}
+
+	try {
+		await client.rest.put(`/channels/${channelId}/voice-status`, {
+			body: { status: statusText }
+		});
+		return true;
+	} catch (error) {
+		const statusCode = error?.status ?? error?.rawError?.code;
+		if (statusCode === 403 || statusCode === 404) {
+			queue.voiceStatusUnavailable = true;
+		}
+		console.warn(`⚠️ [VoiceStatus] Failed to set voice status in guild ${queue.guild?.id}: ${error?.message ?? 'Unknown error'}`);
+		return false;
+	}
+}
+
+export async function clearQueueVoiceStatus(queue) {
+	if (!queue || queue.voiceStatusUnavailable) {
+		return false;
+	}
+
+	const client = queue.client;
+	const channelId = getQueueVoiceChannelId(queue);
+
+	if (!client?.rest || !channelId) {
+		return false;
+	}
+
+	try {
+		await client.rest.put(`/channels/${channelId}/voice-status`, {
+			body: { status: null }
+		});
+		return true;
+	} catch {
+		try {
+			await client.rest.delete(`/channels/${channelId}/voice-status`);
+			return true;
+		} catch (error) {
+			const statusCode = error?.status ?? error?.rawError?.code;
+			if (statusCode === 403 || statusCode === 404) {
+				queue.voiceStatusUnavailable = true;
+			}
+			console.warn(`⚠️ [VoiceStatus] Failed to clear voice status in guild ${queue.guild?.id}: ${error?.message ?? 'Unknown error'}`);
+			return false;
+		}
+	}
 }
 
 export function initializeShoukaku(client, config) {
@@ -376,6 +461,7 @@ function onTrackStart(player, queue, event) {
 	}
 
 	console.log(`🎵 Now playing: ${track.info.title} [${formatDuration(track.info.length)}]`);
+	setQueueVoiceStatus(queue, track.info.title).catch(() => null);
 
 	if (!queue.messageChannel) {
 		return;
@@ -467,6 +553,7 @@ function onTrackEnd(player, queue, event) {
 
 	if (reason === 'cleanup') {
 		// Cleanup means the player/connection was torn down before a normal end.
+		clearQueueVoiceStatus(queue).catch(() => null);
 		if (queue.messageChannel) {
 			queue.messageChannel
 				.send('⚠️ Voice connection was cleaned up before track completion. Waiting for reconnect...')
@@ -730,6 +817,7 @@ async function playNext(player, queue) {
 
 	if (!nextTrack) {
 		console.log(`✅ Queue finished on ${queue.guild.name}`);
+		await clearQueueVoiceStatus(queue);
 
 		if (queue.currentRecommendationId) {
 			expiredRecommendations.add(queue.currentRecommendationId);

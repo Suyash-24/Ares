@@ -1,5 +1,5 @@
 import Denque from 'denque';
-import { attachPlayerEvents, detachPlayerEvents } from './shoukakuManager.js';
+import { attachPlayerEvents, detachPlayerEvents, clearQueueVoiceStatus } from './shoukakuManager.js';
 
 const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|WebSocket is not open|socket hang up|connection refused/i;
 
@@ -110,6 +110,7 @@ export class Queue {
 	disconnect() {
 		try {
 			this.stopped = true;
+			clearQueueVoiceStatus(this).catch(() => null);
 			this.tracks.clear();
 			detachPlayerEvents(this);
 			this.lastPlayedTrackInfo = null;
