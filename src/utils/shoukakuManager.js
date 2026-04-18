@@ -454,6 +454,38 @@ function onTrackStart(player, queue, event) {
 function onTrackEnd(player, queue, event) {
 	if (queue.stopped) return;
 
+	const reason = event?.reason ?? 'unknown';
+	const currentTrack = queue.tracks?.peekAt ? queue.tracks.peekAt(0) : null;
+	const trackTitle = currentTrack?.info?.title ?? 'Unknown track';
+
+	console.log(`⏹️ Track ended on ${queue.guild.name}: reason=${reason}, title=${trackTitle}`);
+
+	if (reason === 'replaced') {
+		// Replaced ends are usually caused by an explicit playTrack call and should not mutate queue state.
+		return;
+	}
+
+	if (reason === 'cleanup') {
+		// Cleanup means the player/connection was torn down before a normal end.
+		if (queue.messageChannel) {
+			queue.messageChannel
+				.send('⚠️ Voice connection was cleaned up before track completion. Waiting for reconnect...')
+				.catch(() => null);
+		}
+		return;
+	}
+
+	if (reason === 'loadFailed') {
+		queue.tracks.removeOne(0);
+		if (queue.messageChannel) {
+			queue.messageChannel
+				.send(`❌ Failed to stream **${trackTitle}**. Skipping...`)
+				.catch(() => null);
+		}
+		playNext(player, queue);
+		return;
+	}
+
 	if (queue.repeat !== 'OFF') {
 		const track = queue.tracks.peekAt(0);
 		if (track && queue.repeat === 'ALL') {

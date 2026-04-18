@@ -70,7 +70,8 @@ export class Queue {
 				guildId: this.guild.id,
 				channelId: this.voiceChannel.id,
 				shardId: this.guild.shardId ?? 0,
-				deaf: true
+				deaf: true,
+				mute: false
 			});
 
 			this.player = player;
@@ -78,6 +79,25 @@ export class Queue {
 			this.paused = false;
 			attachPlayerEvents(this.player, this);
 			console.log(`✅ Connected to ${this.voiceChannel.name} in ${this.guild.name}`);
+
+			const botVoiceState = this.guild.members.me?.voice;
+			if (botVoiceState?.serverMute) {
+				console.warn(`⚠️ [Voice] Bot is server-muted in ${this.guild.name}; audio will not be heard.`);
+				if (this.messageChannel) {
+					this.messageChannel
+						.send('⚠️ I am server-muted in voice. Please unmute me to hear music.')
+						.catch(() => null);
+				}
+			}
+
+			if (botVoiceState?.suppress) {
+				console.warn(`⚠️ [Voice] Bot is suppressed in a stage-like voice session on ${this.guild.name}.`);
+				if (this.messageChannel) {
+					this.messageChannel
+						.send('⚠️ I am suppressed in voice. Please unsuppress/request-to-speak to enable audio.')
+						.catch(() => null);
+				}
+			}
 		} catch (error) {
 			if (isBackendUnavailableError(error)) {
 				throw createQueueError('LAVALINK_UNAVAILABLE', 'Music backend is currently unavailable.', error);
