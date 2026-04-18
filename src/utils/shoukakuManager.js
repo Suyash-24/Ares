@@ -5,7 +5,8 @@ import EMOJIS from '../utils/emojis.js';
 const recommendationCache = new Map();
 const expiredRecommendations = new Set();
 const BACKEND_UNAVAILABLE_PATTERN = /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No available nodes|No Lavalink node is currently connected|WebSocket is not open|connection refused/i;
-const VOICE_STATUS_PREFIX = '🎵 ';
+const VOICE_STATUS_FALLBACK_PREFIX = '🎵 ';
+const VOICE_STATUS_PREFIX = `${String(EMOJIS?.ytmusic || EMOJIS?.nowplaying || '').trim() || VOICE_STATUS_FALLBACK_PREFIX.trim()} `;
 const VOICE_STATUS_MAX_LENGTH = 120;
 const LOCALHOST_FALLBACK_NODES = [
 	{
@@ -75,6 +76,20 @@ function buildVoiceStatusText(title) {
 	return `${VOICE_STATUS_PREFIX}${trimmed}`;
 }
 
+function buildVoiceStatusTextWithFallback(title) {
+	const emojiStatus = buildVoiceStatusText(title);
+	if (!emojiStatus) {
+		return { primary: null, fallback: null };
+	}
+
+	const maxTitleLength = Math.max(1, VOICE_STATUS_MAX_LENGTH - VOICE_STATUS_FALLBACK_PREFIX.length);
+	const normalized = title.replace(/\s+/g, ' ').trim();
+	const fallbackTitle = normalized.slice(0, maxTitleLength).trim();
+	const fallback = fallbackTitle.length ? `${VOICE_STATUS_FALLBACK_PREFIX}${fallbackTitle}` : emojiStatus;
+
+	return { primary: emojiStatus, fallback };
+}
+
 function getQueueVoiceChannelId(queue) {
 	return queue?.voiceChannel?.id ?? queue?.player?.voiceChannel ?? null;
 }
@@ -86,7 +101,7 @@ export async function setQueueVoiceStatus(queue, title) {
 
 	const client = queue.client;
 	const channelId = getQueueVoiceChannelId(queue);
-	const statusText = buildVoiceStatusText(title);
+	const { primary: statusText, fallback: fallbackStatusText } = buildVoiceStatusTextWithFallback(title);
 
 	if (!client?.rest || !channelId || !statusText) {
 		return false;
@@ -98,6 +113,15 @@ export async function setQueueVoiceStatus(queue, title) {
 		});
 		return true;
 	} catch (error) {
+		if (fallbackStatusText && fallbackStatusText !== statusText) {
+			try {
+				await client.rest.put(`/channels/${channelId}/voice-status`, {
+					body: { status: fallbackStatusText }
+				});
+				return true;
+			} catch {}
+		}
+
 		const statusCode = error?.status ?? error?.rawError?.code;
 		if (statusCode === 403 || statusCode === 404) {
 			queue.voiceStatusUnavailable = true;
