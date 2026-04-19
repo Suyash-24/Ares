@@ -1,6 +1,8 @@
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const MAX_SPOTIFY_TRACKS = 100;
+const MAX_PUBLIC_TRACK_METADATA_LOOKUPS = 30;
+const PUBLIC_TRACK_METADATA_CONCURRENCY = 4;
 
 const spotifyTokenCache = {
 	token: null,
@@ -214,6 +216,14 @@ function decodeHtmlEntities(text) {
 		.replace(/&#x27;/g, "'");
 }
 
+function isGenericTrackTitle(title) {
+	if (!title || typeof title !== 'string') {
+		return true;
+	}
+
+	return /^track\s+\d+$/i.test(title.trim());
+}
+
 function extractPlaylistNameFromHtml(html) {
 	const titleMatch = html.match(/<title>(.*?) - playlist by .*?\| Spotify<\/title>/i);
 	if (titleMatch?.[1]) {
@@ -290,6 +300,114 @@ async function fetchSpotifyTracksByIds(trackIds, accessToken) {
 	return tracks;
 }
 
+function extractTrackMetadataFromHtml(html, fallbackTrackId = null) {
+	const titleTagRaw = html.match(/<title>(.*?)<\/title>/i)?.[1] || '';
+	const titleTag = decodeHtmlEntities(titleTagRaw).trim();
+
+	let name = null;
+	let artistValue = null;
+
+	const titleByArtistMatch = titleTag.match(/^(.*?)\s+-\s+song and lyrics by\s+(.*?)\s*\|\s*Spotify$/i);
+	if (titleByArtistMatch) {
+		name = decodeHtmlEntities(titleByArtistMatch[1]).trim();
+		artistValue = decodeHtmlEntities(titleByArtistMatch[2]).trim();
+	}
+
+	if (!name) {
+		const ogTitle = html.match(/<meta property="og:title" content="([^"]+)"/i)?.[1];
+		if (ogTitle) {
+			name = decodeHtmlEntities(ogTitle).trim();
+		}
+	}
+
+	if (!artistValue) {
+		const ogDescriptionRaw = html.match(/<meta property="og:description" content="([^"]+)"/i)?.[1];
+		const ogDescription = decodeHtmlEntities(ogDescriptionRaw || '').trim();
+		if (ogDescription.includes('·')) {
+			artistValue = ogDescription.split('·')[0]?.trim() || null;
+		}
+	}
+
+	const artists = artistValue
+		? artistValue.split(',').map((value) => value.trim()).filter(Boolean)
+		: [];
+
+	if (!name) {
+		return null;
+	}
+
+	return {
+		id: fallbackTrackId,
+		name,
+		artists
+	};
+}
+
+async function fetchSpotifyTrackPublicMetadata(trackId) {
+	const html = await fetchSpotifyPageHtml(`/track/${trackId}`);
+	const meta = extractTrackMetadataFromHtml(html, trackId);
+
+	if (!meta) {
+		const oembedUrl = `https://open.spotify.com/oembed?url=https://open.spotify.com/track/${trackId}`;
+		const response = await fetch(oembedUrl, {
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (Ares Discord Bot)'
+			}
+		});
+
+		if (!response.ok) {
+			return null;
+		}
+
+		const data = await response.json();
+		const title = decodeHtmlEntities(data?.title || '').trim();
+		if (!title) {
+			return null;
+		}
+
+		return {
+			id: trackId,
+			name: title,
+			artists: []
+		};
+	}
+
+	return meta;
+}
+
+async function fetchSpotifyTrackPublicMetadataBatch(trackIds) {
+	const ids = Array.isArray(trackIds)
+		? trackIds.filter(Boolean).slice(0, MAX_PUBLIC_TRACK_METADATA_LOOKUPS)
+		: [];
+
+	if (!ids.length) {
+		return [];
+	}
+
+	const results = [];
+
+	for (let index = 0; index < ids.length; index += PUBLIC_TRACK_METADATA_CONCURRENCY) {
+		const chunk = ids.slice(index, index + PUBLIC_TRACK_METADATA_CONCURRENCY);
+		const metas = await Promise.all(
+			chunk.map(async (id) => {
+				try {
+					return await fetchSpotifyTrackPublicMetadata(id);
+				} catch {
+					return null;
+				}
+			})
+		);
+
+		for (const meta of metas) {
+			if (meta?.name && !isGenericTrackTitle(meta.name)) {
+				results.push(meta);
+			}
+		}
+	}
+
+	return results;
+}
+
 async function fetchSpotifyPlaylistFromHtml(resourceId, accessToken) {
 	const html = await fetchSpotifyPageHtml(`/playlist/${resourceId}`);
 	const playlistName = extractPlaylistNameFromHtml(html);
@@ -314,11 +432,26 @@ async function fetchSpotifyPlaylistFromHtml(resourceId, accessToken) {
 		// Ignore API enrichment errors and fallback to title-based matching.
 	}
 
+	try {
+		if (trackIds.length) {
+			const publicMetaTracks = await fetchSpotifyTrackPublicMetadataBatch(trackIds);
+			if (publicMetaTracks.length) {
+				return {
+					name: playlistName,
+					tracks: publicMetaTracks.slice(0, MAX_SPOTIFY_TRACKS)
+				};
+			}
+		}
+	} catch {
+		// Ignore public metadata errors and continue to weak fallback.
+	}
+
 	const fallbackTracks = [];
 	const total = Math.max(trackIds.length, trackTitles.length);
 
 	for (let index = 0; index < total && fallbackTracks.length < MAX_SPOTIFY_TRACKS; index++) {
-		const title = trackTitles[index] || `Track ${index + 1}`;
+		const rawTitle = trackTitles[index] || '';
+		const title = !isGenericTrackTitle(rawTitle) ? rawTitle : `Track ${index + 1}`;
 		const id = trackIds[index] || null;
 		fallbackTracks.push({
 			id,
