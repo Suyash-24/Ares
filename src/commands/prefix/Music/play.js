@@ -1,6 +1,7 @@
 import { MessageFlags, ContainerBuilder, SeparatorSpacingSize, PermissionFlagsBits } from 'discord.js';
 import { Queue } from '../../../utils/Queue.js';
 import EMOJIS from '../../../utils/emojis.js';
+import { isSpotifyQuery, resolveSpotifyQuery, isEmptyLoadResult } from '../../../utils/spotifyResolver.js';
 
 export default {
 	name: 'play',
@@ -69,9 +70,24 @@ export default {
 				query = `ytsearch:${query}`;
 			}
 
-			const result = await node.rest.resolve(query);
+			let result = await node.rest.resolve(query);
 
-			if (!result?.data || (Array.isArray(result.data) && result.data.length === 0) || result.loadType === 'empty' || result.loadType === 'error') {
+			if (isEmptyLoadResult(result) && isSpotifyQuery(searchQuery)) {
+				try {
+					result = await resolveSpotifyQuery(searchQuery, node, client.config);
+				} catch (spotifyError) {
+					console.error('Spotify fallback resolution failed:', spotifyError);
+
+					if (spotifyError?.code === 'SPOTIFY_CREDENTIALS_MISSING') {
+						return loading.edit({
+							content: '❌ Spotify links require Spotify API credentials.\nSet SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in your environment or config.json.',
+							allowedMentions: { repliedUser: false }
+						});
+					}
+				}
+			}
+
+			if (isEmptyLoadResult(result)) {
 				return loading.edit({
 					content: '❌ No results found for: **' + searchQuery + '**',
 					allowedMentions: { repliedUser: false }
