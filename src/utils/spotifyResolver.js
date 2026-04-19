@@ -17,6 +17,16 @@ function createSpotifyError(code, message, cause = null) {
 	return error;
 }
 
+function normalizeInput(input) {
+	if (typeof input !== 'string') {
+		return '';
+	}
+
+	const trimmed = input.trim();
+	const wrapped = trimmed.match(/^<(.+)>$/);
+	return wrapped ? wrapped[1].trim() : trimmed;
+}
+
 function isSpotifyHost(hostname) {
 	const normalized = String(hostname || '').toLowerCase();
 	return normalized === 'open.spotify.com' || normalized.endsWith('.spotify.com');
@@ -35,7 +45,7 @@ function parseSpotifyQuery(input) {
 		return null;
 	}
 
-	const trimmed = input.trim();
+	const trimmed = normalizeInput(input);
 	if (!trimmed) {
 		return null;
 	}
@@ -258,19 +268,22 @@ async function resolveYouTubeTrack(node, trackTitle, artists) {
 		`${trackTitle} ${artistString}`.trim(),
 		trackTitle.trim()
 	].filter(Boolean);
+	const sourcePrefixes = ['ytsearch', 'ytmsearch', 'scsearch'];
 
 	for (const searchText of searchVariants) {
-		const result = await node.rest.resolve(`ytsearch:${searchText}`);
-		if (!result?.data) {
-			continue;
-		}
+		for (const prefix of sourcePrefixes) {
+			const result = await node.rest.resolve(`${prefix}:${searchText}`);
+			if (!result?.data) {
+				continue;
+			}
 
-		if (result.loadType === 'track') {
-			return result.data;
-		}
+			if (result.loadType === 'track') {
+				return result.data;
+			}
 
-		if (Array.isArray(result.data) && result.data.length > 0) {
-			return result.data[0];
+			if (Array.isArray(result.data) && result.data.length > 0) {
+				return result.data[0];
+			}
 		}
 	}
 
@@ -318,34 +331,52 @@ export async function resolveSpotifyQuery(input, node, config) {
 
 	if (parsed.type === 'track') {
 		const spotifyTracks = await fetchSpotifyTrack(parsed.id, accessToken);
+		if (!spotifyTracks.length) {
+			throw createSpotifyError('SPOTIFY_EMPTY_SOURCE', 'Spotify did not return any playable tracks for this link.');
+		}
+
 		const playableTracks = await mapSpotifyTracksToPlayable(node, spotifyTracks);
-		return playableTracks[0]
-			? { loadType: 'track', data: playableTracks[0] }
-			: { loadType: 'empty', data: [] };
+		if (!playableTracks.length) {
+			throw createSpotifyError('SPOTIFY_RESOLVE_FAILED', 'Spotify track was found, but no playable source could be resolved.');
+		}
+
+		return { loadType: 'track', data: playableTracks[0] };
 	}
 
 	if (parsed.type === 'playlist') {
 		const playlist = await fetchSpotifyPlaylist(parsed.id, accessToken);
+		if (!playlist.tracks.length) {
+			throw createSpotifyError('SPOTIFY_EMPTY_SOURCE', 'Spotify playlist has no playable tracks or is not accessible.');
+		}
+
 		const playableTracks = await mapSpotifyTracksToPlayable(node, playlist.tracks);
-		return playableTracks.length
-			? {
-				loadType: 'playlist',
-				data: playableTracks,
-				playlist: { name: playlist.name }
-			}
-			: { loadType: 'empty', data: [], playlist: { name: playlist.name } };
+		if (!playableTracks.length) {
+			throw createSpotifyError('SPOTIFY_RESOLVE_FAILED', 'Spotify playlist was found, but no playable sources could be resolved.');
+		}
+
+		return {
+			loadType: 'playlist',
+			data: playableTracks,
+			playlist: { name: playlist.name }
+		};
 	}
 
 	if (parsed.type === 'album') {
 		const album = await fetchSpotifyAlbum(parsed.id, accessToken);
+		if (!album.tracks.length) {
+			throw createSpotifyError('SPOTIFY_EMPTY_SOURCE', 'Spotify album has no playable tracks or is not accessible.');
+		}
+
 		const playableTracks = await mapSpotifyTracksToPlayable(node, album.tracks);
-		return playableTracks.length
-			? {
-				loadType: 'playlist',
-				data: playableTracks,
-				playlist: { name: album.name }
-			}
-			: { loadType: 'empty', data: [], playlist: { name: album.name } };
+		if (!playableTracks.length) {
+			throw createSpotifyError('SPOTIFY_RESOLVE_FAILED', 'Spotify album was found, but no playable sources could be resolved.');
+		}
+
+		return {
+			loadType: 'playlist',
+			data: playableTracks,
+			playlist: { name: album.name }
+		};
 	}
 
 	return { loadType: 'empty', data: [] };

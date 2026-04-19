@@ -43,7 +43,7 @@ export default {
 			});
 		}
 
-		const searchQuery = args.join(' ');
+		const searchQuery = normalizeSearchQuery(args.join(' '));
 		const loading = await message.reply({
 			content: '🔍 Searching for: **' + searchQuery + '**',
 			allowedMentions: { repliedUser: false }
@@ -78,9 +78,10 @@ export default {
 				} catch (spotifyError) {
 					console.error('Spotify fallback resolution failed:', spotifyError);
 
-					if (spotifyError?.code === 'SPOTIFY_CREDENTIALS_MISSING') {
+					const spotifyErrorMessage = getSpotifyResolveErrorMessage(spotifyError);
+					if (spotifyErrorMessage) {
 						return loading.edit({
-							content: '❌ Spotify links require Spotify API credentials.\nSet SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in your environment or config.json.',
+							content: spotifyErrorMessage,
 							allowedMentions: { repliedUser: false }
 						});
 					}
@@ -244,6 +245,42 @@ function isMusicBackendUnavailable(error) {
 	}
 
 	return /ECONNREFUSED|EHOSTUNREACH|ENOTFOUND|No nodes are available|No Lavalink nodes available|No Lavalink node is currently connected|Music backend is currently unavailable|WebSocket is not open|connection refused/i.test(message);
+}
+
+function normalizeSearchQuery(input) {
+	if (typeof input !== 'string') {
+		return '';
+	}
+
+	const trimmed = input.trim();
+	const wrapped = trimmed.match(/^<(.+)>$/);
+	return wrapped ? wrapped[1].trim() : trimmed;
+}
+
+function getSpotifyResolveErrorMessage(error) {
+	const code = error?.code;
+
+	if (code === 'SPOTIFY_CREDENTIALS_MISSING') {
+		return '❌ Spotify links require Spotify API credentials.\nSet SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET on your host and restart the bot.';
+	}
+
+	if (code === 'SPOTIFY_TOKEN_REQUEST_FAILED') {
+		return '❌ Spotify authentication failed. Verify SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET, then restart the bot.';
+	}
+
+	if (code === 'SPOTIFY_API_REQUEST_FAILED') {
+		return '❌ Spotify API request failed. The playlist may be private or your credentials may be invalid.';
+	}
+
+	if (code === 'SPOTIFY_EMPTY_SOURCE') {
+		return '❌ Spotify returned no playable tracks for this link.';
+	}
+
+	if (code === 'SPOTIFY_RESOLVE_FAILED') {
+		return '❌ Spotify tracks were found, but Lavalink could not resolve playable sources from them.';
+	}
+
+	return null;
 }
 
 async function waitForAvailableNode(shoukaku, timeoutMs = 12000, intervalMs = 500) {
