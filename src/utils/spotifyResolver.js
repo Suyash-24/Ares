@@ -17,6 +17,13 @@ function createSpotifyError(code, message, cause = null) {
 	return error;
 }
 
+function createSpotifyHttpError(message, status, details = null, cause = null) {
+	const error = createSpotifyError('SPOTIFY_API_REQUEST_FAILED', message, cause);
+	error.status = status;
+	error.details = details;
+	return error;
+}
+
 function normalizeInput(input) {
 	if (typeof input !== 'string') {
 		return '';
@@ -161,10 +168,169 @@ async function spotifyRequest(pathname, accessToken) {
 	}
 
 	if (!response.ok) {
-		throw createSpotifyError('SPOTIFY_API_REQUEST_FAILED', `Spotify API request failed with HTTP ${response.status}.`);
+		let details = null;
+		try {
+			details = await response.text();
+		} catch {}
+
+		throw createSpotifyHttpError(`Spotify API request failed with HTTP ${response.status}.`, response.status, details);
 	}
 
 	return response.json();
+}
+
+async function fetchSpotifyPageHtml(pathname) {
+	const url = `https://open.spotify.com${pathname}`;
+
+	let response;
+	try {
+		response = await fetch(url, {
+			headers: {
+				'User-Agent': 'Mozilla/5.0 (Ares Discord Bot)'
+			}
+		});
+	} catch (error) {
+		throw createSpotifyError('SPOTIFY_HTML_FETCH_FAILED', 'Failed to load Spotify page HTML.', error);
+	}
+
+	if (!response.ok) {
+		throw createSpotifyError('SPOTIFY_HTML_FETCH_FAILED', `Spotify page request failed with HTTP ${response.status}.`);
+	}
+
+	return response.text();
+}
+
+function decodeHtmlEntities(text) {
+	if (!text || typeof text !== 'string') {
+		return '';
+	}
+
+	return text
+		.replace(/&amp;/g, '&')
+		.replace(/&quot;/g, '"')
+		.replace(/&#39;/g, "'")
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&#x27;/g, "'");
+}
+
+function extractPlaylistNameFromHtml(html) {
+	const titleMatch = html.match(/<title>(.*?) - playlist by .*?\| Spotify<\/title>/i);
+	if (titleMatch?.[1]) {
+		return decodeHtmlEntities(titleMatch[1].trim());
+	}
+
+	const ogTitleMatch = html.match(/<meta property="og:title" content="([^"]+)"/i);
+	if (ogTitleMatch?.[1]) {
+		return decodeHtmlEntities(ogTitleMatch[1].trim());
+	}
+
+	return 'Spotify Playlist';
+}
+
+function extractTrackIdsFromHtml(html) {
+	const ids = [];
+	const seen = new Set();
+
+	for (const match of html.matchAll(/<meta name="music:song" content="https:\/\/open\.spotify\.com\/track\/([a-zA-Z0-9]+)"/g)) {
+		const id = match[1]?.trim();
+		if (!id || seen.has(id)) {
+			continue;
+		}
+
+		seen.add(id);
+		ids.push(id);
+
+		if (ids.length >= MAX_SPOTIFY_TRACKS) {
+			break;
+		}
+	}
+
+	return ids;
+}
+
+function extractTrackTitlesFromHtml(html) {
+	const titles = [];
+
+	for (const match of html.matchAll(/aria-label="([^"]+)"[^>]*data-testid="track-row"/g)) {
+		const title = decodeHtmlEntities(match[1]?.trim());
+		if (!title) {
+			continue;
+		}
+
+		titles.push(title);
+		if (titles.length >= MAX_SPOTIFY_TRACKS) {
+			break;
+		}
+	}
+
+	return titles;
+}
+
+async function fetchSpotifyTracksByIds(trackIds, accessToken) {
+	if (!accessToken || !Array.isArray(trackIds) || trackIds.length === 0) {
+		return [];
+	}
+
+	const tracks = [];
+
+	for (let index = 0; index < trackIds.length; index += 50) {
+		const chunk = trackIds.slice(index, index + 50);
+		const data = await spotifyRequest(`/tracks?ids=${chunk.join(',')}`, accessToken);
+		const items = Array.isArray(data?.tracks) ? data.tracks : [];
+
+		for (const item of items) {
+			const normalized = normalizeSpotifyTrack(item);
+			if (normalized) {
+				tracks.push(normalized);
+			}
+		}
+	}
+
+	return tracks;
+}
+
+async function fetchSpotifyPlaylistFromHtml(resourceId, accessToken) {
+	const html = await fetchSpotifyPageHtml(`/playlist/${resourceId}`);
+	const playlistName = extractPlaylistNameFromHtml(html);
+	const trackIds = extractTrackIdsFromHtml(html);
+	const trackTitles = extractTrackTitlesFromHtml(html);
+
+	if (!trackIds.length && !trackTitles.length) {
+		throw createSpotifyError('SPOTIFY_EMPTY_SOURCE', 'Spotify playlist page did not include any track metadata.');
+	}
+
+	try {
+		if (trackIds.length) {
+			const detailedTracks = await fetchSpotifyTracksByIds(trackIds, accessToken);
+			if (detailedTracks.length) {
+				return {
+					name: playlistName,
+					tracks: detailedTracks.slice(0, MAX_SPOTIFY_TRACKS)
+				};
+			}
+		}
+	} catch {
+		// Ignore API enrichment errors and fallback to title-based matching.
+	}
+
+	const fallbackTracks = [];
+	const total = Math.max(trackIds.length, trackTitles.length);
+
+	for (let index = 0; index < total && fallbackTracks.length < MAX_SPOTIFY_TRACKS; index++) {
+		const title = trackTitles[index] || `Track ${index + 1}`;
+		const id = trackIds[index] || null;
+		fallbackTracks.push({
+			id,
+			name: title,
+			artists: []
+		});
+	}
+
+	return {
+		name: playlistName,
+		tracks: fallbackTracks
+	};
 }
 
 function normalizeSpotifyTrack(trackWrapper) {
@@ -195,37 +361,49 @@ async function fetchSpotifyTrack(resourceId, accessToken) {
 }
 
 async function fetchSpotifyPlaylist(resourceId, accessToken) {
-	const playlist = await spotifyRequest(`/playlists/${resourceId}?fields=name`, accessToken);
-	const tracks = [];
-	let offset = 0;
-
-	while (tracks.length < MAX_SPOTIFY_TRACKS) {
-		const page = await spotifyRequest(`/playlists/${resourceId}/tracks?limit=100&offset=${offset}`, accessToken);
-		const items = Array.isArray(page?.items) ? page.items : [];
-		if (!items.length) {
-			break;
-		}
-
-		for (const item of items) {
-			const normalized = normalizeSpotifyTrack(item);
-			if (normalized) {
-				tracks.push(normalized);
-				if (tracks.length >= MAX_SPOTIFY_TRACKS) {
-					break;
-				}
-			}
-		}
-
-		if (!page?.next || items.length < 100) {
-			break;
-		}
-		offset += items.length;
+	if (!accessToken) {
+		return fetchSpotifyPlaylistFromHtml(resourceId, null);
 	}
 
-	return {
-		name: playlist?.name || 'Spotify Playlist',
-		tracks
-	};
+	try {
+		const playlist = await spotifyRequest(`/playlists/${resourceId}?fields=name`, accessToken);
+		const tracks = [];
+		let offset = 0;
+
+		while (tracks.length < MAX_SPOTIFY_TRACKS) {
+			const page = await spotifyRequest(`/playlists/${resourceId}/tracks?limit=100&offset=${offset}`, accessToken);
+			const items = Array.isArray(page?.items) ? page.items : [];
+			if (!items.length) {
+				break;
+			}
+
+			for (const item of items) {
+				const normalized = normalizeSpotifyTrack(item);
+				if (normalized) {
+					tracks.push(normalized);
+					if (tracks.length >= MAX_SPOTIFY_TRACKS) {
+						break;
+					}
+				}
+			}
+
+			if (!page?.next || items.length < 100) {
+				break;
+			}
+			offset += items.length;
+		}
+
+		return {
+			name: playlist?.name || 'Spotify Playlist',
+			tracks
+		};
+	} catch (error) {
+		if (error?.code === 'SPOTIFY_API_REQUEST_FAILED' && (error?.status === 401 || error?.status === 403 || error?.status === 404)) {
+			return fetchSpotifyPlaylistFromHtml(resourceId, accessToken);
+		}
+
+		throw error;
+	}
 }
 
 async function fetchSpotifyAlbum(resourceId, accessToken) {
@@ -263,7 +441,7 @@ async function fetchSpotifyAlbum(resourceId, accessToken) {
 }
 
 async function resolveYouTubeTrack(node, trackTitle, artists) {
-	const artistString = artists.join(' ');
+	const artistString = Array.isArray(artists) ? artists.join(' ') : '';
 	const searchVariants = [
 		`${trackTitle} ${artistString}`.trim(),
 		trackTitle.trim()
@@ -319,15 +497,23 @@ export async function resolveSpotifyQuery(input, node, config) {
 		throw createSpotifyError('SPOTIFY_NODE_UNAVAILABLE', 'No Lavalink node available to resolve Spotify tracks.');
 	}
 
+	let accessToken = null;
 	const credentials = resolveSpotifyCredentials(config);
-	if (!credentials) {
+
+	if (credentials) {
+		try {
+			accessToken = await getSpotifyAccessToken(credentials);
+		} catch (error) {
+			if (parsed.type !== 'playlist') {
+				throw error;
+			}
+		}
+	} else if (parsed.type !== 'playlist') {
 		throw createSpotifyError(
 			'SPOTIFY_CREDENTIALS_MISSING',
 			'Spotify credentials are missing. Set SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET in environment variables or config.json.'
 		);
 	}
-
-	const accessToken = await getSpotifyAccessToken(credentials);
 
 	if (parsed.type === 'track') {
 		const spotifyTracks = await fetchSpotifyTrack(parsed.id, accessToken);
