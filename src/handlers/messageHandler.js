@@ -344,7 +344,6 @@ export default function registerMessageHandler(discordClient) {
 						return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 					}
 				}
-			}
 			} catch (err) {
 				console.error('Custom Role Error:', err);
 			}
