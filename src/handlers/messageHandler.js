@@ -160,7 +160,7 @@ export default function registerMessageHandler(discordClient) {
 			'ban', 'kick', 'mute', 'unmute', 'warn', 'warnings', 'clearwarnings',
 			'delete', 'purge', 'del', 'lock', 'unlock', 'slowmode',
 			'detain', 'imute', 'softban', 'tempban', 'massban', 'masskick',
-			'role', 'roleadd', 'roleremove', 'temprole',
+			'roleadd', 'roleremove', 'temprole',
 			'nick', 'nuke', 'modhistory', 'modstats', 'voidstaff',
 			'notes', 'reason', 'snapshot', 'topic'
 		]);
