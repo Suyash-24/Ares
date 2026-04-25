@@ -146,6 +146,90 @@ export default function registerMessageHandler(discordClient) {
 			return;
 		}
 
+		// For no-prefix usage, validate that the message looks like a real command invocation
+		// to prevent casual chat from accidentally triggering commands
+		const isNoPrefixInvocation = !startsWithPrefix && !startsWithMention && hasNoPrefix;
+
+		/**
+		 * Validates whether a no-prefix message looks like a legitimate command invocation.
+		 * Returns true if the message should be treated as a command, false if it should be ignored.
+		 */
+		// Moderation commands should always trigger in no-prefix mode
+		// (they show usage/permission errors themselves)
+		const MODERATION_COMMANDS = new Set([
+			'ban', 'kick', 'mute', 'unmute', 'warn', 'warnings', 'clearwarnings',
+			'delete', 'purge', 'del', 'lock', 'unlock', 'slowmode',
+			'detain', 'imute', 'softban', 'tempban', 'massban', 'masskick',
+			'role', 'roleadd', 'roleremove', 'temprole',
+			'nick', 'nuke', 'modhistory', 'modstats', 'voidstaff',
+			'notes', 'reason', 'snapshot', 'topic'
+		]);
+
+		const validateNoPrefixArgs = (cmdName, cmdArgs) => {
+			// Moderation commands always pass — let them handle their own usage/perms
+			if (MODERATION_COMMANDS.has(cmdName)) return true;
+
+			// No args at all → skip (e.g. someone just typing "giveaway" or "play")
+			if (cmdArgs.length === 0) return false;
+
+			const firstArg = cmdArgs[0].toLowerCase();
+
+			// 1. If command has registered subcommands, first arg MUST match one
+			const registry = discordClient.subcommandRegistry;
+			if (registry && registry[cmdName]) {
+				return firstArg in registry[cmdName];
+			}
+
+			// 2. For commands without registered subcommands, check if the first arg
+			//    looks like a valid command parameter (not casual conversation)
+			const arg = cmdArgs[0];
+
+			// Mentions: <@123>, <#123>, <@&123>
+			if (/^<[@#][&!]?\d+>$/.test(arg)) return true;
+
+			// Raw Discord IDs (17-20 digit numbers)
+			if (/^\d{17,20}$/.test(arg)) return true;
+
+			// URLs
+			if (/^https?:\/\//i.test(arg)) return true;
+
+			// Duration patterns: 1d, 2h, 30m, 10s, 1d2h, etc.
+			if (/^\d+[dhms](\d+[dhms])*$/i.test(arg)) return true;
+
+			// Numbers (standalone, e.g. page number, count)
+			if (/^\d+$/.test(arg)) return true;
+
+			// Flags: --flag
+			if (arg.startsWith('--')) return true;
+
+			// Common subcommand/action keywords used across many commands
+			const COMMON_SUBCOMMANDS = new Set([
+				'add', 'remove', 'set', 'reset', 'clear', 'list', 'show', 'view',
+				'enable', 'disable', 'on', 'off', 'toggle',
+				'start', 'stop', 'end', 'create', 'delete', 'cancel',
+				'config', 'setup', 'wizard', 'settings', 'status', 'info', 'check',
+				'edit', 'update', 'rename', 'move',
+				'help', 'test', 'send', 'embed',
+				'search', 'export', 'import', 'stats',
+				'whitelist', 'blacklist', 'ignore', 'unignore',
+				'reroll', 'pause', 'resume', 'skip', 'queue', 'volume', 'seek', 'loop', 'shuffle',
+				'join', 'leave', 'open', 'close', 'claim', 'reopen',
+				'kick', 'ban', 'mute', 'unmute', 'warn', 'lock', 'unlock',
+				'channel', 'role', 'user', 'server', 'global', 'all',
+				'panel', 'transcript', 'backup', 'restore', 'snapshot',
+				'preset', 'strict', 'moderate', 'lenient',
+				'threshold', 'punishment', 'log', 'logs', 'notify',
+				'emoji', 'color', 'message', 'image', 'thumbnail',
+				'level', 'xp', 'rank', 'leaderboard',
+				'daily', 'weekly', 'monthly', 'top',
+				'upcoming', 'birthday', 'invites', 'messages', 'voice'
+			]);
+			if (COMMON_SUBCOMMANDS.has(firstArg)) return true;
+
+			// Nothing matched → likely casual conversation, skip
+			return false;
+		};
+
 		let withoutPrefix;
 		if (startsWithPrefix) {
 			withoutPrefix = message.content.slice(prefix.length).trim();
@@ -161,6 +245,7 @@ export default function registerMessageHandler(discordClient) {
 
 		const args = withoutPrefix.split(/\s+/);
 		const invokedName = args.shift().toLowerCase();
+
 		let bestMatch = null;
 		let consumedArgs = 0;
 		let currentName = invokedName;
@@ -191,20 +276,27 @@ export default function registerMessageHandler(discordClient) {
 		if (!bestMatch) {
 
 			try {
-				const customRoles = guildData?.custom_roles;
+			const customRoles = guildData?.custom_roles;
 
 				if (customRoles?.aliases && customRoles.aliases[invokedName]) {
 					const roleId = customRoles.aliases[invokedName];
 					const role = message.guild.roles.cache.get(roleId);
 
 					if (role) {
+						// Require a user mention — silently skip if no user is mentioned
+						const targetInput = args[0];
+						if (!targetInput || !targetInput.match(/\d{17,}/)) {
+							return;
+						}
 
 						let hasPermission = false;
 						if (customRoles.reqRole) {
+
 							hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
 										  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
 										  message.member.roles.cache.has(customRoles.reqRole);
 						} else {
+
 							hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
 										  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
 										  message.member.permissions.has(PermissionFlagsBits.ManageRoles);
@@ -219,16 +311,17 @@ export default function registerMessageHandler(discordClient) {
 							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 						}
 
-						let targetMember = message.member;
-						const targetInput = args[0];
-						if (targetInput) {
-							const targetId = targetInput.replace(/\D/g, '');
-							if (targetId) {
-								try {
-									const fetched = await message.guild.members.fetch(targetId);
-									if (fetched) targetMember = fetched;
-								} catch {}
-							}
+						let targetMember = null;
+						const targetId = targetInput.replace(/\D/g, '');
+						if (targetId) {
+							try {
+								const fetched = await message.guild.members.fetch(targetId);
+								if (fetched) targetMember = fetched;
+							} catch {}
+						}
+
+						if (!targetMember) {
+							return;
 						}
 
 						if (role.position >= message.guild.members.me.roles.highest.position) {
@@ -251,6 +344,7 @@ export default function registerMessageHandler(discordClient) {
 						return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 					}
 				}
+			}
 			} catch (err) {
 				console.error('Custom Role Error:', err);
 			}
@@ -265,66 +359,72 @@ export default function registerMessageHandler(discordClient) {
 			try {
 				const customRoles = guildData?.custom_roles;
 
-					if (customRoles?.aliases && customRoles.aliases[invokedName]) {
-						const roleId = customRoles.aliases[invokedName];
-						const role = message.guild.roles.cache.get(roleId);
+				if (customRoles?.aliases && customRoles.aliases[invokedName]) {
+					const roleId = customRoles.aliases[invokedName];
+					const role = message.guild.roles.cache.get(roleId);
 
-						if (role) {
+					if (role) {
+						// Require a user mention — silently skip if no user is mentioned
+						const targetInput = args[0];
+						if (!targetInput || !targetInput.match(/\d{17,}/)) {
+							return;
+						}
 
-							let hasPermission = false;
-							if (customRoles.reqRole) {
+						let hasPermission = false;
+						if (customRoles.reqRole) {
 
-								hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
-											  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
-											  message.member.roles.cache.has(customRoles.reqRole);
-							} else {
+							hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
+										  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
+										  message.member.roles.cache.has(customRoles.reqRole);
+						} else {
 
-								hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
-											  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
-											  message.member.permissions.has(PermissionFlagsBits.ManageRoles);
-							}
+							hasPermission = message.member.permissions.has(PermissionFlagsBits.Administrator) ||
+										  message.member.permissions.has(PermissionFlagsBits.ManageGuild) ||
+										  message.member.permissions.has(PermissionFlagsBits.ManageRoles);
+						}
 
-							if (!hasPermission) {
-								const reqRoleName = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : 'Manage Roles';
-								const container = new ContainerBuilder();
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Permission Denied**`));
-								container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-								container.addTextDisplayComponents(td => td.setContent(`You need ${reqRoleName} to use this command.`));
-								return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
-							}
-
-							let targetMember = message.member;
-							const targetInput = args[0];
-							if (targetInput) {
-								const targetId = targetInput.replace(/\D/g, '');
-								if (targetId) {
-									try {
-										const fetched = await message.guild.members.fetch(targetId);
-										if (fetched) targetMember = fetched;
-									} catch {}
-								}
-							}
-
-							if (role.position >= message.guild.members.me.roles.highest.position) {
-								const container = new ContainerBuilder();
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Hierarchy Error**`));
-								container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
-								container.addTextDisplayComponents(td => td.setContent('I cannot manage this role as it is higher than my highest role.'));
-								return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
-							}
-
+						if (!hasPermission) {
+							const reqRoleName = customRoles.reqRole ? `<@&${customRoles.reqRole}>` : 'Manage Roles';
 							const container = new ContainerBuilder();
-							if (targetMember.roles.cache.has(role.id)) {
-								await targetMember.roles.remove(role);
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Removed **${role.name}** from ${targetMember.user.tag}`));
-							} else {
-								await targetMember.roles.add(role);
-								container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Added **${role.name}** to ${targetMember.user.tag}`));
-							}
-
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Permission Denied**`));
+							container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+							container.addTextDisplayComponents(td => td.setContent(`You need ${reqRoleName} to use this command.`));
 							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 						}
+
+						let targetMember = null;
+						const targetId = targetInput.replace(/\D/g, '');
+						if (targetId) {
+							try {
+								const fetched = await message.guild.members.fetch(targetId);
+								if (fetched) targetMember = fetched;
+							} catch {}
+						}
+
+						if (!targetMember) {
+							return;
+						}
+
+						if (role.position >= message.guild.members.me.roles.highest.position) {
+							const container = new ContainerBuilder();
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.error || '❌'} **Hierarchy Error**`));
+							container.addSeparatorComponents(sep => sep.setSpacing(SeparatorSpacingSize.Small));
+							container.addTextDisplayComponents(td => td.setContent('I cannot manage this role as it is higher than my highest role.'));
+							return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false } });
+						}
+
+						const container = new ContainerBuilder();
+						if (targetMember.roles.cache.has(role.id)) {
+							await targetMember.roles.remove(role);
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Removed **${role.name}** from ${targetMember.user.tag}`));
+						} else {
+							await targetMember.roles.add(role);
+							container.addTextDisplayComponents(td => td.setContent(`${EMOJIS.success || '✅'} Added **${role.name}** to ${targetMember.user.tag}`));
+						}
+
+						return message.reply({ components: [container], flags: MessageFlags.IsComponentsV2, allowedMentions: { repliedUser: false, parse: [] } });
 					}
+				}
 			} catch (err) {
 				console.error('Custom Role Error:', err);
 			}
@@ -397,6 +497,14 @@ export default function registerMessageHandler(discordClient) {
 
 			if (command.prefixOnly && !startsWithPrefix && !startsWithMention) {
 				return;
+			}
+
+			// For no-prefix invocations, validate args look like a real command usage
+			if (isNoPrefixInvocation) {
+				const commandArgs = args.slice(consumedArgs);
+				if (!validateNoPrefixArgs(resolvedCommandName, commandArgs)) {
+					return;
+				}
 			}
 
 			const commandArgs = args.slice(consumedArgs);

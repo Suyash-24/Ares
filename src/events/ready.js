@@ -31,6 +31,7 @@ export default function registerReadyEvent(discordClient, config) {
 
 		await initializeVoiceSessions(readyClient);
 
+		// Store on client so messageHandler can validate no-prefix invocations
 		const SUBCOMMAND_REGISTRY = {
 			'antiraid': { 'config': 1, 'enable': 1, 'disable': 1, 'massjoin': 1, 'avatar': 1, 'newaccounts': 1, 'state': 1, 'whitelist': 1, 'log': 1 },
 			'automod': { 'on': 1, 'off': 1, 'config': 1, 'module': 1, 'preset': 1, 'ignore': 1, 'unignore': 1, 'words': 1, 'logchannel': 1, 'stats': 1, 'strikes': 1, 'notify': 1, 'reset': 1 },
@@ -46,6 +47,7 @@ export default function registerReadyEvent(discordClient, config) {
 			'bumpreminder': { 'channel': 1, 'enable': 1, 'disable': 1, 'thankyou': 1, 'message': 1, 'autolock': 1, 'autoclean': 1, 'config': 1 },
 			'logs': { 'search': 1, 'export': 1, 'ignore': 1, 'status': 1, 'purge': 1, 'stats': 1 }
 		};
+		readyClient.subcommandRegistry = SUBCOMMAND_REGISTRY;
 
 		const getSubcommandCount = (cmd) => {
 			const registered = SUBCOMMAND_REGISTRY[cmd.name?.toLowerCase()];
