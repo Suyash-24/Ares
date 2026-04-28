@@ -105,16 +105,19 @@ export default {
 			}
 
 			if (result.loadType === 'playlist') {
-				const userTracks = result.data.map(track => ({
+				const playlistTracks = result.data.tracks ?? result.data;
+				const tracks = Array.isArray(playlistTracks) ? playlistTracks : [];
+				const userTracks = tracks.map(track => ({
 					...track,
 					userId: interaction.user.id
 				}));
 				queue.addTrack(userTracks);
 
+				const playlistName = result.data?.info?.name ?? result.playlist?.name ?? 'Unknown Playlist';
 				const container = new ContainerBuilder();
 				const playlistInfo =
-					`${EMOJIS?.success || '✅'} **${result.playlist?.name || 'Unknown Playlist'}**\n\n` +
-					`Added **${result.data.length}** songs\n` +
+					`${EMOJIS?.success || '✅'} **${playlistName}**\n\n` +
+					`Added **${tracks.length}** songs\n` +
 					`Queued by: ${interaction.user.toString()}`;
 
 				container.addTextDisplayComponents((textDisplay) =>

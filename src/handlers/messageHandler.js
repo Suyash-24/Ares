@@ -154,20 +154,52 @@ export default function registerMessageHandler(discordClient) {
 		 * Validates whether a no-prefix message looks like a legitimate command invocation.
 		 * Returns true if the message should be treated as a command, false if it should be ignored.
 		 */
-		// Moderation commands should always trigger in no-prefix mode
-		// (they show usage/permission errors themselves)
-		const MODERATION_COMMANDS = new Set([
+		// Moderation commands that target users — in no-prefix mode, they require
+		// the first arg to look like a valid user target (mention or snowflake ID)
+		// to prevent casual messages like "ban q kiya ishi ko" from triggering bans
+		const MODERATION_USER_TARGET_COMMANDS = new Set([
 			'ban', 'kick', 'mute', 'unmute', 'warn', 'warnings', 'clearwarnings',
-			'delete', 'purge', 'del', 'lock', 'unlock', 'slowmode',
-			'detain', 'imute', 'softban', 'tempban', 'massban', 'masskick',
+			'detain', 'imute', 'softban', 'tempban',
 			'roleadd', 'roleremove', 'temprole',
-			'nick', 'nuke', 'modhistory', 'modstats', 'voidstaff',
-			'notes', 'reason', 'snapshot', 'topic'
+			'nick', 'modhistory', 'modstats', 'voidstaff',
+			'notes', 'reason'
 		]);
 
+		// Moderation commands that don't target a user — these always pass
+		const MODERATION_NO_TARGET_COMMANDS = new Set([
+			'delete', 'purge', 'del', 'lock', 'unlock', 'slowmode',
+			'nuke', 'snapshot', 'topic', 'massban', 'masskick'
+		]);
+
+		// Commands that accept freeform text as args (e.g. afk reason) —
+		// always pass in no-prefix mode regardless of what follows
+		const FREEFORM_TEXT_COMMANDS = new Set([
+			'afk'
+		]);
+
+		/** Check if an argument looks like a valid user target (mention or snowflake ID) */
+		const isUserTarget = (arg) => {
+			if (!arg) return false;
+			// User mention: <@123>, <@!123>
+			if (/^<@!?\d{17,20}>$/.test(arg)) return true;
+			// Raw Discord snowflake ID (17-20 digits)
+			if (/^\d{17,20}$/.test(arg)) return true;
+			return false;
+		};
+
 		const validateNoPrefixArgs = (cmdName, cmdArgs) => {
-			// Moderation commands always pass — let them handle their own usage/perms
-			if (MODERATION_COMMANDS.has(cmdName)) return true;
+			// Freeform text commands always pass (they accept any text as input)
+			if (FREEFORM_TEXT_COMMANDS.has(cmdName)) return true;
+
+			// Moderation commands that don't target a user always pass
+			if (MODERATION_NO_TARGET_COMMANDS.has(cmdName)) return true;
+
+			// Moderation commands that target a user require a valid user target
+			// (mention or snowflake ID) as the first arg to prevent false triggers
+			if (MODERATION_USER_TARGET_COMMANDS.has(cmdName)) {
+				if (cmdArgs.length === 0) return true; // let the command show its own usage error
+				return isUserTarget(cmdArgs[0]);
+			}
 
 			// No args at all → skip (e.g. someone just typing "giveaway" or "play")
 			if (cmdArgs.length === 0) return false;
@@ -222,7 +254,8 @@ export default function registerMessageHandler(discordClient) {
 				'emoji', 'color', 'message', 'image', 'thumbnail',
 				'level', 'xp', 'rank', 'leaderboard',
 				'daily', 'weekly', 'monthly', 'top',
-				'upcoming', 'birthday', 'invites', 'messages', 'voice'
+				'upcoming', 'birthday', 'invites', 'messages', 'voice',
+				'mentions'
 			]);
 			if (COMMON_SUBCOMMANDS.has(firstArg)) return true;
 

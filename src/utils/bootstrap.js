@@ -183,13 +183,24 @@ function resolveToken(config) {
 }
 
 function resolveClientId(config) {
-	const clientId = process.env.DISCORD_CLIENT_ID || config.clientId;
-
-	if (!clientId) {
-		throw new Error('Discord application clientId is missing. Provide DISCORD_CLIENT_ID env var or fill config.json clientId.');
+	const explicit = process.env.DISCORD_CLIENT_ID || config.clientId;
+	if (explicit) {
+		return explicit;
 	}
 
-	return clientId;
+	// Auto-detect from bot token: first segment is the base64-encoded user/client ID
+	const token = process.env.DISCORD_TOKEN || config.token;
+	if (token) {
+		try {
+			const decoded = Buffer.from(token.split('.')[0], 'base64').toString('utf-8');
+			if (/^\d{17,20}$/.test(decoded)) {
+				console.log(`🔑 [Bootstrap] Auto-detected clientId from token: ${decoded}`);
+				return decoded;
+			}
+		} catch {}
+	}
+
+	throw new Error('Discord application clientId is missing. Provide DISCORD_CLIENT_ID env var, fill config.json clientId, or ensure a valid DISCORD_TOKEN is set.');
 }
 
 function resolvePrefix(config) {
