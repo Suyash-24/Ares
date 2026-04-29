@@ -30,9 +30,9 @@
       },
       {
         "identifier": "Prime-US",
-        "host": "us-01.strixnodes.com",
-        "port": 8003,
-        "password": "glace",
+        "host": "89.106.84.59",
+        "port": 4000,
+        "password": "heavencloud.in",
         "secure": false,
         "retryAmount": 5,
         "retryDelay": 5000

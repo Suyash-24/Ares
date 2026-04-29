@@ -4,7 +4,6 @@ import EMOJIS from '../../../utils/emojis.js';
 export default {
 	name: 'queue',
 	description: 'Show the current music queue',
-	aliases: ['q'],
 	category: 'Music',
 
 	async execute(message, args, client) {
