@@ -177,6 +177,11 @@ export default function registerMessageHandler(discordClient) {
 			'afk'
 		]);
 
+		// Commands that are safe to run with no args in no-prefix mode
+		const NO_PREFIX_NO_ARG_COMMANDS = new Set([
+			'247'
+		]);
+
 		/** Check if an argument looks like a valid user target (mention or snowflake ID) */
 		const isUserTarget = (arg) => {
 			if (!arg) return false;
@@ -190,6 +195,9 @@ export default function registerMessageHandler(discordClient) {
 		const validateNoPrefixArgs = (cmdName, cmdArgs) => {
 			// Freeform text commands always pass (they accept any text as input)
 			if (FREEFORM_TEXT_COMMANDS.has(cmdName)) return true;
+
+			// Commands explicitly allowed to run with no args in no-prefix mode
+			if (NO_PREFIX_NO_ARG_COMMANDS.has(cmdName)) return true;
 
 			// Moderation commands that don't target a user always pass
 			if (MODERATION_NO_TARGET_COMMANDS.has(cmdName)) return true;
